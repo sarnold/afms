@@ -1,0 +1,29 @@
+===============================
+AFMS Release 0.1.2 (2008-03-12)
+===============================
+
+Changes
+~~~~~~~
+* Improved rendering of long lines in HTML text fields
+
+* Use cases not belonging to requirements are now are now
+  listed in the section 'Usecases not belonging to requirements',
+  which has become therefore the last section in the output document
+
+
+New features
+~~~~~~~~~~~~
+* Clipboard support for artefacts 
+
+Bug fixes
+~~~~~~~~~
+* In list view of artefacts the Keyboard commands Space, Ctrl-Space etc. 
+  now works as expected
+
+  
+
+===============================
+AFMS Release 0.1.0 (2008-03-06)
+===============================
+
+* Initial release
