@@ -7,7 +7,7 @@ AFE_SRC := afeditor.py afconfig.py afexporthtml.py afexportxml.py \
            _aftestcaseview.py _aftestsuiteview.py _aftrashinformation.py \
            _afusecaseview.py _afvalidators.py afmsreport.css version.py \
            _afclipboard.py \
-           COPYING.txt README.txt
+           COPYING.txt README.txt CHANGELOG.txt
 
 TR_SRC := testrunner.py trconfig.py trexporthtml.py trexportxml.py \
           trinfo.py trmodel.py _trcanceldlg.py _trexectestrundlg.py \
