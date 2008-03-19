@@ -24,7 +24,7 @@
 Test runner main application
 
 @author: Achim Koehler
-@version: $Rev: 75 $
+@version: $Rev$
 """
 
 import os, sys, logging

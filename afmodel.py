@@ -28,7 +28,7 @@ All access to the artefact database is done here.
 This module implements the model part in the design.
 
 @author: Achim Koehler
-@version: $Rev: 95 $
+@version: $Rev$
 """
 
 import os

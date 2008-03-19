@@ -27,7 +27,7 @@ Artefact editor for managing Features, Requirements, Usecases, Testcases
 and Testsuites. This module implements the controller part in the design.
 
 @author: Achim Koehler
-@version: $Rev: 103 $
+@version: $Rev$
 """
 
 
@@ -1011,7 +1011,7 @@ def main():
     global arguments
 
     def version():
-        print("$Rev: 103 $")
+        print("$Rev$")
 
     def usage():
         print("Editor for Artefact Management System\nUsage:\n%s [-h|--help] [-V|--version] [-d |--debug] [<ifile>]\n"
