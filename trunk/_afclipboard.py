@@ -70,7 +70,7 @@ class afArtefactTextObjectSimple(wx.PyDataObjectSimple):
         return len(self._formatData())
     
     def _formatData(self):
-        return "%s: %s" % (str(self.afkind), str(self.data))
+        return self.data.getClipboardText()
 
     def SetData(self, data):
         self.data = data
@@ -91,16 +91,7 @@ class afFeatureDataObjectSimple(afArtefactDataObjectSimple):
 
 
 class afFeatureTextObjectSimple(afArtefactTextObjectSimple):
-    def _formatData(self):
-        s = u""
-        labels = [_('ID'), _('Title'), _('Priority'), _('Status'), _('Version'), _('Risk'), _('Description')]
-        basedata = list(self.data[0])
-        basedata[2] = afresource.PRIORITY_NAME[basedata[2]]
-        basedata[3] = afresource.STATUS_NAME[basedata[3]]
-        basedata[5] = afresource.RISK_NAME[basedata[5]]
-        for label, value in zip(labels, basedata):
-            s += u"%s: %s\n" % (label, value)
-        return s.encode('iso-8859-1')
+    pass
 
 # ---------------------------------------------------------------------
 
@@ -117,20 +108,7 @@ class afRequirementDataObjectSimple(afArtefactDataObjectSimple):
 
 
 class afRequirementTextObjectSimple(afArtefactTextObjectSimple):
-    def _formatData(self):
-        s = u""
-        labels = [_('ID'), _('Title'), _('Priority'), _('Status'), _('Version'),
-                  _('Complexity'), _('Assigned'), _('Effort'), _('Category'),
-                  _('Origin'), _('Rationale'), _('Description')]
-        basedata = list(self.data[0])
-        basedata[2] = afresource.PRIORITY_NAME[basedata[2]]
-        basedata[3] = afresource.STATUS_NAME[basedata[3]]
-        basedata[5] = afresource.COMPLEXITY_NAME[basedata[5]]
-        basedata[7] = afresource.EFFORT_NAME[basedata[7]]
-        basedata[8] = afresource.CATEGORY_NAME[basedata[8]]
-        for label, value in zip(labels, basedata):
-            s += u"%s: %s\n" % (label, value)
-        return s.encode('iso-8859-1')
+    pass
 
 # ---------------------------------------------------------------------
 
@@ -147,18 +125,7 @@ class afUsecaseDataObjectSimple(afArtefactDataObjectSimple):
 
 
 class afUsecaseTextObjectSimple(afArtefactTextObjectSimple):
-    def _formatData(self):
-        s = u""
-        labels = [_('ID'), _('Summary'), _('Priority'), _('Use frequency'),
-                  _('Actors'), _('Stakeholders'), _('Prerequisites'),
-                  _('Main scenario'), _('Alt scenario'), _('Notes')]
-        basedata = list(self.data[0])
-        basedata[2] = afresource.PRIORITY_NAME[basedata[2]]
-        basedata[3] = afresource.USEFREQUENCY_NAME[basedata[3]]
-        for label, value in zip(labels, basedata):
-            s += u"%s: %s\n" % (label, value)
-        return s.encode('iso-8859-1')
-
+    pass
 # ---------------------------------------------------------------------
 
 def copyTestcaseToClipboard(testcase):
@@ -174,15 +141,7 @@ class afTestcaseDataObjectSimple(afArtefactDataObjectSimple):
 
 
 class afTestcaseTextObjectSimple(afArtefactTextObjectSimple):
-        def _formatData(self):
-            s = u""
-            labels = [_('ID'), _('Title'), _('Purpose'),
-                      _('Prerequisite'), _('Testdata'), _('Steps'),
-                      _('Notes && Questions'), _('Version')]
-            basedata = list(self.data[0])
-            for label, value in zip(labels, basedata):
-                s += u"%s: %s\n" % (label, value)
-            return s.encode('iso-8859-1')
+    pass
 
 # ---------------------------------------------------------------------
 
@@ -199,11 +158,4 @@ class afTestsuiteDataObjectSimple(afArtefactDataObjectSimple):
 
 
 class afTestsuiteTextObjectSimple(afArtefactTextObjectSimple):
-    def _formatData(self):
-        s = u""
-        labels = [_("ID"), _("Title"), _("Description"), _("Execution order ID's")]
-        basedata = list(self.data[0])
-        for label, value in zip(labels, basedata):
-            s += u"%s: %s\n" % (label, value)
-        return s.encode('iso-8859-1')
-
+    pass

@@ -27,6 +27,7 @@ import _afbasenotebook
 import afconfig
 import afresource
 from afresource import _
+from _afartefact import cRequirement, cTestcase, cUsecase
 
 class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
     def __init__(self, parent, id = -1, viewonly = True):
@@ -184,75 +185,68 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
         self.AddChangelogPanel()
         
 
-    def InitContent(self, requirementdata):
-        """
-        basedata  is a tuple:
-        (ID, title, priority, status, version, complexity, assigned, effort, category, origin, rationale, description),
-        relatedtestcaselist, unrelatedtestcaselist
-        """
-        basedata = requirementdata[0]
+    def InitContent(self, requirement):
+        self.id_edit.SetValue(str(requirement['ID']))
+        self.title_edit.SetValue(requirement['title'])
+        self.priority_edit.SetValue(afresource.PRIORITY_NAME[requirement['priority']])
+        self.status_edit.SetValue(afresource.STATUS_NAME[requirement['status']])
+        self.version_edit.SetValue(requirement['version'])
+        self.complexity_edit.SetValue(afresource.COMPLEXITY_NAME[requirement['complexity']])
+        self.assigned_edit.SetValue(requirement['assigned'])
+        self.effort_edit.SetValue(afresource.EFFORT_NAME[requirement['effort']])
+        self.category_edit.SetValue(afresource.CATEGORY_NAME[requirement['category']])
+        self.origin_edit.SetValue(requirement['origin'])
+        self.rationale_edit.SetValue(requirement['rationale'])
+        self.description_edit.SetValue(requirement['description'])
         
-        self.id_edit.SetValue(str(basedata[0]))
-        self.title_edit.SetValue(basedata[1])
-        self.priority_edit.SetValue(afresource.PRIORITY_NAME[basedata[2]])
-        self.status_edit.SetValue(afresource.STATUS_NAME[basedata[3]])
-        self.version_edit.SetValue(basedata[4])
-        self.complexity_edit.SetValue(afresource.COMPLEXITY_NAME[basedata[5]])
-        self.assigned_edit.SetValue(basedata[6])
-        self.effort_edit.SetValue(afresource.EFFORT_NAME[basedata[7]])
-        self.category_edit.SetValue(afresource.CATEGORY_NAME[basedata[8]])
-        self.origin_edit.SetValue(basedata[9])
-        self.rationale_edit.SetValue(basedata[10])
-        self.description_edit.SetValue(basedata[11])
-        
-        testcases = requirementdata[1]
-        (relatedtestcases, unrelatedtestcases) = testcases
-        self.testcaselist.InitCheckableContent(unrelatedtestcases, relatedtestcases, self.viewonly)
-        
-        usecases = requirementdata[2]
-        (relatedusecases, unrelatedusecases) = usecases
-        self.usecaselist.InitCheckableContent(unrelatedusecases, relatedusecases, self.viewonly)
-        
-        features = requirementdata[3]
-        self.featurelist.InitContent(features)
+        self.testcaselist.InitCheckableContent(requirement.getUnrelatedTestcases(), requirement.getRelatedTestcases(), self.viewonly)
+        self.usecaselist.InitCheckableContent(requirement.getUnrelatedUsecases(), requirement.getRelatedUsecases(), self.viewonly)
+        self.featurelist.InitContent(requirement.getRelatedFeatures())
         
         if self.viewonly:
-            changelist = requirementdata[4]
-            self.changelist.InitContent(changelist)
+            self.changelist.InitContent(requirement.getChangelist())
         else:
-            self.validator_hook = requirementdata[5]
-            self.initial_basedata = basedata
+            self.validator_hook = requirement.validator
+            self.initial_requirement = requirement
             self.changelog_edit.SetValidator(ArtefactHookValidator(self.ValidateRequirement))
             
         self.Show()
         self.GetParent().Layout()
         self.title_edit.SetFocus()
         
-        
-    def GetBasedata(self):
-        basedata = (int(self.id_edit.GetValue()),
-            self.title_edit.GetValue(),
-            self.priority_edit.GetCurrentSelection(),
-            self.status_edit.GetCurrentSelection(),
-            self.version_edit.GetValue(),
-            self.complexity_edit.GetCurrentSelection(),
-            self.assigned_edit.GetValue(),
-            self.effort_edit.GetCurrentSelection(),
-            self.category_edit.GetCurrentSelection(),
-            self.origin_edit.GetValue(),
-            self.rationale_edit.GetValue(),
-            self.description_edit.GetValue())
-        return basedata
-
 
     def GetContent(self):
-        (testcases) = self.testcaselist.GetItemIDByCheckState()
-        (usecases) = self.usecaselist.GetItemIDByCheckState()
-        return (self.GetBasedata(), testcases, usecases, self.GetChangelogContent())
+        requirement = cRequirement(ID=int(self.id_edit.GetValue()),
+                                   title=self.title_edit.GetValue(),
+                                   priority=self.priority_edit.GetCurrentSelection(),
+                                   status=self.status_edit.GetCurrentSelection(),
+                                   version=self.version_edit.GetValue(),
+                                   complexity=self.complexity_edit.GetCurrentSelection(),
+                                   assigned=self.assigned_edit.GetValue(),
+                                   effort=self.effort_edit.GetCurrentSelection(),
+                                   category=self.category_edit.GetCurrentSelection(),
+                                   origin=self.origin_edit.GetValue(),
+                                   rationale=self.rationale_edit.GetValue(),
+                                   description=self.description_edit.GetValue())
+        related_testcases = []
+        for tc_id in self.testcaselist.GetItemIDByCheckState()[0]:
+            tc = cTestcase(ID=tc_id)
+            related_testcases.append(tc)
+        requirement.setRelatedTestcases(related_testcases)
+            
+        related_usecases = []
+        for uc_id in self.usecaselist.GetItemIDByCheckState()[0]:
+            uc = cUsecase(ID=uc_id)
+            related_usecases.append(uc)
+        requirement.setRelatedUsecases(related_usecases)
+            
+        requirement.setChangelog(self.GetChangelogContent())
+            
+        return requirement
     
     
     def ValidateRequirement(self):
-        (result, msg) = self.validator_hook(self.initial_basedata, self.GetBasedata(), self.GetChangelogContent())
+        (result, msg) = self.validator_hook(self.initial_requirement, self.GetContent())
         if result != 0:
             wx.MessageBox(msg, "Error", wx.ICON_ERROR)
         if result == 1:

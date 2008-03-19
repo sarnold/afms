@@ -35,6 +35,16 @@ class afHtmlWindow(html.HtmlWindow):
             style=wx.NO_FULL_REPAINT_ON_RESIZE | wx.BORDER_STATIC)
         if "gtk2" in wx.PlatformInfo:
             self.SetStandardFonts()
+            
+        if 0:
+            #FIXME: call to SetFonts() crashes. Check documentation
+            if "wxMSW" in wx.PlatformInfo:
+                _DEFAULT_FONT_SIZES = (7, 8, 10, 12, 16, 22, 30)
+                _DEFAULT_FONT_SIZES = (5, 6, 8, 10, 14, 20, 28)
+                self.SetFonts("Times New Roman", "Times New Roman", _DEFAULT_FONT_SIZES)
+            else:
+                #FIXME: consider other platforms
+                pass
 
     def _MakeLocalURL(self, url):
         logging.debug("_afhtmlwinows._MakeLocalURL(%s)" % url)

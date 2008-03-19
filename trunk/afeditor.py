@@ -54,6 +54,7 @@ import _afimporter
 from afresource import _
 import afresource
 import _afclipboard
+from _afartefact import cChangelogEntry
 
 #TODO: validator for features, similar to requirements validator is missing
 #TODO: enter key on Feature/Requirement/... in tree should expand the tree
@@ -179,61 +180,47 @@ class MyApp(wx.App):
     def pasteArtefactFromClipboard(self, evt=None):
         # Well, I know here is a lot of repeated code
         # But I think this makes it better understandable
-        (af_kind, af_data) = _afclipboard.getArtefactFromClipboard()
+        (af_kind, afobj) = _afclipboard.getArtefactFromClipboard()
         if af_kind is None:
             return
         
         self.DisableUpdateNodeView = True
-        basedata = list(af_data[0])
-        basedata[0] = -1
+        afobj['ID'] = -1 # it is a new artefact
+        cle = cChangelogEntry(user=afconfig.CURRENT_USER, description='', changetype=0, date=time.strftime(afresource.TIME_FORMAT))
+        afobj.setChangelog(cle)
 
         if af_kind == 'AFMS_FEATURE':
-            related_requirements = [item[0] for item in af_data[1][0]]
-            unrelated_requirements = [item[0] for item in af_data[1][1]]
-            changelog = (time.strftime(afresource.TIME_FORMAT), afconfig.CURRENT_USER, "")
-            (data, new_artefact) = self.model.saveFeature((basedata, (related_requirements, unrelated_requirements), changelog))
+            (data, new_artefact) = self.model.saveFeature(afobj)
             if self.currentview == self.featurelistview:
-                self.contentview.AppendItem(data[0])
-            self.updateView([wx.ID_OK, new_artefact, data[0], None], 'FEATURES', -1)
+                self.contentview.AppendItem(data)
+            self.updateView([wx.ID_OK, new_artefact, data, None], 'FEATURES', -1)
             
         elif af_kind == 'AFMS_REQUIREMENT':
-            related_testcases = [item[0] for item in af_data[1][0]]
-            unrelated_testcases = [item[0] for item in af_data[1][1]]
-            related_usecases = [item[0] for item in af_data[2][0]]
-            unrelated_usecases = [item[0] for item in af_data[2][1]]
-            changelog = (time.strftime(afresource.TIME_FORMAT), afconfig.CURRENT_USER, "")
-            (data, new_artefact) = self.model.saveRequirement((basedata, (related_testcases, unrelated_testcases), (related_usecases, unrelated_usecases), changelog))
+            (data, new_artefact) = self.model.saveRequirement(afobj)
             if self.currentview == self.requirementlistview:
                 # reformat basedata to fit into the list view
-                listdata = [data[0][i] for i in [0,1,2,3,5,6,7,8,4,11]]
-                self.contentview.AppendItem(listdata)
-            self.updateView([wx.ID_OK, new_artefact, data[0], None], 'REQUIREMENTS', -1)
+                self.contentview.AppendItem(data)
+            self.updateView([wx.ID_OK, new_artefact, data, None], 'REQUIREMENTS', -1)
 
         elif af_kind == 'AFMS_USECASE':
-            changelog = (time.strftime(afresource.TIME_FORMAT), afconfig.CURRENT_USER, "")
-            (data, new_artefact) = self.model.saveUsecase((basedata,changelog))
+            (data, new_artefact) = self.model.saveUsecase(afobj)
             if self.currentview == self.usecaselistview:
-                self.contentview.AppendItem(data[0])
-            self.updateView([wx.ID_OK, new_artefact, data[0], None], 'USECASES', -1)
+                self.contentview.AppendItem(data)
+            self.updateView([wx.ID_OK, new_artefact, data, None], 'USECASES', -1)
 
         elif af_kind == 'AFMS_TESTCASE':
-            changelog = (time.strftime(afresource.TIME_FORMAT), afconfig.CURRENT_USER, "")
-            (data, new_artefact) = self.model.saveTestcase((basedata, changelog))
+            (data, new_artefact) = self.model.saveTestcase(afobj)
             if self.currentview == self.testcaselistview:
                 # reformat basedata to fit into the list view
-                listdata = [data[0][i] for i in [0,1,7,2]]
-                self.contentview.AppendItem(listdata)
-            self.updateView([wx.ID_OK, new_artefact, data[0], None], 'TESTCASES', -1)
+                self.contentview.AppendItem(data)
+            self.updateView([wx.ID_OK, new_artefact, data, None], 'TESTCASES', -1)
 
         elif af_kind == 'AFMS_TESTSUITE':
-            included_testcase_ids = [item[0] for item in af_data[1]]
-            excluded_testcase_ids = [item[0] for item in af_data[2]]
-            (data, new_artefact) = self.model.saveTestsuite((basedata, included_testcase_ids, excluded_testcase_ids))
+            (data, new_artefact) = self.model.saveTestsuite(afobj)
             if self.currentview == self.testsuitelistview:
                 # reformat data to the same format as it is returned by self.model.getTestsuiteList()
-                listdata = (data[0][0], data[0][1], len(included_testcase_ids), data[0][2] )
-                self.contentview.AppendItem(listdata)
-            self.updateView([wx.ID_OK, new_artefact, data[0], None], 'TESTSUITES', -1)
+                self.contentview.AppendItem(data)
+            self.updateView([wx.ID_OK, new_artefact, data, None], 'TESTSUITES', -1)
 
 
     def OnPageChanged(self, evt):
@@ -337,6 +324,7 @@ class MyApp(wx.App):
             try:
                 (tree_parent_id, tree_item_id) = (parent_id, item_id)
                 (parent_id, item_id) = self.contentview.GetSelectionID()
+                if item_id is None: return
             except:
                 # no item selected in the list
                 return
@@ -449,10 +437,10 @@ class MyApp(wx.App):
             path = dlg.GetPath()
         dlg.Destroy()
         if  dlgResult == wx.ID_OK:
-            try:
+            #try:
                 afexportxml.afExportXML(path, self.model)
-            except:
-                _afhelper.ExceptionMessageBox(sys.exc_info(), 'Error exporting to XML!')
+            #except:
+             #   _afhelper.ExceptionMessageBox(sys.exc_info(), 'Error exporting to XML!')
 
 
     def GetParentAndItemID(self):
@@ -497,7 +485,7 @@ class MyApp(wx.App):
         result = self.requestEditView("REQUIREMENTS", -1)
         if result[0] != wx.ID_SAVE: return
         if (parent_id != "FEATURES"): return
-        rq_id = result[2][0]
+        rq_id = result[2]['ID']
         self.model.addFeatureRequirementRelation(item_id, rq_id)
 
 
@@ -515,7 +503,7 @@ class MyApp(wx.App):
         (parent_id, item_id) = self.GetParentAndItemID()
         result = self.requestEditView("TESTCASES", -1)
         if result[0] != wx.ID_SAVE: return
-        tc_id = result[2][0]
+        tc_id = result[2]['ID']
         if (parent_id == "REQUIREMENTS"):
             self.model.addRequirementTestcaseRelation(item_id, tc_id)
         elif (parent_id == "TESTSUITES"):
@@ -535,7 +523,7 @@ class MyApp(wx.App):
         (parent_id, item_id) = self.GetParentAndItemID()
         result = self.requestEditView("USECASES", -1)
         if result[0] != wx.ID_SAVE: return
-        uc_id = result[2][0]
+        uc_id = result[2]['ID']
         if (parent_id == "REQUIREMENTS"):
             self.model.addRequirementUsecaseRelation(item_id, uc_id)
             
@@ -659,7 +647,7 @@ class MyApp(wx.App):
         @rtype:  nested tuple
         @return: same as L{EditArtefact}
         """
-        feature =  feature + (self.validateArtefact,)
+        feature.validator =  self.validateArtefact
         return self.EditArtefact(_("Edit feature"), afFeatureNotebook, self.model.saveFeature, feature)
 
 
@@ -673,11 +661,11 @@ class MyApp(wx.App):
         """
         logging.debug("afeditor.EditRequirement()")
         afconfig.ASSIGNED_NAME = self.model.requestAssignedList()
-        requirement = requirement + (self.validateArtefact,)
+        requirement.validator = self.validateArtefact
         return self.EditArtefact(_("Edit requirement"), afRequirementNotebook, self.model.saveRequirement, requirement)
 
 
-    def validateArtefact(self, initial_basedata, current_basedata, changelog):
+    def validateArtefact(self, initial_requirement, current_requirement):
         """
         Validate an edited requirement or feature
         @type initial_basedata  : tuple
@@ -691,9 +679,9 @@ class MyApp(wx.App):
                                   - result 0 means everything okay
                                   - result 1 and 2 means validation failed
         """
-        initial_status = initial_basedata[3]
-        current_status = current_basedata[3]
-        changelog_text = changelog[2]
+        initial_status = initial_requirement['status']
+        current_status = current_requirement['status']
+        changelog_text = current_requirement.getChangelog()['description']
         if initial_status == afresource.STATUS_APPROVED and current_status == afresource.STATUS_APPROVED and len(changelog_text) <= 0:
             return (1, _("Artefact is already approved!\nChangelog description is required."))
         if initial_status == afresource.STATUS_COMPLETED and current_status == afresource.STATUS_COMPLETED:
@@ -819,29 +807,29 @@ class MyApp(wx.App):
             result = self.EditFeature(self.model.getFeature(item_id))
             if result[0] == wx.ID_SAVE:
                 # feature data is structured a little bit differently
-                result = [result[0], result[1], result[2][0], result[3]]
+                result = [result[0], result[1], result[2], result[3]]
 
         elif parent_id == "REQUIREMENTS":
             result = self.EditRequirement(self.model.getRequirement(item_id))
             if result[0] == wx.ID_SAVE:
                 # requirements data is structured a little bit differently
-                result = [result[0], result[1], result[2][0], result[3]]
+                result = [result[0], result[1], result[2], result[3]]
 
         elif parent_id == "TESTCASES":
             result = self.EditTestcase(self.model.getTestcase(item_id))
             if result[0] == wx.ID_SAVE:
-                result = [result[0], result[1], result[2][0], result[3]]
+                result = [result[0], result[1], result[2], result[3]]
 
         elif parent_id == "USECASES":
             result = self.EditUsecase(self.model.getUsecase(item_id))
             if result[0] == wx.ID_SAVE:
-                result = [result[0], result[1], result[2][0], result[3]]
+                result = [result[0], result[1], result[2], result[3]]
                 
         elif parent_id == "TESTSUITES":
             result = self.EditTestsuite(self.model.getTestsuite(item_id))
             if result[0] == wx.ID_SAVE:
                 # testsuite data is structured a little bit differently
-                result = [result[0], result[1], result[2][0], result[3]]
+                result = [result[0], result[1], result[2], result[3]]
             
         if result is not None:
             self.updateView(result, parent_id, item_id)
@@ -956,10 +944,10 @@ class MyApp(wx.App):
             logging.debug("afeditor.updateView() (InitTree)")
             self.mainframe.AddItem(parent_id, data)
             logging.debug("afeditor.updateView() (InitTree done)")
-            item_id = data[0]
+            item_id = data['ID']
         else:
             # Update tree in left panel
-            self.mainframe.treeCtrl.UpdateItemText(parent_id, item_id, data[1])
+            self.mainframe.treeCtrl.UpdateItemText(parent_id, item_id, data['title'])
         
         self.DisableOnSelChanged = True
         if self.currentview in self.listview:

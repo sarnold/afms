@@ -25,7 +25,7 @@ from _afhtmlwindow import *
 from _afartefactlist import *
 from _afvalidators import NotEmptyValidator
 from afresource import _
-
+from _afartefact import cTestsuite, cTestcase
 
 class afTestsuiteView(wx.Panel):
     def __init__(self, parent, id = -1, viewonly = True):
@@ -73,14 +73,13 @@ class afTestsuiteView(wx.Panel):
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnItemActivated)
 
 
-    def InitContent(self, testsuitedata):
-        (basedata, includedtestcases, excludedtestcases) = testsuitedata
-        self.id_edit.SetValue(str(basedata[0]))
-        self.title_edit.SetValue(basedata[1]);
-        self.description_edit.SetValue(basedata[2]);
-        self.seq_edit.SetValue(basedata[3])
+    def InitContent(self, testsuite):
+        self.id_edit.SetValue(str(testsuite['ID']))
+        self.title_edit.SetValue(testsuite['title']);
+        self.description_edit.SetValue(testsuite['description']);
+        self.seq_edit.SetValue(testsuite['execorder'])
         
-        self.testcaselist.InitCheckableContent(excludedtestcases, includedtestcases, self.viewonly)
+        self.testcaselist.InitCheckableContent(testsuite.getUnrelatedTestcases(), testsuite.getRelatedTestcases(), self.viewonly)
         
         self.Show()
         self.GetParent().Layout()
@@ -88,9 +87,24 @@ class afTestsuiteView(wx.Panel):
 
         
     def GetContent(self):
-        basedata = (int(self.id_edit.GetValue()), self.title_edit.GetValue(), self.description_edit.GetValue(), self.seq_edit.GetValue())
-        (includedtestcasesID, excludedtestcasesID) = self.testcaselist.GetItemIDByCheckState()
-        return (basedata, includedtestcasesID, excludedtestcasesID)
+        testsuite = cTestsuite(ID=int(self.id_edit.GetValue()), title=self.title_edit.GetValue(),
+                               description=self.description_edit.GetValue(), execorder=self.seq_edit.GetValue())
+                               
+        (related_testcases, unrelated_testcases) = self.testcaselist.GetItemIDByCheckState()
+
+        related_tcobjs = []
+        for tc_id in related_testcases:
+            tcobj = cTestcase(ID=tc_id)
+            related_tcobjs.append(tcobj)
+        testsuite.setRelatedTestcases(related_tcobjs)
+
+        unrelated_tcobjs = []
+        for tc_id in unrelated_testcases:
+            tcobj = cTestcase(ID=tc_id)
+            unrelated_tcobjs.append(tcobj)
+        testsuite.setUnrelatedTestcases(unrelated_tcobjs)
+
+        return testsuite
 
         
     def OnItemActivated(self, evt):

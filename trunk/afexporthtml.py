@@ -146,11 +146,13 @@ class afExportHTML():
         self.of.write("<%s>%s</%s>\n" % (tag, content, tag))
 
 
-    def writeList(self, aflist, label, slabel):
+    def writeList(self, aflist, label):
         self.of.write("<ul>\n")
         for af in aflist:
-            s = af[1]#.encode(ENCODING)
-            self.of.write('<li><a href="#%s-%03d">%s-%03d: %s</a></li>\n' % (label, af[0], slabel, af[0], s))
+            basedata = af.getPrintableDataDict()
+            basedata['_LABEL'] = label
+            
+            self.of.write('<li><a href="#%(_LABEL)s-%(ID)03d">%(_LABEL)s-%(ID)03d: %(title)s</a></li>\n' % basedata)
         self.of.write("</ul>\n")
 
 
@@ -160,16 +162,16 @@ class afExportHTML():
         self.of.write('<li><a href="#productinfo">%s</a></li>' % _('Product information'))
 
         self.of.write('<li><a href="#features">%s</a></li>' % _('Features'))
-        self.writeList(self.model.getFeatureList(), "F", 'F')
+        self.writeList(self.model.getFeatureList(), 'F')
 
         self.of.write('<li><a href="#requirements">%s</a></li>' % _('Requirements'))
-        self.writeList(self.model.getRequirementList(), "REQ", 'REQ')
+        self.writeList(self.model.getRequirementList(), 'REQ')
 
         self.of.write('<li><a href="#testcases">%s</a></li>' % _('Testcases'))
-        self.writeList(self.model.getTestcaseList(), "TC", 'TC')
+        self.writeList(self.model.getTestcaseList(), 'TC')
 
         self.of.write('<li><a href="#testsuites">%s</a></li>' % _('Testsuites'))
-        self.writeList(self.model.getTestsuiteList(), "TS", 'TS')
+        self.writeList(self.model.getTestsuiteList(), 'TS')
         
         self.of.write('<li><a href="#problems">%s</a></li>' % _('Detected problems'))
         self.of.write('<ul>')
@@ -186,7 +188,7 @@ class afExportHTML():
     def writeProblems(self):
         def writeListOrNone(aflist, label):
             if len(aflist) > 0:
-                self.writeList(aflist, label, label)
+                self.writeList(aflist, label)
             else:
                 self.writeTag('p', _('None'))
 
@@ -210,7 +212,7 @@ class afExportHTML():
         lonely_uc_ids = all_uc_ids.difference(set(self.attached_usecase_ids))
         uclist = []
         for uc_id in lonely_uc_ids:
-            uclist.append(self.model.getUsecase(uc_id)[0][0:2])
+            uclist.append(self.model.getUsecase(uc_id))
         writeListOrNone(uclist, 'UC')
         
         for uc_id in lonely_uc_ids:
@@ -224,74 +226,64 @@ class afExportHTML():
         
         
     def writeFeatures(self):
-            columnnames = [_('ID'),  _('Title'),  _('Priority'), _('Status'), _('Version'), _('Risk'), _('Description')]
             idlist = self.model.getFeatureIDs()
             for ID in idlist:
-                (basedata, requirements) = self.model.getFeature(ID)[0:2]
-                (related_requirements, unrelated_requirements) = requirements
-                self.writeTag('h2', '<a name="F-%03d">F-%03d: %s</a>' % (basedata[0], basedata[0], __(basedata[1])))
-                (ID, title, priority, status, version, risk, description) = basedata
-                priority = _(afresource.PRIORITY_NAME[priority])
-                status = _(afresource.STATUS_NAME[status])
-                risk = _(afresource.RISK_NAME[risk])
-                description = self.formatField(description)
-                basedata = (ID, title, priority, status, version, risk, description)
+                feature = self.model.getFeature(ID)
+                basedata = feature.getPrintableDataDict(self.formatField)
+                
+                self.writeTag('h2', '<a name="F-%(ID)03d">F-%(ID)03d: %(title)s</a>' % basedata)
                 self.of.write('<table>\n')
-                for left, right in zip(columnnames[2:], basedata[2:]):
-                    self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (left, right))
+                for label, key in zip(feature.labels()[2:], feature.keys()[2:]):
+                    self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
+                    
                 self.of.write('<tr><th>%s</th><td>' % _('Related requirements'))
+                related_requirements = feature.getRelatedRequirements()
                 if len(related_requirements) > 0:
                     self.of.write('<ul>\n')
                     for req in related_requirements:
-                        self.of.write('<li><a href="#REQ-%03d">REQ-%03d: %s</a></li>\n' % (req[0], req[0], __(req[1])))
+                        basedata = req.getPrintableDataDict(self.formatField)
+                        self.of.write('<li><a href="#REQ-%(ID)03d">REQ-%(ID)03d: %(title)s</a></li>\n' % basedata)
                     self.of.write('</ul>\n')
                 else:
-                    self.lonelyfeatures.append(basedata)
+                    self.lonelyfeatures.append(feature)
                     self.of.write('<p class="alert">%s</p>' % _('None'))
                 self.of.write('</td></tr>\n')
                 self.of.write('</table>\n')
                 
 
     def writeRequirements(self):
-            columnnames = [_('ID'), _('Title'), _('Priority'), _('Status'), _('Version'), _('Complexity'), _('Assigned'), _('Effort'), _('Category'), _('Origin'), _('Rationale'), _('Description')]
             idlist = self.model.getRequirementIDs()
             for ID in idlist:
-                (basedata, testcases, usecases, features) = self.model.getRequirement(ID)[0:4]
-                (related_testcases, unrelated_testcases) = testcases
-                (related_usecases, unrelated_usecases) = usecases
+                requirement = self.model.getRequirement(ID)
+                basedata = requirement.getPrintableDataDict(self.formatField)
                 
-                self.writeTag('h2', '<a name="REQ-%03d">REQ-%03d: %s</a>' % (basedata[0], basedata[0], __(basedata[1])))
+                self.writeTag('h2', '<a name="REQ-%(ID)03d">REQ-%(ID)03d: %(title)s</a>' % basedata)
                 self.of.write('<div class="requirement">\n')
                 
-                (ID, title, priority, status, version, complexity, assigned, effort, category, origin, rationale, description) = basedata
-                priority = _(afresource.PRIORITY_NAME[priority])
-                status = _(afresource.STATUS_NAME[status])
-                complexity = _(afresource.COMPLEXITY_NAME[complexity])
-                effort = _(afresource.EFFORT_NAME[effort])
-                category = _(afresource.CATEGORY_NAME[category])
-                description = self.formatField(description)
-                basedata = (ID, title, priority, status, version, complexity, assigned, effort, category, origin, rationale, description)
                 self.of.write('<table>\n')
-                for left, right in zip(columnnames[2:], basedata[2:]):
-                    self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (left, right))
+                for label, key in zip(requirement.labels()[2:], requirement.keys()[2:]):
+                    self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
                     
                 self.of.write('<tr><th>%s</th><td>' % _('Attached testcases'))
+                related_testcases = requirement.getRelatedTestcases()
                 if len(related_testcases) > 0:
                     self.of.write('<ul>')
                     for tc in related_testcases:
-                        self.of.write('<li><a href="#TC-%03d">TC-%03d: %s</a></li>\n' % (tc[0], tc[0], __(tc[1])))
+                        basedata = tc.getPrintableDataDict(self.formatField)
+                        self.of.write('<li><a href="#TC-%(ID)03d">TC-%(ID)03d: %(title)s</a></li>\n' % basedata)
                     self.of.write('</ul>')
                 else:
-                    self.untestedrequirements.append(basedata)
+                    self.untestedrequirements.append(requirement)
                     self.of.write('<p class="alert">%s</p>' % _('None'))
                 self.of.write('</td></tr>\n')
                 self.of.write('</table>\n')
                 
                 self.of.write('<div class="usecases">\n')
+                related_usecases = requirement.getRelatedUsecases()
                 if len(related_usecases) > 0:
                     for uc in related_usecases:
-                        self.writeUsecase(uc[0])
-                        self.attached_usecase_ids.append(uc[0])
+                        self.writeUsecase(uc['ID'])
+                        self.attached_usecase_ids.append(uc['ID'])
                 else:
                     self.of.write('<p>%s</p>' % _('No use cases'))
                 self.of.write('</div>\n')
@@ -299,75 +291,76 @@ class afExportHTML():
 
 
     def writeUsecase(self, uc_id):
-        (basedata, related_requirements) = self.model.getUsecase(uc_id)[0:2]
-        columnnames = [_('ID'), _('Title'), _('Priority'), _('Use frequency'), _('Actors'), _('Stakeholders'), _('Prerequisites'), _('Main scenario'), _('Alt scenario'), _('Notes')]
-        (ID, title, priority, usefrequency, actors, stakeholders, prerequisites, mainscenario, altscenario, notes) = basedata
-        priority = _(afresource.PRIORITY_NAME[priority])
-        usefrequency = _(afresource.USEFREQUENCY_NAME[usefrequency])
-        (prerequisites, mainscenario, altscenario, notes) = tuple([self.formatField(f) for f in (prerequisites, mainscenario, altscenario, notes)])
-        basedata = (ID, title, priority, usefrequency, actors, stakeholders, prerequisites, mainscenario, altscenario, notes)
+        usecase = self.model.getUsecase(uc_id)
+        basedata = usecase.getPrintableDataDict(self.formatField)
 
-        self.writeTag('h3', '<a name="UC-%03d">UC-%03d: %s</a>' % (basedata[0], basedata[0], __(basedata[1])))
+        self.writeTag('h3', '<a name="UC-%(ID)03d">UC-%(ID)03d: %(title)s</a>' % basedata)
         
         self.of.write('<table>\n')
-        for left, right in zip(columnnames[2:], basedata[2:]):
-            self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (left, right))
+        for label, key in zip(usecase.labels()[2:], usecase.keys()[2:]):
+                self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
         self.of.write('</table>\n')
 
         
     def writeTestcases(self):
-        columnnames = [_('ID'), _('Title'), _('Version'), _('Purpose'), _('Prerequisite'), _('Testdata'), _('Steps'), _('Notes')]
         idlist = self.model.getTestcaseIDs()
         for ID in idlist:
-            (basedata, related_requirements, related_testsuites) = self.model.getTestcase(ID)[0:3]
-            self.writeTag('h2', '<a name="TC-%03d">TC-%03d: %s</a>' % (basedata[0], basedata[0], __(basedata[1])))
-            basedata = basedata[0:3] + tuple([self.formatField(f) for f in basedata[3:]])
+            testcase = self.model.getTestcase(ID)
+            basedata = testcase.getPrintableDataDict(self.formatField)
+
+            self.writeTag('h2', '<a name="TC-%(ID)03d">TC-%(ID)03d: %(title)s</a>' % basedata)
             self.of.write('<table>\n')
-            for left, right in zip(columnnames[2:], basedata[2:]):
-                self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (left, right))
+            for label, key in zip(testcase.labels()[2:], testcase.keys()[2:]):
+                self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
                 
             self.of.write('<tr><th>%s</th><td>' % _('Related requirements'))
+            related_requirements = testcase.getRelatedRequirements()
             if len(related_requirements) > 0:
                 self.of.write('<ul>')
                 for req in related_requirements:
-                    self.of.write('<li><a href="#REQ-%03d">REQ-%03d: %s</a></li>\n' % (req[0], req[0], __(req[1])))
+                    basedata = req.getPrintableDataDict(self.formatField)
+                    self.of.write('<li><a href="#REQ-%(ID)03d">REQ-%(ID)03d: %(title)s</a></li>\n' % basedata)
                 self.of.write('</ul>')
             else:
-                self.lonelytestcases.append(basedata)
+                self.lonelytestcases.append(testcase)
                 self.of.write('<p class="alert">%s</p>' % _('None'))
             self.of.write('</td></tr>\n')
 
             self.of.write('<tr><th>%s</th><td>' % _('Related testsuites'))
+            related_testsuites = testcase.getRelatedTestsuites()
             if len(related_testsuites) > 0:
                 self.of.write('<ul>')
                 for ts in related_testsuites:
-                    self.of.write('<li><a href="#TS-%03d">TS-%03d: %s</a></li>\n' % (ts[0], ts[0], __(ts[1])))
+                    basedata = ts.getPrintableDataDict(self.formatField)
+                    self.of.write('<li><a href="#TS-%(ID)03d">TS-%(ID)03d: %(title)s</a></li>\n' % basedata)
                 self.of.write('</ul>')
             else:
-                self.testcasesnotintestsuites.append(basedata)
+                self.testcasesnotintestsuites.append(testcase)
                 self.of.write('<p class="alert">%s</p>' % _('None'))
                 
             self.of.write('</table>\n')
 
 
     def writeTestsuites(self):
-        columnnames = "ID Title Description".split()
         idlist = self.model.getTestsuiteIDs()
         for ID in idlist:
-            (basedata, includedtestcaselist, excludedtestcaselist) = self.model.getTestsuite(ID)
-            self.writeTag('h2', '<a name="TS-%03d">TS-%03d: %s</a>' % (basedata[0], basedata[0], __(basedata[1])))
+            testsuite = self.model.getTestsuite(ID)
+            basedata = testsuite.getPrintableDataDict(self.formatField)
+            self.writeTag('h2', '<a name="TS-%(ID)03d">TS-%(ID)03d: %(title)s</a>' % basedata)
             self.of.write('<table>\n')
-            for left, right in zip(columnnames[2:], basedata[2:]):
-                self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (left, right))
+            for label, key in zip(testsuite.labels()[2:], testsuite.keys()[2:]):
+                self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
 
             self.of.write('<tr><th>%s</th><td>' % _('Included testcases'))
+            includedtestcaselist = testsuite.getRelatedTestcases()
             if len(includedtestcaselist) > 0:
                 self.of.write('<ul>')
                 for tc in includedtestcaselist:
-                    self.of.write('<li><a href="#TC-%03d">TC-%03d: %s</a></li>\n' % (tc[0], tc[0], __(tc[1])))
+                    basedata = tc.getPrintableDataDict(self.formatField)
+                    self.of.write('<li><a href="#TC-%(ID)03d">TC-%(ID)03d: %(title)s</a></li>\n' % basedata)
                 self.of.write('</ul>')
             else:
-                self.emptytestsuites.append(basedata)
+                self.emptytestsuites.append(testsuite)
                 self.of.write('<p class="alert">%s</p>' % _('None'))
 
             self.of.write('</table>\n')
