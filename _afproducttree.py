@@ -102,9 +102,17 @@ class afProductTree(wx.TreeCtrl):
                 
                 
     def AddChildItem(self, parent, item):
-        item_text = self.FormatChildLabel(item[0], item[1])
+        #FIXME
+        try:
+            ID = item['ID']
+            title = item['title']
+        except:
+            ID = item[0]
+            title = item[1]
+            
+        item_text = self.FormatChildLabel(ID, title)
         child = self.AppendItem(self.treeChild[parent], item_text, 2, -1)
-        self.SetPyData(child, item[0])
+        self.SetPyData(child, ID)
 
 
     def FormatChildLabel(self, ID, text):

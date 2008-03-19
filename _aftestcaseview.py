@@ -26,6 +26,7 @@ from _afvalidators import NotEmptyValidator
 import _afbasenotebook
 import afconfig
 from afresource import _
+from _afartefact import cTestcase
 
 
 class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
@@ -100,26 +101,25 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
         self.AddChangelogPanel()
 
 
-    def InitContent(self, testcasedata):
+    def InitContent(self, testcase):
         """
         Testcase data is a tuple:
         (ID, title, version, purpose , prerequisite, testdata , steps , notes)
         """
-        (basedata, related_requirements, related_testsuites, changelist) = testcasedata
-        self.id_edit.SetValue(str(basedata[0]))
-        self.title_edit.SetValue(basedata[1])
-        self.purpose_edit.SetValue(basedata[2])
-        self.prerequisite_edit.SetValue(basedata[3])
-        self.testdata_edit.SetValue(basedata[4])
-        self.steps_edit.SetValue(basedata[5])
-        self.notes_edit.SetValue(basedata[6])
-        self.version_edit.SetValue(basedata[7])
-        
-        self.requirementlist.InitContent(related_requirements)
-        self.testsuitelist.InitContent(related_testsuites)
+        self.id_edit.SetValue(str(testcase['ID']))
+        self.title_edit.SetValue(testcase['title'])
+        self.purpose_edit.SetValue(testcase['purpose'])
+        self.prerequisite_edit.SetValue(testcase['prerequisite'])
+        self.testdata_edit.SetValue(testcase['testdata'])
+        self.steps_edit.SetValue(testcase['steps'])
+        self.notes_edit.SetValue(testcase['notes'])
+        self.version_edit.SetValue(testcase['version'])
+
+        self.requirementlist.InitContent(testcase.getRelatedRequirements())
+        self.testsuitelist.InitContent(testcase.getRelatedTestsuites())
         
         if self.viewonly:
-            self.changelist.InitContent(changelist)
+            self.changelist.InitContent(testcase.getChangelist())
         
         self.Show()
         self.GetParent().Layout()
@@ -127,11 +127,13 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
         
         
     def GetContent(self):
-        return ((int(self.id_edit.GetValue()),
-            self.title_edit.GetValue(),
-            self.purpose_edit.GetValue(),
-            self.prerequisite_edit.GetValue(),
-            self.testdata_edit.GetValue(),
-            self.steps_edit.GetValue(),
-            self.notes_edit.GetValue(),
-            self.version_edit.GetValue()), self.GetChangelogContent())
+        testcase = cTestcase(ID=int(self.id_edit.GetValue()),
+                             title=self.title_edit.GetValue(),
+                             purpose=self.purpose_edit.GetValue(),
+                             prerequisite=self.prerequisite_edit.GetValue(),
+                             testdata=self.testdata_edit.GetValue(),
+                             steps=self.steps_edit.GetValue(),
+                             notes=self.notes_edit.GetValue(),
+                             version=self.version_edit.GetValue())
+        testcase.setChangelog(self.GetChangelogContent())
+        return testcase

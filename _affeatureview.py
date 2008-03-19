@@ -27,6 +27,7 @@ import afconfig
 import _afbasenotebook
 from afresource import _
 import afresource
+from _afartefact import cFeature, cRequirement
 
 class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
     def __init__(self, parent, id = -1, viewonly = True):
@@ -120,29 +121,22 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
         pass
 
 
-    def InitContent(self, featuredata):
-        """
-        Feature data is a tuple:
-        ID, title, priority, status, version, description
-        """
-        (basedata, requirements, changelist) = featuredata[0], featuredata[1], featuredata[2]
-        (related_requirements_list, unrelated_requirements_list) = requirements
+    def InitContent(self, feature):
+        self.id_edit.SetValue(str(feature['ID']))
+        self.title_edit.SetValue(feature['title'])
+        self.priority_edit.SetValue(afresource.PRIORITY_NAME[feature['priority']])
+        self.status_edit.SetValue(afresource.STATUS_NAME[feature['status']])
+        self.version_edit.SetValue(feature['version'])
+        self.risk_edit.SetValue(afresource.RISK_NAME[feature['risk']])
+        self.description_edit.SetValue(feature['description'])
         
-        self.id_edit.SetValue(str(basedata[0]))
-        self.title_edit.SetValue(basedata[1])
-        self.priority_edit.SetValue(afresource.PRIORITY_NAME[basedata[2]])
-        self.status_edit.SetValue(afresource.STATUS_NAME[basedata[3]])
-        self.version_edit.SetValue(basedata[4])
-        self.risk_edit.SetValue(afresource.RISK_NAME[basedata[5]])
-        self.description_edit.SetValue(basedata[6])
-        
-        self.requirementlist.InitCheckableContent(unrelated_requirements_list, related_requirements_list, self.viewonly)
+        self.requirementlist.InitCheckableContent(feature.getUnrelatedRequirements(), feature.getRelatedRequirements(), self.viewonly)
 
         if self.viewonly:
-            self.changelist.InitContent(changelist)
+            self.changelist.InitContent(feature.getChangelist())
         else:
-            self.validator_hook = featuredata[3]
-            self.initial_basedata = basedata
+            self.validator_hook = feature.validator
+            self.initial_feature = feature
             self.changelog_edit.SetValidator(ArtefactHookValidator(self.ValidateRequirement))
             
         self.Show()
@@ -150,25 +144,28 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
         self.title_edit.SetFocus()
 
         
-    def GetBasedata(self):
-        basedata = (int(self.id_edit.GetValue()),
-            self.title_edit.GetValue(),
-            self.priority_edit.GetCurrentSelection(),
-            self.status_edit.GetCurrentSelection(),
-            self.version_edit.GetValue(),
-            self.risk_edit.GetCurrentSelection(),
-            self.description_edit.GetValue())
-        return basedata
-
-
     def GetContent(self):
-        basedata = self.GetBasedata()            
-        (requirements) = self.requirementlist.GetItemIDByCheckState()
-        return (basedata, requirements, self.GetChangelogContent())
+        feature = cFeature(ID=int(self.id_edit.GetValue()),
+                           title=self.title_edit.GetValue(),
+                           priority=self.priority_edit.GetCurrentSelection(),
+                           status=self.status_edit.GetCurrentSelection(),
+                           version=self.version_edit.GetValue(),
+                           risk=self.risk_edit.GetCurrentSelection(),
+                           description=self.description_edit.GetValue())
+
+        related_requirements = []
+        for rq_id in self.requirementlist.GetItemIDByCheckState()[0]:
+            rq = cRequirement(ID=rq_id)
+            related_requirements.append(rq)
+        feature.setRelatedRequirements(related_requirements)
+        
+        feature.setChangelog(self.GetChangelogContent())
+
+        return feature
 
 
     def ValidateRequirement(self):
-        (result, msg) = self.validator_hook(self.initial_basedata, self.GetBasedata(), self.GetChangelogContent())
+        (result, msg) = self.validator_hook(self.initial_feature, self.GetContent())
         if result != 0:
             wx.MessageBox(msg, _("Error"), wx.ICON_ERROR)
         if result == 1:

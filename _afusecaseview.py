@@ -26,6 +26,7 @@ from _afvalidators import NotEmptyValidator
 import _afbasenotebook
 import afconfig
 from afresource import _
+from _afartefact import cUsecase, cChangelogEntry
 
 # ID summary priority usefrequency actors stakeholders prerequisites mainscenario altscenario notes
 
@@ -59,7 +60,7 @@ class afUsecaseNotebook(_afbasenotebook.afBaseNotebook):
             self.actors_edit = wx.TextCtrl(panel1, -1, "", style = wx.TE_READONLY)
             self.stakeholders_edit = wx.TextCtrl(panel1, -1, "", style = wx.TE_READONLY)
             self.prerequisite_edit = afHtmlWindow(panel1, -1)
-            self.mainscenarion_edit = afHtmlWindow(panel1, -1)
+            self.mainscenario_edit = afHtmlWindow(panel1, -1)
             self.altscenario_edit = afHtmlWindow(panel1, -1)
             self.notes_edit = afHtmlWindow(panel1, -1)
             #(w, h) = self.prerequisite.GetSize()
@@ -72,18 +73,18 @@ class afUsecaseNotebook(_afbasenotebook.afBaseNotebook):
             self.actors_edit = wx.ComboBox(panel1, -1, choices = afresource.ACTOR_NAME, style=wx.CB_DROPDOWN)
             self.stakeholders_edit = wx.ComboBox(panel1, -1, choices = afresource.STAKEHOLDER_NAME, style=wx.CB_DROPDOWN)
             self.prerequisite_edit = wx.TextCtrl(panel1, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER)
-            self.mainscenarion_edit = wx.TextCtrl(panel1, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER)
+            self.mainscenario_edit = wx.TextCtrl(panel1, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER)
             self.altscenario_edit = wx.TextCtrl(panel1, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER)
             self.notes_edit = wx.TextCtrl(panel1, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER)
 
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.prerequisite_edit)
-            self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.mainscenarion_edit)
+            self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.mainscenario_edit)
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.altscenario_edit)
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.notes_edit)
 
         self.id_edit.Enable(False)
         edit = [self.summary_edit, self.id_edit, self.priority_edit, self.usefreq_edit, \
-                self.stakeholders_edit, self.actors_edit, self.prerequisite_edit, self.mainscenarion_edit, self.altscenario_edit, self.notes_edit, ]
+                self.stakeholders_edit, self.actors_edit, self.prerequisite_edit, self.mainscenario_edit, self.altscenario_edit, self.notes_edit, ]
 
         mainsizer = wx.BoxSizer(wx.VERTICAL)
         
@@ -134,27 +135,27 @@ class afUsecaseNotebook(_afbasenotebook.afBaseNotebook):
         self.AddChangelogPanel()
         
         
-    def InitContent(self, usecasedata):
+    def InitContent(self, usecase):
         """
         requirementdata  is a tuple:
         ID summary priority usefrequency actors stakeholders prerequisites mainscenario altscenario notes
         """
-        (basedata, related_requirements, changelist) = usecasedata
-        self.summary_edit.SetValue(basedata[1])
-        self.id_edit.SetValue(str(basedata[0]))
-        self.priority_edit.SetValue(afresource.PRIORITY_NAME[basedata[2]])
-        self.usefreq_edit.SetValue(afresource.USEFREQUENCY_NAME[basedata[3]])
-        self.actors_edit.SetValue(basedata[4])
-        self.stakeholders_edit.SetValue(basedata[5])
-        self.prerequisite_edit.SetValue(basedata[6])
-        self.mainscenarion_edit.SetValue(basedata[7])
-        self.altscenario_edit.SetValue(basedata[8])
-        self.notes_edit.SetValue(basedata[9])
+        ##(basedata, related_requirements, changelist) = usecasedata
+        self.summary_edit.SetValue(usecase['title'])
+        self.id_edit.SetValue(str(usecase['ID']))
+        self.priority_edit.SetValue(afresource.PRIORITY_NAME[usecase['priority']])
+        self.usefreq_edit.SetValue(afresource.USEFREQUENCY_NAME[usecase['usefrequency']])
+        self.actors_edit.SetValue(usecase['actors'])
+        self.stakeholders_edit.SetValue(usecase['stakeholders'])
+        self.prerequisite_edit.SetValue(usecase['prerequisites'])
+        self.mainscenario_edit.SetValue(usecase['mainscenario'])
+        self.altscenario_edit.SetValue(usecase['altscenario'])
+        self.notes_edit.SetValue(usecase['notes'])
         
-        self.requirementlist.InitContent(related_requirements)
+        self.requirementlist.InitContent(usecase.getRelatedRequirements())
         
         if self.viewonly:
-            self.changelist.InitContent(changelist)
+           self.changelist.InitContent(usecase.getChangelist())
         
         self.Show()
         self.GetParent().Layout()
@@ -162,14 +163,15 @@ class afUsecaseNotebook(_afbasenotebook.afBaseNotebook):
         
         
     def GetContent(self):
-        return ((int(self.id_edit.GetValue()),
-            self.summary_edit.GetValue(),
-            self.priority_edit.GetCurrentSelection(),
-            self.usefreq_edit.GetCurrentSelection(),
-            self.actors_edit.GetValue(),
-            self.stakeholders_edit.GetValue(),
-            self.prerequisite_edit.GetValue(),
-            self.mainscenarion_edit.GetValue(),
-            self.altscenario_edit.GetValue(),
-            self.notes_edit.GetValue()), self.GetChangelogContent())
+        usecase = cUsecase(ID=int(self.id_edit.GetValue()), title=self.summary_edit.GetValue(),
+                           priority=self.priority_edit.GetCurrentSelection(),
+                           usefrequency=self.usefreq_edit.GetCurrentSelection(),
+                           actors=self.actors_edit.GetValue(),
+                           stakeholders=self.stakeholders_edit.GetValue(),
+                           prerequisites=self.prerequisite_edit.GetValue(),
+                           mainscenario=self.mainscenario_edit.GetValue(),
+                           altscenario=self.altscenario_edit.GetValue(),
+                           notes=self.notes_edit.GetValue())
+        usecase.setChangelog(self.GetChangelogContent())
+        return usecase
 

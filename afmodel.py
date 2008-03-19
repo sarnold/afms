@@ -19,6 +19,7 @@
 # along with AFMS.  If not, see <http://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
+#TODO: update documentation !!!
 
 """
 Artefact database access
@@ -36,6 +37,7 @@ import random, time
 import logging
 import afconfig
 import afresource
+from _afartefact import cFeature, cRequirement, cUsecase, cTestcase, cTestsuite, cChangelogEntry, cProduct
 
 # Database version, reserved for future use
 _DBVERSION = "1.0"
@@ -150,10 +152,10 @@ class afModel():
         """
         c = self.connection.cursor()
         c.execute('select * from product;')
-        result = {}
+        product = cProduct()
         for row in c:
-            result[row[0]] = row[1]
-        return result
+            product[row[0]] = row[1]
+        return product
     
     
     def getFeature(self, ID):
@@ -168,24 +170,28 @@ class afModel():
         c = self.connection.cursor()
         
         if ID < 0:
-            basedata = (-1, "", 0, 0, "1.0", 0, "")
+            feature = cFeature()
         else:
             query_string = 'select ID, title, priority, status, version, risk, description from features where ID = %d;' % ID
             c.execute(query_string)
             basedata = c.fetchone()
+            feature = cFeature(ID=basedata[0], title=basedata[1], priority=basedata[2],
+                               status=basedata[3], version=basedata[4], risk=basedata[5],
+                               description=basedata[6])
         
         select_string = 'select rq_id from feature_requirement_relation where ft_id=%d and delcnt==0' % ID
         query_string = 'select ID, title, priority, status, complexity,' \
             'assigned, effort, category, version, description from requirements where id in (%s);' % select_string
-        ##c.execute(query_string)
         related_requirements_list = self.getData(query_string)
+        feature.setRelatedRequirements(self._RequirementListFromPlainList(related_requirements_list))
+        
         query_string = 'select ID, title, priority, status, complexity,' \
             'assigned, effort, category, version, description from requirements where id not in (%s) and delcnt==0;' % select_string
-        ##c.execute(query_string)
         unrelated_requirements_list = self.getData(query_string)
-        requirements = (related_requirements_list, unrelated_requirements_list)
+        feature.setUnrelatedRequirements(self._RequirementListFromPlainList(unrelated_requirements_list))
         
-        return (basedata, requirements, self.getChangelist(_TYPEID_FEATURE, ID))
+        feature.setChangelist(self.getChangelist(_TYPEID_FEATURE, ID))
+        return feature
     
     
     def getRequirement(self, ID):
@@ -200,38 +206,63 @@ class afModel():
         c = self.connection.cursor()
         
         if ID < 0:
-            basedata = (-1, "", 0, 0, "1.0", 0, "", 0, 0, "", "", "")
+            requirement = cRequirement()
         else:
             query_string = 'select ID, title, priority, status, version, complexity,' \
                 'assigned, effort, category, origin, rationale, description from requirements where ID = %d;' % ID
             c.execute(query_string)
             basedata = c.fetchone()
+            requirement = cRequirement(ID=basedata[0], title=basedata[1],
+                                       priority=basedata[2], status=basedata[3], version=basedata[4],
+                                       complexity=basedata[5], assigned=basedata[6], effort=basedata[7],
+                                       category=basedata[8], origin=basedata[9], rationale=basedata[10],
+                                       description=basedata[11])
         
         select_string = 'select tc_id from requirement_testcase_relation where rq_id=%d and delcnt==0' % ID
         query_string = 'select all id, title, version, purpose from testcases where id in (%s);' % select_string
         c.execute(query_string)
         relatedtestcaselist = self.getData(query_string)
+        requirement.setRelatedTestcases(self._TestcaseListFromPlainList(relatedtestcaselist))
+        
         query_string = 'select all id, title, version, purpose from testcases where id not in (%s) and delcnt==0;' % select_string
         c.execute(query_string)
         unrelatedtestcaselist = self.getData(query_string)
-        testcases = (relatedtestcaselist, unrelatedtestcaselist)
+        requirement.setUnrelatedTestcases(self._TestcaseListFromPlainList(unrelatedtestcaselist))
 
         select_string = 'select uc_id from requirement_usecase_relation where rq_id=%d and delcnt==0' % ID
         query_string = 'select all id, title, priority, usefrequency, actors, stakeholders from usecases where id in (%s);' % select_string
         c.execute(query_string)
         relatedusecaselist = self.getData(query_string)
+        requirement.setRelatedUsecases(self._UsecaseListFromPlainList(relatedusecaselist))
+        
         query_string = 'select all id, title, priority, usefrequency, actors, stakeholders from usecases where id not in (%s) and delcnt==0;' % select_string
         c.execute(query_string)
         unrelatedusecaselist = self.getData(query_string)
-        usecases = (relatedusecaselist, unrelatedusecaselist)
-
+        requirement.setUnrelatedUsecases(self._UsecaseListFromPlainList(unrelatedusecaselist))
+        
         select_string = 'select ft_id from feature_requirement_relation where rq_id=%d and delcnt==0' % ID
         query_string = 'select all ID, title, priority, status, version, risk, description from features where ID in (%s);' % select_string
         c.execute(query_string)
         features = self.getData(query_string)
+        requirement.setRelatedFeatures(self._FeatureListFromPlainList(features))
 
-        return (basedata, testcases, usecases, features, self.getChangelist(_TYPEID_REQUIREMENT, ID))
+        requirement.setChangelist(self.getChangelist(_TYPEID_REQUIREMENT, ID))
+        return requirement
 
+    
+    def _FeatureListFromPlainList(self, ftplainlist):
+        ftlist = []
+        for ft in ftplainlist:
+            ftobj = cFeature()
+            ftobj['ID'] = ft[0]
+            ftobj['title'] = ft[1]
+            ftobj['priority'] = ft[2]
+            ftobj['status'] = ft[3]
+            ftobj['version'] = ft[4]
+            ftobj['risk'] = ft[5]
+            ftobj['description'] = ft[6]
+            ftlist.append(ftobj)
+        return ftlist
     
     
     def getTestcase(self, ID):
@@ -245,25 +276,35 @@ class afModel():
         """
         c = self.connection.cursor()
         if ID < 0:
-            basedata = (-1, "", "", "", "", "", "", "1.0")
+            testcase = cTestcase()
         else:
             query_string = 'select ID, title, purpose, prerequisite, testdata , steps , notes, version from testcases where ID = %d;' % ID
             c.execute(query_string)
             basedata = c.fetchone()
+            testcase = cTestcase(ID=basedata[0], title=basedata[1], purpose=basedata[2],
+                                 prerequisite=basedata[3], testdata=basedata[4],
+                                 steps=basedata[5], notes=basedata[6], version=basedata[7] )
 
         select_string = 'select rq_id from requirement_testcase_relation where tc_id=%d and delcnt==0' % ID
         query_string = 'select ID, title, priority, status, complexity,' \
             'assigned, effort, category, version, description from requirements where id in (%s);' % select_string
         c.execute(query_string)
         related_requirements = self.getData(query_string)
-        
+        testcase.setRelatedRequirements(self._RequirementListFromPlainList(related_requirements))
+
         select_string = 'select ts_id from testsuite_testcase_relation where tc_id=%d and delcnt==0' % ID
         query_string = 'select ID, title, description from testsuites where id in (%s);' % select_string
         c.execute(query_string)
         related_testsuites = self.getData(query_string)
-        related_testsuites = [(r[0], r[1], 'N/A', r[2]) for r in related_testsuites]
+        tslist = []
+        for ts in related_testsuites:
+            tsobj = cTestsuite(ID=ts[0], title=ts[1], description=ts[2])
+            tslist.append(tsobj)
+        testcase.setRelatedTestsuites(tslist)
+
+        testcase.setChangelist(self.getChangelist(_TYPEID_TESTCASE, ID))
         
-        return (basedata, related_requirements, related_testsuites, self.getChangelist(_TYPEID_TESTCASE, ID))
+        return testcase
 
 
     def getUsecase(self, ID):
@@ -277,19 +318,36 @@ class afModel():
         """
         c = self.connection.cursor()
         if ID < 0:
-            basedata = (-1, "", 0, 0, "", "", "", "", "", "")
+            usecase = cUsecase()
         else:
             query_string = 'select ID, title, priority, usefrequency, actors, stakeholders, prerequisites, mainscenario, altscenario, notes from usecases where ID = %d;' % ID
             c.execute(query_string)
             basedata = c.fetchone()
-    
+            usecase = cUsecase(ID=basedata[0], title=basedata[1], priority=basedata[2],
+                               usefrequency=basedata[3], actors=basedata[4],
+                               stakeholders=basedata[5], prerequisites=basedata[6],
+                               mainscenario=basedata[7], altscenario=basedata[8],
+                               notes=basedata[9])
+
         select_string = 'select rq_id from requirement_usecase_relation where uc_id=%d and delcnt==0' % ID
         query_string = 'select ID, title, priority, status, complexity,' \
             'assigned, effort, category, version, description from requirements where id in (%s);' % select_string
         c.execute(query_string)
         related_requirements = self.getData(query_string)
         
-        return (basedata, related_requirements, self.getChangelist(_TYPEID_USECASE, ID))
+        usecase.setRelatedRequirements(self._RequirementListFromPlainList(related_requirements))
+        usecase.setChangelist(self.getChangelist(_TYPEID_USECASE, ID))
+        return usecase
+    
+    
+    def _RequirementListFromPlainList(self, rqplainlist):
+        rqlist = []
+        for rq in rqplainlist:
+            rqobj = cRequirement(ID=rq[0], title=rq[1], priority=rq[2], status=rq[3],
+                                 complexity=rq[4], assigned=rq[5], effort=rq[6],
+                                 category=rq[7], version=rq[8], description=rq[9])
+            rqlist.append(rqobj)
+        return rqlist
     
     
     def getTestsuite(self, ID):
@@ -304,21 +362,23 @@ class afModel():
         c = self.connection.cursor()
         
         if ID < 0:
-            basedata = (-1, "", "", "")
+            testsuite = cTestsuite()
         else:
             query_string = 'select ID, title, description, execorder from testsuites where ID = %d;' % ID
             c.execute(query_string)
             basedata = c.fetchone()
+            testsuite = cTestsuite(ID=basedata[0], title=basedata[1],
+                                   description=basedata[2], execorder=basedata[3])
             
         select_string = 'select tc_id from testsuite_testcase_relation where ts_id=%d and delcnt==0' % ID
         query_string = 'select all id, title, version, purpose from testcases where id in (%s);' % select_string
-        ##c.execute(query_string)
         includedtestcaselist = self.getData(query_string)
+        testsuite.setRelatedTestcases(self._TestcaseListFromPlainList(includedtestcaselist))
         
         query_string = 'select all id, title, version, purpose from testcases where id not in (%s) and delcnt==0;' % select_string
-        ##c.execute(query_string)
         excludedtestcaselist = self.getData(query_string)
-        return (basedata, includedtestcaselist, excludedtestcaselist)
+        testsuite.setUnrelatedTestcases(self._TestcaseListFromPlainList(excludedtestcaselist))
+        return testsuite
         
         
     def getTestcasesInTestsuite(self, ts_id):
@@ -336,7 +396,12 @@ class afModel():
     
     def getChangelist(self, aftype, afid):
         query_string = 'select user, date, description, changetype from changelog where aftype==%d and afid==%d' % (aftype, afid)
-        return self.getData(query_string)
+        changelist = self.getData(query_string)
+        cllist = []
+        for cl in changelist:
+            clobj = cChangelogEntry(user=cl[0], date=cl[1], description=cl[2], changetype=cl[3])
+            cllist.append(clobj)
+        return cllist
 
     
     def getData(self, query_string):
@@ -423,7 +488,8 @@ class afModel():
         else:
             where_string = 'delcnt==0'
         query_string = 'select ID, title, priority, status, version, risk, description from features where %s;' % where_string
-        return self.getData(query_string);
+        plainfeatures = self.getData(query_string)
+        return self._FeatureListFromPlainList(plainfeatures)
         
     
     def getRequirementList(self, deleted=False):
@@ -440,7 +506,8 @@ class afModel():
         else:
             where_string = 'delcnt==0'
         query_string = 'select ID, title, priority, status, complexity, assigned, effort, category, version, description from requirements where %s;' % where_string
-        return self.getData(query_string);
+        plainrequirements = self.getData(query_string)
+        return self._RequirementListFromPlainList(plainrequirements)
 
     
     def getTestcaseList(self, deleted=False):
@@ -457,12 +524,25 @@ class afModel():
         else:
             where_string = 'delcnt==0'
         query_string = 'select id, title, version, purpose from testcases where %s;' % where_string
-        return self.getData(query_string);
+        tclist = self.getData(query_string)
+        return self._TestcaseListFromPlainList(tclist)
     
-    
-    def getUsecaseList(self, deleted=False):
+
+    def _TestcaseListFromPlainList(self, tcplainlist):
+        tclist = []
+        for tc in tcplainlist:
+            tcobj = cTestcase()
+            tcobj['ID'] = tc[0]
+            tcobj['title'] = tc[1]
+            tcobj['version'] = tc[2]
+            tcobj['purpose'] = tc[3]
+            tclist.append(tcobj)
+        return tclist
+
+
+    def getUsecaseList(self, deleted=False, idlist=None):
         """
-        Get list with all usecases from database
+        Get list with all or some usecases from database
         @type  deleted: boolean
         @param deleted: If C{True}, a list with all usecases marked as deleted is returned;
                         Otherways all ordinary usecases are returned
@@ -474,8 +554,23 @@ class afModel():
         else:
             where_string = 'delcnt==0'
         query_string = 'select ID, title, priority, usefrequency, actors, stakeholders from usecases where %s;'  % where_string
-        return self.getData(query_string);
-        
+        uclist = self.getData(query_string)
+        return self._UsecaseListFromPlainList(uclist)
+    
+    
+    def _UsecaseListFromPlainList(self, ucplainlist):
+        uclist = []
+        for uc in ucplainlist:
+            ucobj = cUsecase()
+            ucobj['ID'] = uc[0]
+            ucobj['title'] = uc[1]
+            ucobj['priority'] = uc[2]
+            ucobj['usefrequency'] = uc[3]
+            ucobj['actors'] = uc[4]
+            ucobj['stakeholders'] = uc[5]
+            uclist.append(ucobj)
+        return uclist
+
     
     def getTestsuiteList(self, deleted=False):
         """
@@ -491,18 +586,20 @@ class afModel():
         else:
             where_string = 'delcnt==0'
         query_string = 'select ID, title, description, execorder from testsuites where %s;' % where_string
-        r = self.getData(query_string);
+        tsplainlist = self.getData(query_string)
+        tslist = []
+        for tsplain in tsplainlist:
+            ts = cTestsuite(ID=tsplain[0], title=tsplain[1], description=tsplain[2], execorder=tsplain[3])
+            tslist.append(ts)
+        
         c = self.connection.cursor()
         # only undeleted testcases are taken into account
         query_string = 'select tc_id from testsuite_testcase_relation where ts_id=? and delcnt==0;'
-        for i in range(len(r)):
-            v = list(r[i])
-            testsuite_id = v[0]
-            c.execute(query_string, (testsuite_id,))
-            number_testcases = len(c.fetchall())
-            v.insert(2, number_testcases)
-            r[i] = tuple(v)
-        return r
+        for i in range(len(tslist)):
+            c.execute(query_string, (tslist[i]['ID'],))
+            tslist[i]['nbroftestcase'] = len(c.fetchall())
+
+        return tslist
     
     
     def getArtefactNames(self):
@@ -570,26 +667,26 @@ class afModel():
         @rtype:  tuple
         """
         logging.debug("afmodel.saveFeature()")
-        (basedata, requirements, changelog) = feature
-        basedata = list(basedata)
-        basedata.append(0) # append delcnt
-        (related_requirements_list, unrelated_requirements_list) = requirements
+        plainfeature = [feature['ID'], feature['title'], feature['priority'], feature['status'],
+                        feature['version'], feature['risk'], feature['description']]
+        plainfeature.append(0) # append delcnt
         sqlstr = []
         sqlstr.append("insert into features values (NULL, ?, ?, ?, ?, ?, ?, ?)")
         sqlstr.append("select max(ID) from features")
         sqlstr.append("update features set "\
             "'title'=?, 'priority'=?, 'status'=?, 'version'=?, 'risk'=?, 'description'=?, " \
             "'delcnt'=? where ID=?;")
-        (basedata, new_artefact) = self.saveArtefact(basedata, sqlstr)
+        (basedata, new_artefact) = self.saveArtefact(plainfeature, sqlstr)
         ft_id = basedata[0]
         
         c = self.connection.cursor()
         c.execute("delete from feature_requirement_relation where ft_id=?", (ft_id,))
-        for rq_id in related_requirements_list:
-            c.execute("insert into feature_requirement_relation values (?,?,?)", (ft_id, rq_id, 0))
+        for rq in feature.getRelatedRequirements():
+            c.execute("insert into feature_requirement_relation values (?,?,?)", (ft_id, rq['ID'], 0))
 
-        changetype = [_CHANGEID_EDIT, _CHANGEID_NEW][bool(new_artefact)]
-        self.saveChangelog(_TYPEID_FEATURE, ft_id, changetype, changelog, False)
+        changelog = feature.getChangelog()
+        changelog['changetype'] = [_CHANGEID_EDIT, _CHANGEID_NEW][bool(new_artefact)]
+        self.saveChangelog(_TYPEID_FEATURE, ft_id, changelog, False)
 
         self.connection.commit()
 
@@ -605,11 +702,13 @@ class afModel():
                  saved artefact is a new artefact
         @rtype:  tuple
         """
-        (basedata, testcases, usecases, changelog) = requirement
-        basedata = list(basedata)
-        basedata.append(0) # append delcnt
-        (related_testcases, unrelated_testcases) = testcases
-        (related_usecases, unrelated_usecases) = usecases
+        plainrequirement = [requirement['ID'], requirement['title'], requirement['priority'],
+                            requirement['status'], requirement['version'],
+                            requirement['complexity'], requirement['assigned'],
+                            requirement['effort'], requirement['category'],
+                            requirement['origin'], requirement['rationale'],
+                            requirement['description']]
+        plainrequirement.append(0) # append delcnt
         logging.debug("afmodel.saveRequirement()")
         sqlstr = []
         sqlstr.append("insert into requirements values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
@@ -619,21 +718,24 @@ class afModel():
             "'complexity'=?, 'assigned'=?, 'effort'=?, 'category'=?,"\
             "'origin'=?, 'rationale'=?, 'description'=?, 'delcnt'=? where ID=?")
 
-        (basedata, new_artefact) = self.saveArtefact(basedata, sqlstr, commit = False)
+        (basedata, new_artefact) = self.saveArtefact(plainrequirement, sqlstr, commit = False)
         rq_id = basedata[0]
-
+        
+        related_testcases= requirement.getRelatedTestcases()
         c = self.connection.cursor()
         c.execute("delete from requirement_testcase_relation where rq_id=?", (rq_id,))
-        for tc_id in related_testcases:
-            c.execute("insert into requirement_testcase_relation values (?,?,?)", (rq_id, tc_id, 0))
-
+        for tc in related_testcases:
+            c.execute("insert into requirement_testcase_relation values (?,?,?)", (rq_id, tc['ID'], 0))
+        
+        related_usecases = requirement.getRelatedUsecases()
         c = self.connection.cursor()
         c.execute("delete from requirement_usecase_relation where rq_id=?", (rq_id,))
-        for uc_id in related_usecases:
-            c.execute("insert into requirement_usecase_relation values (?,?,?)", (rq_id, uc_id, 0))
+        for uc in related_usecases:
+            c.execute("insert into requirement_usecase_relation values (?,?,?)", (rq_id, uc['ID'], 0))
 
-        changetype = [_CHANGEID_EDIT, _CHANGEID_NEW][bool(new_artefact)]
-        self.saveChangelog(_TYPEID_REQUIREMENT, rq_id, changetype, changelog, False)
+        changelog = requirement.getChangelog()
+        changelog['changetype'] = [_CHANGEID_EDIT, _CHANGEID_NEW][bool(new_artefact)]
+        self.saveChangelog(_TYPEID_REQUIREMENT, rq_id, changelog, False)
 
         self.connection.commit()
 
@@ -650,20 +752,23 @@ class afModel():
         @rtype:  tuple
         """
         logging.debug("afmodel.saveTestcase()")
-        (testcase, changelog) = testcase
-        testcase = list(testcase)
-        testcase.append(0) # append delcnt
+        plaintestcase = [testcase['ID'], testcase['title'], testcase['purpose'],
+                         testcase['prerequisite'], testcase['testdata'],
+                         testcase['steps'], testcase['notes'], testcase['version']]
+        plaintestcase.append(0) # append delcnt
+
         sqlstr = []
         sqlstr.append("insert into testcases values (NULL, ?, ?, ?, ?, ?, ?, ?, ?)")
         sqlstr.append("select max(ID) from testcases")
         sqlstr.append("update testcases set "\
             "'title'=?, 'purpose'=?, 'prerequisite'=?, 'testdata'=?,"\
             "'steps'=?, 'notes'=?, 'version'=?, 'delcnt'=? where ID=?")
-        (basedata, new_artefact) = self.saveArtefact(testcase, sqlstr)
+        (basedata, new_artefact) = self.saveArtefact(plaintestcase, sqlstr)
         tc_id = basedata[0]
 
-        changetype = [_CHANGEID_EDIT, _CHANGEID_NEW][bool(new_artefact)]
-        self.saveChangelog(_TYPEID_TESTCASE, tc_id, changetype, changelog, commit = True)
+        changelog = testcase.getChangelog()
+        changelog['changetype'] = [_CHANGEID_EDIT, _CHANGEID_NEW][bool(new_artefact)]
+        self.saveChangelog(_TYPEID_TESTCASE, tc_id, changelog, commit = True)
 
         return (self.getTestcase(tc_id), new_artefact)
 
@@ -678,9 +783,13 @@ class afModel():
         @rtype:  tuple
         """
         logging.debug("afmodel.saveUsecase()")
-        (usecase, changelog) = usecase
-        usecase = list(usecase)
-        usecase.append(0) # append delcnt
+        plainusecase = [usecase['ID'], usecase['title'], usecase['priority'],
+                        usecase['usefrequency'], usecase['actors'],
+                        usecase['stakeholders'], usecase['prerequisites'],
+                        usecase['mainscenario'], usecase['altscenario'],
+                        usecase['notes']]
+        changelog = usecase.getChangelog()
+        plainusecase.append(0) # append delcnt
         sqlstr = []
         sqlstr.append("insert into usecases values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
         sqlstr.append("select max(ID) from usecases")
@@ -688,11 +797,11 @@ class afModel():
             "'title'=?, 'priority'=?, 'usefrequency'=?, 'actors'=?, 'stakeholders'=?," \
             "'prerequisites'=?, 'mainscenario'=?,"\
             "'altscenario'=?, 'notes'=?, 'delcnt'=? where ID=?")
-        (basedata, new_artefact) = self.saveArtefact(usecase, sqlstr, commit = False)
+        (basedata, new_artefact) = self.saveArtefact(plainusecase, sqlstr, commit = False)
         uc_id = basedata[0]
         
-        changetype = [_CHANGEID_EDIT, _CHANGEID_NEW][bool(new_artefact)]
-        self.saveChangelog(_TYPEID_USECASE, uc_id, changetype, changelog, commit = True)
+        changelog['changetype'] = [_CHANGEID_EDIT, _CHANGEID_NEW][bool(new_artefact)]
+        self.saveChangelog(_TYPEID_USECASE, uc_id, changelog, commit = True)
 
         return (self.getUsecase(uc_id), new_artefact)
 
@@ -707,21 +816,20 @@ class afModel():
         @rtype:  tuple
         """
         logging.debug("afmodel.saveTestsuite()")
-        (basedata, includedtestcasesID, excludedtestcasesID) = testsuite
-        basedata = list(basedata)
-        basedata.append(0) # append delcnt
+        plaintestsuite = [testsuite['ID'], testsuite['title'], testsuite['description'], testsuite['execorder']]
+        plaintestsuite.append(0) # append delcnt
         sqlstr = []
         sqlstr.append("insert into testsuites values (NULL, ?, ?, ?, ?)")
         sqlstr.append("select max(ID) from testsuites")
         sqlstr.append("update testsuites set "\
             "'title'=?, 'description'=?, execorder=?, 'delcnt'=? where ID=?")
-        (basedata, new_artefact) = self.saveArtefact(basedata, sqlstr, commit=False)
+        (basedata, new_artefact) = self.saveArtefact(plaintestsuite, sqlstr, commit=False)
         ts_id = basedata[0]
         
         c = self.connection.cursor()
         c.execute("delete from testsuite_testcase_relation where ts_id=?", (ts_id,))
-        for tc_id in includedtestcasesID:
-            c.execute("insert into testsuite_testcase_relation values (?,?,?)", (ts_id, tc_id, 0))
+        for tc in testsuite.getRelatedTestcases():
+            c.execute("insert into testsuite_testcase_relation values (?,?,?)", (ts_id, tc['ID'], 0))
         self.connection.commit()
 
         return (self.getTestsuite(ts_id), new_artefact)
@@ -760,9 +868,11 @@ class afModel():
         return (data, new_artefact)
 
             
-    def saveChangelog(self, aftype, afid, changetype, changelog, commit = False):
+    def saveChangelog(self, aftype, afid, changelog, commit = False):
         c = self.connection.cursor()
-        c.execute('insert into changelog values (?, ?, ?, ?, ?, ?)', (afid, aftype, changetype) + changelog)
+        savedata = (afid, aftype, changelog['changetype'], changelog['date'],
+                    changelog['user'], changelog['description'])
+        c.execute('insert into changelog values (?, ?, ?, ?, ?, ?)', savedata)
         if commit:
             self.connection.commit()
 
@@ -843,13 +953,14 @@ class afModel():
             new_delcnt = max(0, row[2] + incr) # prevent delcnt < 0
             c.execute("update feature_requirement_relation set delcnt=? where ft_id=? and rq_id=?", (new_delcnt, row[0], row[1]))
 
-        date = self.controller.getCurrentTimeStr()
-        user = self.controller.getUsername()
-        msg = ''
-        self.saveChangelog(_TYPEID_FEATURE, item_id, changetype, (date, user, msg), False)
+        cle = cChangelogEntry(user=self.controller.getUsername(),
+                              description='',
+                              date=self.controller.getCurrentTimeStr(),
+                              changetype=changetype)
+        self.saveChangelog(_TYPEID_FEATURE, item_id, cle, False)
         
         self.connection.commit()
-        return self.getFeature(item_id)[0]
+        return self.getFeature(item_id)
 
     
     ## @brief Delete a requirement from database
@@ -896,13 +1007,14 @@ class afModel():
             new_delcnt = max(0, row[2] + incr) # prevent delcnt < 0
             c.execute("update requirement_usecase_relation set delcnt=? where rq_id=? and uc_id=?", (new_delcnt, row[0], row[1]))
 
-        date = self.controller.getCurrentTimeStr()
-        user = self.controller.getUsername()
-        msg = ''
-        self.saveChangelog(_TYPEID_REQUIREMENT, item_id, changetype, (date, user, msg), False)
+        cle = cChangelogEntry(user=self.controller.getUsername(),
+                              description='',
+                              date=self.controller.getCurrentTimeStr(),
+                              changetype=changetype)
+        self.saveChangelog(_TYPEID_REQUIREMENT, item_id, cle, False)
 
         self.connection.commit()
-        return self.getRequirement(item_id)[0]
+        return self.getRequirement(item_id)
 
 
     def deleteTestcase(self, item_id, delcnt=1):
@@ -940,13 +1052,14 @@ class afModel():
             new_delcnt = max(0, row[2] + incr) # prevent delcnt < 0
             c.execute("update requirement_testcase_relation set delcnt=? where rq_id=? and tc_id=?", (new_delcnt, row[0], row[1]))
 
-        date = self.controller.getCurrentTimeStr()
-        user = self.controller.getUsername()
-        msg = ''
-        self.saveChangelog(_TYPEID_TESTCASE, item_id, changetype, (date, user, msg), False)
+        cle = cChangelogEntry(user=self.controller.getUsername(),
+                              description='',
+                              date=self.controller.getCurrentTimeStr(),
+                              changetype=changetype)
+        self.saveChangelog(_TYPEID_TESTCASE, item_id, cle, False)
 
         self.connection.commit()
-        return self.getTestcase(item_id)[0]
+        return self.getTestcase(item_id)
         
         
     def deleteUsecase(self, item_id, delcnt=1):
@@ -978,13 +1091,14 @@ class afModel():
             new_delcnt = max(0, row[2] + incr) # prevent delcnt < 0
             c.execute("update requirement_usecase_relation set delcnt=? where rq_id=? and uc_id=?", (new_delcnt, row[0], row[1]))
 
-        date = self.controller.getCurrentTimeStr()
-        user = self.controller.getUsername()
-        msg = ''
-        self.saveChangelog(_TYPEID_USECASE, item_id, changetype, (date, user, msg), False)
+        cle = cChangelogEntry(user=self.controller.getUsername(),
+                              description='',
+                              date=self.controller.getCurrentTimeStr(),
+                              changetype=changetype)
+        self.saveChangelog(_TYPEID_USECASE, item_id, cle, False)
 
         self.connection.commit()
-        return self.getUsecase(item_id)[0]
+        return self.getUsecase(item_id)
 
 
     def deleteTestsuite(self, item_id, delcnt=1):
@@ -1015,7 +1129,7 @@ class afModel():
             c.execute("update testsuite_testcase_relation set delcnt=? where ts_id=? and tc_id=?", (new_delcnt, row[0], row[1]))
 
         self.connection.commit()
-        return self.getTestsuite(item_id)[0]
+        return self.getTestsuite(item_id)
 
     #---------------------------------------------------------------------
 

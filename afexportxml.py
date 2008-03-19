@@ -27,15 +27,17 @@ Export database to xml output
 @version: $Rev$
 """
 
+import codecs
 from time import localtime, gmtime, strftime
 import afmodel
 import afconfig, afresource
+from afresource import ENCODING
 
 
 class afExportXML():
     def __init__(self, outfilename, model):
         self.model = model
-        self.of = open(outfilename, "w")
+        self.of = codecs.open(outfilename, encoding=ENCODING, mode="w", errors='strict')
         self.writeXMLHeader()
         self.writeProductInfo()
         self.writeFeatures()
@@ -48,21 +50,21 @@ class afExportXML():
         
 
     def writeXMLHeader(self):
-        self.of.write('<?xml version="1.0" encoding="UTF-8"?>')
-        self.of.write('<!-- Created from %s at %s !-->' % (self.model.getFilename(), strftime(afresource.TIME_FORMAT, localtime())))
-        self.of.write('<product>')
+        self.of.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+        self.of.write('<!-- Created from %s at %s !-->\n' % (self.model.getFilename(), strftime(afresource.TIME_FORMAT, localtime())))
+        self.of.write('<product>\n')
         
 
     def writeXMLFooter(self):
-        self.of.write('</product>')
+        self.of.write('</product>\n')
         
         
     def writeTag(self, tag, content):
-        self.of.write("<%s><![CDATA[%s]]></%s>" % (tag, content, tag))
+        self.of.write("<%s><![CDATA[%s]]></%s>\n" % (tag, content, tag))
 
 
     def writeSimpleTag(self, tag, content):
-        self.of.write("<%s>%s</%s>" % (tag, content, tag))
+        self.of.write("<%s>%s</%s>\n" % (tag, content, tag))
 
 
     def writeProductInfo(self):
@@ -72,71 +74,47 @@ class afExportXML():
         
         
     def writeFeatures(self):
-        columnnames = 'id title priority status version risk description'.split()
         idlist = self.model.getFeatureIDs()
         self.of.write('<features>\n')
         for ID in idlist:
-            basedata = self.model.getFeature(ID)[0]
-            self.of.write('<feature>\n')
-            for left, right in zip(columnnames, basedata):
-                self.writeTag(left, right)
-            self.of.write('</feature>\n')
+            feature = self.model.getFeature(ID)
+            self.of.write(feature.xmlrepr())
         self.of.write('</features>\n')
 
 
     def writeRequirements(self):
-        columnnames = 'id title priority status version complexity assigned effort category origin rationale description'.split()
         idlist = self.model.getRequirementIDs()
         self.of.write('<requirements>\n')
         for ID in idlist:
-            basedata = self.model.getRequirement(ID)[0]
-            self.of.write('<requirement>\n')
-            for left, right in zip(columnnames, basedata):
-                self.writeTag(left, right)
-            self.of.write('</requirement>\n')
+            requirement = self.model.getRequirement(ID)
+            self.of.write(requirement.xmlrepr())
         self.of.write('</requirements>\n')
         
                 
     def writeUsecase(self, uc_id):
-        columnnames = ['id', 'title', 'priority', 'usefrequency', 'actors', 'stakeholders', 'prerequisites', 'mainscenario', 'altscenario', 'notes']
         idlist = self.model.getUsecaseIDs()
         self.of.write('<usecases>\n')
         for ID in idlist:
-            basedata = self.model.getUsecase(uc_id)[0]
-            self.of.write('<usecase>\n')
-            for left, right in zip(columnnames, basedata):
-                self.of.write(left, right)
-            self.of.write('</usecase>\n')
+            usecase = self.model.getUsecase(ID)
+            self.of.write(usecase.xmlrepr())
         self.of.write('</usecases>\n')
         
         
     def writeTestcases(self):
-        columnnames = "id title version purpose prerequisite testdata steps notes".split()
         idlist = self.model.getTestcaseIDs()
         self.of.write('<testcases>\n')
         for ID in idlist:
-            basedata = self.model.getTestcase(ID)[0]
-            self.of.write('<testcase>\n')
-            for left, right in zip(columnnames, basedata):
-                self.writeTag(left, right)
-            self.of.write('</testcase>\n')
+            testcase = self.model.getTestcase(ID)
+            self.of.write(testcase.xmlrepr())
         self.of.write('</testcases>\n')
         
 
     def writeTestsuites(self):
-        columnnames = "id title description".split()
         idlist = self.model.getTestsuiteIDs()
         self.of.write('<testsuites>\n')
         for ID in idlist:
-            (basedata, includedtestcaselist, excludedtestcaselist) = self.model.getTestsuite(ID)
-            self.of.write('<testsuite>\n')
-            for left, right in zip(columnnames, basedata):
-                self.writeTag(left, right)
-            self.of.write('<testcases>\n')
-            for tc in includedtestcaselist:
-                self.writeTag('id', tc[0])
-            self.of.write('</testcases>\n')
-            self.of.write('</testsuite>\n')
+            testsuite = self.model.getTestsuite(ID)
+            self.of.write(testsuite.xmlrepr())
         self.of.write('</testsuites>\n')
         
         
@@ -213,7 +191,7 @@ if __name__=="__main__":
         usage()
         sys.exit(1)
     
-    model = afmodel.afModel()
+    model = afmodel.afModel(controller = None)
     try:
         model.requestOpenProduct(args[0])
     except:

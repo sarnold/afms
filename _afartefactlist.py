@@ -87,19 +87,15 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
             self.Bind(wx.EVT_CHECKLISTBOX, self.OnListItemChecked)
         self.currentItem = None
 
-    def FormatRow(self, row):
-        r = list(row)
-        try:
-            r[0] = self.idformat % row[0]
-        except:
-            pass
-        return tuple(r)
+
+    def FormatRow(self, afobj):
+        assert(0==1) # aka virtual function
     
     
     def InitContent(self, artefact_list, select_id=0):
         self.itemDataMap = {}
         for i in range(len(artefact_list)):
-            ID = artefact_list[i][0]
+            ID = artefact_list[i]['ID']
             data = self.FormatRow(artefact_list[i])
             self.itemDataMap[i] = data
             if self.checkstyle:
@@ -227,7 +223,7 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
                 
                 
     def AppendItem(self, item):
-        ID = item[0]
+        ID = item['ID']
         data = self.FormatRow(item)
         i = len(self.itemDataMap)
         self.itemDataMap[i] = data
@@ -252,16 +248,14 @@ class afFeatureList(afArtefactList):
         self.key = "FEATURES"
         afArtefactList.__init__(self, parent, self.column_titles, ID, checkstyle)
         
-    def FormatRow(self, row):
-        r = list(row)
-        try:
-            r[0] = self.idformat % row[0]
-            r[2] = afresource.PRIORITY_NAME[row[2]]
-            r[3] = afresource.STATUS_NAME[row[3]]
-            r[5] = afresource.RISK_NAME[row[5]]
-        except:
-            pass
-        return tuple(r)
+    def FormatRow(self, ftobj):
+        return (self.idformat % ftobj['ID'],
+                ftobj['title'],
+                afresource.PRIORITY_NAME[ftobj['priority']],
+                afresource.STATUS_NAME[ftobj['status']],
+                ftobj['version'],
+                afresource.RISK_NAME[ftobj['risk']],
+                ftobj['description'])
 
 #-------------------------------------------------------------------------
 
@@ -273,19 +267,17 @@ class afRequirementList(afArtefactList):
         self.key = "REQUIREMENTS"
         afArtefactList.__init__(self, parent, self.column_titles, ID, checkstyle=checkstyle)
         
-    def FormatRow(self, row):
-        r = list(row)
-        try:
-            r[0] = self.idformat % row[0]
-            r[2] = afresource.PRIORITY_NAME[row[2]]
-            r[3] = afresource.STATUS_NAME[row[3]]
-            r[4] = afresource.COMPLEXITY_NAME[row[4]]
-            r[6] = afresource.EFFORT_NAME[row[6]]
-            r[7] = afresource.CATEGORY_NAME[row[7]]
-        except:
-            print "Oops"
-            pass
-        return tuple(r)
+    def FormatRow(self, rqobj):
+        return (self.idformat % rqobj['ID'],
+                rqobj['title'],
+                afresource.PRIORITY_NAME[rqobj['priority']],
+                afresource.STATUS_NAME[rqobj['status']],
+                afresource.COMPLEXITY_NAME[rqobj['complexity']],
+                rqobj['assigned'],
+                afresource.EFFORT_NAME[rqobj['effort']],
+                afresource.CATEGORY_NAME[rqobj['category']],
+                rqobj['version'],
+                rqobj['description'])
 
 #-------------------------------------------------------------------------
 
@@ -295,6 +287,13 @@ class afTestcaseList(afArtefactList):
         self.column_titles = [_('ID'), _('Title'), _('Version'), _('Purpose')]
         self.key = "TESTCASES"
         afArtefactList.__init__(self, parent, self.column_titles, ID, checkstyle=checkstyle)
+
+
+    def FormatRow(self, tcobj):
+        return (self.idformat % tcobj['ID'],
+                tcobj['title'],
+                tcobj['version'],
+                tcobj['purpose'])
 
 #-------------------------------------------------------------------------
 
@@ -306,15 +305,14 @@ class afUsecaseList(afArtefactList):
         self.key = "USECASES"
         afArtefactList.__init__(self, parent, self.column_titles, ID, checkstyle=checkstyle)
 
-    def FormatRow(self, row):
-        r = list(row)
-        try:
-            r[0] = self.idformat % row[0]
-            r[2] = afresource.PRIORITY_NAME[row[2]]
-            r[3] = afresource.USEFREQUENCY_NAME[row[3]]
-        except:
-            pass
-        return tuple(r)
+
+    def FormatRow(self, ucobj):
+        return (self.idformat % ucobj['ID'],
+                ucobj['title'],
+                afresource.PRIORITY_NAME[ucobj['priority']],
+                afresource.USEFREQUENCY_NAME[ucobj['usefrequency']],
+                ucobj['actors'],
+                ucobj['stakeholders'])
 
 #-------------------------------------------------------------------------
 
@@ -324,6 +322,13 @@ class afTestsuiteList(afArtefactList):
         self.column_titles = [_('ID'), _('Title'), '# '+_('Testcases'), _('Description')]
         self.key = "TESTSUITES"
         afArtefactList.__init__(self, parent, self.column_titles, ID, checkstyle=checkstyle)
+
+
+    def FormatRow(self, tsobj):
+        return (self.idformat % tsobj['ID'],
+                tsobj['title'],
+                tsobj['nbroftestcase'],
+                tsobj['description'])
 
 #-------------------------------------------------------------------------
 
@@ -343,13 +348,10 @@ class afChangeList(afArtefactList):
         
     def FormatRow(self, row):
         "If description string is empty, display a description according to the changetype"
-        r = list(row)
-        description = r[2]
-        changetype = r[3]
+        description = row['description']
         if len(description) <= 0:
-            description = afresource.CHANGETYPE_NAME[changetype]
-            r[2] = description
-        return tuple(r)
+            description = afresource.CHANGETYPE_NAME[row['changetype']]
+        return (row['user'], row['date'], description, row['changetype'])
 
 
     def OnItemSelected(self, event):

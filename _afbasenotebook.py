@@ -25,6 +25,7 @@ from _afhtmlwindow import *
 from _afartefactlist import afChangeList
 from afresource import _
 import afresource
+from _afartefact import cChangelogEntry
 
 class afBaseNotebook(wx.Notebook):
     def __init__(self, parent, id = -1, viewonly = True):
@@ -100,7 +101,10 @@ class afBaseNotebook(wx.Notebook):
 
 
     def GetChangelogContent(self):
-        return tuple([f.GetValue() for f in (self.changedate_edit, self.changeuser_edit, self.changelog_edit)])
+        changelogentry = cChangelogEntry(user=self.changeuser_edit.GetValue(),
+                                         description=self.changelog_edit.GetValue(),
+                                         date=self.changedate_edit.GetValue())
+        return changelogentry
         
         
     def OnTimer(self, evt):
