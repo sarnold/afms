@@ -24,7 +24,7 @@
 Export database to html output
 
 @author: Achim Koehler
-@version: $Rev: 39 $
+@version: $Rev$
 """
 
 import codecs
