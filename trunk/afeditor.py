@@ -20,6 +20,8 @@
 # along with AFMS.  If not, see <http://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
+#TODO: Title strings, porpose strings etc. shown in list views should be cleared to not show line breaks, HTML tags ...
+
 """
 Artefact editor
 
@@ -598,7 +600,7 @@ class MyApp(wx.App):
         @type   _currentview: integer
         @param  _currentview: flag for current view
         @type  artefact_list: tuple list
-        @param artefact_list: List with artefact data
+        @param artefact_list: List with artefact objects
         @type      select_id: integer
         @param     select_id: Item to be selected in the list, 0 means none
         """
@@ -610,8 +612,8 @@ class MyApp(wx.App):
     def ViewArtefact(self, data, _contentview, _currentview):
         """
         Display certain artefact in the right panel
-        @type           data: simple/nested tuple
-        @param           data: artefact data
+        @type           data: object
+        @param           data: artefact objects
         @type   _contentview: view object
         @param  _contentview: Object to display artefact 
         @type   _currentview: integer
@@ -642,8 +644,8 @@ class MyApp(wx.App):
     def EditFeature(self, feature):
         """
         Edit feature data in dialog window
-        @type  feature: nested tuple
-        @param feature: Feature data
+        @type  feature: object
+        @param feature: Feature object
         @rtype:  nested tuple
         @return: same as L{EditArtefact}
         """
@@ -654,8 +656,8 @@ class MyApp(wx.App):
     def EditRequirement(self, requirement):
         """
         Edit requirement data in dialog window
-        @type  requirement: nested tuple
-        @param requirement: Requirement data
+        @type  requirement: object
+        @param requirement: Requirement object
         @rtype:  nested tuple
         @return: same as L{EditArtefact}
         """
@@ -692,8 +694,8 @@ class MyApp(wx.App):
     def EditTestcase(self, testcase):
         """
         Edit testcase data in dialog window
-        @type  testcase: nested tuple
-        @param testcase: Testcase data
+        @type  testcase: object
+        @param testcase: Testcase object
         @rtype:  nested tuple
         @return: same as L{EditArtefact}
         """
@@ -703,8 +705,8 @@ class MyApp(wx.App):
     def EditUsecase(self, usecase):
         """
         Edit usecase data in dialog window
-        @type  usecase: nested tuple
-        @param usecase: Usecase data
+        @type  usecase: object
+        @param usecase: Usecase object
         @rtype:  nested tuple
         @return: same as L{EditArtefact}
         """
@@ -716,8 +718,8 @@ class MyApp(wx.App):
     def EditTestsuite(self, testsuite):
         """
         Edit testsuite data in dialog window
-        @type  testsuite: nested tuple
-        @param testsuite: Testsuite data
+        @type  testsuite: object
+        @param testsuite: Testsuite object
         @return: same as L{EditArtefact}
         @rtype:  nested tuple
         """
@@ -738,7 +740,7 @@ class MyApp(wx.App):
         @return: Nested tuple with values
           0. Return value of dialog, either C{wx.SAVE} or C{wx.CANCEL}
           1. Boolean flag indicating a new artefact if set
-          2. Possibly edited artefact data
+          2. Possibly edited artefact object
           3. The input parameter contentview
         @rtype:  nested tuple
         """
@@ -997,12 +999,13 @@ class MyApp(wx.App):
             path = dlg.GetPath()
         dlg.Destroy()
         if  dlgResult == wx.ID_OK:
-            try:
+            #try:
                 importer = _afimporter.afImporter(self.mainframe, self.model, path)
                 importer.Run()
                 self.InitView()
-            except:
-                _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error opening product!'))
+            #except:
+                #FIXME: error title
+             #   _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error opening product!'))
 
 
 def main():

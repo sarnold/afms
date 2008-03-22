@@ -136,11 +136,6 @@ class afUsecaseNotebook(_afbasenotebook.afBaseNotebook):
         
         
     def InitContent(self, usecase):
-        """
-        requirementdata  is a tuple:
-        ID summary priority usefrequency actors stakeholders prerequisites mainscenario altscenario notes
-        """
-        ##(basedata, related_requirements, changelist) = usecasedata
         self.summary_edit.SetValue(usecase['title'])
         self.id_edit.SetValue(str(usecase['ID']))
         self.priority_edit.SetValue(afresource.PRIORITY_NAME[usecase['priority']])

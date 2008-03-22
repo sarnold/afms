@@ -30,8 +30,6 @@ import afconfig
 from afresource import _
 import afresource
 
-#TODO: SashLayout, width of left window should be relative to total window
-#      width, not absolute in pixel
 
 class MainFrame(wx.Frame):
     """

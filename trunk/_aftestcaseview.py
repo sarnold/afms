@@ -102,10 +102,6 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
 
 
     def InitContent(self, testcase):
-        """
-        Testcase data is a tuple:
-        (ID, title, version, purpose , prerequisite, testdata , steps , notes)
-        """
         self.id_edit.SetValue(str(testcase['ID']))
         self.title_edit.SetValue(testcase['title'])
         self.purpose_edit.SetValue(testcase['purpose'])

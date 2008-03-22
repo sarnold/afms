@@ -246,7 +246,7 @@ class TestcaseListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
         self.img_fail  = self.il.Add(_afimages.getTRFailBitmap())
         self.img_skip  = self.il.Add(_afimages.getTRSkipBitmap())
         self.img_pend  = self.il.Add(_afimages.getTRPendBitmap())
-        
+
         self.img = (self.img_fail, self.img_pass, self.img_skip, self.img_pend)
         self.color = (wx.RED, wx.Color(0, 150, 0), wx.BLUE, wx.BLACK)
 
@@ -293,27 +293,31 @@ class TestcaseListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
         self.list.SetItem(item)
 
         
-    def InitContent(self, testcase_list, select_id=0):
+    def InitContent(self, testcases, select_id=0):
         self.list.DeleteAllItems()
         self.itemDataMap = {}
-        for i in range(len(testcase_list)):
-            ID = testcase_list[i][0]
-            data = ["%d" % ID, testcase_list[i][1], testcase_list[i][2]]
-            self.itemDataMap[i] = data
+        for i in range(len(testcases)):
+            testcase = testcases[i]
+            ID = testcase['ID']
+            idstr = "%4d" % ID
+            title = testcase['title']
+            testresult = testcase['testresult']
+            data = [idstr, testresult, title]
+            self.itemDataMap[i] = testcase
             
             img = self.img[data[1]]
-            index = self.list.InsertImageStringItem(sys.maxint, data[0], img)
+            index = self.list.InsertImageStringItem(sys.maxint, idstr, img)
             self.list.SetItemData(index, i)
 
-            self.list.SetStringItem(index, 0, str(data[0]))
-            self.list.SetStringItem(index, 1, afresource.TEST_STATUS_NAME[data[1]])
-            if isinstance(data[2], (type(''), type(u''))):
-                self.list.SetStringItem(index, 2, data[2])
+            self.list.SetStringItem(index, 0, idstr)
+            self.list.SetStringItem(index, 1, afresource.TEST_STATUS_NAME[testresult])
+            if isinstance(title, (type(''), type(u''))):
+                self.list.SetStringItem(index, 2, title)
             else:
-                self.list.SetStringItem(index, 2, str(data[2]))
+                self.list.SetStringItem(index, 2, str(title))
             
             item = self.list.GetItem(index)
-            item.SetTextColour(self.color[data[1]])
+            item.SetTextColour(self.color[testresult])
             self.list.SetItem(item)
             
             if ID == select_id:

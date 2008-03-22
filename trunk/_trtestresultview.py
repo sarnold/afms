@@ -72,31 +72,28 @@ class trTestresultPanel():
         parent.Layout()
 
 
-    def InitContent(self, data):
-        """
-        data is a tuple:
-        (result, remark, action, timestamp)
-        """
+    def InitContent(self, testcase):
+        self.testcase = testcase
         if self.viewonly:
-            self.result_edit.SetValue(afresource.TEST_STATUS_NAME[data[0]])
+            self.result_edit.SetValue(afresource.TEST_STATUS_NAME[testcase['testresult']])
         else:
             self.result_edit.Clear()
             for item in afresource.TEST_STATUS_NAME[:-1]:
                 self.result_edit.Append(item)
             self.result_edit.SetSelection(0)
 
-        self.action_edit.SetValue(str(data[2]))
-        self.remark_edit.SetValue(data[1])
-        self.timestamp_edit.SetValue(data[3])
+        self.action_edit.SetValue(str(testcase['action']))
+        self.remark_edit.SetValue(testcase['testremark'])
+        self.timestamp_edit.SetValue(testcase['timestamp'])
 
 
     def GetData(self):
-        """Get values from widgets
-           Return tuple (result, remark, action, timestamp)
-        """
-        return (self.result_edit.GetSelection(), self.remark_edit.GetValue(),
-                self.action_edit.GetValue(), self.timestamp_edit.GetValue())
-    
+        self.testcase['testresult'] = self.result_edit.GetSelection()
+        self.testcase['testremark'] = self.remark_edit.GetValue()
+        self.testcase['action'] = self.action_edit.GetValue()
+        self.testcase['timestamp'] = self.timestamp_edit.GetValue()
+        return self.testcase
+        
     
     def OnTimer(self, evt):
         self.timestamp_edit.SetValue(time.strftime(afresource.TIME_FORMAT))

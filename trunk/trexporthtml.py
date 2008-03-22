@@ -122,8 +122,6 @@ class trExportHTML():
 
     
     def writeTestcases(self):
-        tc_labels = (_('ID'), _('Title'), _('Purpose'), _('Prerequisite'), _('Test data'), _('Steps'), _('Notes'), _('Version'))
-        tr_labels = (_('Test result'), _('Remark'), _('Action'), _('Time stamp'))
         headings = (_('Failed test cases'), _('Skipped test cases'), _('Pending test cases'), _('Passed test cases'))
         flags = (afresource.FAILED, afresource.SKIPPED, afresource.PENDING, afresource.PASSED)
 
@@ -134,19 +132,13 @@ class trExportHTML():
                 self.of.write('<p>%s</p>' % _('None'))
                 continue
             for tc_id in id_list:
-                tc = self.model.getTestcase(tc_id)
-                tr = list(self.model.getTestresult(tc_id))
-                tr[0] = afresource.TEST_STATUS_NAME[tr[0]]
-                self.of.write("<h2>TC-%03d: %s</h2>" % (tc[0], __(tc[1])))
-                self.of.write('<table>')
-                for label, value in zip(tr_labels, tr):
-                    self.of.write('<tr>')
-                    self.of.write('<th>%s</th>' % __(label))
-                    self.of.write('<td>%s</td>' % self.formatField(value))
-                    self.of.write('</tr>')
-                for label, value in zip(tc_labels[2:], tc[2:]):
-                    self.of.write('<tr>')
-                    self.of.write('<th>%s</th>' % __(label))
-                    self.of.write('<td>%s</td>' % self.formatField(value))
-                    self.of.write('</tr>')
-                self.of.write('</table>')
+                testcase = self.model.getTestcase(tc_id)
+                basedata = testcase.getPrintableDataDict(self.formatField)
+                self.of.write("<h2>TC-%(ID)03d: %(title)s</h2>\n" % basedata)
+                self.of.write('<table>\n')
+                for label, key in zip(testcase.labels()[2:], testcase.keys()[2:]):
+                    self.of.write('<tr>\n')
+                    self.of.write('<th>%s</th>\n' % label)
+                    self.of.write('<td>%s</td>\n' % basedata[key])
+                    self.of.write('</tr>\n')
+                self.of.write('</table>\n')

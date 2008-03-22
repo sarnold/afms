@@ -21,6 +21,7 @@
 
 import wx
 from _trtestresultview import *
+from _trtestcaseview import *
 
 class ExecTestrunDialog(wx.Dialog):
     def __init__(self, parent, ID, title):
@@ -31,15 +32,16 @@ class ExecTestrunDialog(wx.Dialog):
         # need this to enable validation in all subwindows
         self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
         self.SetMinSize(size)
-        panel = wx.Panel(self, -1)
-        self.testresultview = trTestresultPanel(panel, viewonly = False)
         
-        panel.Layout()
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(panel, 1, wx.ALL | wx.EXPAND, 6)
-        self.SetSizer(sizer)
-        self.Layout()
+        self.leftPanel = wx.Panel(self, -1, style=wx.BORDER_SUNKEN)
+        self.rightPanel = wx.Panel(self, -1, style=wx.BORDER_SUNKEN)
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+        hbox.Add(self.leftPanel, 1, wx.ALL | wx.EXPAND, 0)
+        hbox.Add(self.rightPanel, 1, wx.ALL | wx.EXPAND, 0)
 
+        self.testresultview = trTestresultPanel(self.rightPanel, viewonly = False)
+        self.testcaseview = trTestcasePanel(self.leftPanel)
+        
         btnsizer = wx.StdDialogButtonSizer()
 
         btn = wx.Button(self, wx.ID_SAVE)
@@ -52,4 +54,11 @@ class ExecTestrunDialog(wx.Dialog):
         btn = wx.Button(self, wx.ID_CANCEL)
         btnsizer.AddButton(btn)
         btnsizer.Realize()
+        
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(hbox, 1, wx.ALL | wx.EXPAND, 6)
         sizer.Add(btnsizer, 0, wx.ALIGN_RIGHT | wx.ALL, 5)
+        self.SetSizer(sizer)
+        self.Layout()
+
+        
