@@ -299,7 +299,6 @@ class afTestcaseList(afArtefactList):
 
 class afUsecaseList(afArtefactList):
     """Widget for displaying usecase lists"""
-    # ID summary priority usefrequency actors stakeholders prerequisites mainscenario altscenario notes
     def __init__(self, parent, ID = -1, checkstyle=False):
         self.column_titles = [_('ID'), _('Summary'), _('Priority'), _('Use freq.'), _('Actors'), _('Stakeholders')]
         self.key = "USECASES"
@@ -347,7 +346,8 @@ class afChangeList(afArtefactList):
         
         
     def FormatRow(self, row):
-        "If description string is empty, display a description according to the changetype"
+        """Return formated strings for one row in the change list.
+        If description string is empty, display a description according to the changetype."""
         description = row['description']
         if len(description) <= 0:
             description = afresource.CHANGETYPE_NAME[row['changetype']]

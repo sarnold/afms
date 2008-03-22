@@ -24,6 +24,8 @@ import wx
 import afmodel
 import afresource, afconfig
 from _afimportartefactdlg import ImportArtefactDialog
+from _afartefact import *
+
 
 class afImporter():
     def __init__(self, parentwin, basemodel, importpath):
@@ -58,71 +60,49 @@ class afImporter():
         
         (listkind, ID) = listobj.GetSelectionID()
         if listkind == 'FEATURES':
-            related_requirements = self.model.getFeature(ID)[1][0]
-            related_requirements_ids = [item[0] for item in related_requirements]
+            feature = self.model.getFeature(ID)
+            related_requirements_ids = [item['ID'] for item in feature.getRelatedRequirements()]
             logging.debug("_afimporter.OnListItemChecked(): auto checking requirements %s" % str(related_requirements_ids))
             self.dlg.CheckArtefacts('REQUIREMENTS', related_requirements_ids)
             
         elif listkind == 'REQUIREMENTS':
-            (testcases, usecases) = self.model.getRequirement(ID)[1:3]
-            related_testcases_ids = [item[0] for item in testcases[0]]
-            related_usecases_ids = [item[0] for item in usecases[0]]
+            requirement = self.model.getRequirement(ID)
+            related_testcases_ids = [item['ID'] for item in requirement.getRelatedTestcases()]
+            related_usecases_ids = [item['ID'] for item in requirement.getRelatedUsecases()]
             logging.debug("_afimporter.OnListItemChecked(): auto checking testcases %s" % str(related_testcases_ids))
             logging.debug("_afimporter.OnListItemChecked(): auto checking usecases  %s" % str(related_usecases_ids))
             self.dlg.CheckArtefacts('TESTCASES', related_testcases_ids)
             self.dlg.CheckArtefacts('USECASES', related_usecases_ids)
             
         elif listkind == 'TESTSUITES':
-            related_testcases = self.model.getTestsuite(ID)[1]
-            related_testcases_ids = [item[0] for item in related_testcases]
+            testsuite = self.model.getTestsuite(ID)
+            related_testcases_ids = [item['ID'] for item in testsuite.getRelatedTestcases()]
             logging.debug("_afimporter.OnListItemChecked(): auto checking testcases %s" % str(related_testcases_ids))
             self.dlg.CheckArtefacts('TESTCASES', related_testcases_ids)
 
 
+    def _Import(self, aflist, new_aflist, savefn, getfn, changelog):
+        for af_id in aflist:
+            artefact = getfn(af_id)
+            artefact['ID'] = -1
+            artefact.clearRelations()
+            artefact.setChangelog(changelog)
+            newartefact = savefn(artefact)[0]
+            new_aflist.append(newartefact['ID'])
+
+        
     def ImportArtefacts(self):
         (ftlist, rqlist, uclist, tclist, tslist) = self.dlg.GetCheckedArtefacts()
         (new_ftlist, new_rqlist, new_uclist, new_tclist, new_tslist) = ([], [], [], [], [])
-        changelog = (time.strftime(afresource.TIME_FORMAT), afconfig.CURRENT_USER, '')
-        for ft_id in ftlist:
-            basedata = list(self.model.getFeature(ft_id)[0])
-            # indicate new requirement
-            basedata[0] = -1  
-            r = self.basemodel.saveFeature((basedata, ([], []), changelog))
-            # save new ID of the imported feature
-            new_ftlist.append(r[0][0][0]) 
-            
-        for rq_id in rqlist:
-            basedata = list(self.model.getRequirement(rq_id)[0])
-            # indicate new requirement
-            basedata[0] = -1
-            r = self.basemodel.saveRequirement((basedata, ([], []), ([], []), changelog))
-            # save new ID of the imported requirement
-            new_rqlist.append(r[0][0][0])
+        changelog = cChangelogEntry(user=afconfig.CURRENT_USER,
+            date=time.strftime(afresource.TIME_FORMAT), description='')
 
-        for uc_id in uclist:
-            basedata = list(self.model.getUsecase(uc_id)[0])
-            # indicate new use case
-            basedata[0] = -1
-            r = self.basemodel.saveUsecase((basedata, changelog))
-            # save new ID of the imported use case
-            new_uclist.append(r[0][0][0])
+        self._Import(ftlist, new_ftlist, self.basemodel.saveFeature, self.model.getFeature, changelog)
+        self._Import(rqlist, new_rqlist, self.basemodel.saveRequirement, self.model.getRequirement, changelog)
+        self._Import(tclist, new_tclist, self.basemodel.saveTestcase, self.model.getTestcase, changelog)
+        self._Import(uclist, new_uclist, self.basemodel.saveUsecase, self.model.getUsecase, changelog)
+        self._Import(tslist, new_tslist, self.basemodel.saveTestsuite, self.model.getTestsuite, changelog)
 
-        for tc_id in tclist:
-            basedata = list(self.model.getTestcase(tc_id)[0])
-            # indicate new test case
-            basedata[0] = -1
-            r = self.basemodel.saveTestcase((basedata, changelog))
-            # save new ID of the imported test case
-            new_tclist.append(r[0][0][0])
-            
-        for ts_id in tslist:
-            basedata = list(self.model.getTestsuite(ts_id)[0])
-            # indicate new testsuite
-            basedata[0] = -1
-            r = self.basemodel.saveTestsuite((basedata, [], []))
-            # save new ID of the imported testsuite
-            new_tslist.append(r[0][0][0])
-            
         # now we have import all checked artefacts. Next step is
         # to import the corresponding artefact relations
 

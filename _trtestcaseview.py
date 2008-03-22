@@ -50,7 +50,6 @@ class trTestcasePanel():
         edit = [self.title_edit, self.id_edit, self.version_edit, self.purpose_edit,
             self.prerequisite_edit, self.testdata_edit, self.steps_edit, self.notes_edit]
 
-
         sizer = wx.FlexGridSizer(8, 2, 10, 10)
 
         for i in range(len(labels)):
@@ -72,17 +71,13 @@ class trTestcasePanel():
         parent.Layout()
 
 
-    def InitContent(self, basedata):
-        """
-        Testcase data is a tuple:
-        (ID, title, purpose , prerequisite, testdata , steps , notes, version)
-        """
-        self.title_edit.SetValue(basedata[1])
-        self.id_edit.SetValue(str(basedata[0]))
-        self.version_edit.SetValue(basedata[7])
-        self.purpose_edit.SetValue(basedata[2])
-        self.prerequisite_edit.SetValue(basedata[3])
-        self.testdata_edit.SetValue(basedata[4])
-        self.steps_edit.SetValue(basedata[5])
-        self.notes_edit.SetValue(basedata[6])
+    def InitContent(self, testcase):
+        self.title_edit.SetValue(testcase['title'])
+        self.id_edit.SetValue(str(testcase['ID']))
+        self.version_edit.SetValue(testcase['version'])
+        self.purpose_edit.SetValue(testcase['purpose'])
+        self.prerequisite_edit.SetValue(testcase['prerequisite'])
+        self.testdata_edit.SetValue(testcase['testdata'])
+        self.steps_edit.SetValue(testcase['steps'])
+        self.notes_edit.SetValue(testcase['notes'])
 

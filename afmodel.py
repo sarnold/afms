@@ -19,8 +19,6 @@
 # along with AFMS.  If not, see <http://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-#TODO: update documentation !!!
-
 """
 Artefact database access
 
@@ -56,7 +54,7 @@ _CHANGEID_UNDELETE = 3
 
 class afModel():
     """
-    Class containing all model functions of the MVC pattern
+    Class containing all database access functions 
     """
     
     def __init__(self, controller, workdir = None):
@@ -163,9 +161,9 @@ class afModel():
         Get a feature from database or new feature with default values
         @param ID: Feature ID
         @type  ID: integer
-        @rtype:  feature data tuple
-        @return: Tuple with feature data (basedata, related requirements, unrelated requirements)
-        @note: If ID < 0 a tuple with predefined data for a new feature is returned
+        @rtype:  cFeature
+        @return: feature object
+        @note: If ID < 0 a feature object with predefined data for a new feature is returned
         """
         c = self.connection.cursor()
         
@@ -199,9 +197,9 @@ class afModel():
         Get a requirement from database or new requirement with default values
         @param ID: Requirement ID
         @type  ID: integer
-        @rtype:  requirement data tuple
-        @return: Tuple with requirement data (basedata, related testcases, unrelated testcases, related usecases, unrelated usecase, related festures)
-        @note: If ID < 0 a tuple with predefined data for a new requirement is returned
+        @rtype:  cRequirement
+        @return: Requirement object
+        @note: If ID < 0 an object with predefined data for a new requirement is returned
         """
         c = self.connection.cursor()
         
@@ -270,9 +268,9 @@ class afModel():
         Get a testcase from database or new testcase with default values
         @param ID: Testcase ID
         @type  ID: integer
-        @rtype:  testcase data tuple
-        @return: Tuple with testcase data (basedata, related requirements, related testsuites)
-        @note: If ID < 0 a tuple with predefined data for a new testcase is returned
+        @rtype:  cTestcase 
+        @return: Testcase object
+        @note: If ID < 0 an object with predefined data for a new testcase is returned
         """
         c = self.connection.cursor()
         if ID < 0:
@@ -312,9 +310,9 @@ class afModel():
         Get a usecase from database or new usecase with default values
         @param ID: Usecase ID
         @type  ID: integer
-        @rtype:  usecase data tuple
-        @return: Tuple with testcase data (basedata, related requirements)
-        @note: If ID < 0 a tuple with predefined data for a new usecase is returned
+        @rtype:  cUsecase
+        @return: Usecase object
+        @note: If ID < 0 an object with predefined data for a new usecase is returned
         """
         c = self.connection.cursor()
         if ID < 0:
@@ -355,9 +353,9 @@ class afModel():
         Get a testsuite from database or new testsuite with default values
         @param ID: Testsuite ID
         @type  ID: integer
-        @rtype:  Testsuite data tuple
-        @return: Tuple with testsuite data (basedata, related testcases, unrelated testcases)
-        @note: If ID < 0 a tuple with predefined data for a new testsuite is returned
+        @rtype:  cTestsuite
+        @return: Testsuite object
+        @note: If ID < 0 an object with predefined data for a new testsuite is returned
         """
         c = self.connection.cursor()
         
@@ -379,20 +377,7 @@ class afModel():
         excludedtestcaselist = self.getData(query_string)
         testsuite.setUnrelatedTestcases(self._TestcaseListFromPlainList(excludedtestcaselist))
         return testsuite
-        
-        
-    def getTestcasesInTestsuite(self, ts_id):
-        """
-        Get ID's of all testcases in a testsuite 
-        @param ID: Testsuite ID
-        @type  ID: integer
-        @rtype:  list
-        @return: Testcase ID's
-        """
-        query_string = 'select tc_id from testsuite_testcase_relation where ts_id=%d and delcnt==0' % ts_id
-        tc_id = self.getData(query_string)
-        return [i[0] for i in tc_id]
-    
+
     
     def getChangelist(self, aftype, afid):
         query_string = 'select user, date, description, changetype from changelog where aftype==%d and afid==%d' % (aftype, afid)
@@ -423,7 +408,7 @@ class afModel():
         @param tablename: table name in database
         @type  tablename: string
         @rtype:  list
-        @return: list with all feature ID
+        @return: list with all ID from specified table
         """
         where_string = 'delcnt==0'
         query_string = 'select ID from %s where %s;' % (tablename, where_string)
@@ -474,14 +459,15 @@ class afModel():
         """
         return self.getIDs('testsuites')
 
+
     def getFeatureList(self, deleted=False):
         """
         Get list with all features from database
         @type  deleted: boolean
         @param deleted: If C{True}, a list with all features marked as deleted is returned;
                         Otherways all ordinary features are returned
-        @rtype:  tuple list
-        @return: list with tuples of basedata from all features  
+        @rtype:  object list
+        @return: list with feature objects just containing basedata 
         """
         if deleted:
             where_string = 'delcnt!=0'
@@ -498,8 +484,8 @@ class afModel():
         @type  deleted: boolean
         @param deleted: If C{True}, a list with all requirements marked as deleted is returned;
                         Otherways all ordinary requirements are returned
-        @rtype:  tuple list
-        @return: list with tuples of basedata from all requirements  
+        @rtype:  object list
+        @return: list with requirements objects just containing basedata 
         """
         if deleted:
             where_string = 'delcnt!=0'
@@ -516,8 +502,8 @@ class afModel():
         @type  deleted: boolean
         @param deleted: If C{True}, a list with all testcases marked as deleted is returned;
                         Otherways all ordinary testcases are returned
-        @rtype:  tuple list
-        @return: list with tuples of basedata from all testcases
+        @rtype:  object list
+        @return: list with testcase objects just containing basedata 
         """
         if deleted:
             where_string = 'delcnt!=0'
@@ -546,8 +532,8 @@ class afModel():
         @type  deleted: boolean
         @param deleted: If C{True}, a list with all usecases marked as deleted is returned;
                         Otherways all ordinary usecases are returned
-        @rtype:  tuple list
-        @return: list with tuples of basedata from all usecases
+        @rtype:  object list
+        @return: list with usecase objects just containig basedata
         """
         if deleted:
             where_string = 'delcnt!=0'
@@ -578,8 +564,8 @@ class afModel():
         @type  deleted: boolean
         @param deleted: If C{True}, a list with all testsuites marked as deleted is returned;
                         Otherways all ordinary testsuites are returned
-        @rtype:  tuple list
-        @return: list with tuples of basedata from all testsuites
+        @rtype:  óbject list
+        @return: list with testsuite objects just containing basedata 
         """
         if deleted:
             where_string = 'delcnt!=0'
@@ -591,7 +577,7 @@ class afModel():
         for tsplain in tsplainlist:
             ts = cTestsuite(ID=tsplain[0], title=tsplain[1], description=tsplain[2], execorder=tsplain[3])
             tslist.append(ts)
-        
+
         c = self.connection.cursor()
         # only undeleted testcases are taken into account
         query_string = 'select tc_id from testsuite_testcase_relation where ts_id=? and delcnt==0;'
@@ -660,11 +646,11 @@ class afModel():
     def saveFeature(self, feature):
         """
         Save feature to database
-        @param feature: Tuple with feature basedata and related/unrelated requirements
-        @type  feature: tuple
-        @return: tuple with updated feature data and boolean flag indication if the 
+        @param feature: Feature object
+        @type  feature: cFeature
+        @return: updated feature object and boolean flag indication if the
                  saved artefact is a new artefact
-        @rtype:  tuple
+        @rtype:  tuple (cFeature, bool)
         """
         logging.debug("afmodel.saveFeature()")
         plainfeature = [feature['ID'], feature['title'], feature['priority'], feature['status'],
@@ -696,11 +682,11 @@ class afModel():
     def saveRequirement(self, requirement):
         """
         Save requirement to database
-        @param requirement: Tuple with requirement basedata, related/unrelated testcases and related/unrelated usecases 
-        @type  requirement: tuple
-        @return: tuple with updated requirement data and boolean flag indication if the 
+        @param requirement: Requirement object
+        @type  requirement: cRequirement
+        @return: updated requirement object and boolean flag indication if the
                  saved artefact is a new artefact
-        @rtype:  tuple
+        @rtype:  tuple (cRequirement, bool)
         """
         plainrequirement = [requirement['ID'], requirement['title'], requirement['priority'],
                             requirement['status'], requirement['version'],
@@ -745,11 +731,11 @@ class afModel():
     def saveTestcase(self, testcase):
         """
         Save testcase to database
-        @param testcase: Tuple with testcase basedata
-        @type  testcase: tuple
-        @return: tuple with updated testcase data and boolean flag indication if the 
+        @param testcase: Testcase object
+        @type  testcase: cTestcase
+        @return: updated testcase object and boolean flag indication if the
                  saved artefact is a new artefact
-        @rtype:  tuple
+        @rtype:  tuple (cTestcase, bool)
         """
         logging.debug("afmodel.saveTestcase()")
         plaintestcase = [testcase['ID'], testcase['title'], testcase['purpose'],
@@ -776,11 +762,11 @@ class afModel():
     def saveUsecase(self, usecase):
         """
         Save usecase to database
-        @param usecase: Tuple with usecase basedata
-        @type  usecase: tuple
-        @return: tuple with updated usecase data and boolean flag indication if the 
+        @param usecase: Usecase object
+        @type  usecase: cUsecase
+        @return: updated usecase object and boolean flag indication if the
                  saved artefact is a new artefact
-        @rtype:  tuple
+        @rtype:  tuple (cUsecase, bool)
         """
         logging.debug("afmodel.saveUsecase()")
         plainusecase = [usecase['ID'], usecase['title'], usecase['priority'],
@@ -809,11 +795,11 @@ class afModel():
     def saveTestsuite(self, testsuite):
         """
         Save testsuite to database
-        @param testsuite: Tuple with testsuite basedata and included/excluded testcases 
-        @type  testsuite: tuple
-        @return: tuple with updated testsuite data and boolean flag indication if the 
+        @param testsuite: Testsuite object
+        @type  testsuite: cTestsuite
+        @return: updated testsuite object and boolean flag indication if the
                  saved artefact is a new artefact
-        @rtype:  tuple
+        @rtype:  tuple (cTestsuite, bool)
         """
         logging.debug("afmodel.saveTestsuite()")
         plaintestsuite = [testsuite['ID'], testsuite['title'], testsuite['description'], testsuite['execorder']]
@@ -934,8 +920,8 @@ class afModel():
         @type   delcnt: integer
         @param  delcnt: a value of 0 means restore the feature,
                         a value > 0 means delete the feature
-        @rtype:  tuple
-        @return: Basedata of the feature
+        @rtype:  cFeature
+        @return: Feature object
         """
         logging.debug("afmodel.deleteFeature(%i, delcnt=%d)" % (item_id, delcnt))
         c = self.connection.cursor()
@@ -976,8 +962,8 @@ class afModel():
         @type   delcnt: integer
         @param  delcnt: a value of 0 means restore the requirement,
                         a value > 0 means delete the requirement
-        @rtype:  tuple
-        @return: Basedata of the requirement
+        @rtype:  cRequirement
+        @return: Requirement object
         """
         logging.debug("afmodel.deleteRequirement(%i, delcnt=%d)" % (item_id, delcnt))
         c = self.connection.cursor()
@@ -1027,8 +1013,8 @@ class afModel():
         @type   delcnt: integer
         @param  delcnt: a value of 0 means restore the testcase,
                         a value > 0 means delete the testcase
-        @rtype:  tuple
-        @return: Basedata of the testcase
+        @rtype:  cTestcase
+        @return: Testcase object
         """
         logging.debug("afmodel.deleteTestcase(%i)" % item_id)
         c = self.connection.cursor()
@@ -1072,8 +1058,8 @@ class afModel():
         @type   delcnt: integer
         @param  delcnt: a value of 0 means restore the usecase,
                         a value > 0 means delete the usecase
-        @rtype:  tuple
-        @return: Basedata of the usecase
+        @rtype:  cUsecase
+        @return: Usecase object
         """
         logging.debug("afmodel.deleteUsecase(%i)" % item_id)
         c = self.connection.cursor()
@@ -1111,8 +1097,8 @@ class afModel():
         @type   delcnt: integer
         @param  delcnt: a value of 0 means restore the testsuite,
                         a value > 0 means delete the testsuite
-        @rtype:  tuple
-        @return: Basedata of the testsuite
+        @rtype:  cTestsuite
+        @return: Testsuite object
         """
         logging.debug("afmodel.deleteTestsuite(%i)" % item_id)
         c = self.connection.cursor()
@@ -1141,6 +1127,7 @@ class afModel():
         @param rt_id: Requirement ID
         @type  rt_id: integer
         """
+        logging.debug("afmodel.addFeatureRequirementRelation(ft_id=%d, rq_id=%d)" % (ft_id, rq_id))
         self._AddRelation(("feature_requirement_relation", "ft_id", "rq_id"), ft_id, rq_id)
         
     

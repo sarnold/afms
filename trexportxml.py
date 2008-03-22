@@ -90,8 +90,6 @@ class trExportXML():
 
     
     def writeTestcases(self):
-        tc_labels = ('id', 'title', 'purpose', 'prerequisite', 'test_data', 'steps', 'notes', 'version')
-        tr_labels = ('test_result', 'remark', 'action', 'time_stamp')
         flags = (afresource.FAILED, afresource.SKIPPED, afresource.PENDING, afresource.PASSED)
 
         for flag in flags:
@@ -100,12 +98,5 @@ class trExportXML():
                 continue
             
             for tc_id in id_list:
-                self.of.write('<testcase>')
                 tc = self.model.getTestcase(tc_id)
-                tr = list(self.model.getTestresult(tc_id))
-                self.writeSimpleTag(tc_labels[0], tc[0])
-                for label, value in zip(tr_labels, tr):
-                    self.writeTag(label, value)
-                for label, value in zip(tc_labels[1:], tc[1:]):
-                    self.writeTag(label, value)
-                self.of.write('</testcase>')
+                self.of.write(tc.xmlrepr())

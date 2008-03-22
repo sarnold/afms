@@ -40,6 +40,8 @@ import trmodel
 import afmodel, _afhelper
 import trexporthtml, trexportxml
 import afresource
+from afresource import _
+
 
 class TestRunnerApp(wx.App):
     """
@@ -94,16 +96,17 @@ class TestRunnerApp(wx.App):
         """Event handler for selection of an item in the test case list"""
         currentItem = self.mainframe.testcaselist.currentItem
         tc = self.mainframe.testcaselist.itemDataMap[currentItem]
-        self.mainframe.testcaseview.InitContent(self.model.getTestcase(tc[0]))
-        self.mainframe.testresultview.InitContent(self.model.getTestresult(tc[0]))
-        self.mainframe.EnableRunCommand(tc[1] == afresource.PENDING)
+        testcase = self.model.getTestcase(tc['ID'])
+        self.mainframe.testcaseview.InitContent(testcase)
+        self.mainframe.testresultview.InitContent(testcase)
+        self.mainframe.EnableRunCommand(tc['testresult'] == afresource.PENDING)
 
 
     def OnItemActivated(self, evt):
         """Event handler for activation of an item in the tst case list"""
         currentItem = self.mainframe.testcaselist.currentItem
         tc = self.mainframe.testcaselist.itemDataMap[currentItem]
-        if tc[1] != afresource.PENDING:
+        if tc['testresult'] != afresource.PENDING:
             wx.MessageBox(_("Test already has been executed!"), _("Oops ..."), wx.OK | wx.ICON_INFORMATION)
             return
         self.OnRunTestcase(None)
@@ -184,7 +187,7 @@ class TestRunnerApp(wx.App):
                     model.requestOpenProduct(filename)
                     testsuites = model.getTestsuiteList()
                     if len(testsuites) == 0: raise noTestSuites()
-                    comboboxitems = [(testsuite[0], testsuite[1]) for testsuite in testsuites]
+                    comboboxitems = [(testsuite['ID'], testsuite['title']) for testsuite in testsuites]
                     page.GetNext().SetValue(comboboxitems)
                 except noTestSuites:
                     error = True
@@ -254,16 +257,18 @@ class TestRunnerApp(wx.App):
         """Event handler for 'Run test case'"""
         currentItem = self.mainframe.testcaselist.currentItem
         tc = self.mainframe.testcaselist.itemDataMap[currentItem]
-        dlg = ExecTestrunDialog(self.mainframe.rightPanel, -1, "Run test case ID %s" % tc[0])
-        dlg.testresultview.InitContent(self.model.getTestresult(tc[0]))
+        dlg = ExecTestrunDialog(self.mainframe, -1, _("Run test case ID %s") % tc['ID'])
+        testcase = self.model.getTestcase(tc['ID'])
+        dlg.testresultview.InitContent(testcase)
+        dlg.testcaseview.InitContent(testcase)
         result = dlg.ShowModal()
         if result == wx.ID_CANCEL: return
         testresult = dlg.testresultview.GetData()
-        self.model.saveTestresult(int(tc[0]), testresult)
+        self.model.saveTestresult(testresult)
         self.mainframe.testresultview.InitContent(testresult)
         self.mainframe.SetStatusInfo(self.model.getStatusSummary())
-        self.mainframe.EnableRunCommand(testresult[0] == afresource.PENDING)
-        self.mainframe.testcaselist.UpdateItem(currentItem, testresult[0])
+        self.mainframe.EnableRunCommand(testresult['testresult'] == afresource.PENDING)
+        self.mainframe.testcaselist.UpdateItem(currentItem, testresult['testresult'])
         
 
     def OnCancelTestrun(self, evt):

@@ -36,13 +36,15 @@ import time
 import logging
 import afmodel, afresource
 import trconfig
+import _afartefact
+import _trartefact
 
 # Database version, reserved for future use
 _DBVERSION = "1.0"
 
 class trModel():
     """
-    Class containing all model functions of the MVC pattern
+    Class containing all dataase access functions
     """
 
     def __init__(self, workdir = None):
@@ -75,8 +77,7 @@ class trModel():
         model = afmodel.afModel(None)
         model.requestOpenProduct(afdatabase)
         product_info = model.getProductInformation()
-        testsuite = model.getTestsuite(testsuite_id)[0]
-        testcases_id = model.getTestcasesInTestsuite(testsuite_id)
+        testsuite = model.getTestsuite(testsuite_id)
         
         self.currentdir = os.path.dirname(path)
         self.testrunfilename = path
@@ -93,10 +94,10 @@ class trModel():
         c.execute("insert into testrun values ('description', ?);", (description[0],))
         c.execute("insert into testrun values ('tester', ?);", (description[1],))
         c.execute("insert into testrun values ('afdatabase', ?);", (afdatabase,))
-        c.execute("insert into testrun values ('testsuite_id', ?);", (testsuite[0],))
-        c.execute("insert into testrun values ('testsuite_title', ?);", (testsuite[1],))
-        c.execute("insert into testrun values ('testsuite_description', ?);", (testsuite[2],))
-        c.execute("insert into testrun values ('testsuite_execorder', ?);", (testsuite[3],))
+        c.execute("insert into testrun values ('testsuite_id', ?);", (testsuite['ID'],))
+        c.execute("insert into testrun values ('testsuite_title', ?);", (testsuite['title'],))
+        c.execute("insert into testrun values ('testsuite_description', ?);", (testsuite['description'],))
+        c.execute("insert into testrun values ('testsuite_execorder', ?);", (testsuite['execorder'],))
         c.execute("insert into testrun values ('dbversion', ?);", (_DBVERSION,))
         
         c.execute("create table testcases " \
@@ -104,10 +105,12 @@ class trModel():
             " testdata text, steps text, notes text, version text, "
             " testresult integer, testremark text, action text, timestamp text);")
         sqlstr = "insert into testcases values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        for tc_id in testcases_id:
-            testcase = list(model.getTestcase(tc_id)[0])
-            testcase.extend([afresource.PENDING, "", "", ""])
-            c.execute(sqlstr, testcase)
+        for shorttestcase in testsuite.getRelatedTestcases():
+            basetestcase = model.getTestcase(shorttestcase['ID'])
+            testcase = _trartefact.cTestcase()
+            testcase.importBaseTestcase(basetestcase)
+            plaintestcase = [testcase[key] for key in testcase.keys()]
+            c.execute(sqlstr, plaintestcase)
             
         self.connection.commit()
         
@@ -135,11 +138,15 @@ class trModel():
     def getTestcaseList(self):
         """
         Get list with all testcases from database
-        @rtype:  tuple list
-        @return: list with tuples of some basedata from all testcases
+        @rtype:  object list
+        @return: list with testcase object just with some basedata 
         """
         query_string = 'select id, testresult, title from testcases'
-        return self.getData(query_string)
+        testcases = []
+        for data in self.getData(query_string):
+            testcase = _trartefact.cTestcase(ID=data[0], testresult=data[1], title=data[2])
+            testcases.append(testcase)
+        return testcases
     
     
     def getStatusSummary(self):
@@ -156,13 +163,13 @@ class trModel():
         
         
     def getTestcase(self, tc_id):
-        query_string = "select id, title, purpose, prerequisite, testdata, steps, notes, version from testcases where id==%s" % tc_id
-        return self.getData(query_string)[0]
-
-
-    def getTestresult(self, tc_id):
-        query_string = "select testresult, testremark, action, timestamp from testcases where id==%s" % tc_id
-        return self.getData(query_string)[0]
+        query_string = "select id, title, purpose, prerequisite, testdata, steps, " \
+                       "notes, version, testresult, testremark, action, timestamp  " \
+                       "from testcases where id==%s" % tc_id
+        d = self.getData(query_string)[0]
+        return _trartefact.cTestcase(ID=d[0], title=d[1], purpose=d[2], prerequisite=d[3],
+            testdata=d[4], steps=d[5], notes=d[6], version=d[7],
+            testresult=d[8], testremark=d[9], action=d[10], timestamp = d[11])
 
 
     def getData(self, query_string):
@@ -178,10 +185,12 @@ class trModel():
         return c.fetchall()
 
 
-    def saveTestresult(self, tc_id, testresult):
-        query_string = "update testcases set 'testresult'=?, 'testremark'=?, 'action'=?, 'timestamp'=? where ID=%d" % tc_id
+    def saveTestresult(self, testresult):
+        query_string = "update testcases set 'testresult'=?, 'testremark'=?, 'action'=?, 'timestamp'=? where ID=%d" % testresult['ID']
+        plaintestresult = [testresult['testresult'], testresult['testremark'],
+                           testresult['action'], testresult['timestamp']]
         c = self.connection.cursor()
-        c.execute(query_string, testresult)
+        c.execute(query_string, plaintestresult)
         self.connection.commit()
         
         

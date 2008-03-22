@@ -36,18 +36,16 @@ class afHtmlWindow(html.HtmlWindow):
         if "gtk2" in wx.PlatformInfo:
             self.SetStandardFonts()
             
-        if 0:
-            #FIXME: call to SetFonts() crashes. Check documentation
-            if "wxMSW" in wx.PlatformInfo:
-                _DEFAULT_FONT_SIZES = (7, 8, 10, 12, 16, 22, 30)
-                _DEFAULT_FONT_SIZES = (5, 6, 8, 10, 14, 20, 28)
-                self.SetFonts("Times New Roman", "Times New Roman", _DEFAULT_FONT_SIZES)
-            else:
-                #FIXME: consider other platforms
-                pass
+        if "wxMSW" in wx.PlatformInfo:
+            # Original font sizes are [7, 8, 10, 12, 16, 22, 30]
+            _FONT_SIZES = [5, 6,  8, 10, 14, 20, 24]
+            self.SetFonts("MS Sans Serif", "Courier New", _FONT_SIZES)
+        else:
+            #FIXME: consider other platforms
+            pass
 
     def _MakeLocalURL(self, url):
-        logging.debug("_afhtmlwinows._MakeLocalURL(%s)" % url)
+        logging.debug("_afhtmlwindows._MakeLocalURL(%s)" % url)
         lst = urlparse.urlsplit(url)
         if lst.scheme != "file":
             return url
@@ -98,7 +96,6 @@ class afHtmlWindow(html.HtmlWindow):
             value = value.replace('"', "&quot;")
             lines = value.split("\n")
             value = "<br>".join(lines)
-            self.SetFonts("", wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT).GetFaceName())
         self.SetPage(value)
 
         

@@ -1,4 +1,14 @@
 ===============================
+AFMS Release 0.x.x (2008-03-xx)
+===============================
+
+Changes
+~~~~~~~
+* Changed font size in HTML text fields (Windows only)
+* Internally artefacts are now represented by objects. 
+
+
+===============================
 AFMS Release 0.1.2 (2008-03-12)
 ===============================
 
@@ -6,10 +16,9 @@ Changes
 ~~~~~~~
 * Improved rendering of long lines in HTML text fields
 
-* Use cases not belonging to requirements are now are now
+* In the HTML export use cases not belonging to requirements are now
   listed in the section 'Usecases not belonging to requirements',
   which has become therefore the last section in the output document
-
 
 New features
 ~~~~~~~~~~~~

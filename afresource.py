@@ -399,6 +399,10 @@ RESOURCE_DE = {\
 "Test data"	             : u"Testdaten",
 "Test result"	         : u"Testergebnis",
 "Time stamp"	         : u"Zeitstempel",
+"Run test case ID %s"    : u"Testfall ID %s ausführen",
+"Test already has been executed!"
+                         : u"Testfall wurde bereits ausgeführt!",
+"Oops ..."               : u"Hoppla ..."
 }
 
 _RESOURCE = RESOURCE_DE

@@ -23,6 +23,8 @@ from afresource import _
 import afresource
 
 class cArtefact():
+    """Base class for all artefacts"""
+    
     def __init__(self):
         self._changelist = []
         self._changelog = None
@@ -65,10 +67,13 @@ class cArtefact():
     
     
     def getPrintableDataDict(self, formatter=None):
+        """Return base data in printable format, i.e. localized and enuumerations
+        replaced with human readable text"""
         return self._basedata
 
 
     def xmlrepr(self, tagname):
+        """Return base data as XML string"""
         s = '<%s>\n' % tagname
         for key in self._keys:
             s += '<%s><![CDATA[%s]]></%s>\n' % (key, self._basedata[key], key)
@@ -110,6 +115,11 @@ class cFeature(cArtefact):
             'version'       : version,
             'risk'          : risk,
             'description'   : description }
+        self._relatedRequirements = []
+        self._unrelatedRequirements = []
+        
+        
+    def clearRelations(self):
         self._relatedRequirements = []
         self._unrelatedRequirements = []
 
@@ -184,6 +194,14 @@ class cRequirement(cArtefact):
         self._relatedFeatures = []
         
         
+    def clearRelations(self):
+        self._relatedTestcases = []
+        self._unrelatedTestcases = []
+        self._relatedUsecases = []
+        self._unrelatedUsecases = []
+        self._relatedFeatures = []
+
+
     def setRelatedTestcases(self, testcases):
         self._relatedTestcases = testcases
 
@@ -276,6 +294,10 @@ class cUsecase(cArtefact):
         self.relatedRequirements = []
 
 
+    def clearRelations(self):
+        self.relatedRequirements = []
+
+
     def setRelatedRequirements(self, requirements):
         self.relatedRequirements = requirements
 
@@ -326,6 +348,11 @@ class cTestcase(cArtefact):
             'steps'        :  steps,
             'notes'        :  notes,
             'version'      : version }
+        self.relatedRequirements = []
+        self.relatedTestsuites = []
+
+
+    def clearRelations(self):
         self.relatedRequirements = []
         self.relatedTestsuites = []
 
@@ -381,6 +408,11 @@ class cTestsuite(cArtefact):
             'description'  : description,
             'execorder'    : execorder,
             'nbroftestcase': nbroftestcases }
+        self._relatedTestcases = []
+        self._unrelatedTestcases = []
+
+
+    def clearRelations(self):
         self._relatedTestcases = []
         self._unrelatedTestcases = []
 
