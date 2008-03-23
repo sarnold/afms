@@ -5,6 +5,18 @@ AFMS Release 0.x.x (2008-03-xx)
 Changes
 ~~~~~~~
 * Changed font size in HTML text fields (Windows only)
+
+* In list views markup identifiers (like <html>, .. rest) 
+  in strings are no more shown. Line breaks are printed with
+  a '|' character.
+  
+* fixed issue when invoking afeditor.py or testrunner.py
+  with a relative path
+  
+* when executing a test in testrunner the modal dialog box now
+  shows both, the test case and the test result. This makes it possible
+  to scroll through lengthy text fields in the test case.
+
 * Internally artefacts are now represented by objects. 
 
 

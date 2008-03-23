@@ -20,7 +20,6 @@
 # along with AFMS.  If not, see <http://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
-#TODO: Title strings, porpose strings etc. shown in list views should be cleared to not show line breaks, HTML tags ...
 
 """
 Artefact editor
@@ -149,7 +148,11 @@ class MyApp(wx.App):
         
         global arguments
         if len(arguments) > 0:
-            self.OpenProduct(arguments[0])
+            try:
+                self.OpenProduct(arguments[0])
+            except:
+                print("Could not open file %s" % arguments[0])
+                sys.exit(2)
             
         return True
     
@@ -291,12 +294,8 @@ class MyApp(wx.App):
         @type  path: string
         @param path: Path of product database file
         """
-        try:
-            self.model.requestOpenProduct(path)
-            self.InitView()
-        except:
-            #FIXME: error handling here
-            pass
+        self.model.requestOpenProduct(path)
+        self.InitView()
 
 
     def InitView(self):
@@ -999,13 +998,12 @@ class MyApp(wx.App):
             path = dlg.GetPath()
         dlg.Destroy()
         if  dlgResult == wx.ID_OK:
-            #try:
+            try:
                 importer = _afimporter.afImporter(self.mainframe, self.model, path)
                 importer.Run()
                 self.InitView()
-            #except:
-                #FIXME: error title
-             #   _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error opening product!'))
+            except:
+                _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error importing artefacts!'))
 
 
 def main():

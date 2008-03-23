@@ -121,13 +121,12 @@ class trModel():
         @param path: File name of the test run database
         @type  path: string
         """
+        if not os.path.isabs(path):
+            path = os.path.abspath(path)
+
         if not os.path.exists(path): raise IOError
 
-        if len(os.path.dirname(path)) > 0:
-            self.currentdir = os.path.dirname(path)
-        else:
-            self.currentdir = os.getcwd()
-            path = os.path.join(self.currentdir, path)
+        self.currentdir = os.path.dirname(path)
 
         self.testrunfilename = path
         os.chdir(self.currentdir)
