@@ -241,7 +241,7 @@ RESOURCE_DE = {\
 'Import artefacts from AF database'
                                 : u'Importiere Artefakte aus AF Datenbank',
 'Import from product file'      : u'Importiere aus Produkt-Datei',
-
+'Error importing artefacts!'    : u'Fehler beim Import der Artefakte!',
 "Table of Contents"             : u'Inhaltsverzeichnis',
 "Product information"           : u'Produktinformation',
 "Features"                      : u'Features',
@@ -402,7 +402,8 @@ RESOURCE_DE = {\
 "Run test case ID %s"    : u"Testfall ID %s ausführen",
 "Test already has been executed!"
                          : u"Testfall wurde bereits ausgeführt!",
-"Oops ..."               : u"Hoppla ..."
+"Oops ..."               : u"Hoppla ...",
+"Could not open file %s" : u'Datei %s kann nicht geöffnet werden'
 }
 
 _RESOURCE = RESOURCE_DE
@@ -437,7 +438,9 @@ def SetLanguage(lang):
 def GetLanguage():
     return _language
 
+
 def _(msg):
+    """Poor man localization"""
     try:
         return _RESOURCE[msg]
     except:

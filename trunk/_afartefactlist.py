@@ -235,7 +235,17 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
                 self.list.SetStringItem(index, j, data[j])
             else:
                 self.list.SetStringItem(index, j, str(data[j]))
-        
+                
+                
+    def toText(self, s):
+        s = s.strip()
+        if s.startswith((".. rest", ".. REST")):
+            s = s[7:]
+        elif s.startswith(("<html>", "<HTML>")):
+            s = s[6:]
+        s = s.strip().replace('\n', '|')
+        return s
+
 #-------------------------------------------------------------------------
 
 class afFeatureList(afArtefactList):
@@ -255,7 +265,7 @@ class afFeatureList(afArtefactList):
                 afresource.STATUS_NAME[ftobj['status']],
                 ftobj['version'],
                 afresource.RISK_NAME[ftobj['risk']],
-                ftobj['description'])
+                self.toText(ftobj['description']))
 
 #-------------------------------------------------------------------------
 
@@ -277,7 +287,7 @@ class afRequirementList(afArtefactList):
                 afresource.EFFORT_NAME[rqobj['effort']],
                 afresource.CATEGORY_NAME[rqobj['category']],
                 rqobj['version'],
-                rqobj['description'])
+                self.toText(rqobj['description']))
 
 #-------------------------------------------------------------------------
 
@@ -293,7 +303,7 @@ class afTestcaseList(afArtefactList):
         return (self.idformat % tcobj['ID'],
                 tcobj['title'],
                 tcobj['version'],
-                tcobj['purpose'])
+                self.toText(tcobj['purpose']))
 
 #-------------------------------------------------------------------------
 
@@ -327,7 +337,7 @@ class afTestsuiteList(afArtefactList):
         return (self.idformat % tsobj['ID'],
                 tsobj['title'],
                 tsobj['nbroftestcase'],
-                tsobj['description'])
+                self.toText(tsobj['description']))
 
 #-------------------------------------------------------------------------
 
@@ -351,7 +361,7 @@ class afChangeList(afArtefactList):
         description = row['description']
         if len(description) <= 0:
             description = afresource.CHANGETYPE_NAME[row['changetype']]
-        return (row['user'], row['date'], description, row['changetype'])
+        return (row['user'], row['date'], self.toText(description), row['changetype'])
 
 
     def OnItemSelected(self, event):

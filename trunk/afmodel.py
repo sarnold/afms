@@ -123,15 +123,12 @@ class afModel():
         @param path: File name of the product database
         @type  path: string
         """
-        #print path
+        if not os.path.isabs(path):
+            path = os.path.abspath(path)
+            
         if not os.path.exists(path): raise IOError
-        if len(os.path.dirname(path)) > 0:
-            self.currentdir = os.path.dirname(path)
-        else:
-            self.currentdir = os.getcwd()
-            #print self.currentdir
-            path = os.path.join(self.currentdir, path)
-            #print path
+
+        self.currentdir = os.path.dirname(path)
             
         self.productfilename = path
         os.chdir(self.currentdir)
