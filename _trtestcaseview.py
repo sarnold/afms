@@ -19,6 +19,8 @@
 # along with AFMS.  If not, see <http://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
+# $Id$
+
 """
 Sections of this code are very similar to those in _aftestcaseview.py.
 Maybe it is a good idea to do some refactoring some day to prevent code duplication

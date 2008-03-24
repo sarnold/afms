@@ -3,12 +3,13 @@ AFMS Short Manual
 =================
 
 :Author: |author|
-:Revision: $Rev: 108 $
+:Revision: $Rev$
 :Copyright: |author|, 2008
 :Homepage: http://sourceforge.net/projects/afms/
 
 .. contents::
 
+.. $Id$
 
 Introduction
 ============
@@ -434,3 +435,7 @@ Tango
 
 .. footer:: *Last update* |date|
 .. |date| date:: %Y-%m-%d, %H:%M CET
+
+.. meta::
+   :description: Artefact Management System (AFMS) Short Manual
+   :keywords: Management, Features, Requirements, Use cases, Test cases, Test suites

@@ -19,6 +19,8 @@
 # along with AFMS.  If not, see <http://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
+# $Id$
+
 import pickle
 import wx
 from afresource import _

@@ -19,6 +19,8 @@
 # along with AFMS.  If not, see <http://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
+# $Id$
+
 import sys
 import wx
 import  wx.lib.mixins.listctrl  as  listmix

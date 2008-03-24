@@ -19,6 +19,8 @@
 # along with AFMS.  If not, see <http://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
+# $Id$
+
 import time
 import wx
 from _afhtmlwindow import *
