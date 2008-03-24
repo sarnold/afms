@@ -1,0 +1,441 @@
+=================
+AFMS Short Manual
+=================
+
+:Author: |author|
+:Revision: $Rev$
+:Copyright: |author|, 2008
+:Homepage: http://sourceforge.net/projects/afms/
+
+.. contents::
+
+.. $Id$
+
+Introduction
+============
+AFMS is an "Artefact Management System" to manage some of the artefacts  
+appearing in the software development process of a product. These artefacts are
+namely
+
+* Features
+* Requirements
+* Use cases
+* Test cases 
+* Test suites
+
+
+With the program *afeditor* the management system provides a GUI to create, edit and 
+delete artefacts and to edit relations between artefacts. 
+The *afeditor* allows to export artefacts in either HTML or XML format.
+
+The program *testrunner* is used to manually "execute" test cases organized in a test suite
+and to log the test results.
+
+The AFMS programs are implemented in Python_ using wxPython_ for the graphical user interfaces.
+Furthermore the `docutils package <http://docutils.sourceforge.net/>`_ is required.
+No other components are required.
+
+Artefacts and other data are stored in SQLite_ databases. SQLite_ (pysqlite) comes with current
+Python_ releases.
+
+AFMS is a standalone application, no database servers, web servers or similar are required.
+The intended use of AFMS is for small and medium sized projects where only a small number
+of people has to edit the artefacts.
+
+AFMS is strongly inspired by the `Open Source Requirements Management System`_ and the
+`Ready-to-use Software Engineering Templates`_
+
+AFMS is free software: you can redistribute it and/or modify
+it under the terms of the `GNU General Public License
+<http://www.gnu.org/licenses/>`_ as published 
+by the Free Software Foundation, either version 2 of the License, 
+or (at your option) any later version.
+
+
+
+
+Getting started with afeditor
+=============================
+
+Overview screenshot
+-------------------
+.. image:: images/screenshot_overview.png
+
+
+Create a new product
+--------------------
+You may start *afeditor* from the shell calling "afeditor.py". For Microsoft Windows, 
+you may run "afeditor.pyw" if you don't like the console.
+
+After starting the program you can create a new "software product". 
+From the file menu select "New Product" and select enter the database file name 
+for the product in the subsequent dialog.
+
+Afterwards you should edit the product properties by selecting the "Product" item in 
+the tree view. Enter a product title and a more or less detailed description and save 
+your changes.
+
+In the product description input field you may use either plain text, `HTML markup`_
+or  `reStructuredText markup`_.
+
+
+Add features to the product
+---------------------------
+Now you can start collecting the features of the software product. Select the 
+"New feature" item from the "New" menu or press the corresponding button |new_feature_btn| 
+in the toolbar.
+
+In the appearing dialog you have to enter the title of the feature and you may enter the description
+of the feature. Again, for the description, you may use plain text, `HTML markup`_
+or  `reStructuredText markup`_.
+
+Beside title and description the following attributes of a feature could be defined:
+
+Priority
+    Essential | Expected | Desired | Optional.
+
+
+Status
+    Submitted | Approved | Completed
+
+Risk
+    Dangerous | 3-Risk | 2-Risk | 1-Risk | Safe
+
+Version
+    A version identifier
+
+After saving a unique ID is assigned to the feature.
+
+Along with the feature basic data a changelog is provided. Select the changelog tab 
+and enter a change description. This description is mandatory once the status of the 
+feature is "submitted". If the status is "completed" you are not allowed to change a feature. 
+
+After you have entered a couple of features try to select the "Feature" item in the tree view
+in the left panel. You will see a list with all your features in the right panel. The list can
+be sorted by clicking into the column header.
+
+
+
+Add requirements and relate them to features
+--------------------------------------------
+Adding requirements to the product works the same way as adding features.
+Select "New requirement" from the "New" menu or press the toolbar button |new_requirement_btn|.
+In the subsequent dialog you may enter title, description, priority, status and version of the requirement.
+Furthermore the following attributes are available:
+
+Complexity
+    Low | Medium | High
+
+Effort
+    Months | Weeks | Days | Hours
+
+
+Assigned
+    The name of whom the requirement is assigned to
+
+Category
+    Functional | Reliability | Up-time | Safety |
+    Security | Performance | Scalability | Maintainability |
+    Upgradability | Supportability | Operability |
+    Business life-cycle | System hardware | System software |
+    API | Data import/export | Other
+
+In the "Rationale" tab of the dialog you could enter the origin and the rationale of the requirement.
+The tabs "Attached Testcases" and "Attached Usecase" shows a list with all test cases and use cases.
+You may select test cases and use cases belonging to the current requirement.
+
+The tab "Related features" shows a list with the features to which the requirement belongs to.
+To edit this list, you have to edit each feature, select the "Attached Requirements" tab and check each
+requirement to be attached to the feature.
+
+Another way to attach a new requirement to a feature is to select the feature in the tree view and issue
+the "New Requirement" menu command. The new requirement becomes automatically attached to the selected 
+feature.
+
+
+Add use cases and test cases and relate them to requirements
+------------------------------------------------------------
+Select "New use case" or "New test case" from the "New" menu to create a use case or a test case.
+Of course you also can use the corresponding toolbar buttons |new_usecase_btn| or |new_testcase_btn|.
+
+Use cases have the following attributes:
+
+Summary
+    A brief description of the use case
+
+ID
+    After saving a unique ID is assigned to the use case.
+
+Priority
+    Essential | Expected | Desired | Optional.
+
+Use frequency
+    Always | Often | Sometimes | Rarely | Once
+    
+Stakeholders
+    Stakeholders for the use case. You may enter stakeholders or select previously 
+    entered stakeholders from a list.
+    
+Actors
+    Actors for the use case. You may enter actors or select previously 
+    entered actors from a list.
+    
+Prerequisites
+    Prerequisites for the use case
+
+Main Scenario
+    Main scenario of the use case
+    
+Alternative Scenario
+    Alternative scenarios to the main scenario
+    
+Notes
+    Notes and hints
+    
+
+Test cases have the following attributes:
+
+Title
+    A brief description of the test case
+
+ID
+    After saving a unique ID is assigned to the test case
+
+Version
+    A version identifier
+    
+Purpose
+    Purpose of the test case
+    
+Prerequisite
+    Prerequisite for the test case
+    
+Testdata:
+    Testdate to be used in the test case
+    
+Steps
+    Steps to perform the test case
+    
+Notes and Questions
+    Notes, hints and questions 
+    
+
+If you have selected a requirement when issuing the command "New use case" or "New test case"
+the new artefact will be attached to the selected requirement.
+Another way to do this is to edit the requirement and check the required test cases or use cases 
+in the list shown in the tabs "Attached Testcases" or "Attached Usecases".
+
+
+Create test suites and attach test cases
+----------------------------------------
+Test suites are simply collections of test cases. Attributes of a test suite are Title, ID, Description,
+execution order of test cases and of course a list of test cases.
+When creating a new test suite with either menu command "New testsuite" or toolbar button 
+|new_testsuite_btn| a list with all test  cases is shown. You may check any test case that should be 
+in the test suite.
+
+Test suites are important for the testrunner_ program, because *testrunner* allows 'execution'
+of all test cases in a test suite.
+
+
+Deleting artefacts
+------------------
+You may delete any artefact using the toolbar button |del_af_btn|, the menu command "Delete artefact"
+from the "Edit" menu or simply with the Del key. Actually the artefact is not deleted but goes
+to the trash. An artefact could be restored by double clicking it in the corresponding view of the trash.
+
+Intentionally there is now way to empty the trash, so no artefact could get lost.
+
+
+Export artefacts in HTML or XML format
+--------------------------------------
+You can export all artefacts of a product into a HTML or XML report file.
+XML reports only contains the artefacts. HTML reports contains some additional problem analysis:
+
+* Features with no requirements attached
+* Requirements with no test cases attached
+* Use cases without related requirements
+* Test cases without related requirements
+* Test cases not in a test suite 
+* Test suites without test cases
+
+To create the report use the menu commands "Export as HTML" or "Export as XML" from the "File" menu.
+
+
+Import artefacts from another database
+--------------------------------------
+Importing artefacts is quite easy. After issuing the command "Import" from the "File" menu you can select 
+the database file with the artefacts to import. After this a dialog with one tab for each kind of arefact 
+is shown. Each tab contains a list with corresponding artefacts and you can check the artefacts to be 
+imported.
+
+On top of the dialog there is a checkbox "Select related artefacts automatically". If it is checked
+and you check for example a requiremt to be imported, then all test cases and use cases related 
+to that requirement are checked too.
+
+
+Keyboard shortcuts
+------------------
+
+============  ======================================================
+Shortcut      Purpose
+============  ======================================================
+Ctrl-N        Create new product
+Ctrl-O        Open existing product
+Alt-X         Exit application
+Ctrl-E        Edit selected artefact
+Ctrl-C        Copy artefact to clipboard
+Ctrl-V        Paste artefact from clipboard
+Del           Delete selected artefact
+Ctrl-A        check all items in a list
+Shift-Ctrl-A  uncheck all items in a list
+Space         Toggles the check state of the selected list item
+Ctrl-Space    Toggles the check state of all list items
+============  ======================================================
+
+
+--------------------------------------------------------------------------------
+
+
+.. _testrunner:
+
+Getting started with testrunner
+===============================
+
+Overview screenshot
+-------------------
+.. image:: images/screenshot_tr_overview.png
+
+
+Create a new test run
+---------------------
+You may start *testrunner* from the shell calling "testrunner.py". For Microsoft Windows, 
+you may run "testrunner.pyw" if you don't like the console.
+
+Select "New test run" from the "File" menu to create a new test run. 
+A wizard will guide you through the four required steps:
+#. Select the database with the artefacts of the software product
+#. Select the test suite which should be run
+#. Enter description of the test run (i.e. release information) and the name of the tester
+#. Enter the filename to save the test run to
+
+
+Execute test cases
+------------------
+To 'execute' a test case you simply have to activate the test case in the list 
+i.e. with a double click. A dialog opens where you can enter the test result.
+
+
+Pausing a test run
+------------------
+All test results are saved immediately. Thus you can quit the application anytime and resume
+test execution later.
+
+
+Abort test run
+--------------
+Choose the menu item "Cancel current test run" from the "Test" menu.
+After entering the reason for cancelation all pending test cases will be marked as skipped.
+and the remark field will show the ´reason for cancelation.
+
+
+Query information about a test run
+----------------------------------
+Select menu item "About current test run" from the "Test" menu. This will give information about 
+the prduct, the test suite and the test run.
+
+
+Export test run as HTML or XML
+------------------------------
+Select "Export as HTML" or "Export as XML" from the "File" menu.
+A test report will be saved in the selected format. For HTML output the cascading style sheet
+afmsreport.css will be used,
+
+
+Special features
+----------------
+If you are using `HTML Markup`_ in one of the attributes of a test case (i.e. in the 'Steps'
+field) you may enter a link like ``script://sample.sh``. 
+When clicking this link testrunner tries to execute the specified script in a shell.
+
+
+--------------------------------------------------------------------------------
+
+
+Markup
+======
+Most of the multiline edit fields support different markups.
+You may use either plain text, HTML markup or reStructuredText markup.
+
+
+HTML Markup
+-----------
+Enter the tag <html> in the first line of the description and </html> in the last line.
+Between these tags you may use most of the basic HTML tags. 
+
+|example1|
+
+Rendering takes place after closing the dialog. In normal view mode the rendered text 
+is shown.
+
+|example2|
+
+.. |EXAMPLE1| image:: images/screenshot_edit_product_html.png
+.. |EXAMPLE2| image:: images/screenshot_view_product_html.png
+  
+
+reStructuredText markup
+-----------------------
+Place the directive ".. REST" in the first line of the description. Then you can use 
+reStructuredText_ markup.
+
+
+
+
+Acknowledgment
+==============
+
+AFMS is implemented in Python_ and uses wxPython_ as GUI Toolkit.
+reStructuredText_ is used for rendering on demand.
+
+The database engine is sqlite_.
+
+The different icons are taken from several icon collections:
+
+Sweetie BasePack 
+    * URL: http://sweetie.sublink.ca/preview/icons/Sweetie-BasePack-v3
+    * Licence: Creative Commons Attribution-ShareAlike 3.0 License Agreement, 
+      http://creativecommons.org/licenses/by-sa/3.0/
+
+Nuvola
+    * URL:	http://www.icon-king.com
+    * Licence: GNU Lesser General Public License, http://www.gnu.org/licenses/lgpl.html
+
+Tango
+    * URL: http://tango.freedesktop.org/releases/tango-icon-theme-0.8.1.tar.gz
+    * Licence: Creative Commons Attribution-ShareAlike 2.5 License Agreement, 
+      http://creativecommons.org/licenses/by-sa/2.5/
+
+
+.. _Python: http://www.python.org/
+.. _wxPython: http://www.wxPython.org
+.. _SQlite: http://www.sqlite.org
+.. _reStructuredText: http://docutils.sourceforge.net
+
+.. _`Open Source Requirements Management System`: http://sourceforge.net/projects/osrmt
+.. _`Ready-to-use Software Engineering Templates`: http://readyset.tigris.org/
+
+.. |new_feature_btn| image:: images/f_new.png
+.. |new_requirement_btn| image:: images/rq_new.png
+.. |new_usecase_btn| image:: images/uc_new.png
+.. |new_testcase_btn| image:: images/tc_new.png
+.. |new_testsuite_btn| image:: images/ts_new.png
+.. |del_af_btn| image:: images/24-tag-remove.png
+.. |author| unicode:: Achim U+00A0 K U+00F6 hler
+
+.. footer:: *Last update* |date|
+.. |date| date:: %Y-%m-%d, %H:%M CET
+
+.. meta::
+   :description: Artefact Management System (AFMS) Short Manual
+   :keywords: Management, Features, Requirements, Use cases, Test cases, Test suites
