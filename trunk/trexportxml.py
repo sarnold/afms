@@ -20,6 +20,8 @@
 # along with AFMS.  If not, see <http://www.gnu.org/licenses/>.
 # -------------------------------------------------------------------
 
+# $Id$
+
 """
 Export database to xml output
 

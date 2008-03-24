@@ -32,6 +32,8 @@
 # OSI.
 # -------------------------------------------------------------------
 
+# $Id$
+
 from wx import ImageFromStream, BitmapFromImage, EmptyIcon
 import cStringIO
 
