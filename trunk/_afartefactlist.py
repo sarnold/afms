@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -53,7 +53,7 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
         self.idformat = "%4d"
         self.checkstyle = checkstyle
         tID = wx.NewId()
-        
+
         # TODO: sorting of numeric columns has to be fixed
         self.list = ArtefactListCtrl(self, tID, size=parent.GetSize(),
                     style=wx.LC_SORT_ASCENDING | wx.LC_REPORT | wx.BORDER_NONE | wx.LC_VRULES | wx.LC_HRULES | wx.LC_SINGLE_SEL,
@@ -92,8 +92,8 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
 
     def FormatRow(self, afobj):
         assert(0==1) # aka virtual function
-    
-    
+
+
     def InitContent(self, artefact_list, select_id=0):
         self.itemDataMap = {}
         for i in range(len(artefact_list)):
@@ -106,7 +106,7 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
                 index = self.list.InsertStringItem(sys.maxint, data[0])
                 #index = self.list.InsertImageStringItem(sys.maxint, "%04d" % data[0], self.empty)
             self.list.SetItemData(index, i)
-            
+
             for j in range(self.num_of_columns):
                 if isinstance(data[j], (type(''), type(u''))):
                     self.list.SetStringItem(index, j, data[j])
@@ -118,11 +118,11 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
 
         for i in range(self.num_of_columns):
             self.list.SetColumnWidth(i, wx.LIST_AUTOSIZE)
-            
+
         self.list.SetColumnWidth(0, wx.LIST_AUTOSIZE_USEHEADER)
         self.list.SetColumnWidth(0, self.list.GetColumnWidth(0)+20)
-        
-        
+
+
     def InitCheckableContent(self, uncheckedcontent, checkedcontent, showonlychecked=False):
         if not showonlychecked:
             # disable sorting
@@ -157,8 +157,8 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
     # Used by the ColumnSorterMixin, see wx/lib/mixins/listctrl.py
     def GetSortImages(self):
         return (self.sm_dn, self.sm_up)
-    
-    
+
+
     def OnKeyChar(self, event):
         """
         A key is pressed for the artefact list
@@ -183,8 +183,8 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
                 state = not self.list.IsChecked(i)
                 self.list.CheckItem(i, state)
         event.Skip()
-        
-        
+
+
     def OnItemActivated(self, event):
         self.currentItem = event.m_itemIndex
         if self.checkstyle:
@@ -198,19 +198,19 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
         """
         self.currentItem = evt.GetClientData()[1]
         evt.Skip()
-        
+
 
     def OnItemSelected(self, event):
         self.currentItem = event.m_itemIndex
-        
+
 
     def GetSelectionID(self):
         if self.currentItem is None:
             return ((self.key, None))
         else:
             return (self.key, int(self.list.GetItemText(self.currentItem)))
-    
-    
+
+
     def DeleteSelectedItem(self):
         self.list.DeleteItem(self.currentItem)
         self.list.SetItemState(self.currentItem, wx.LIST_STATE_SELECTED | wx.LIST_STATE_FOCUSED , wx.LIST_STATE_SELECTED | wx.LIST_STATE_FOCUSED )
@@ -222,8 +222,8 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
             ID = int(self.itemDataMap[i][0])
             if ID in idlist:
                 self.list.CheckItem(i, True)
-                
-                
+
+
     def AppendItem(self, item):
         ID = item['ID']
         data = self.FormatRow(item)
@@ -237,8 +237,8 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
                 self.list.SetStringItem(index, j, data[j])
             else:
                 self.list.SetStringItem(index, j, str(data[j]))
-                
-                
+
+
     def toText(self, s):
         s = s.strip()
         if s.startswith((".. rest", ".. REST")):
@@ -256,10 +256,11 @@ class afFeatureList(afArtefactList):
     ## @param parent The parent window of this widget
     def __init__(self, parent, ID = -1, checkstyle=False):
         ## Column titles of the feature list table
-        self.column_titles = [_('ID'), _('Title'), _('Priority'), _('Status'), _('Version'), _('Risk'), _('Description')]
+        self.column_titles = [_('ID'), _('Title'), _('Priority'), _('Status'),
+            _('Version'), _('Risk'), _('Date'), _('User'), _('Description')]
         self.key = "FEATURES"
         afArtefactList.__init__(self, parent, self.column_titles, ID, checkstyle)
-        
+
     def FormatRow(self, ftobj):
         return (self.idformat % ftobj['ID'],
                 ftobj['title'],
@@ -267,6 +268,8 @@ class afFeatureList(afArtefactList):
                 afresource.STATUS_NAME[ftobj['status']],
                 ftobj['version'],
                 afresource.RISK_NAME[ftobj['risk']],
+                ftobj.getChangelist()[0]['date'],
+                ftobj.getChangelist()[0]['user'],
                 self.toText(ftobj['description']))
 
 #-------------------------------------------------------------------------
@@ -275,10 +278,11 @@ class afRequirementList(afArtefactList):
     """Widget for displaying requirements lists"""
     def __init__(self, parent, ID = -1, checkstyle=False):
         self.column_titles = [_('ID'), _('Title'), _('Priority'), _('Status'),
-            _('Complexity'), _('Assigned'), _('Effort'), _('Category'), _('Version'), _('Description')]
+            _('Complexity'), _('Assigned'), _('Effort'), _('Category'), _('Version'),
+            _('Date'), _('User'), _('Description')]
         self.key = "REQUIREMENTS"
         afArtefactList.__init__(self, parent, self.column_titles, ID, checkstyle=checkstyle)
-        
+
     def FormatRow(self, rqobj):
         return (self.idformat % rqobj['ID'],
                 rqobj['title'],
@@ -289,6 +293,8 @@ class afRequirementList(afArtefactList):
                 afresource.EFFORT_NAME[rqobj['effort']],
                 afresource.CATEGORY_NAME[rqobj['category']],
                 rqobj['version'],
+                rqobj.getChangelist()[0]['date'],
+                rqobj.getChangelist()[0]['user'],
                 self.toText(rqobj['description']))
 
 #-------------------------------------------------------------------------
@@ -296,7 +302,7 @@ class afRequirementList(afArtefactList):
 class afTestcaseList(afArtefactList):
     """Widget for displaying testcase lists"""
     def __init__(self, parent, ID = -1, checkstyle=False):
-        self.column_titles = [_('ID'), _('Title'), _('Version'), _('Purpose')]
+        self.column_titles = [_('ID'), _('Title'), _('Version'), _('Date'), _('User'), _('Purpose')]
         self.key = "TESTCASES"
         afArtefactList.__init__(self, parent, self.column_titles, ID, checkstyle=checkstyle)
 
@@ -305,6 +311,8 @@ class afTestcaseList(afArtefactList):
         return (self.idformat % tcobj['ID'],
                 tcobj['title'],
                 tcobj['version'],
+                tcobj.getChangelist()[0]['date'],
+                tcobj.getChangelist()[0]['user'],
                 self.toText(tcobj['purpose']))
 
 #-------------------------------------------------------------------------
@@ -312,7 +320,7 @@ class afTestcaseList(afArtefactList):
 class afUsecaseList(afArtefactList):
     """Widget for displaying usecase lists"""
     def __init__(self, parent, ID = -1, checkstyle=False):
-        self.column_titles = [_('ID'), _('Summary'), _('Priority'), _('Use freq.'), _('Actors'), _('Stakeholders')]
+        self.column_titles = [_('ID'), _('Summary'), _('Priority'), _('Use freq.'), _('Actors'), _('Stakeholders'), _('Date'), _('User')]
         self.key = "USECASES"
         afArtefactList.__init__(self, parent, self.column_titles, ID, checkstyle=checkstyle)
 
@@ -323,7 +331,9 @@ class afUsecaseList(afArtefactList):
                 afresource.PRIORITY_NAME[ucobj['priority']],
                 afresource.USEFREQUENCY_NAME[ucobj['usefrequency']],
                 ucobj['actors'],
-                ucobj['stakeholders'])
+                ucobj['stakeholders'],
+                ucobj.getChangelist()[0]['date'],
+                ucobj.getChangelist()[0]['user'])
 
 #-------------------------------------------------------------------------
 
@@ -355,8 +365,8 @@ class afChangeList(afArtefactList):
         sizer.Add(label, 0, wx.EXPAND | wx.TOP|wx.BOTTOM, 5)
         sizer.Add(self.longdescription, 1, wx.EXPAND)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnItemSelected, self.list)
-        
-        
+
+
     def FormatRow(self, row):
         """Return formated strings for one row in the change list.
         If description string is empty, display a description according to the changetype."""

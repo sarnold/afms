@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -56,9 +56,9 @@ _CHANGEID_UNDELETE = 3
 
 class afModel():
     """
-    Class containing all database access functions 
+    Class containing all database access functions
     """
-    
+
     def __init__(self, controller, workdir = None):
         """
         Initialize local variables and constants
@@ -74,8 +74,8 @@ class afModel():
 
     def getFilename(self):
         return self.productfilename
-    
-    
+
+
     def requestNewProduct(self, path):
         """
         Request to create a new product
@@ -109,7 +109,7 @@ class afModel():
             "(ID integer primary key autoincrement, title text, description text, execorder text, delcnt integer default 0);")
         c.execute("create table changelog" \
             "(afid integer, aftype integer, changetype integer, date text, user text, description text);")
-            
+
         c.execute("create table testsuite_testcase_relation (ts_id integer, tc_id integer, delcnt integer default 0);")
         c.execute("create table requirement_testcase_relation (rq_id integer, tc_id integer, delcnt integer default 0);")
         c.execute("create table requirement_usecase_relation (rq_id integer, uc_id integer, delcnt integer default 0);")
@@ -127,18 +127,18 @@ class afModel():
         """
         if not os.path.isabs(path):
             path = os.path.abspath(path)
-            
+
         if not os.path.exists(path): raise IOError
 
         self.currentdir = os.path.dirname(path)
-            
+
         self.productfilename = path
         os.chdir(self.currentdir)
         logging.debug("afmodel.requestOpenProduct(%s)" % path)
         self.connection = sqlite3.connect(self.productfilename)
 
     #---------------------------------------------------------------------
-    
+
     def getProductInformation(self):
         """
         Get title and description of product from the database
@@ -153,8 +153,8 @@ class afModel():
         for row in c:
             product[row[0]] = row[1]
         return product
-    
-    
+
+
     def getFeature(self, ID):
         """
         Get a feature from database or new feature with default values
@@ -165,7 +165,7 @@ class afModel():
         @note: If ID < 0 a feature object with predefined data for a new feature is returned
         """
         c = self.connection.cursor()
-        
+
         if ID < 0:
             feature = cFeature()
         else:
@@ -175,22 +175,22 @@ class afModel():
             feature = cFeature(ID=basedata[0], title=basedata[1], priority=basedata[2],
                                status=basedata[3], version=basedata[4], risk=basedata[5],
                                description=basedata[6])
-        
+
         select_string = 'select rq_id from feature_requirement_relation where ft_id=%d and delcnt==0' % ID
         query_string = 'select ID, title, priority, status, complexity,' \
             'assigned, effort, category, version, description from requirements where id in (%s);' % select_string
         related_requirements_list = self.getData(query_string)
         feature.setRelatedRequirements(self._RequirementListFromPlainList(related_requirements_list))
-        
+
         query_string = 'select ID, title, priority, status, complexity,' \
             'assigned, effort, category, version, description from requirements where id not in (%s) and delcnt==0;' % select_string
         unrelated_requirements_list = self.getData(query_string)
         feature.setUnrelatedRequirements(self._RequirementListFromPlainList(unrelated_requirements_list))
-        
+
         feature.setChangelist(self.getChangelist(_TYPEID_FEATURE, ID))
         return feature
-    
-    
+
+
     def getRequirement(self, ID):
         """
         Get a requirement from database or new requirement with default values
@@ -201,7 +201,7 @@ class afModel():
         @note: If ID < 0 an object with predefined data for a new requirement is returned
         """
         c = self.connection.cursor()
-        
+
         if ID < 0:
             requirement = cRequirement()
         else:
@@ -214,13 +214,13 @@ class afModel():
                                        complexity=basedata[5], assigned=basedata[6], effort=basedata[7],
                                        category=basedata[8], origin=basedata[9], rationale=basedata[10],
                                        description=basedata[11])
-        
+
         select_string = 'select tc_id from requirement_testcase_relation where rq_id=%d and delcnt==0' % ID
         query_string = 'select all id, title, version, purpose from testcases where id in (%s);' % select_string
         c.execute(query_string)
         relatedtestcaselist = self.getData(query_string)
         requirement.setRelatedTestcases(self._TestcaseListFromPlainList(relatedtestcaselist))
-        
+
         query_string = 'select all id, title, version, purpose from testcases where id not in (%s) and delcnt==0;' % select_string
         c.execute(query_string)
         unrelatedtestcaselist = self.getData(query_string)
@@ -231,12 +231,12 @@ class afModel():
         c.execute(query_string)
         relatedusecaselist = self.getData(query_string)
         requirement.setRelatedUsecases(self._UsecaseListFromPlainList(relatedusecaselist))
-        
+
         query_string = 'select all id, title, priority, usefrequency, actors, stakeholders from usecases where id not in (%s) and delcnt==0;' % select_string
         c.execute(query_string)
         unrelatedusecaselist = self.getData(query_string)
         requirement.setUnrelatedUsecases(self._UsecaseListFromPlainList(unrelatedusecaselist))
-        
+
         select_string = 'select ft_id from feature_requirement_relation where rq_id=%d and delcnt==0' % ID
         query_string = 'select all ID, title, priority, status, version, risk, description from features where ID in (%s);' % select_string
         c.execute(query_string)
@@ -246,7 +246,7 @@ class afModel():
         requirement.setChangelist(self.getChangelist(_TYPEID_REQUIREMENT, ID))
         return requirement
 
-    
+
     def _FeatureListFromPlainList(self, ftplainlist):
         ftlist = []
         for ft in ftplainlist:
@@ -258,16 +258,17 @@ class afModel():
             ftobj['version'] = ft[4]
             ftobj['risk'] = ft[5]
             ftobj['description'] = ft[6]
+            ftobj.setChangelist(self.getChangelist(_TYPEID_FEATURE, ftobj['ID']))
             ftlist.append(ftobj)
         return ftlist
-    
-    
+
+
     def getTestcase(self, ID):
         """
         Get a testcase from database or new testcase with default values
         @param ID: Testcase ID
         @type  ID: integer
-        @rtype:  cTestcase 
+        @rtype:  cTestcase
         @return: Testcase object
         @note: If ID < 0 an object with predefined data for a new testcase is returned
         """
@@ -300,7 +301,7 @@ class afModel():
         testcase.setRelatedTestsuites(tslist)
 
         testcase.setChangelist(self.getChangelist(_TYPEID_TESTCASE, ID))
-        
+
         return testcase
 
 
@@ -331,22 +332,23 @@ class afModel():
             'assigned, effort, category, version, description from requirements where id in (%s);' % select_string
         c.execute(query_string)
         related_requirements = self.getData(query_string)
-        
+
         usecase.setRelatedRequirements(self._RequirementListFromPlainList(related_requirements))
         usecase.setChangelist(self.getChangelist(_TYPEID_USECASE, ID))
         return usecase
-    
-    
+
+
     def _RequirementListFromPlainList(self, rqplainlist):
         rqlist = []
         for rq in rqplainlist:
             rqobj = cRequirement(ID=rq[0], title=rq[1], priority=rq[2], status=rq[3],
                                  complexity=rq[4], assigned=rq[5], effort=rq[6],
                                  category=rq[7], version=rq[8], description=rq[9])
+            rqobj.setChangelist(self.getChangelist(_TYPEID_REQUIREMENT, rqobj['ID']))
             rqlist.append(rqobj)
         return rqlist
-    
-    
+
+
     def getTestsuite(self, ID):
         """
         Get a testsuite from database or new testsuite with default values
@@ -357,7 +359,7 @@ class afModel():
         @note: If ID < 0 an object with predefined data for a new testsuite is returned
         """
         c = self.connection.cursor()
-        
+
         if ID < 0:
             testsuite = cTestsuite()
         else:
@@ -366,20 +368,21 @@ class afModel():
             basedata = c.fetchone()
             testsuite = cTestsuite(ID=basedata[0], title=basedata[1],
                                    description=basedata[2], execorder=basedata[3])
-            
+
         select_string = 'select tc_id from testsuite_testcase_relation where ts_id=%d and delcnt==0' % ID
         query_string = 'select all id, title, version, purpose from testcases where id in (%s);' % select_string
         includedtestcaselist = self.getData(query_string)
         testsuite.setRelatedTestcases(self._TestcaseListFromPlainList(includedtestcaselist))
-        
+
         query_string = 'select all id, title, version, purpose from testcases where id not in (%s) and delcnt==0;' % select_string
         excludedtestcaselist = self.getData(query_string)
         testsuite.setUnrelatedTestcases(self._TestcaseListFromPlainList(excludedtestcaselist))
         return testsuite
 
-    
+
     def getChangelist(self, aftype, afid):
         query_string = 'select user, date, description, changetype from changelog where aftype==%d and afid==%d' % (aftype, afid)
+        query_string += 'order by date asc'
         changelist = self.getData(query_string)
         cllist = []
         for cl in changelist:
@@ -387,7 +390,7 @@ class afModel():
             cllist.append(clobj)
         return cllist
 
-    
+
     def getData(self, query_string):
         """
         Simple helper to read data from database
@@ -448,8 +451,8 @@ class afModel():
         @return: list with all testcase ID
         """
         return self.getIDs('testcases')
-    
-    
+
+
     def getTestsuiteIDs(self):
         """
         Get list with ID's of all testsuites from database
@@ -466,7 +469,7 @@ class afModel():
         @param deleted: If C{True}, a list with all features marked as deleted is returned;
                         Otherways all ordinary features are returned
         @rtype:  object list
-        @return: list with feature objects just containing basedata 
+        @return: list with feature objects just containing basedata
         """
         if deleted:
             where_string = 'delcnt!=0'
@@ -474,9 +477,10 @@ class afModel():
             where_string = 'delcnt==0'
         query_string = 'select ID, title, priority, status, version, risk, description from features where %s;' % where_string
         plainfeatures = self.getData(query_string)
-        return self._FeatureListFromPlainList(plainfeatures)
-        
-    
+        ftlist = self._FeatureListFromPlainList(plainfeatures)
+        return ftlist
+
+
     def getRequirementList(self, deleted=False):
         """
         Get list with all requirements from database
@@ -484,7 +488,7 @@ class afModel():
         @param deleted: If C{True}, a list with all requirements marked as deleted is returned;
                         Otherways all ordinary requirements are returned
         @rtype:  object list
-        @return: list with requirements objects just containing basedata 
+        @return: list with requirements objects just containing basedata
         """
         if deleted:
             where_string = 'delcnt!=0'
@@ -492,9 +496,10 @@ class afModel():
             where_string = 'delcnt==0'
         query_string = 'select ID, title, priority, status, complexity, assigned, effort, category, version, description from requirements where %s;' % where_string
         plainrequirements = self.getData(query_string)
-        return self._RequirementListFromPlainList(plainrequirements)
+        rqlist = self._RequirementListFromPlainList(plainrequirements)
+        return rqlist
 
-    
+
     def getTestcaseList(self, deleted=False):
         """
         Get list with all testcases from database
@@ -502,7 +507,7 @@ class afModel():
         @param deleted: If C{True}, a list with all testcases marked as deleted is returned;
                         Otherways all ordinary testcases are returned
         @rtype:  object list
-        @return: list with testcase objects just containing basedata 
+        @return: list with testcase objects just containing basedata
         """
         if deleted:
             where_string = 'delcnt!=0'
@@ -510,8 +515,9 @@ class afModel():
             where_string = 'delcnt==0'
         query_string = 'select id, title, version, purpose from testcases where %s;' % where_string
         tclist = self.getData(query_string)
-        return self._TestcaseListFromPlainList(tclist)
-    
+        tclist = self._TestcaseListFromPlainList(tclist)
+        return tclist
+
 
     def _TestcaseListFromPlainList(self, tcplainlist):
         tclist = []
@@ -521,6 +527,7 @@ class afModel():
             tcobj['title'] = tc[1]
             tcobj['version'] = tc[2]
             tcobj['purpose'] = tc[3]
+            tcobj.setChangelist(self.getChangelist(_TYPEID_TESTCASE, tcobj['ID']))
             tclist.append(tcobj)
         return tclist
 
@@ -540,9 +547,10 @@ class afModel():
             where_string = 'delcnt==0'
         query_string = 'select ID, title, priority, usefrequency, actors, stakeholders from usecases where %s;'  % where_string
         uclist = self.getData(query_string)
-        return self._UsecaseListFromPlainList(uclist)
-    
-    
+        uclist = self._UsecaseListFromPlainList(uclist)
+        return uclist
+
+
     def _UsecaseListFromPlainList(self, ucplainlist):
         uclist = []
         for uc in ucplainlist:
@@ -553,10 +561,11 @@ class afModel():
             ucobj['usefrequency'] = uc[3]
             ucobj['actors'] = uc[4]
             ucobj['stakeholders'] = uc[5]
+            ucobj.setChangelist(self.getChangelist(_TYPEID_USECASE, ucobj['ID']))
             uclist.append(ucobj)
         return uclist
 
-    
+
     def getTestsuiteList(self, deleted=False):
         """
         Get list with all testsuites from database
@@ -564,7 +573,7 @@ class afModel():
         @param deleted: If C{True}, a list with all testsuites marked as deleted is returned;
                         Otherways all ordinary testsuites are returned
         @rtype:  óbject list
-        @return: list with testsuite objects just containing basedata 
+        @return: list with testsuite objects just containing basedata
         """
         if deleted:
             where_string = 'delcnt!=0'
@@ -585,12 +594,12 @@ class afModel():
             tslist[i]['nbroftestcase'] = len(c.fetchall())
 
         return tslist
-    
-    
+
+
     def getArtefactNames(self):
         """
         Return name/title and ID of all (undeleted) artefacts in database
-        
+
         @rtype:  dictionary
         @return: Dictionary with the artefact types as keys. The
                  value of each key is a list with tuples, each tuple containing two
@@ -608,8 +617,8 @@ class afModel():
                 r[key].append((row[0], row[1]))
 
         return r
-    
-    
+
+
     def getNumberOfDeletedArtefacts(self):
         """
         Get the number of deleted artefacts for each artefact type
@@ -628,19 +637,19 @@ class afModel():
     #---------------------------------------------------------------------
 
     ## @brief Save product information to database
-    ## @param product_info Dictionary with keys title and description 
+    ## @param product_info Dictionary with keys title and description
     def saveProductInfo(self, product_info):
         """
         Save product info to database
         @param product_info: Dictionary with keys 'title' and 'description'
-        @type  product_info: dictionary 
+        @type  product_info: dictionary
         """
         logging.debug("afmodel.saveProductInfo()")
         c = self.connection.cursor()
         c.execute("update product set 'value'='%s' where property='title'" % product_info['title'])
         c.execute("update product set 'value'='%s' where property='description'" % product_info['description'])
         self.connection.commit()
-    
+
 
     def saveFeature(self, feature):
         """
@@ -663,7 +672,7 @@ class afModel():
             "'delcnt'=? where ID=?;")
         (basedata, new_artefact) = self.saveArtefact(plainfeature, sqlstr)
         ft_id = basedata[0]
-        
+
         c = self.connection.cursor()
         c.execute("delete from feature_requirement_relation where ft_id=?", (ft_id,))
         for rq in feature.getRelatedRequirements():
@@ -705,13 +714,13 @@ class afModel():
 
         (basedata, new_artefact) = self.saveArtefact(plainrequirement, sqlstr, commit = False)
         rq_id = basedata[0]
-        
+
         related_testcases= requirement.getRelatedTestcases()
         c = self.connection.cursor()
         c.execute("delete from requirement_testcase_relation where rq_id=?", (rq_id,))
         for tc in related_testcases:
             c.execute("insert into requirement_testcase_relation values (?,?,?)", (rq_id, tc['ID'], 0))
-        
+
         related_usecases = requirement.getRelatedUsecases()
         c = self.connection.cursor()
         c.execute("delete from requirement_usecase_relation where rq_id=?", (rq_id,))
@@ -784,13 +793,13 @@ class afModel():
             "'altscenario'=?, 'notes'=?, 'delcnt'=? where ID=?")
         (basedata, new_artefact) = self.saveArtefact(plainusecase, sqlstr, commit = False)
         uc_id = basedata[0]
-        
+
         changelog['changetype'] = [_CHANGEID_EDIT, _CHANGEID_NEW][bool(new_artefact)]
         self.saveChangelog(_TYPEID_USECASE, uc_id, changelog, commit = True)
 
         return (self.getUsecase(uc_id), new_artefact)
 
-    
+
     def saveTestsuite(self, testsuite):
         """
         Save testsuite to database
@@ -810,7 +819,7 @@ class afModel():
             "'title'=?, 'description'=?, execorder=?, 'delcnt'=? where ID=?")
         (basedata, new_artefact) = self.saveArtefact(plaintestsuite, sqlstr, commit=False)
         ts_id = basedata[0]
-        
+
         c = self.connection.cursor()
         c.execute("delete from testsuite_testcase_relation where ts_id=?", (ts_id,))
         for tc in testsuite.getRelatedTestcases():
@@ -818,8 +827,8 @@ class afModel():
         self.connection.commit()
 
         return (self.getTestsuite(ts_id), new_artefact)
-        
-        
+
+
     def saveArtefact(self, data, sqlstr, commit=True):
         """
         Save basedata of an artefact to database
@@ -852,7 +861,7 @@ class afModel():
             self.connection.commit()
         return (data, new_artefact)
 
-            
+
     def saveChangelog(self, aftype, afid, changelog, commit = False):
         c = self.connection.cursor()
         savedata = (afid, aftype, changelog['changetype'], changelog['date'],
@@ -862,8 +871,8 @@ class afModel():
             self.connection.commit()
 
     #---------------------------------------------------------------------
-    
-    
+
+
     def requestAssignedList(self):
         """
         Get list with all assigned entries from requirements
@@ -874,8 +883,8 @@ class afModel():
         c = self.connection.cursor()
         c.execute(query_string)
         return [item[0] for item in c.fetchall()]
-    
-    
+
+
     def requestActorList(self):
         """
         Get list with all actor entries from usecases
@@ -898,13 +907,13 @@ class afModel():
         c = self.connection.cursor()
         c.execute(query_string)
         return [item[0] for item in c.fetchall()]
-    
+
     #---------------------------------------------------------------------
-    
+
     def deleteFeature(self, item_id, delcnt=1):
         """
         Delete a feature and it's relations
-        
+
         Actually the feature is not deleted from the database. Instead, the delcnt
         column of the feature is set to 1 to indicated that the feature is deleted.
         Reseting the delcnt column to 0 means undeleting the feature.
@@ -913,7 +922,7 @@ class afModel():
         feature_requirement_relation is incremented. On undeleting the feature
         (or the requirement) the delcnt value is decremented and the relation
         only becomes 'undeleted' when both the feature and the requirement are not deleted.
-        
+
         @type  item_id: integer
         @param item_id: Feature ID
         @type   delcnt: integer
@@ -931,7 +940,7 @@ class afModel():
         else:
             incr = -1
             changetype = _CHANGEID_UNDELETE
-            
+
         c.execute("select all ft_id, rq_id, delcnt from feature_requirement_relation where ft_id=?", (item_id,))
         rows = c.fetchall()
         for row in rows:
@@ -943,11 +952,11 @@ class afModel():
                               date=self.controller.getCurrentTimeStr(),
                               changetype=changetype)
         self.saveChangelog(_TYPEID_FEATURE, item_id, cle, False)
-        
+
         self.connection.commit()
         return self.getFeature(item_id)
 
-    
+
     ## @brief Delete a requirement from database
     ## @param item_id ID of the requirement
     ##
@@ -1045,8 +1054,8 @@ class afModel():
 
         self.connection.commit()
         return self.getTestcase(item_id)
-        
-        
+
+
     def deleteUsecase(self, item_id, delcnt=1):
         """
         Delete a usecase and it's relations
@@ -1128,8 +1137,8 @@ class afModel():
         """
         logging.debug("afmodel.addFeatureRequirementRelation(ft_id=%d, rq_id=%d)" % (ft_id, rq_id))
         self._AddRelation(("feature_requirement_relation", "ft_id", "rq_id"), ft_id, rq_id)
-        
-    
+
+
     def addTestsuiteTestcaseRelation(self, ts_id, tc_id):
         """
         Add a new relation to the testsuite_testcase_relation table
@@ -1139,8 +1148,8 @@ class afModel():
         @type  tc_id: integer
         """
         self._AddRelation(("testsuite_testcase_relation", "ts_id", "tc_id"), ts_id, tc_id)
-    
-    
+
+
     def addRequirementUsecaseRelation(self, rq_id, uc_id):
         """
         Add a new relation to the requirement_usecase_relation table
@@ -1150,8 +1159,8 @@ class afModel():
         @type  uc_id: integer
         """
         self._AddRelation(("requirement_usecase_relation", "rq_id", "uc_id"), rq_id, uc_id)
-        
-    
+
+
     def addRequirementTestcaseRelation(self, rq_id, tc_id):
         """
         Add a new relation to the requirement_testcase_relation table
@@ -1161,8 +1170,8 @@ class afModel():
         @type  tc_id: integer
         """
         self._AddRelation(("requirement_testcase_relation", "rq_id", "tc_id"), rq_id, tc_id)
-        
-    
+
+
     def _AddRelation(self, table, left_id, right_id):
         """
         Base function to add a new relation to a table in the database
@@ -1205,14 +1214,14 @@ class afModel():
         c = self.connection.cursor()
         c.execute("select %s, %s from %s" % (leftcolname, rightcolname, tablename))
         return c.fetchall()
-        
+
     #---------------------------------------------------------------------
 
     def getRequirementIDsReleatedToFeature(self, ft_id):
         query_string = 'select rq_id from feature_requirement_relation where ft_id=%d and delcnt==0' % ft_id
         return [data[0] for data in self.getData(query_string)];
-    
-    
+
+
     def getTestcaseIDsRelatedToRequirement(self, rq_id):
         query_string = 'select tc_id from requirement_testcase_relation where rq_id=%d and delcnt==0' % rq_id
         return [data[0] for data in self.getData(query_string)];
@@ -1221,8 +1230,8 @@ class afModel():
     def getUsecaseIDsRelatedToRequirement(self, rq_id):
         query_string = 'select uc_id from requirement_usecase_relation where rq_id=%d and delcnt==0' % rq_id
         return [data[0] for data in self.getData(query_string)];
-    
-    
+
+
     def getTestcaseIDsRelatedToTestsuite(self, ts_id):
         query_string = 'select tc_id from testsuite_testcase_relation where ts_id=%d and delcnt==0' % ts_id
         return [data[0] for data in self.getData(query_string)];
@@ -1256,7 +1265,7 @@ class afModel():
         This is a very <b>long</b> sample page description. <br>
         """
         c.execute("insert into product values ('description', '%s');" % s)
-        
+
         for i in range(20):
             title = "Feature %d" % i
             priority = random.randint(0,2)
@@ -1285,7 +1294,7 @@ class afModel():
         c.execute("insert into feature_requirement_relation values (2, 4, 0);")
         c.execute("insert into feature_requirement_relation values (2, 5, 0);")
         c.execute("insert into feature_requirement_relation values (3, 5, 0);")
-        
+
 
 
         c.execute("insert into testsuite_testcase_relation values (1, 1, 0);")
@@ -1339,4 +1348,4 @@ class afModel():
             c.execute("insert into changelog values (?, ?, ?, ?, ?, ?)",
                 (afid, aftype, changetype, date, user, description))
 
-            
+
