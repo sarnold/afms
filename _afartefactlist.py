@@ -248,6 +248,19 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
         s = s.strip().replace('\n', '|')
         return s
 
+    def GetChangeDate(self, obj):
+        try:
+            return obj.getChangelist()[0]['date']
+        except IndexError:
+            return ''
+
+
+    def GetChangeUser(self, obj):
+        try:
+            return obj.getChangelist()[0]['user']
+        except IndexError:
+            return ''
+
 #-------------------------------------------------------------------------
 
 class afFeatureList(afArtefactList):
@@ -262,14 +275,19 @@ class afFeatureList(afArtefactList):
         afArtefactList.__init__(self, parent, self.column_titles, ID, checkstyle)
 
     def FormatRow(self, ftobj):
+        try:
+            changedata = ftobj.getChangelist()[0]
+        except IndexError:
+            changedata = {'date' : '', 'user': ''}
+
         return (self.idformat % ftobj['ID'],
                 ftobj['title'],
                 afresource.PRIORITY_NAME[ftobj['priority']],
                 afresource.STATUS_NAME[ftobj['status']],
                 ftobj['version'],
                 afresource.RISK_NAME[ftobj['risk']],
-                ftobj.getChangelist()[0]['date'],
-                ftobj.getChangelist()[0]['user'],
+                self.GetChangeDate(ftobj),
+                self.GetChangeUser(ftobj),
                 self.toText(ftobj['description']))
 
 #-------------------------------------------------------------------------
@@ -293,8 +311,8 @@ class afRequirementList(afArtefactList):
                 afresource.EFFORT_NAME[rqobj['effort']],
                 afresource.CATEGORY_NAME[rqobj['category']],
                 rqobj['version'],
-                rqobj.getChangelist()[0]['date'],
-                rqobj.getChangelist()[0]['user'],
+                self.GetChangeDate(rqobj),
+                self.GetChangeUser(rqobj),
                 self.toText(rqobj['description']))
 
 #-------------------------------------------------------------------------
@@ -311,8 +329,8 @@ class afTestcaseList(afArtefactList):
         return (self.idformat % tcobj['ID'],
                 tcobj['title'],
                 tcobj['version'],
-                tcobj.getChangelist()[0]['date'],
-                tcobj.getChangelist()[0]['user'],
+                self.GetChangeDate(tcobj),
+                self.GetChangeUser(tcobj),
                 self.toText(tcobj['purpose']))
 
 #-------------------------------------------------------------------------
@@ -332,8 +350,8 @@ class afUsecaseList(afArtefactList):
                 afresource.USEFREQUENCY_NAME[ucobj['usefrequency']],
                 ucobj['actors'],
                 ucobj['stakeholders'],
-                ucobj.getChangelist()[0]['date'],
-                ucobj.getChangelist()[0]['user'])
+                self.GetChangeDate(ucobj),
+                self.GetChangeUser(ucobj))
 
 #-------------------------------------------------------------------------
 
