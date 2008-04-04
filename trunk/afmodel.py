@@ -54,7 +54,7 @@ _CHANGEID_DELETE   = 2
 _CHANGEID_UNDELETE = 3
 
 
-class afModel():
+class afModel(object):
     """
     Class containing all database access functions
     """
