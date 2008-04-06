@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -27,7 +27,6 @@ from _afartefactlist import *
 from _afvalidators import NotEmptyValidator
 import _afbasenotebook
 import afconfig
-from afresource import _
 from _afartefact import cTestcase
 
 
@@ -67,14 +66,14 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.testdata_edit)
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.steps_edit)
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.notes_edit)
-            
+
         self.id_edit.Enable(False)
-        
+
         edit = [self.title_edit, self.id_edit, self.version_edit, self.purpose_edit,
             self.prerequisite_edit, self.testdata_edit, self.steps_edit, self.notes_edit]
-            
+
         sizer = wx.FlexGridSizer(8, 2, 10, 10)
-        
+
         for i in range(len(labels)):
             sizer.Add(statictext[i], 0, wx.EXPAND | wx.ALIGN_BOTTOM)
             sizer.Add(edit[i], 0, wx.EXPAND | wx.ALIGN_LEFT)
@@ -93,7 +92,7 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
 
         panel.Layout()
         self.AddPage(panel, _("Testcase"))
-        
+
         # Related requirements panel; this relation could not be edited from here
         self.requirementlist = self.AddRelatedArtefactPanel(afRequirementList, _("Related Requirements"))
 
@@ -115,15 +114,15 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
 
         self.requirementlist.InitContent(testcase.getRelatedRequirements())
         self.testsuitelist.InitContent(testcase.getRelatedTestsuites())
-        
+
         if self.viewonly:
             self.changelist.InitContent(testcase.getChangelist())
-        
+
         self.Show()
         self.GetParent().Layout()
         self.title_edit.SetFocus()
-        
-        
+
+
     def GetContent(self):
         testcase = cTestcase(ID=int(self.id_edit.GetValue()),
                              title=self.title_edit.GetValue(),

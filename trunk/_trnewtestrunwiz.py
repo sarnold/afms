@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -24,13 +24,13 @@
 import wx
 import  wx.wizard as wiz
 import  wx.lib.filebrowsebutton as filebrowse
-from afresource import AF_WILDCARD, TR_WILDCARD, _
+from afresource import AF_WILDCARD, TR_WILDCARD
 
 
 class NewTestrunWizard():
     def __init__(self, parent, config = None):
         self.parent = parent
-        
+
     def ShowModal(self):
         wizard = wiz.Wizard(self.parent, -1, _("Create new test run"))
         page1 = SelectProductDatabasePage(wizard, _("Step 1/4: Select product database"))
@@ -39,17 +39,17 @@ class NewTestrunWizard():
         page4 = SelectOutputFilePage(wizard, _("Step 4/4: Select test run output file"))
 
         self.pages = (page1, page2, page3, page4)
-        
+
         wiz.WizardPageSimple_Chain(page1, page2)
         wiz.WizardPageSimple_Chain(page2, page3)
         wiz.WizardPageSimple_Chain(page3, page4)
 
         wizard.GetPageAreaSizer().Add(page1)
         return wizard.RunWizard(page1)
-    
+
     def GetValue(self):
         return [page.GetValue() for page in self.pages]
-    
+
     def GetProductDatabase(self):
         return self.pages[0].GetValue()
 
@@ -71,7 +71,7 @@ class myWizardPage(wiz.WizardPageSimple):
 
     def GetValue(self):
         return None
-    
+
     def SetFocus(self):
         pass
 
@@ -83,23 +83,23 @@ class SelectFilePage(myWizardPage):
         self.fbbh = filebrowse.FileBrowseButton(
             self, -1, size=(480, -1),
             buttonText = _('Browse')+' ...', **filebrowsesettings)
-            
+
         self.sizer.Add(self.fbbh, 0, wx.ALL, 5)
         self.SetSizer(self.sizer)
 
     def GetValue(self):
         return self.fbbh.GetValue()
-    
+
     def SetValue(self, value):
         self.fbbh.SetValue(value)
-    
+
     def SetFocus(self):
         self.fbbh.SetFocus()
 
 
 class SelectProductDatabasePage(SelectFilePage):
     def __init__(self, parent, title):
-        SelectFilePage.__init__(self, parent, title, 
+        SelectFilePage.__init__(self, parent, title,
                 {   "labelText"      : _("Database file")+':',
                     "toolTip"        : "",
                     "dialogTitle"    : _("Open Database"),
@@ -143,7 +143,7 @@ class SelectTestsuitePage(myWizardPage):
     def GetValue(self):
         """Return ID of selected test suite"""
         return self.testsuite_combobox.GetClientData(self.testsuite_combobox.GetSelection())
-    
+
     def SetValue(self, items):
         """Populate combobox with test suite names and ID's; ID's are stored as client data"""
         self.testsuite_combobox.Clear()
@@ -175,7 +175,7 @@ class EnterTestrunInfo(myWizardPage):
 
     def GetValue(self):
         return (self.description_edit.GetValue(), self.tester_edit.GetValue())
-    
+
     def SetFocus(self, which=0):
         if which == 0:
             self.description_edit.SetFocus()

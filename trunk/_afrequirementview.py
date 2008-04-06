@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -28,7 +28,6 @@ from _afvalidators import NotEmptyValidator, ArtefactHookValidator
 import _afbasenotebook
 import afconfig
 import afresource
-from afresource import _
 from _afartefact import cRequirement, cTestcase, cUsecase
 
 class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
@@ -44,7 +43,7 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
         labels1 = [_('Title'), _('ID'), _('Version'), _('Priority'), _('Status'), _('Complexity'), _('Assigned'), _('Effort'), _('Category'), _('Description')]
         labels2 = [_('Origin'), _('Rationale')]
 
-        
+
         (width, height) = (0, 0)
         statictext = []
         for label in labels1:
@@ -52,10 +51,10 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
             (w, h) = st.GetSize()
             (width, height) =  (max(width, w), max(height, h))
             statictext.append(st)
-            
+
         for st in statictext:
             st.SetMinSize((width,height))
-        
+
         if viewonly:
             self.title_edit = wx.TextCtrl(panel1, -1, "", style = wx.TE_READONLY)
             self.id_edit = wx.TextCtrl(panel1, -1, "", style = wx.TE_READONLY)
@@ -75,12 +74,12 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
             self.title_edit = wx.TextCtrl(panel1, -1, "", validator = NotEmptyValidator())
             self.id_edit = wx.TextCtrl(panel1, -1, "", style = wx.TE_READONLY)
             self.version_edit = wx.TextCtrl(panel1, -1, "")
-            self.priority_edit = wx.ComboBox(panel1, -1, choices = afresource.PRIORITY_NAME, style=wx.CB_DROPDOWN | wx.CB_READONLY)
-            self.status_edit = wx.ComboBox(panel1, -1, choices = afresource.STATUS_NAME, style=wx.CB_DROPDOWN | wx.CB_READONLY)
-            self.complexity_edit = wx.ComboBox(panel1, -1, choices = afresource.COMPLEXITY_NAME, style=wx.CB_DROPDOWN | wx.CB_READONLY)
+            self.priority_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.PRIORITY_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
+            self.status_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.STATUS_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
+            self.complexity_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.COMPLEXITY_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.assigned_edit = wx.ComboBox(panel1, -1, choices = afresource.ASSIGNED_NAME, style=wx.CB_DROPDOWN)
-            self.effort_edit = wx.ComboBox(panel1, -1, choices = afresource.EFFORT_NAME, style=wx.CB_DROPDOWN | wx.CB_READONLY)
-            self.category_edit = wx.ComboBox(panel1, -1, choices = afresource.CATEGORY_NAME, style=wx.CB_DROPDOWN | wx.CB_READONLY)
+            self.effort_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.EFFORT_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
+            self.category_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.CATEGORY_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.description_edit = wx.TextCtrl(panel1, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
             self.origin_edit = wx.TextCtrl(panel2, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
             self.rationale_edit = wx.TextCtrl(panel2, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
@@ -94,7 +93,7 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
                 self.complexity_edit, self.assigned_edit, self.effort_edit, self.category_edit, self.description_edit, self.origin_edit, self.rationale_edit]
 
         mainsizer = wx.FlexGridSizer(3, 1, 10, 10)
-        
+
         sizer = wx.FlexGridSizer(1, 2, 10, 10)
         sizer.Add(statictext[0], 0, wx.EXPAND | wx.ALIGN_BOTTOM)
         sizer.Add(edit[0], 0, wx.EXPAND | wx.ALIGN_LEFT)
@@ -110,7 +109,7 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
         sizer.AddGrowableCol(1)
         sizer.AddGrowableCol(3)
         sizer.SetFlexibleDirection(wx.BOTH)
-        
+
         mainsizer.Add(sizer, 0, wx.EXPAND)
 
         sizer = wx.FlexGridSizer(1, 2, 10, 10)
@@ -120,7 +119,7 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
         sizer.AddGrowableRow(0)
         sizer.SetFlexibleDirection(wx.BOTH)
         sizer.Layout()
-        
+
         mainsizer.Add(sizer, 1, wx.EXPAND)
 
         mainsizer.AddGrowableCol(0)
@@ -133,10 +132,10 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
 
         panel1.Layout()
         self.AddPage(panel1, _("Requirement"))
-        
+
         #-----------------------------------------------------------------
         # Rationale panel
-        
+
         statictext = []
         for label in labels2:
             st = wx.StaticText(panel2, -1, label+':')
@@ -154,10 +153,10 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
         hbox.Add(mainsizer, 1, wx.ALL | wx.EXPAND, 10)
         panel2.SetSizer(hbox)
         self.AddPage(panel2, _("Rationale"))
-        
+
         #-----------------------------------------------------------------
         # Related testcases panel
-        
+
         panel3 = wx.Panel(self, -1)
         self.testcaselist = afTestcaseList(panel3, -1, checkstyle=not self.viewonly)
         sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -185,37 +184,37 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
         #-----------------------------------------------------------------
 
         self.AddChangelogPanel()
-        
+
 
     def InitContent(self, requirement):
         self.id_edit.SetValue(str(requirement['ID']))
         self.title_edit.SetValue(requirement['title'])
-        self.priority_edit.SetValue(afresource.PRIORITY_NAME[requirement['priority']])
-        self.status_edit.SetValue(afresource.STATUS_NAME[requirement['status']])
+        self.priority_edit.SetValue(_(afresource.PRIORITY_NAME[requirement['priority']]))
+        self.status_edit.SetValue(_(afresource.STATUS_NAME[requirement['status']]))
         self.version_edit.SetValue(requirement['version'])
-        self.complexity_edit.SetValue(afresource.COMPLEXITY_NAME[requirement['complexity']])
+        self.complexity_edit.SetValue(_(afresource.COMPLEXITY_NAME[requirement['complexity']]))
         self.assigned_edit.SetValue(requirement['assigned'])
-        self.effort_edit.SetValue(afresource.EFFORT_NAME[requirement['effort']])
-        self.category_edit.SetValue(afresource.CATEGORY_NAME[requirement['category']])
+        self.effort_edit.SetValue(_(afresource.EFFORT_NAME[requirement['effort']]))
+        self.category_edit.SetValue(_(afresource.CATEGORY_NAME[requirement['category']]))
         self.origin_edit.SetValue(requirement['origin'])
         self.rationale_edit.SetValue(requirement['rationale'])
         self.description_edit.SetValue(requirement['description'])
-        
+
         self.testcaselist.InitCheckableContent(requirement.getUnrelatedTestcases(), requirement.getRelatedTestcases(), self.viewonly)
         self.usecaselist.InitCheckableContent(requirement.getUnrelatedUsecases(), requirement.getRelatedUsecases(), self.viewonly)
         self.featurelist.InitContent(requirement.getRelatedFeatures())
-        
+
         if self.viewonly:
             self.changelist.InitContent(requirement.getChangelist())
         else:
             self.validator_hook = requirement.validator
             self.initial_requirement = requirement
             self.changelog_edit.SetValidator(ArtefactHookValidator(self.ValidateRequirement))
-            
+
         self.Show()
         self.GetParent().Layout()
         self.title_edit.SetFocus()
-        
+
 
     def GetContent(self):
         requirement = cRequirement(ID=int(self.id_edit.GetValue()),
@@ -235,18 +234,18 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
             tc = cTestcase(ID=tc_id)
             related_testcases.append(tc)
         requirement.setRelatedTestcases(related_testcases)
-            
+
         related_usecases = []
         for uc_id in self.usecaselist.GetItemIDByCheckState()[0]:
             uc = cUsecase(ID=uc_id)
             related_usecases.append(uc)
         requirement.setRelatedUsecases(related_usecases)
-            
+
         requirement.setChangelog(self.GetChangelogContent())
-            
+
         return requirement
-    
-    
+
+
     def ValidateRequirement(self):
         (result, msg) = self.validator_hook(self.initial_requirement, self.GetContent())
         if result != 0:
@@ -256,5 +255,5 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
             self.ChangeSelection(5)
             self.changelog_edit.SetFocus()
         return result == 0
-    
+
 

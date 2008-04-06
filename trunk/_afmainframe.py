@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -29,7 +29,6 @@ import _afimages
 from _afproducttree import *
 import afinfo
 import afconfig
-from afresource import _
 import afresource
 
 
@@ -47,7 +46,7 @@ class MainFrame(wx.Frame):
         self.SetupToolbar()
         self.SetupStatusBar()
         self.SetupSashLayout(self)
-        
+
         icons = wx.IconBundle()
         icons.AddIcon(wx.IconFromBitmap(_afimages.getapp16x16Bitmap()))
         icons.AddIcon(wx.IconFromBitmap(_afimages.getapp32x32Bitmap()))
@@ -128,18 +127,18 @@ class MainFrame(wx.Frame):
         delete_bmp = _afimages.getAFDeleteBitmap()
         copy_bmp = _afimages.getAFCopyBitmap()
         paste_bmp = _afimages.getAFPasteBitmap()
-        
+
         tb.SetToolBitmapSize(tsize)
         tb.AddLabelTool(10, _("New"), new_bmp, shortHelp=_("New Product"), longHelp=_("Create new product"))
         self.Bind(wx.EVT_TOOL, self.OnNewProduct, id=10)
-        
+
         tb.AddLabelTool(11, _("Open"), open_bmp, shortHelp=_("Open Product"), longHelp=_("Open existing product"))
         self.Bind(wx.EVT_TOOL, self.OnOpenProduct, id=11)
 
         tb.AddLabelTool(12, _("Edit"), edit_bmp, shortHelp=_("Edit artefact"), longHelp=_("Edit selected artefact"))
         self.Bind(wx.EVT_TOOL, self.OnEditArtefact, id=12)
         tb.EnableTool(12, False)
-        
+
         tb.AddLabelTool(30, _("Copy"), copy_bmp, shortHelp=_("Copy artefact"), longHelp=_("Copy selected artefact to clipboard"))
         self.Bind(wx.EVT_TOOL, self.OnCopyArtefact, id=30)
         tb.EnableTool(30, False)
@@ -234,7 +233,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnNewTestsuite, id = 304)
         menu.Enable(304, False)
         menuBar.Append(menu, _('&New'))
-        
+
         menu = wx.Menu()
         menu.Append(401, _('Language ...'), _('Set language'))
         self.Bind(wx.EVT_MENU, self.OnChangeLanguage, id = 401)
@@ -292,27 +291,27 @@ class MainFrame(wx.Frame):
        "Propagate event"
        evt.SetId(201)
        evt.Skip()
-       
+
     def OnNewFeature(self, evt):
        "Propagate event"
        evt.SetId(301)
        evt.Skip()
-       
+
     def OnNewRequirement(self, evt):
        "Propagate event"
        evt.SetId(302)
        evt.Skip()
-       
+
     def OnNewUsecase(self, evt):
        "Propagate event"
        evt.SetId(305)
        evt.Skip()
-       
+
     def OnNewTestcase(self, evt):
        "Propagate event"
        evt.SetId(303)
        evt.Skip()
-       
+
     def OnNewTestsuite(self, evt):
        "Propagate event"
        evt.SetId(304)
@@ -322,11 +321,11 @@ class MainFrame(wx.Frame):
        "Propagate event"
        evt.SetId(202)
        evt.Skip()
-       
+
     def OnCopyArtefact(self, evt):
         evt.SetId(203)
         evt.Skip()
-        
+
     def OnPasteArtefact(self, evt):
         evt.SetId(204)
         evt.Skip()
@@ -362,6 +361,6 @@ class MainFrame(wx.Frame):
     def InitTree(self, artefactnames, number_of_deleted_artefacts):
         self.treeCtrl.InitTreeCtrl(artefactnames, number_of_deleted_artefacts)
 
-        
+
     def AddItem(self, parent, item):
         self.treeCtrl.AddChildItem(parent, item)

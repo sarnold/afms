@@ -20,7 +20,8 @@
 # $Id$
 
 AFE_SRC := $(wildcard af*.py) $(wildcard _af*.py) version.py afeditor.pyw \
-           COPYING.txt README.txt CHANGELOG.txt
+           COPYING.txt README.txt CHANGELOG.txt \
+           $(addprefix locale/de/LC_MESSAGES/, afms.mo)
 
 TR_SRC := testrunner.py $(wildcard tr*.py) $(wildcard _tr*.py) testrunner.pyw
 
@@ -40,6 +41,7 @@ ZIPARCHIVE := $(addsuffix .zip, afms-$(VERSION))
 all: distrib
 
 distrib:
+	cd doc && cmd /C makedoc.cmd
 	tar --create --file $(ARCHIVE) $(AFE_SRC)
 	tar --file $(ARCHIVE) --append $(TR_SRC)
 	tar --file $(ARCHIVE) --append $(ICON_SRC)

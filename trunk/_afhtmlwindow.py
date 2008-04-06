@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@ import  wx.html as  html
 import webbrowser, urlparse, os
 import afconfig
 import _afdocutils
-from afresource import _
+
 
 class afHtmlWindow(html.HtmlWindow):
     def __init__(self, parent, id, size=wx.DefaultSize, enablescriptexec=False):
@@ -37,7 +37,7 @@ class afHtmlWindow(html.HtmlWindow):
             style=wx.NO_FULL_REPAINT_ON_RESIZE | wx.BORDER_STATIC)
         if "gtk2" in wx.PlatformInfo:
             self.SetStandardFonts()
-            
+
         if "wxMSW" in wx.PlatformInfo:
             # Original font sizes are [7, 8, 10, 12, 16, 22, 30]
             _FONT_SIZES = [5, 6,  8, 10, 14, 20, 24]
@@ -80,7 +80,7 @@ class afHtmlWindow(html.HtmlWindow):
 
     def OnOpeningURL(self, urltype, url):
         return wx.html.HTML_OPEN
-    
+
     def SetValue(self, value):
         """
         Set value to display.
@@ -100,7 +100,7 @@ class afHtmlWindow(html.HtmlWindow):
             value = "<br>".join(lines)
         self.SetPage(value)
 
-        
+
     logging.basicConfig(level=afconfig.loglevel, format=afconfig.logformat)
 
 if __name__ == "__main__":

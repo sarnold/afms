@@ -7,8 +7,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -35,7 +35,7 @@ import trmodel
 import trconfig
 import _afdocutils
 import afresource
-from afresource import _, ENCODING
+from afresource import ENCODING
 from afexporthtml import HTMLFOOTER, htmlentities, specialchars, formatField, __
 
 HTMLHEADER = \
@@ -84,8 +84,8 @@ class trExportHTML():
 
     def writeTOC(self):
         pass
-    
-    
+
+
     def writeTestrunInfo(self):
         infos = self.model.getInfo()
         labels = (_("Product title"), _("Creation date"), _("Description"), _("Tester"), _("AF Database"),
@@ -97,8 +97,8 @@ class trExportHTML():
             self.of.write('<td>%s</td>' % self.formatField(info))
             self.of.write('</tr>')
         self.of.write('</table>')
-    
-    
+
+
     def writeSummary(self):
         status = self.model.getStatusSummary()
         (total, pending, failed, skipped) = status
@@ -109,10 +109,10 @@ class trExportHTML():
         labels = (_('Number of test cases'), _('Pending test cases'), _('Failed test cases'), _('Skipped test cases'), _('Passed test cases'))
         if failed == 0:
             c = "pass"
-            msg = afresource.TEST_STATUS_NAME[afresource.PASSED]
+            msg = _(afresource.TEST_STATUS_NAME[afresource.PASSED])
         else:
             c = "fail"
-            msg = afresource.TEST_STATUS_NAME[afresource.FAILED]
+            msg = _(afresource.TEST_STATUS_NAME[afresource.FAILED])
         self.of.write('<p class="%s">%s: %s</p>' % (c,_("Overall result"), msg))
         self.of.write('<table>')
         for label, s in zip(labels, status):
@@ -122,7 +122,7 @@ class trExportHTML():
             self.of.write('</tr>')
         self.of.write('</table>')
 
-    
+
     def writeTestcases(self):
         headings = (_('Failed test cases'), _('Skipped test cases'), _('Pending test cases'), _('Passed test cases'))
         flags = (afresource.FAILED, afresource.SKIPPED, afresource.PENDING, afresource.PASSED)

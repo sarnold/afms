@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -27,8 +27,8 @@ Maybe it is a good idea to do some refactoring some day to prevent code duplicat
 """
 
 import wx
-from afresource import _
 from _afhtmlwindow import *
+
 
 class trTestcasePanel():
     def __init__(self, parent):
@@ -48,7 +48,7 @@ class trTestcasePanel():
         self.notes_edit = afHtmlWindow(parent, -1, enablescriptexec=True)
 
         self.id_edit.Enable(False)
-        
+
         edit = [self.title_edit, self.id_edit, self.version_edit, self.purpose_edit,
             self.prerequisite_edit, self.testdata_edit, self.steps_edit, self.notes_edit]
 

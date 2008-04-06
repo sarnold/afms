@@ -26,7 +26,6 @@ import wx
 import  wx.lib.mixins.listctrl  as  listmix
 import _afimages
 import afconfig
-from afresource import _
 import afresource
 import logging
 
@@ -282,10 +281,10 @@ class afFeatureList(afArtefactList):
 
         return (self.idformat % ftobj['ID'],
                 ftobj['title'],
-                afresource.PRIORITY_NAME[ftobj['priority']],
-                afresource.STATUS_NAME[ftobj['status']],
+                _(afresource.PRIORITY_NAME[ftobj['priority']]),
+                _(afresource.STATUS_NAME[ftobj['status']]),
                 ftobj['version'],
-                afresource.RISK_NAME[ftobj['risk']],
+                _(afresource.RISK_NAME[ftobj['risk']]),
                 self.GetChangeDate(ftobj),
                 self.GetChangeUser(ftobj),
                 self.toText(ftobj['description']))
@@ -304,12 +303,12 @@ class afRequirementList(afArtefactList):
     def FormatRow(self, rqobj):
         return (self.idformat % rqobj['ID'],
                 rqobj['title'],
-                afresource.PRIORITY_NAME[rqobj['priority']],
-                afresource.STATUS_NAME[rqobj['status']],
-                afresource.COMPLEXITY_NAME[rqobj['complexity']],
+                _(afresource.PRIORITY_NAME[rqobj['priority']]),
+                _(afresource.STATUS_NAME[rqobj['status']]),
+                _(afresource.COMPLEXITY_NAME[rqobj['complexity']]),
                 rqobj['assigned'],
-                afresource.EFFORT_NAME[rqobj['effort']],
-                afresource.CATEGORY_NAME[rqobj['category']],
+                _(afresource.EFFORT_NAME[rqobj['effort']]),
+                _(afresource.CATEGORY_NAME[rqobj['category']]),
                 rqobj['version'],
                 self.GetChangeDate(rqobj),
                 self.GetChangeUser(rqobj),
@@ -346,8 +345,8 @@ class afUsecaseList(afArtefactList):
     def FormatRow(self, ucobj):
         return (self.idformat % ucobj['ID'],
                 ucobj['title'],
-                afresource.PRIORITY_NAME[ucobj['priority']],
-                afresource.USEFREQUENCY_NAME[ucobj['usefrequency']],
+                _(afresource.PRIORITY_NAME[ucobj['priority']]),
+                _(afresource.USEFREQUENCY_NAME[ucobj['usefrequency']]),
                 ucobj['actors'],
                 ucobj['stakeholders'],
                 self.GetChangeDate(ucobj),
@@ -390,7 +389,7 @@ class afChangeList(afArtefactList):
         If description string is empty, display a description according to the changetype."""
         description = row['description']
         if len(description) <= 0:
-            description = afresource.CHANGETYPE_NAME[row['changetype']]
+            description = _(afresource.CHANGETYPE_NAME[row['changetype']])
         return (row['user'], row['date'], self.toText(description), row['changetype'])
 
 

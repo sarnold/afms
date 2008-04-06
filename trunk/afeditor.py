@@ -7,8 +7,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -35,8 +35,14 @@ and Testsuites. This module implements the controller part in the design.
 
 
 import os, sys, time
-import logging
+import logging, gettext
 import wx
+
+basepath = os.path.abspath(os.path.dirname(sys.argv[0]))
+LOCALEDIR = os.path.join(basepath, 'locale')
+DOMAIN = "afms"
+gettext.install(DOMAIN, LOCALEDIR, unicode=True)
+
 import _afimages
 import afconfig
 import afmodel
@@ -53,8 +59,7 @@ from _afmainframe import *
 from _afeditartefactdlg import *
 import afexporthtml
 import afexportxml
-import _afimporter 
-from afresource import _
+import _afimporter
 import afresource
 import _afclipboard
 from _afartefact import cChangelogEntry
@@ -73,10 +78,10 @@ class MyApp(wx.App):
     def OnInit(self):
         """
         Initialization function called by wxWidgets framework.
-        
+
         Event binding, class attributes definitions and similar stuff is
         done here.
-        
+
         @rtype:  boolean
         @return: C{True} on success, C{False} else
         """
@@ -91,17 +96,33 @@ class MyApp(wx.App):
 
         self.model = afmodel.afModel(self, self.config.Read("workdir", documents_dir))
 
-        afresource.SetLanguage(self.config.Read("language", "en"))
+        # Setup language stuff
+        language = self.config.Read("language", 'en')
+        afresource.SetLanguage(language)
+        wxLanguage = {'de' : wx.LANGUAGE_GERMAN, 'en' : wx.LANGUAGE_ENGLISH}
+        try:
+            self.wxLanguageCode = wxLanguage[language]
+        except KeyError:
+            logging.debug('MyApp.OnInit(), language %s unknown' % language)
+            self.wxLanguageCode = wx.LANGUAGE_DEFAULT
+
+        try:
+            t = gettext.translation(DOMAIN, LOCALEDIR, languages=[language])
+            t.install(unicode=True)
+        except IOError:
+            logging.debug('MyApp.OnInit(), gettext.translation() failed for language %s' % language)
+            pass
+
         self.mainframe = MainFrame(None, "AF Editor")
         self.SetTopWindow(self.mainframe)
         self.mainframe.Show(True)
-        self.wildcard = afresource.AF_WILDCARD
-        self.htmlwildcard = afresource.HTML_WILDCARD
+        self.wildcard = _(afresource.AF_WILDCARD)
+        self.htmlwildcard = _(afresource.HTML_WILDCARD)
         self.dont_annoy_at_delete = False
         self.dont_annoy_at_undelete = False
         self.DisableUpdateNodeView = False
         self.DisableOnSelChanged = False
-        
+
         self.productview = 0
         self.trashview = -1
         self.listview = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
@@ -111,7 +132,7 @@ class MyApp(wx.App):
          self.trashfeaturelistview, self.trashrequirementlistview,
          self.trashtestcaselistview, self.trashtestsuitelistview,
          self.trashusecaselistview) = self.listview
-         
+
         self.singleview = (20, 21, 22, 23, 24)
         (self.featureview, self.requirementview, self.testcaseview,
          self.usecaseview, self.testsuiteview)   = self.singleview
@@ -123,13 +144,13 @@ class MyApp(wx.App):
 
         self.PARENTID = "FEATURES REQUIREMENTS USECASES TESTCASES TESTSUITES".split()
         self.delfuncs = (self.model.deleteFeature, self.model.deleteRequirement, self.model.deleteUsecase, self.model.deleteTestcase, self.model.deleteTestsuite)
-        
+
         self.Bind(wx.EVT_MENU, self.OnNewProduct, id=101)
         self.Bind(wx.EVT_MENU, self.OnOpenProduct, id=102)
         self.Bind(wx.EVT_MENU, self.OnExportHTML, id=103)
         self.Bind(wx.EVT_MENU, self.OnExportXML, id=104)
         self.Bind(wx.EVT_MENU, self.OnImport, id=105)
-        
+
         self.Bind(wx.EVT_MENU, self.OnEditArtefact, id = 201)
         self.Bind(wx.EVT_MENU, self.OnDeleteArtefact, id = 202)
         self.Bind(wx.EVT_MENU, self.copyArtefactToClipboard, id = 203)
@@ -140,14 +161,14 @@ class MyApp(wx.App):
         self.Bind(wx.EVT_MENU, self.OnNewTestcase, id = 303)
         self.Bind(wx.EVT_MENU, self.OnNewTestsuite, id = 304)
         self.Bind(wx.EVT_MENU, self.OnNewUsecase, id = 305)
-        
+
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged, id=300)
         self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.OnTreeItemActivated, id=301)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnListItemActivated)
         ##self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnListItemSelected)
-        
+
         self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
-        
+
         global arguments
         if len(arguments) > 0:
             try:
@@ -155,10 +176,10 @@ class MyApp(wx.App):
             except:
                 print("Could not open file %s" % arguments[0])
                 sys.exit(2)
-            
+
         return True
-    
-            
+
+
     def copyArtefactToClipboard(self, evt=None):
         (parent_id, item_id) = self.mainframe.treeCtrl.GetSelectedItem()
         if parent_id == "PRODUCT":
@@ -169,28 +190,28 @@ class MyApp(wx.App):
         if item_id is None: return
 
         logging.debug("afeditor.MyApp.copyArtefactToClipboard(): %s" % str((parent_id, item_id)))
-        
+
         try:
             idx = [item['id'] for item in afresource.ARTEFACTS].index(parent_id)
         except ValueError:
             return
-        
+
         artefact = [self.model.getFeature, self.model.getRequirement, self.model.getUsecase,
                    self.model.getTestcase, self.model.getTestsuite][idx](item_id)
-                   
+
         copytoclip = [_afclipboard.copyFeatureToClipboard, _afclipboard.copyRequirementToClipboard,
                       _afclipboard.copyUsecaseToClipboard, _afclipboard.copyTestcaseToClipboard,
                       _afclipboard.copyTestsuiteToClipboard][idx]
         copytoclip(artefact)
-        
-        
+
+
     def pasteArtefactFromClipboard(self, evt=None):
         # Well, I know here is a lot of repeated code
         # But I think this makes it better understandable
         (af_kind, afobj) = _afclipboard.getArtefactFromClipboard()
         if af_kind is None:
             return
-        
+
         self.DisableUpdateNodeView = True
         afobj['ID'] = -1 # it is a new artefact
         cle = cChangelogEntry(user=afconfig.CURRENT_USER, description='', changetype=0, date=time.strftime(afresource.TIME_FORMAT))
@@ -201,7 +222,7 @@ class MyApp(wx.App):
             if self.currentview == self.featurelistview:
                 self.contentview.AppendItem(data)
             self.updateView([wx.ID_OK, new_artefact, data, None], 'FEATURES', -1)
-            
+
         elif af_kind == 'AFMS_REQUIREMENT':
             (data, new_artefact) = self.model.saveRequirement(afobj)
             if self.currentview == self.requirementlistview:
@@ -288,8 +309,8 @@ class MyApp(wx.App):
                 self.OpenProduct(path)
             except:
                 _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error opening product!'))
-            
-            
+
+
     def OpenProduct(self, path):
         """
         Open product database file.
@@ -319,7 +340,7 @@ class MyApp(wx.App):
         logging.debug("afeditor.OnEditArtefact(), self.currentview=%s" % self.currentview)
         item = self.mainframe.treeCtrl.GetSelection()
         if not item: return
-    
+
         (parent_id, item_id) = self.mainframe.treeCtrl.GetItemInfo(item)
         if parent_id == "TRASH": return
         if parent_id == "PRODUCT":
@@ -349,7 +370,7 @@ class MyApp(wx.App):
         """
         self.OnEditArtefact(None)
 
-            
+
     def OnDeleteArtefact(self, evt):
         """
         The menu item or toolbar item 'Delete Artefact' was issued
@@ -360,7 +381,7 @@ class MyApp(wx.App):
         delete_from_list = False
         item = self.mainframe.treeCtrl.GetSelection()
         if not item: return
-        
+
         (parent_id, item_id) = self.mainframe.treeCtrl.GetItemInfo(item)
         if parent_id == "TRASH": return
         if parent_id == "PRODUCT":
@@ -374,19 +395,19 @@ class MyApp(wx.App):
                 return
         elif parent_id is None:
             return
-        
+
         if not self.dont_annoy_at_delete:
             (retval, self.dont_annoy_at_delete) = _afhelper.DontAnnoyMessageBox(_("Really delete artefact?"), _("Delete artefact"))
             if retval != wx.ID_YES: return
-        
+
         try:
             self.delfuncs[self.PARENTID.index(parent_id)](item_id)
-        
+
             (wxTreeParentId, wxTreeChildId) = self.mainframe.treeCtrl.FindItem(parent_id, item_id)
             self.mainframe.treeCtrl.Delete(wxTreeChildId)
 
             self.mainframe.treeCtrl.UpdateTrashIcons(self.model.getNumberOfDeletedArtefacts())
-            
+
             if delete_from_list is True:
                 # Update artefact list in right panel
                 self.DisableUpdateNodeView = True
@@ -420,7 +441,7 @@ class MyApp(wx.App):
                 afexporthtml.afExportHTML(path, self.model)
             #except:
                 #_afhelper.ExceptionMessageBox(sys.exc_info(), 'Error exporting to HTML!')
-        
+
 
     def OnExportXML(self, evt):
         """
@@ -432,7 +453,7 @@ class MyApp(wx.App):
             self.mainframe, message = _("Save XML to file"),
             defaultDir = self.model.currentdir,
             defaultFile = os.path.splitext(self.model.getFilename())[0] + ".xml",
-            wildcard = afresource.XML_WILDCARD,
+            wildcard = _(afresource.XML_WILDCARD),
             style=wx.SAVE | wx.CHANGE_DIR | wx.OVERWRITE_PROMPT
             )
         dlgResult = dlg.ShowModal()
@@ -463,8 +484,8 @@ class MyApp(wx.App):
             except:
                 pass
         return (parent_id, item_id)
-                
-        
+
+
     def OnNewFeature(self, evt):
         """
         The menu item or toolbar item 'New Feature' was issued
@@ -473,13 +494,13 @@ class MyApp(wx.App):
         """
         self.requestEditView("FEATURES", -1)
 
-    
+
     def OnNewRequirement(self, evt):
         """
         The menu item or toolbar item 'New Requirement' was issued
         @type  evt: wx.CommandEvent
         @param evt: event data
-        
+
         If a featue is selected and the 'New Requirement' command is issued
         then the new requirement will be attached to the selected feature.
         """
@@ -511,7 +532,7 @@ class MyApp(wx.App):
             self.model.addRequirementTestcaseRelation(item_id, tc_id)
         elif (parent_id == "TESTSUITES"):
             self.model.addTestsuiteTestcaseRelation(item_id, tc_id)
-            
+
 
     def OnNewUsecase(self, evt):
         """
@@ -529,8 +550,8 @@ class MyApp(wx.App):
         uc_id = result[2]['ID']
         if (parent_id == "REQUIREMENTS"):
             self.model.addRequirementUsecaseRelation(item_id, uc_id)
-            
-        
+
+
     def OnNewTestsuite(self, evt):
         """
         The menu item or toolbar item 'New Testsuite' was issued
@@ -554,8 +575,8 @@ class MyApp(wx.App):
             self.updateNodeView(parent_id, item_id)
             #logging.debug("OnSelChanged: <%s, %s>\n" % (parent_id, item_id))
             self.mainframe.treeCtrl.SetFocus()
-            
-        
+
+
     def OnListItemActivated(self, evt):
         """
         An item in the feature/requirement/... list has been activated
@@ -616,7 +637,7 @@ class MyApp(wx.App):
         @type           data: object
         @param           data: artefact objects
         @type   _contentview: view object
-        @param  _contentview: Object to display artefact 
+        @param  _contentview: Object to display artefact
         @type   _currentview: integer
         @param  _currentview: flag for current view
         """
@@ -726,7 +747,7 @@ class MyApp(wx.App):
         """
         return self.EditArtefact(_("Edit testsuite"), afTestsuiteView, self.model.saveTestsuite, testsuite)
 
-        
+
     def EditArtefact(self, title, contentview, savedata, data):
         """
         Edit artefact in a dialog window.
@@ -770,12 +791,12 @@ class MyApp(wx.App):
         dlg.Destroy()
         logging.debug("afeditor.EditArtefact() done")
         return [dlgResult, new_artefact, data, contentview]
-        
+
 
     def requestEditView(self, parent_id, item_id):
         """
         Handle the request to edit an artefact
-        
+
         Depending on C{parent_id} and C{item_id} the corresponding editing function
         is called. This is one of
             - L{EditProductInfo}
@@ -800,7 +821,7 @@ class MyApp(wx.App):
         """
         logging.debug("afeditor.requestEditView(%s, %s)" % (parent_id, item_id))
         result = None
-        
+
         if item_id == "PRODUCT":
             # Root node of tree is selected, edit project information
             self.EditProductInfo(self.model.getProductInformation())
@@ -827,13 +848,13 @@ class MyApp(wx.App):
             result = self.EditUsecase(self.model.getUsecase(item_id))
             if result[0] == wx.ID_SAVE:
                 result = [result[0], result[1], result[2], result[3]]
-                
+
         elif parent_id == "TESTSUITES":
             result = self.EditTestsuite(self.model.getTestsuite(item_id))
             if result[0] == wx.ID_SAVE:
                 # testsuite data is structured a little bit differently
                 result = [result[0], result[1], result[2], result[3]]
-            
+
         if result is not None:
             self.updateView(result, parent_id, item_id)
 
@@ -865,13 +886,13 @@ class MyApp(wx.App):
     def updateNodeView(self, parent_id, item_id, select_id=0):
         """
         Handle change of selection in the main tree in the left panel
-        
+
         Depending on the selection in the left tree the display in the right panel
         is updated. This is done by calling one of the methods
             - L{ViewProductInfo}
             - L{ViewArtefactList}
             - L{ViewArtefact}
-        
+
         @type  parent_id: string
         @param parent_id: String identifying the parent of the selected node
         @type    item_id: integer
@@ -919,7 +940,7 @@ class MyApp(wx.App):
         elif item_id == "TRASH":
             self.ViewTrashInfo(self.model.getNumberOfDeletedArtefacts())
 
-    
+
     def updateView(self, editresult, parent_id, item_id):
         """
         Update GUI view after editing an artefact
@@ -951,7 +972,7 @@ class MyApp(wx.App):
         else:
             # Update tree in left panel
             self.mainframe.treeCtrl.UpdateItemText(parent_id, item_id, data['title'])
-        
+
         self.DisableOnSelChanged = True
         if self.currentview in self.listview:
             # Update artefact list in right panel
@@ -967,12 +988,12 @@ class MyApp(wx.App):
 
         self.DisableOnSelChanged = False
 
-        
+
     def getUsername(self):
         "Return the name of the current user"
         return afconfig.CURRENT_USER
-    
-    
+
+
     def getCurrentTimeStr(self):
         "Return current date and time as string"
         return time.strftime(afresource.TIME_FORMAT)
@@ -980,8 +1001,8 @@ class MyApp(wx.App):
 
     def OnExit(self):
         self.config.Write("workdir", self.model.currentdir)
-        
-        
+
+
     def OnImport(self, evt):
         """
         Event handler for menu item 'Import'.
@@ -1010,7 +1031,7 @@ class MyApp(wx.App):
 
 def main():
     import os, sys, getopt
-    
+
     global arguments
 
     def version():
@@ -1026,7 +1047,7 @@ def main():
 
     logging.basicConfig(level=afconfig.loglevel, format=afconfig.logformat)
     logging.disable(afconfig.loglevel)
-    
+
     try:
         opts, arguments = getopt.getopt(sys.argv[1:], "hdV", ["help", "debug", "version"])
     except getopt.GetoptError, err:
@@ -1046,8 +1067,10 @@ def main():
             logging.disable(logging.NOTSET)
         else:
             assert False, "unhandled option"
-    
+
     app = MyApp(redirect=False)
+    # Hmmm... If wxLocale is called in app.OnInit() it does not work. Why?
+    mylocale = wx.Locale(app.wxLanguageCode)
     app.MainLoop()
 
 if __name__=="__main__":
