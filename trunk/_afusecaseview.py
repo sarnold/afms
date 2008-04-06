@@ -139,8 +139,14 @@ class afUsecaseNotebook(_afbasenotebook.afBaseNotebook):
     def InitContent(self, usecase):
         self.summary_edit.SetValue(usecase['title'])
         self.id_edit.SetValue(str(usecase['ID']))
-        self.priority_edit.SetValue(_(afresource.PRIORITY_NAME[usecase['priority']]))
-        self.usefreq_edit.SetValue(_(afresource.USEFREQUENCY_NAME[usecase['usefrequency']]))
+
+        if self.viewonly:
+            self.priority_edit.SetValue(_(afresource.PRIORITY_NAME[usecase['priority']]))
+            self.usefreq_edit.SetValue(_(afresource.USEFREQUENCY_NAME[usecase['usefrequency']]))
+        else:
+            self.priority_edit.SetSelection(usecase['priority'])
+            self.usefreq_edit.SetSelection(usecase['usefrequency'])
+
         self.actors_edit.SetValue(usecase['actors'])
         self.stakeholders_edit.SetValue(usecase['stakeholders'])
         self.prerequisite_edit.SetValue(usecase['prerequisites'])
