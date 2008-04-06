@@ -382,7 +382,7 @@ class afModel(object):
 
     def getChangelist(self, aftype, afid):
         query_string = 'select user, date, description, changetype from changelog where aftype==%d and afid==%d' % (aftype, afid)
-        query_string += 'order by date asc'
+        query_string += ' order by date asc'
         changelist = self.getData(query_string)
         cllist = []
         for cl in changelist:

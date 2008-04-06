@@ -125,11 +125,16 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
     def InitContent(self, feature):
         self.id_edit.SetValue(str(feature['ID']))
         self.title_edit.SetValue(feature['title'])
-        self.priority_edit.SetValue(_(afresource.PRIORITY_NAME[feature['priority']]))
-        self.status_edit.SetValue(_(afresource.STATUS_NAME[feature['status']]))
         self.version_edit.SetValue(feature['version'])
-        self.risk_edit.SetValue(_(afresource.RISK_NAME[feature['risk']]))
         self.description_edit.SetValue(feature['description'])
+        if self.viewonly:
+            self.priority_edit.SetValue(_(afresource.PRIORITY_NAME[feature['priority']]))
+            self.status_edit.SetValue(_(afresource.STATUS_NAME[feature['status']]))
+            self.risk_edit.SetValue(_(afresource.RISK_NAME[feature['risk']]))
+        else:
+            self.priority_edit.SetSelection(feature['priority'])
+            self.status_edit.SetSelection(feature['status'])
+            self.risk_edit.SetSelection(feature['risk'])
 
         self.requirementlist.InitCheckableContent(feature.getUnrelatedRequirements(), feature.getRelatedRequirements(), self.viewonly)
 

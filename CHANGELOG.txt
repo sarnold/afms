@@ -6,7 +6,12 @@ Changes
 ~~~~~~~
 * GNU gettext is now used for internationalization
   German language is supported using message catalog 
-  locale/de/LC_MESSAGES/afms.po
+  locale/de/LC_MESSAGES/afms.po 
+  
+  
+* Fixed bug and some inconsistencies observed under 
+  GNOME (Ubuntu 7.1). New artefacts can now be created 
+  properly.
 
 
 ===============================

@@ -189,16 +189,24 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
     def InitContent(self, requirement):
         self.id_edit.SetValue(str(requirement['ID']))
         self.title_edit.SetValue(requirement['title'])
-        self.priority_edit.SetValue(_(afresource.PRIORITY_NAME[requirement['priority']]))
-        self.status_edit.SetValue(_(afresource.STATUS_NAME[requirement['status']]))
         self.version_edit.SetValue(requirement['version'])
-        self.complexity_edit.SetValue(_(afresource.COMPLEXITY_NAME[requirement['complexity']]))
         self.assigned_edit.SetValue(requirement['assigned'])
-        self.effort_edit.SetValue(_(afresource.EFFORT_NAME[requirement['effort']]))
-        self.category_edit.SetValue(_(afresource.CATEGORY_NAME[requirement['category']]))
         self.origin_edit.SetValue(requirement['origin'])
         self.rationale_edit.SetValue(requirement['rationale'])
         self.description_edit.SetValue(requirement['description'])
+
+        if self.viewonly:
+            self.priority_edit.SetValue(_(afresource.PRIORITY_NAME[requirement['priority']]))
+            self.status_edit.SetValue(_(afresource.STATUS_NAME[requirement['status']]))
+            self.complexity_edit.SetValue(_(afresource.COMPLEXITY_NAME[requirement['complexity']]))
+            self.effort_edit.SetValue(_(afresource.EFFORT_NAME[requirement['effort']]))
+            self.category_edit.SetValue(_(afresource.CATEGORY_NAME[requirement['category']]))
+        else:
+            self.priority_edit.SetSelection(requirement['priority'])
+            self.status_edit.SetSelection(requirement['status'])
+            self.complexity_edit.SetSelection(requirement['complexity'])
+            self.effort_edit.SetSelection(requirement['effort'])
+            self.category_edit.SetSelection(requirement['category'])
 
         self.testcaselist.InitCheckableContent(requirement.getUnrelatedTestcases(), requirement.getRelatedTestcases(), self.viewonly)
         self.usecaselist.InitCheckableContent(requirement.getUnrelatedUsecases(), requirement.getRelatedUsecases(), self.viewonly)
