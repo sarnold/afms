@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -22,7 +22,7 @@
 # $Id$
 
 import wx
-from afresource import _
+
 
 class NotEmptyValidator(wx.PyValidator):
      """ This validator is used to ensure that the user has entered something
@@ -54,7 +54,7 @@ class NotEmptyValidator(wx.PyValidator):
              textCtrl.Refresh()
              wx.MessageBox(self.msg, _("Error"), wx.ICON_ERROR)
              textCtrl.SetFocus()
-             
+
              return False
          else:
              textCtrl.SetBackgroundColour(

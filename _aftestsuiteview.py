@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -26,7 +26,6 @@ import wx
 from _afhtmlwindow import *
 from _afartefactlist import *
 from _afvalidators import NotEmptyValidator
-from afresource import _
 from _afartefact import cTestsuite, cTestcase
 
 class afTestsuiteView(wx.Panel):
@@ -37,7 +36,7 @@ class afTestsuiteView(wx.Panel):
         id_text = wx.StaticText(self, -1, _("ID")+':')
         description_text = wx.StaticText(self, -1, _("Description")+':')
         seq_text = wx.StaticText(self, -1, _("Execution order ID's")+':')
-        
+
         if viewonly:
             self.title_edit = wx.TextCtrl(self, -1, "", style = wx.TE_READONLY)
             self.id_edit = wx.TextCtrl(self, -1, "", style = wx.TE_READONLY)
@@ -50,9 +49,9 @@ class afTestsuiteView(wx.Panel):
             self.description_edit = wx.TextCtrl(self, -1, "", style = wx.TE_MULTILINE|wx.TE_PROCESS_TAB)
             self.seq_edit = wx.TextCtrl(self, -1, "", validator = MyValidator(self))
             self.testcaselist = afTestcaseList(self, -1, checkstyle=True)
-            
+
         self.id_edit.Enable(False)
-         
+
         sizer = wx.FlexGridSizer(4, 2, 10, 10)
         sizer.Add(title_text, 0, wx.EXPAND | wx.ALIGN_BOTTOM )
         sizer.Add(self.title_edit, 0, wx.EXPAND | wx.ALIGN_TOP )
@@ -69,7 +68,7 @@ class afTestsuiteView(wx.Panel):
         hbox.Add(sizer, 3, wx.ALL | wx.EXPAND, 5)
         hbox.Add(wx.StaticText(self, -1, _("Testcases")+':'), 0, wx.LEFT, 5)
         hbox.Add(self.testcaselist, 4, wx.ALL | wx.EXPAND, 5)
-        
+
         self.SetSizer(hbox)
         self.Layout()
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnItemActivated)
@@ -80,18 +79,18 @@ class afTestsuiteView(wx.Panel):
         self.title_edit.SetValue(testsuite['title']);
         self.description_edit.SetValue(testsuite['description']);
         self.seq_edit.SetValue(testsuite['execorder'])
-        
+
         self.testcaselist.InitCheckableContent(testsuite.getUnrelatedTestcases(), testsuite.getRelatedTestcases(), self.viewonly)
-        
+
         self.Show()
         self.GetParent().Layout()
         self.title_edit.SetFocus()
 
-        
+
     def GetContent(self):
         testsuite = cTestsuite(ID=int(self.id_edit.GetValue()), title=self.title_edit.GetValue(),
                                description=self.description_edit.GetValue(), execorder=self.seq_edit.GetValue())
-                               
+
         (related_testcases, unrelated_testcases) = self.testcaselist.GetItemIDByCheckState()
 
         related_tcobjs = []
@@ -108,12 +107,12 @@ class afTestsuiteView(wx.Panel):
 
         return testsuite
 
-        
+
     def OnItemActivated(self, evt):
         # Ignore activation of items in the testcase list
         pass
 
-    
+
     def ChangeSelection(self, dummy):
         # dummy function for compatibility with other view classes
         pass

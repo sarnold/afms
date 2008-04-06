@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -27,7 +27,6 @@ from _afartefactlist import *
 from _afvalidators import NotEmptyValidator, ArtefactHookValidator
 import afconfig
 import _afbasenotebook
-from afresource import _
 import afresource
 from _afartefact import cFeature, cRequirement
 
@@ -40,7 +39,7 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
         panel = wx.Panel(self, -1)
         panel.SetOwnBackgroundColour(color)
         labels = [_("Title"), _("ID"), _("Version"), _("Priority"), _("Status"), _("Risk"), _("Description")]
-        
+
         (width, height) = (0, 0)
         statictext = []
         for label in labels:
@@ -64,17 +63,17 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
             self.title_edit = wx.TextCtrl(panel, -1, "", validator = NotEmptyValidator())
             self.id_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
             self.version_edit = wx.TextCtrl(panel, -1, "")
-            self.priority_edit = wx.ComboBox(panel, -1, choices = afresource.PRIORITY_NAME, style=wx.CB_DROPDOWN | wx.CB_READONLY)
-            self.status_edit = wx.ComboBox(panel, -1, choices = afresource.STATUS_NAME, style=wx.CB_DROPDOWN | wx.CB_READONLY)
-            self.risk_edit = wx.ComboBox(panel, -1, choices = afresource.RISK_NAME, style=wx.CB_DROPDOWN | wx.CB_READONLY)
+            self.priority_edit = wx.ComboBox(panel, -1, choices = [_(i) for i in afresource.PRIORITY_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
+            self.status_edit = wx.ComboBox(panel, -1, choices = [_(i) for i in afresource.STATUS_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
+            self.risk_edit = wx.ComboBox(panel, -1, choices = [_(i) for i in afresource.RISK_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.description_edit = wx.TextCtrl(panel, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB )
-            
+
         self.id_edit.Enable(False)
         edit = [self.title_edit, self.id_edit, self.version_edit, self.priority_edit, \
                 self.status_edit, self.risk_edit, self.description_edit]
-        
+
         mainsizer = wx.BoxSizer(wx.VERTICAL)
-        
+
         sizer = wx.FlexGridSizer(1, 2, 10, 10)
         sizer.Add(statictext[0], 0, wx.EXPAND | wx.ALIGN_BOTTOM)
         sizer.Add(edit[0], 0, wx.EXPAND | wx.ALIGN_LEFT)
@@ -82,7 +81,7 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
         sizer.SetFlexibleDirection(wx.HORIZONTAL)
 
         mainsizer.Add(sizer, 0, wx.ALL | wx.EXPAND, 10)
-        
+
         sizer = wx.FlexGridSizer(3, 4, 10, 10)
         for i in range(1, 6):
             sizer.Add(statictext[i], 0, wx.EXPAND | wx.ALIGN_BOTTOM)
@@ -106,7 +105,7 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
 
         panel.Layout()
         self.AddPage(panel, _("Feature"))
-        
+
         panel = wx.Panel(self, -1)
         self.requirementlist = afRequirementList(panel, -1, checkstyle=not self.viewonly)
         sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -116,7 +115,7 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnListItemActivated)
 
         self.AddChangelogPanel()
-        
+
 
     def OnListItemActivated(self, evt):
         # Ignore double clicks in lists (related requirements, ...)
@@ -126,12 +125,12 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
     def InitContent(self, feature):
         self.id_edit.SetValue(str(feature['ID']))
         self.title_edit.SetValue(feature['title'])
-        self.priority_edit.SetValue(afresource.PRIORITY_NAME[feature['priority']])
-        self.status_edit.SetValue(afresource.STATUS_NAME[feature['status']])
+        self.priority_edit.SetValue(_(afresource.PRIORITY_NAME[feature['priority']]))
+        self.status_edit.SetValue(_(afresource.STATUS_NAME[feature['status']]))
         self.version_edit.SetValue(feature['version'])
-        self.risk_edit.SetValue(afresource.RISK_NAME[feature['risk']])
+        self.risk_edit.SetValue(_(afresource.RISK_NAME[feature['risk']]))
         self.description_edit.SetValue(feature['description'])
-        
+
         self.requirementlist.InitCheckableContent(feature.getUnrelatedRequirements(), feature.getRelatedRequirements(), self.viewonly)
 
         if self.viewonly:
@@ -140,12 +139,12 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
             self.validator_hook = feature.validator
             self.initial_feature = feature
             self.changelog_edit.SetValidator(ArtefactHookValidator(self.ValidateRequirement))
-            
+
         self.Show()
         self.GetParent().Layout()
         self.title_edit.SetFocus()
 
-        
+
     def GetContent(self):
         feature = cFeature(ID=int(self.id_edit.GetValue()),
                            title=self.title_edit.GetValue(),
@@ -160,7 +159,7 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
             rq = cRequirement(ID=rq_id)
             related_requirements.append(rq)
         feature.setRelatedRequirements(related_requirements)
-        
+
         feature.setChangelog(self.GetChangelogContent())
 
         return feature

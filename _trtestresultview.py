@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -26,7 +26,6 @@ import wx
 from _afhtmlwindow import *
 import trconfig
 import afresource
-from afresource import _
 
 
 class trTestresultPanel():
@@ -77,11 +76,11 @@ class trTestresultPanel():
     def InitContent(self, testcase):
         self.testcase = testcase
         if self.viewonly:
-            self.result_edit.SetValue(afresource.TEST_STATUS_NAME[testcase['testresult']])
+            self.result_edit.SetValue(_(afresource.TEST_STATUS_NAME[testcase['testresult']]))
         else:
             self.result_edit.Clear()
             for item in afresource.TEST_STATUS_NAME[:-1]:
-                self.result_edit.Append(item)
+                self.result_edit.Append(_(item))
             self.result_edit.SetSelection(0)
 
         self.action_edit.SetValue(str(testcase['action']))
@@ -95,8 +94,8 @@ class trTestresultPanel():
         self.testcase['action'] = self.action_edit.GetValue()
         self.testcase['timestamp'] = self.timestamp_edit.GetValue()
         return self.testcase
-        
-    
+
+
     def OnTimer(self, evt):
         self.timestamp_edit.SetValue(time.strftime(afresource.TIME_FORMAT))
 

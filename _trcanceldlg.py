@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -23,7 +23,7 @@
 
 import wx
 from _afvalidators import *
-from afresource import _
+
 
 class CancelTestrunDialog(wx.Dialog):
     def __init__(self, parent, info=None):
@@ -51,6 +51,6 @@ class CancelTestrunDialog(wx.Dialog):
 
         self.Fit()
         self.SetMinSize(self.GetSize())
-        
+
     def GetValue(self):
         return self.reason.GetValue()

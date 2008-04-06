@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -25,7 +25,6 @@ import time
 import wx
 from _afhtmlwindow import *
 from _afartefactlist import afChangeList
-from afresource import _
 import afresource
 from _afartefact import cChangelogEntry
 
@@ -41,8 +40,8 @@ class afBaseNotebook(wx.Notebook):
 
     def EvtTextEnter(self, event):
         event.Skip()
-        
-        
+
+
     def AddRelatedArtefactPanel(self, afList, title):
         panel = wx.Panel(self, -1)
         _list = afList(panel, -1, checkstyle=False)
@@ -61,11 +60,11 @@ class afBaseNotebook(wx.Notebook):
         self.AddPage(panel, title)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnListItemActivated)
         return _list
-    
-    
+
+
     def AddChangelogPanel(self):
         panel = wx.Panel(self, -1)
-        
+
         if self.viewonly:
             sizer = wx.BoxSizer(wx.VERTICAL)
             self.changelist = afChangeList(panel, -1, checkstyle=False)
@@ -107,7 +106,7 @@ class afBaseNotebook(wx.Notebook):
                                          description=self.changelog_edit.GetValue(),
                                          date=self.changedate_edit.GetValue())
         return changelogentry
-        
-        
+
+
     def OnTimer(self, evt):
         self.changedate_edit.SetValue(time.strftime(afresource.TIME_FORMAT))

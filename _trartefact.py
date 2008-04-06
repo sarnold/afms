@@ -21,9 +21,8 @@
 
 # $Id$
 
-import _afartefact 
+import _afartefact
 import afresource
-from afresource import _
 
 class cTestcase(_afartefact.cTestcase):
     def __init__(self, ID=-1, title='', purpose='', prerequisite='', testdata='',
@@ -49,7 +48,7 @@ class cTestcase(_afartefact.cTestcase):
             'testremark'   : testremark,
             'action'       : action,
             'timestamp'    : timestamp        }
-            
+
     def importBaseTestcase(self, basetestcase):
         self._basedata['ID'] = basetestcase['ID']
         self._basedata['title'] = basetestcase['title']

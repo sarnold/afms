@@ -7,8 +7,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -32,6 +32,12 @@ Test runner main application
 import os, sys, logging
 import gettext
 import wx
+
+basepath = os.path.abspath(os.path.dirname(sys.argv[0]))
+LOCALEDIR = os.path.join(basepath, 'locale')
+DOMAIN = "afms"
+gettext.install(DOMAIN, LOCALEDIR, unicode=True)
+
 import trconfig
 from _trmainframe import *
 from _trnewtestrunwiz import *
@@ -42,7 +48,6 @@ import trmodel
 import afmodel, _afhelper
 import trexporthtml, trexportxml
 import afresource
-from afresource import _
 
 
 class TestRunnerApp(wx.App):
@@ -58,16 +63,33 @@ class TestRunnerApp(wx.App):
         if not os.path.exists(workdir):
              self.config.Write("workdir", wx.StandardPaths.GetDocumentsDir(sp))
         wx.Config.Set(self.config)
-        
+
         self.model = trmodel.trModel()
-        afresource.SetLanguage(self.config.Read("language", "en"))
+
+        # Setup language stuff
+        language = self.config.Read("language", 'en')
+        afresource.SetLanguage(language)
+        wxLanguage = {'de' : wx.LANGUAGE_GERMAN, 'en' : wx.LANGUAGE_ENGLISH}
+        try:
+            self.wxLanguageCode = wxLanguage[language]
+        except KeyError:
+            logging.debug('TestrunnerApp.OnInit(), language %s unknown' % language)
+            self.wxLanguageCode = wx.LANGUAGE_DEFAULT
+
+        try:
+            t = gettext.translation(DOMAIN, LOCALEDIR, languages=[language])
+            t.install(unicode=True)
+        except IOError:
+            logging.debug('TestrunnerApp.OnInit(), gettext.translation() failed for language %s' % language)
+            pass
+
         self.mainframe = MainFrame(None, "AF Test Runner")
         self.SetTopWindow(self.mainframe)
         self.mainframe.Show(True)
-        
+
         self.Bind(wx.EVT_MENU, self.OnNewTestrun, id=101)
         self.Bind(wx.EVT_TOOL, self.OnNewTestrun, id=10)
-        
+
         self.Bind(wx.EVT_MENU, self.OnOpenTestrun, id=102)
         self.Bind(wx.EVT_TOOL, self.OnOpenTestrun, id=11)
         self.Bind(wx.EVT_TOOL, self.OnRunTestcase, id=12)
@@ -76,7 +98,7 @@ class TestRunnerApp(wx.App):
         self.Bind(wx.EVT_MENU, self.OnCancelTestrun, id=203)
         self.Bind(wx.EVT_MENU, self.OnExportHTML, id=103)
         self.Bind(wx.EVT_MENU, self.OnExportXML, id=104)
-        
+
         self.Bind(wiz.EVT_WIZARD_PAGE_CHANGING, self.OnWizPageChanging)
         self.Bind(wiz.EVT_WIZARD_PAGE_CHANGED, self.OnWizPageChanged)
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnItemSelected)
@@ -87,8 +109,8 @@ class TestRunnerApp(wx.App):
             self.OpenTestrun(arguments[0])
 
         return True
-    
-    
+
+
     def OnExit(self):
         """Write working directory to configuration when application exits"""
         self.config.Write("workdir", self.model.currentdir)
@@ -112,8 +134,8 @@ class TestRunnerApp(wx.App):
             wx.MessageBox(_("Test already has been executed!"), _("Oops ..."), wx.OK | wx.ICON_INFORMATION)
             return
         self.OnRunTestcase(None)
-        
-        
+
+
     def OnNewTestrun(self, evt):
         """
         Event handler for menu item or toolbar item 'New test run'.
@@ -127,8 +149,8 @@ class TestRunnerApp(wx.App):
         ##(afdatabase, ts_id, description, path) = ("aa.af", 1, ("D", "T"), "aa.tr")
         self.model.requestNewTestrun(path, afdatabase, ts_id, description)
         self.OpenTestrun(path)
-        
-        
+
+
     def OnOpenTestrun(self, evt):
         """
         Event handler for menu item or toolbar item 'Open test run'.
@@ -139,7 +161,7 @@ class TestRunnerApp(wx.App):
             self.mainframe, message = "Open test run file",
             defaultDir = self.model.currentdir,
             defaultFile = "",
-            wildcard = afresource.TR_WILDCARD,
+            wildcard = _(afresource.TR_WILDCARD),
             style=wx.OPEN | wx.CHANGE_DIR | wx.FILE_MUST_EXIST
             )
         dlgResult = dlg.ShowModal()
@@ -152,7 +174,7 @@ class TestRunnerApp(wx.App):
             except:
                 _afhelper.ExceptionMessageBox(sys.exc_info(), 'Error opening test run!')
 
-        
+
     def OpenTestrun(self, path):
         """Actions to be performed when a test run is opened"""
         self.model.OpenTestrun(path)
@@ -162,14 +184,14 @@ class TestRunnerApp(wx.App):
         self.mainframe.GetMenuBar().Enable(203, True)
         self.mainframe.GetMenuBar().Enable(103, True)
         self.mainframe.GetMenuBar().Enable(104, True)
-        
+
 
     def OnShowTestrunInfo(self, evt):
         """Show dialog with information about the current test run"""
         dlg = InfoTestrunDialog(self.mainframe, self.model.getInfo())
         dlg.ShowModal()
-        
-        
+
+
     def OnWizPageChanging(self, evt):
         """Event handler for the 'New Test Run' wizard"""
         error = False
@@ -200,7 +222,7 @@ class TestRunnerApp(wx.App):
                     error = True
                     msg = 'Could not open database or invalid database format!'
                     page.SetFocus()
-                    
+
         elif page.__class__ == SelectOutputFilePage and forwarddir:
             filename = page.GetValue()
             if len(filename) <= 0:
@@ -222,24 +244,24 @@ class TestRunnerApp(wx.App):
                     error = True
                     msg = 'Could not open file for writing!'
                     page.SetFocus()
-                
+
         elif page.__class__ == EnterTestrunInfo and forwarddir:
             values = page.GetValue()
             if len(values[0]) <= 0:
                 error = True
                 msg = 'Test run description required!'
                 page.SetFocus(0)
-                
+
             elif len(values[1]) <= 0:
                 error = True
                 msg = 'Tester name required!'
                 page.SetFocus(1)
-                
+
         if error:
             wx.MessageBox(msg, 'Warning', wx.OK | wx.ICON_WARNING)
             evt.Veto()
-            
-            
+
+
     def OnWizPageChanged(self, evt):
         """Event handler for the 'New Test Run' wizard"""
         page = evt.GetPage()
@@ -253,8 +275,8 @@ class TestRunnerApp(wx.App):
             if not os.path.exists(initialValue):
                 page.SetValue(initialValue)
                 return;
-        
-        
+
+
     def OnRunTestcase(self,evt):
         """Event handler for 'Run test case'"""
         currentItem = self.mainframe.testcaselist.currentItem
@@ -271,7 +293,7 @@ class TestRunnerApp(wx.App):
         self.mainframe.SetStatusInfo(self.model.getStatusSummary())
         self.mainframe.EnableRunCommand(testresult['testresult'] == afresource.PENDING)
         self.mainframe.testcaselist.UpdateItem(currentItem, testresult['testresult'])
-        
+
 
     def OnCancelTestrun(self, evt):
         """Handle cancellation of a test run"""
@@ -281,14 +303,14 @@ class TestRunnerApp(wx.App):
             self.mainframe.SetStatusInfo(self.model.getStatusSummary())
             self.mainframe.InitView(self.model.getTestcaseList())
         dlg.Destroy()
-        
-        
+
+
     def OnExportHTML(self, evt):
         dlg = wx.FileDialog(
             self.mainframe, message = "Save HTML to file",
             defaultDir = self.model.currentdir,
             defaultFile = os.path.splitext(self.model.getFilename())[0] + ".html",
-            wildcard = afresource.HTML_WILDCARD,
+            wildcard = _(afresource.HTML_WILDCARD),
             style=wx.SAVE | wx.CHANGE_DIR | wx.OVERWRITE_PROMPT
             )
         dlgResult = dlg.ShowModal()
@@ -307,7 +329,7 @@ class TestRunnerApp(wx.App):
             self.mainframe, message = "Save XML to file",
             defaultDir = self.model.currentdir,
             defaultFile = os.path.splitext(self.model.getFilename())[0] + ".xml",
-            wildcard = afresource.XML_WILDCARD,
+            wildcard = _(afresource.XML_WILDCARD),
             style=wx.SAVE | wx.CHANGE_DIR | wx.OVERWRITE_PROMPT
             )
         dlgResult = dlg.ShowModal()
@@ -323,7 +345,7 @@ class TestRunnerApp(wx.App):
 
 def main():
     import os, sys, getopt
-    
+
     global arguments
 
     def version():
@@ -359,18 +381,9 @@ def main():
         else:
             assert False, "unhandled option"
 
-
     app = TestRunnerApp(redirect=False)
-
-    basepath = os.path.abspath(os.path.dirname(sys.argv[0]))
-    localedir = basepath
-    domain = "messages"
-    langid = wx.LANGUAGE_DEFAULT
-    mylocale = wx.Locale(langid)
-    mylocale.AddCatalogLookupPathPrefix(localedir)
-    mylocale.AddCatalog(domain)
-    _ = wx.GetTranslation
-
+    # Hmmm... If wxLocale is called in app.OnInit() it does not work. Why?
+    mylocale = wx.Locale(app.wxLanguageCode)
     app.MainLoop()
 
 if __name__=="__main__":

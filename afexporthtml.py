@@ -7,8 +7,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -34,7 +34,7 @@ from time import localtime, gmtime, strftime
 import afmodel
 import afconfig
 import afresource
-from afresource import _, ENCODING
+from afresource import ENCODING
 import _afdocutils
 
 
@@ -115,35 +115,35 @@ class afExportHTML():
 
         self.writeTag('h1', '<a name="requirements">%s</a>' % __(_('Requirements')))
         self.writeRequirements()
-        
+
         self.writeTag('h1', '<a name="testcases">%s</a>' % __(_('Testcases')))
         self.writeTestcases()
-        
+
         self.writeTag('h1', '<a name="testsuites">%s</a>' % __(_('Testsuites')))
         self.writeTestsuites()
-        
+
         self.writeTag('h1', '<a name="problems">%s</a>' % __(_('Detected problems')))
         self.writeProblems()
-        
+
         self.writeHTMLFooter()
         self.of.close()
-        
+
 
     def formatField(self, fstr):
         return formatField(fstr)
-        
-        
+
+
     def writeHTMLHeader(self):
         self.of.write(HTMLHEADER % ENCODING)
-        
+
 
     def writeHTMLFooter(self):
         self.of.write('<hr />')
         footer = _('Created from %s at %s') % (self.model.getFilename(), strftime(afresource.TIME_FORMAT, localtime()))
         self.of.write('<p class="footer">%s</p>' % footer)
         self.of.write(HTMLFOOTER)
-        
-        
+
+
     def writeTag(self, tag, content):
         self.of.write("<%s>%s</%s>\n" % (tag, content, tag))
 
@@ -153,7 +153,7 @@ class afExportHTML():
         for af in aflist:
             basedata = af.getPrintableDataDict()
             basedata['_LABEL'] = label
-            
+
             self.of.write('<li><a href="#%(_LABEL)s-%(ID)03d">%(_LABEL)s-%(ID)03d: %(title)s</a></li>\n' % basedata)
         self.of.write("</ul>\n")
 
@@ -174,7 +174,7 @@ class afExportHTML():
 
         self.of.write('<li><a href="#testsuites">%s</a></li>' % _('Testsuites'))
         self.writeList(self.model.getTestsuiteList(), 'TS')
-        
+
         self.of.write('<li><a href="#problems">%s</a></li>' % _('Detected problems'))
         self.of.write('<ul>')
         self.of.write('<li><a href="#lonelyfeatures">%s</a></li>' % _('Features without requirements'))
@@ -185,8 +185,8 @@ class afExportHTML():
         self.of.write('<li><a href="#lonelyusecases">%s</a></li>' % _('Usecases not belonging to requirements'))
         self.of.write('</ul>')
         self.of.write("</ol>")
-        
-    
+
+
     def writeProblems(self):
         def writeListOrNone(aflist, label):
             if len(aflist) > 0:
@@ -202,7 +202,7 @@ class afExportHTML():
 
         self.writeTag('h2', '<a name="lonelytestcases">%s</a>' % _('Testcases not belonging to requirements'))
         writeListOrNone(self.lonelytestcases, 'TC')
-        
+
         self.writeTag('h2', '<a name="unexecutedtestcases">%s</a>' % _('Testcases not belonging to testsuites'))
         writeListOrNone(self.testcasesnotintestsuites, 'TC')
 
@@ -216,28 +216,28 @@ class afExportHTML():
         for uc_id in lonely_uc_ids:
             uclist.append(self.model.getUsecase(uc_id))
         writeListOrNone(uclist, 'UC')
-        
+
         for uc_id in lonely_uc_ids:
             self.writeUsecase(uc_id)
 
-        
+
     def writeProductInfo(self):
         pi = self.model.getProductInformation()
         self.of.write('<div class="producttitle">\n%s\n</div>' % self.formatField(pi['title']))
         self.of.write('<div class="productdescription">\n%s\n</div>' % self.formatField(pi['description']))
-        
-        
+
+
     def writeFeatures(self):
             idlist = self.model.getFeatureIDs()
             for ID in idlist:
                 feature = self.model.getFeature(ID)
                 basedata = feature.getPrintableDataDict(self.formatField)
-                
+
                 self.writeTag('h2', '<a name="F-%(ID)03d">F-%(ID)03d: %(title)s</a>' % basedata)
                 self.of.write('<table>\n')
                 for label, key in zip(feature.labels()[2:], feature.keys()[2:]):
                     self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
-                    
+
                 self.of.write('<tr><th>%s</th><td>' % _('Related requirements'))
                 related_requirements = feature.getRelatedRequirements()
                 if len(related_requirements) > 0:
@@ -251,21 +251,21 @@ class afExportHTML():
                     self.of.write('<p class="alert">%s</p>' % _('None'))
                 self.of.write('</td></tr>\n')
                 self.of.write('</table>\n')
-                
+
 
     def writeRequirements(self):
             idlist = self.model.getRequirementIDs()
             for ID in idlist:
                 requirement = self.model.getRequirement(ID)
                 basedata = requirement.getPrintableDataDict(self.formatField)
-                
+
                 self.writeTag('h2', '<a name="REQ-%(ID)03d">REQ-%(ID)03d: %(title)s</a>' % basedata)
                 self.of.write('<div class="requirement">\n')
-                
+
                 self.of.write('<table>\n')
                 for label, key in zip(requirement.labels()[2:], requirement.keys()[2:]):
                     self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
-                    
+
                 self.of.write('<tr><th>%s</th><td>' % _('Attached testcases'))
                 related_testcases = requirement.getRelatedTestcases()
                 if len(related_testcases) > 0:
@@ -279,7 +279,7 @@ class afExportHTML():
                     self.of.write('<p class="alert">%s</p>' % _('None'))
                 self.of.write('</td></tr>\n')
                 self.of.write('</table>\n')
-                
+
                 self.of.write('<div class="usecases">\n')
                 related_usecases = requirement.getRelatedUsecases()
                 if len(related_usecases) > 0:
@@ -297,13 +297,13 @@ class afExportHTML():
         basedata = usecase.getPrintableDataDict(self.formatField)
 
         self.writeTag('h3', '<a name="UC-%(ID)03d">UC-%(ID)03d: %(title)s</a>' % basedata)
-        
+
         self.of.write('<table>\n')
         for label, key in zip(usecase.labels()[2:], usecase.keys()[2:]):
                 self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
         self.of.write('</table>\n')
 
-        
+
     def writeTestcases(self):
         idlist = self.model.getTestcaseIDs()
         for ID in idlist:
@@ -314,7 +314,7 @@ class afExportHTML():
             self.of.write('<table>\n')
             for label, key in zip(testcase.labels()[2:], testcase.keys()[2:]):
                 self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
-                
+
             self.of.write('<tr><th>%s</th><td>' % _('Related requirements'))
             related_requirements = testcase.getRelatedRequirements()
             if len(related_requirements) > 0:
@@ -339,7 +339,7 @@ class afExportHTML():
             else:
                 self.testcasesnotintestsuites.append(testcase)
                 self.of.write('<p class="alert">%s</p>' % _('None'))
-                
+
             self.of.write('</table>\n')
 
 
@@ -370,10 +370,10 @@ class afExportHTML():
 
 if __name__=="__main__":
     import os, sys, getopt
-    
+
     def version():
         print("Version unknown")
-        
+
     def usage():
         print("Usage:\n%s [-h|--help] [-V|--version] [-o <ofile>|--output=<ofile>] <ifile>\n"
         "  -h, --help                      show help and exit\n"
@@ -381,8 +381,8 @@ if __name__=="__main__":
         "  -o <ofile>, --output=<ofile>    output to file <ofile>\n"
         "  <ifile>                         database file"
         % sys.argv[0])
-        
-        
+
+
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ho:V", ["help", "output=", "version"])
     except getopt.GetoptError, err:
@@ -406,7 +406,7 @@ if __name__=="__main__":
     if len(args) != 1:
         usage()
         sys.exit(1)
-    
+
     model = afmodel.afModel(controller = None)
     try:
         model.requestOpenProduct(args[0])
@@ -414,8 +414,8 @@ if __name__=="__main__":
         print("Error opening database file %s" % args[0])
         print(sys.exc_info())
         sys.exit(1)
-    
+
     if output is None:
         output =  os.path.splitext(args[0])[0] + ".html"
-        
+
     export = afExportHTML(output, model)

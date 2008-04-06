@@ -21,53 +21,53 @@
 
 # $Id$
 
-from afresource import _
 import afresource
+
 
 class cArtefact():
     """Base class for all artefacts"""
-    
+
     def __init__(self):
         self._changelist = []
         self._changelog = None
-        
-        
+
+
     def __getitem__(self, key):
         return self._basedata[key]
-    
-    
+
+
     def __setitem__(self, key, value):
         self._basedata[key] = value
-        
-        
+
+
     def keys(self):
         return self._keys
-    
-    
+
+
     def labels(self):
         return self._labels
-        
-        
+
+
     def setChangelist(self, changelist):
         self._changelist = changelist
-        
-        
+
+
     def getChangelist(self):
         return self._changelist
-    
-    
+
+
     def setChangelog(self, changelog):
         self._changelog = changelog
-        
-        
+
+
     def getChangelog(self):
         return self._changelog
-    
-    
+
+
     def identity(self, s):
         return s
-    
-    
+
+
     def getPrintableDataDict(self, formatter=None):
         """Return base data in printable format, i.e. localized and enuumerations
         replaced with human readable text"""
@@ -119,8 +119,8 @@ class cFeature(cArtefact):
             'description'   : description }
         self._relatedRequirements = []
         self._unrelatedRequirements = []
-        
-        
+
+
     def clearRelations(self):
         self._relatedRequirements = []
         self._unrelatedRequirements = []
@@ -158,7 +158,7 @@ class cFeature(cArtefact):
         for label, key in zip(self._labels, self._keys):
             s += u"%s: %s\n" % (label, basedata[key])
         return s.encode('iso-8859-1')
-    
+
 
     def xmlrepr(self):
         return cArtefact.xmlrepr(self, 'feature')
@@ -194,8 +194,8 @@ class cRequirement(cArtefact):
         self._relatedUsecases = []
         self._unrelatedUsecases = []
         self._relatedFeatures = []
-        
-        
+
+
     def clearRelations(self):
         self._relatedTestcases = []
         self._unrelatedTestcases = []
@@ -222,7 +222,7 @@ class cRequirement(cArtefact):
 
     def setRelatedUsecases(self, usecases):
         self._relatedUsecases = usecases
-        
+
 
     def getRelatedUsecases(self):
         return self._relatedUsecases
@@ -238,8 +238,8 @@ class cRequirement(cArtefact):
 
     def setRelatedFeatures(self, features):
         self._relatedFeatures = features
-        
-        
+
+
     def getRelatedFeatures(self):
         return self._relatedFeatures
 
@@ -256,8 +256,8 @@ class cRequirement(cArtefact):
         basedata['effort'] = _(afresource.EFFORT_NAME[basedata['effort']])
         basedata['category'] = _(afresource.CATEGORY_NAME[basedata['category']])
         return basedata
-    
-    
+
+
     def getClipboardText(self):
         s = u""
         basedata = self.getPrintableDataDict()
@@ -319,7 +319,7 @@ class cUsecase(cArtefact):
         basedata['usefrequency'] = _(afresource.USEFREQUENCY_NAME[basedata['usefrequency']])
         return basedata
 
-        
+
     def getClipboardText(self):
         s = u""
         basedata = self.getPrintableDataDict()
@@ -385,7 +385,7 @@ class cTestcase(cArtefact):
         basedata['notes'] = formatter(basedata['notes'])
         return basedata
 
-    
+
     def getClipboardText(self):
         s = u""
         basedata = self.getPrintableDataDict()
@@ -440,7 +440,7 @@ class cTestsuite(cArtefact):
         basedata = self._basedata.copy()
         basedata['description'] = formatter(basedata['description'])
         return basedata
-    
+
 
     def getClipboardText(self):
         s = u""

@@ -23,7 +23,6 @@
 
 import pickle
 import wx
-from afresource import _
 import afresource
 
 def copyArtefactToClipboard(dataobj, textobj):
@@ -33,8 +32,8 @@ def copyArtefactToClipboard(dataobj, textobj):
     if wx.TheClipboard.Open():
         wx.TheClipboard.SetData(doc)
     wx.TheClipboard.Close()
-    
-    
+
+
 def getArtefactFromClipboard():
     retval = None
     af_data = None
@@ -55,20 +54,20 @@ def getArtefactFromClipboard():
         elif wx.TheClipboard.IsSupported(wx.CustomDataFormat('AFMS_TESTSUITE')):
             af_kind = 'AFMS_TESTSUITE'
             af_data = afTestsuiteDataObjectSimple()
-            
+
         if af_data is not None:
             if wx.TheClipboard.GetData(af_data):
                 retval = pickle.loads(af_data.GetDataHere())
-                
+
         wx.TheClipboard.Close();
-        
+
     return (af_kind, retval)
-        
-        
+
+
 class afArtefactDataObjectSimple(wx.PyDataObjectSimple):
     def __init__(self, artefact):
         assert 0==1 # has to be overriden!
-        
+
     def GetDataHere(self):
         return self.data
 
@@ -78,8 +77,8 @@ class afArtefactDataObjectSimple(wx.PyDataObjectSimple):
     def SetData(self, data):
         self.data = data
         return True
-    
-    
+
+
 class afArtefactTextObjectSimple(wx.PyDataObjectSimple):
     def __init__(self, afkind, artefact):
         wx.PyDataObjectSimple.__init__(self, wx.DataFormat(wx.DF_TEXT))
@@ -91,22 +90,22 @@ class afArtefactTextObjectSimple(wx.PyDataObjectSimple):
 
     def GetDataSize(self):
         return len(self._formatData())
-    
+
     def _formatData(self):
         return self.data.getClipboardText()
 
     def SetData(self, data):
         self.data = data
         return True
-        
+
 # ---------------------------------------------------------------------
 
 def copyFeatureToClipboard(feature):
     af_data = afFeatureDataObjectSimple(pickle.dumps(feature))
     af_text = afFeatureTextObjectSimple('AFMS_FEATURE', feature)
     copyArtefactToClipboard(af_data, af_text)
-    
-    
+
+
 class afFeatureDataObjectSimple(afArtefactDataObjectSimple):
     def __init__(self, artefact = None):
         wx.PyDataObjectSimple.__init__(self, wx.CustomDataFormat('AFMS_FEATURE'))
@@ -122,8 +121,8 @@ def copyRequirementToClipboard(requirement):
     af_data = afRequirementDataObjectSimple(pickle.dumps(requirement))
     af_text = afRequirementTextObjectSimple('AFMS_REQUIREMENT', requirement)
     copyArtefactToClipboard(af_data, af_text)
-    
-    
+
+
 class afRequirementDataObjectSimple(afArtefactDataObjectSimple):
     def __init__(self, artefact = None):
         wx.PyDataObjectSimple.__init__(self, wx.CustomDataFormat('AFMS_REQUIREMENT'))

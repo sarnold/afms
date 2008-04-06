@@ -1,4 +1,15 @@
 ===============================
+AFMS Release 0.x.x (200x-xx-xx)
+===============================
+
+Changes
+~~~~~~~
+* GNU gettext is now used for internationalization
+  German language is supported using message catalog 
+  locale/de/LC_MESSAGES/afms.po
+
+
+===============================
 AFMS Release 0.1.3 (2008-03-24)
 ===============================
 
