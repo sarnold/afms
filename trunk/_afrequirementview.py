@@ -194,14 +194,12 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
         self.origin_edit.SetValue(requirement['origin'])
         self.rationale_edit.SetValue(requirement['rationale'])
         self.description_edit.SetValue(requirement['description'])
-
-        if self.viewonly:
-            self.priority_edit.SetValue(_(afresource.PRIORITY_NAME[requirement['priority']]))
-            self.status_edit.SetValue(_(afresource.STATUS_NAME[requirement['status']]))
-            self.complexity_edit.SetValue(_(afresource.COMPLEXITY_NAME[requirement['complexity']]))
-            self.effort_edit.SetValue(_(afresource.EFFORT_NAME[requirement['effort']]))
-            self.category_edit.SetValue(_(afresource.CATEGORY_NAME[requirement['category']]))
-        else:
+        self.priority_edit.SetValue(_(afresource.PRIORITY_NAME[requirement['priority']]))
+        self.status_edit.SetValue(_(afresource.STATUS_NAME[requirement['status']]))
+        self.complexity_edit.SetValue(_(afresource.COMPLEXITY_NAME[requirement['complexity']]))
+        self.effort_edit.SetValue(_(afresource.EFFORT_NAME[requirement['effort']]))
+        self.category_edit.SetValue(_(afresource.CATEGORY_NAME[requirement['category']]))
+        if not self.viewonly:
             self.priority_edit.SetSelection(requirement['priority'])
             self.status_edit.SetSelection(requirement['status'])
             self.complexity_edit.SetSelection(requirement['complexity'])
