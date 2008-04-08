@@ -879,7 +879,7 @@ class afModel(object):
         @return: Unique list with all entries of the assigned field of requirements
         @rtype:  list
         """
-        query_string = 'select distinct assigned from requirements order by assigned asc;'
+        query_string = 'select distinct assigned from requirements where length(assigned)>0 order by assigned asc ;'
         c = self.connection.cursor()
         c.execute(query_string)
         return [item[0] for item in c.fetchall()]
@@ -891,7 +891,7 @@ class afModel(object):
         @return: Unique list with all entries of the actor field of usecases
         @rtype:  list
         """
-        query_string = 'select distinct actors from usecases order by actors asc;'
+        query_string = 'select distinct actors from usecases  where length(actors)>0 order by actors asc;'
         c = self.connection.cursor()
         c.execute(query_string)
         return [item[0] for item in c.fetchall()]
@@ -903,7 +903,7 @@ class afModel(object):
         @return: Unique list with all entries of the stakeholders  field of usecases
         @rtype:  list
         """
-        query_string = 'select distinct stakeholders from usecases order by stakeholders asc;'
+        query_string = 'select distinct stakeholders from usecases  where length(stakeholders)>0  order by stakeholders asc;'
         c = self.connection.cursor()
         c.execute(query_string)
         return [item[0] for item in c.fetchall()]

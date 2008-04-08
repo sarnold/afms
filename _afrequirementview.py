@@ -77,7 +77,7 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
             self.priority_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.PRIORITY_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.status_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.STATUS_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.complexity_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.COMPLEXITY_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
-            self.assigned_edit = wx.ComboBox(panel1, -1, choices = afresource.ASSIGNED_NAME, style=wx.CB_DROPDOWN)
+            self.assigned_edit = wx.ComboBox(panel1, -1, choices = afconfig.ASSIGNED_NAME, style=wx.CB_DROPDOWN)
             self.effort_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.EFFORT_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.category_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.CATEGORY_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.description_edit = wx.TextCtrl(panel1, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
