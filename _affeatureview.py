@@ -127,11 +127,10 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
         self.title_edit.SetValue(feature['title'])
         self.version_edit.SetValue(feature['version'])
         self.description_edit.SetValue(feature['description'])
-        if self.viewonly:
-            self.priority_edit.SetValue(_(afresource.PRIORITY_NAME[feature['priority']]))
-            self.status_edit.SetValue(_(afresource.STATUS_NAME[feature['status']]))
-            self.risk_edit.SetValue(_(afresource.RISK_NAME[feature['risk']]))
-        else:
+        self.priority_edit.SetValue(_(afresource.PRIORITY_NAME[feature['priority']]))
+        self.status_edit.SetValue(_(afresource.STATUS_NAME[feature['status']]))
+        self.risk_edit.SetValue(_(afresource.RISK_NAME[feature['risk']]))
+        if not self.viewonly:
             self.priority_edit.SetSelection(feature['priority'])
             self.status_edit.SetSelection(feature['status'])
             self.risk_edit.SetSelection(feature['risk'])

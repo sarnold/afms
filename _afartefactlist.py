@@ -124,13 +124,9 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
 
     def InitCheckableContent(self, uncheckedcontent, checkedcontent, showonlychecked=False):
         if not showonlychecked:
-            # disable sorting
-            self.list.SetSingleStyle(wx.LC_SORT_ASCENDING, False)
-            self.list.SetSingleStyle(wx.LC_SORT_DESCENDING, False)
             # show all contents
             self.InitContent(checkedcontent+uncheckedcontent)
             # check all checkedcontent
-            # for this to work we have disabled sorting
             for i in range(len(checkedcontent)):
                 self.list.CheckItem(i)
         else:
