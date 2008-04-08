@@ -55,7 +55,8 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
 
         # TODO: sorting of numeric columns has to be fixed
         self.list = ArtefactListCtrl(self, tID, size=parent.GetSize(),
-                    style=wx.LC_SORT_ASCENDING | wx.LC_REPORT | wx.BORDER_NONE | wx.LC_VRULES | wx.LC_HRULES | wx.LC_SINGLE_SEL,
+                    #style=wx.LC_SORT_ASCENDING | wx.LC_REPORT | wx.BORDER_NONE | wx.LC_VRULES | wx.LC_HRULES | wx.LC_SINGLE_SEL,
+                    style=wx.LC_REPORT | wx.BORDER_NONE | wx.LC_VRULES | wx.LC_HRULES | wx.LC_SINGLE_SEL,
                     checkstyle=checkstyle)
 
         # we already have an image list when we are using listmix.CheckListCtrlMixin

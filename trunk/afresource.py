@@ -65,11 +65,6 @@ XML_WILDCARD = _("XML file (*.xml)|*.xml|"  \
 TR_WILDCARD = _("TR Database (*.tr)|*.tr|"     \
                 "All files (*.*)|*.*")
 
-# set dynamically
-ASSIGNED_NAME = []
-ACTOR_NAME = []
-STAKEHOLDER_NAME = []
-
 _language = 'en'
 
 def SetLanguage(lang):
