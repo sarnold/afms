@@ -165,7 +165,6 @@ class MyApp(wx.App):
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged, id=300)
         self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.OnTreeItemActivated, id=301)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnListItemActivated)
-        ##self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnListItemSelected)
 
         self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
 

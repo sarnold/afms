@@ -636,8 +636,6 @@ class afModel(object):
 
     #---------------------------------------------------------------------
 
-    ## @brief Save product information to database
-    ## @param product_info Dictionary with keys title and description
     def saveProductInfo(self, product_info):
         """
         Save product info to database
@@ -957,9 +955,6 @@ class afModel(object):
         return self.getFeature(item_id)
 
 
-    ## @brief Delete a requirement from database
-    ## @param item_id ID of the requirement
-    ##
     def deleteRequirement(self, item_id, delcnt=1):
         """
         Delete a feature and it's relations
