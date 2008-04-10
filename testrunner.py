@@ -146,7 +146,6 @@ class TestRunnerApp(wx.App):
         if not self.wizard.ShowModal(): return
         (afdatabase, ts_id, description, path) =  self.wizard.GetValue()
         self.wizard = None
-        ##(afdatabase, ts_id, description, path) = ("aa.af", 1, ("D", "T"), "aa.tr")
         self.model.requestNewTestrun(path, afdatabase, ts_id, description)
         self.OpenTestrun(path)
 

@@ -261,10 +261,8 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
 
 class afFeatureList(afArtefactList):
     """Widget for displaying feature lists"""
-    ## Class constructor
-    ## @param parent The parent window of this widget
     def __init__(self, parent, ID = -1, checkstyle=False):
-        ## Column titles of the feature list table
+        # Column titles of the feature list table
         self.column_titles = [_('ID'), _('Title'), _('Priority'), _('Status'),
             _('Version'), _('Risk'), _('Date'), _('User'), _('Description')]
         self.key = "FEATURES"

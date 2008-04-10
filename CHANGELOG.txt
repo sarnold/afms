@@ -1,5 +1,5 @@
 ===============================
-AFMS Release 0.x.x (200x-xx-xx)
+AFMS Release 0.1.4 (2008-04-10)
 ===============================
 
 Changes
@@ -7,11 +7,14 @@ Changes
 * GNU gettext is now used for internationalization
   German language is supported using message catalog 
   locale/de/LC_MESSAGES/afms.po 
-  
-  
+
+Bug fixes
+~~~~~~~~~
 * Fixed bug and some inconsistencies observed under 
-  GNOME (Ubuntu 7.1). New artefacts can now be created 
-  properly.
+  gtk2 (Ubuntu 7.1, Gnome). New artefacts can now be created 
+  and edited properly.
+  
+* fixed initialization of some comboboxes (actors, stakeholders, assigned)
 
 
 ===============================
