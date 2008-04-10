@@ -1,0 +1,7 @@
+/* Stylesheet for AFMS documentation */
+BODY {
+ font-family: Verdana, Helvetica, Arial, sans-serif;
+}
+
+DL { margin-left:30px; }
+DT { font-style:oblique; }

@@ -1,0 +1,71 @@
+===============================
+AFMS Release 0.1.4 (2008-04-10)
+===============================
+
+Changes
+~~~~~~~
+* GNU gettext is now used for internationalization
+  German language is supported using message catalog 
+  locale/de/LC_MESSAGES/afms.po 
+
+Bug fixes
+~~~~~~~~~
+* Fixed bug and some inconsistencies observed under 
+  gtk2 (Ubuntu 7.1, Gnome). New artefacts can now be created 
+  and edited properly.
+  
+* fixed initialization of some comboboxes (actors, stakeholders, assigned)
+
+
+===============================
+AFMS Release 0.1.3 (2008-03-24)
+===============================
+
+Changes
+~~~~~~~
+* Changed font size in HTML text fields (Windows only)
+
+* In list views markup identifiers (like <html>, .. rest) 
+  in strings are no more shown. Line breaks are printed with
+  a '|' character.
+    
+* when executing a test in testrunner the modal dialog box now
+  shows both, the test case and the test result. This makes it possible
+  to scroll through lengthy text fields in the test case.
+
+* Internally artefacts are now represented by objects. 
+
+Bug fixes
+~~~~~~~~~
+* fixed issue when invoking afeditor.py or testrunner.py
+  with a relative path
+
+
+===============================
+AFMS Release 0.1.2 (2008-03-12)
+===============================
+
+Changes
+~~~~~~~
+* Improved rendering of long lines in HTML text fields
+
+* In the HTML export use cases not belonging to requirements are now
+  listed in the section 'Usecases not belonging to requirements',
+  which has become therefore the last section in the output document
+
+New features
+~~~~~~~~~~~~
+* Clipboard support for artefacts 
+
+Bug fixes
+~~~~~~~~~
+* In list view of artefacts the Keyboard commands Space, Ctrl-Space etc. 
+  now works as expected
+
+  
+
+===============================
+AFMS Release 0.1.0 (2008-03-06)
+===============================
+
+* Initial release
