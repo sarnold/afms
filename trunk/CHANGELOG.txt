@@ -1,4 +1,16 @@
 ===============================
+AFMS Release 0.1.x (2008-xx-xx)
+===============================
+
+Changes
+~~~~~~~
+* Released archive files now unpack everything 
+  under a single folder named afms-x.x.x where x.x.x
+  is the version number
+
+
+
+===============================
 AFMS Release 0.1.4 (2008-04-10)
 ===============================
 
