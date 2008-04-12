@@ -21,31 +21,40 @@
 
 AFE_SRC := $(wildcard af*.py) $(wildcard _af*.py) version.py afeditor.pyw \
            COPYING.txt README.txt CHANGELOG.txt \
-           $(addprefix locale/de/LC_MESSAGES/, afms.mo)
+           $(addprefix locale\de\LC_MESSAGES\, afms.mo)
 
 TR_SRC := testrunner.py $(wildcard tr*.py) $(wildcard _tr*.py) testrunner.pyw
 
 ICON_SRC := $(wildcard icons/*.png) \
             $(addprefix icons/, mkimage.py README.txt COPYRIGHT.txt) 
 
-DOC_SRC := $(addprefix doc/, afms.txt afms.html afmsdoc.css makedoc.cmd makedoc.sh) \
-           $(wildcard doc/images/*.png) 
+DOC_SRC := $(addprefix doc\, afms.txt afms.html afmsdoc.css makedoc.cmd makedoc.sh) \
+           $(wildcard doc\images\*.png) 
 
 include version.py
 
 VERSION := $(subst ",,$(VERSION))
 
-ARCHIVE := $(addsuffix .tar, afms-$(VERSION))
-ZIPARCHIVE := $(addsuffix .zip, afms-$(VERSION))
+DISTRIBDIR := distrib
+ARCHIVE := $(addprefix $(DISTRIBDIR)/, $(addsuffix .tar, afms-$(VERSION)))
+ZIPARCHIVE := $(addprefix $(DISTRIBDIR)/, $(addsuffix .zip, afms-$(VERSION)))
+TARGETDIR := afms-$(VERSION)
 
-all: distrib
+all: distrib clean
 
 distrib:
 	cd doc && cmd /C makedoc.cmd
-	tar --create --file $(ARCHIVE) $(AFE_SRC)
-	tar --file $(ARCHIVE) --append $(TR_SRC)
-	tar --file $(ARCHIVE) --append $(ICON_SRC)
-	tar --file $(ARCHIVE) --append $(DOC_SRC)
+	mkdir $(TARGETDIR)
+	mkdir $(DISTRIBDIR)
+	cp --parents $(AFE_SRC) $(TARGETDIR)
+	cp --parents $(TR_SRC) $(TARGETDIR)
+	cp --parents $(DOC_SRC) $(TARGETDIR)
+	tar --create --file $(ARCHIVE) $(TARGETDIR)
 	gzip $(ARCHIVE)
-	zip $(ZIPARCHIVE) $(AFE_SRC) $(TR_SRC) $(ICON_SRC) $(DOC_SRC)
+	zip -r $(ZIPARCHIVE) $(TARGETDIR)
 
+clean:
+	rm -r $(TARGETDIR)
+
+veryclean:
+	rm -r $(DISTRIBDIR)
