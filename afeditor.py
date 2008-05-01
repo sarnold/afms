@@ -22,7 +22,6 @@
 
 # $Id$
 
-
 """
 Artefact editor
 
@@ -64,10 +63,11 @@ import afresource
 import _afclipboard
 from _afartefact import cChangelogEntry
 
+import _affilterview, _affilter
+
 #TODO: validator for features, similar to requirements validator is missing
 #TODO: enter key on Feature/Requirement/... in tree should expand the tree
 #TODO: empty trash function
-#TODO: search functionality
 
 _EDIT_MODE = False
 
@@ -142,6 +142,23 @@ class MyApp(wx.App):
                             self.testsuiteview : 0}
         self.currentview = None
 
+        self.featurefilterview = _affilterview.afFeatureFilterView(self.mainframe.bottomWindow)
+        self.requirementfilterview = _affilterview.afRequirementFilterView(self.mainframe.bottomWindow)
+        self.productfilterview = _affilterview.afNoFilterView(self.mainframe.bottomWindow)
+        self.nofilterview = self.productfilterview
+        self.usecasefilterview = _affilterview.afUsecaseFilterView(self.mainframe.bottomWindow)
+        self.testcasefilterview = _affilterview.afTestcaseFilterView(self.mainframe.bottomWindow)
+        self.testsuitefilterview = _affilterview.afTestsuiteFilterView(self.mainframe.bottomWindow)
+
+        filterviews = [self.featurefilterview, self.requirementfilterview, self.productfilterview,
+            self.testcasefilterview, self.testsuitefilterview, self.usecasefilterview]
+        for filterview in filterviews:
+            filterview.Hide()
+            fid = filterview.btnId
+            if fid is None: continue
+            self.Bind(wx.EVT_BUTTON, self.ApplyFilterClick, id=fid)
+            self.Bind(wx.EVT_BUTTON, self.ApplyFilterClick, id=fid+1)
+
         self.PARENTID = "FEATURES REQUIREMENTS USECASES TESTCASES TESTSUITES".split()
         self.delfuncs = (self.model.deleteFeature, self.model.deleteRequirement, self.model.deleteUsecase, self.model.deleteTestcase, self.model.deleteTestsuite)
 
@@ -172,11 +189,17 @@ class MyApp(wx.App):
         if len(arguments) > 0:
             try:
                 self.OpenProduct(arguments[0])
-            except:
+            except IOError:
                 print("Could not open file %s" % arguments[0])
                 sys.exit(2)
 
         return True
+
+
+    def ApplyFilterClick(self, evt):
+        self.InitView()
+        self.DisableUpdateNodeView = True
+        self.mainframe.treeCtrl.SetSelection(evt.GetClientData())
 
 
     def copyArtefactToClipboard(self, evt=None):
@@ -317,12 +340,45 @@ class MyApp(wx.App):
         @param path: Path of product database file
         """
         self.model.requestOpenProduct(path)
+        self.InitFilters()
         self.InitView()
+
+
+    def InitFilters(self):
+        flt = _affilter.afFeatureFilter()
+        flt.SetChangedByList(self.model.requestChangersList())
+        flt.SetVersionList(self.model.requestVersionList('FEATURES'))
+        self.featurefilterview.InitFilterContent(flt)
+
+        flt = _affilter.afRequirementFilter()
+        flt.SetChangedByList(self.model.requestChangersList())
+        flt.SetVersionList(self.model.requestVersionList('REQUIREMENTS'))
+        flt.SetAssignedList(self.model.requestAssignedList())
+        self.requirementfilterview.InitFilterContent(flt)
+
+        flt = _affilter.afUsecaseFilter()
+        flt.SetChangedByList(self.model.requestChangersList())
+        flt.SetActorsList(self.model.requestActorList())
+        flt.SetStakeholdersList(self.model.requestStakeholderList())
+        self.usecasefilterview.InitFilterContent(flt)
+
+        flt = _affilter.afTestcaseFilter()
+        flt.SetChangedByList(self.model.requestChangersList())
+        flt.SetVersionList(self.model.requestVersionList('TESTCASES'))
+        self.testcasefilterview.InitFilterContent(flt)
+
+        flt = _affilter.afTestsuiteFilter()
+        self.testsuitefilterview.InitFilterContent(flt)
 
 
     def InitView(self):
         path = self.model.getFilename()
-        artefactinfo = self.model.getArtefactNames()
+        filters = [ self.featurefilterview.GetFilterContent(),
+                    self.requirementfilterview.GetFilterContent(),
+                    self.usecasefilterview.GetFilterContent(),
+                    self.testcasefilterview.GetFilterContent(),
+                    self.testsuitefilterview.GetFilterContent()]
+        artefactinfo = self.model.getArtefactNames(filters)
         number_of_deleted_artefacts = self.model.getNumberOfDeletedArtefacts()
         self.DisableOnSelChanged = True
         self.mainframe.InitView(path, artefactinfo, number_of_deleted_artefacts)
@@ -828,31 +884,21 @@ class MyApp(wx.App):
 
         elif parent_id == "FEATURES":
             result = self.EditFeature(self.model.getFeature(item_id))
-            if result[0] == wx.ID_SAVE:
-                # feature data is structured a little bit differently
-                result = [result[0], result[1], result[2], result[3]]
 
         elif parent_id == "REQUIREMENTS":
             result = self.EditRequirement(self.model.getRequirement(item_id))
-            if result[0] == wx.ID_SAVE:
-                # requirements data is structured a little bit differently
-                result = [result[0], result[1], result[2], result[3]]
 
         elif parent_id == "TESTCASES":
             result = self.EditTestcase(self.model.getTestcase(item_id))
-            if result[0] == wx.ID_SAVE:
-                result = [result[0], result[1], result[2], result[3]]
 
         elif parent_id == "USECASES":
             result = self.EditUsecase(self.model.getUsecase(item_id))
-            if result[0] == wx.ID_SAVE:
-                result = [result[0], result[1], result[2], result[3]]
 
         elif parent_id == "TESTSUITES":
             result = self.EditTestsuite(self.model.getTestsuite(item_id))
-            if result[0] == wx.ID_SAVE:
-                # testsuite data is structured a little bit differently
-                result = [result[0], result[1], result[2], result[3]]
+
+        if result[0] == wx.ID_SAVE:
+            self.InitFilters()
 
         if result is not None:
             self.updateView(result, parent_id, item_id)
@@ -906,38 +952,71 @@ class MyApp(wx.App):
         if item_id == "PRODUCT":
             # Root node of tree is selected, show project information
             self.ViewProductInfo(self.model.getProductInformation())
+            self.mainframe.AddFilterView(self.productfilterview)
+            #
         elif item_id == "FEATURES":
-            self.ViewArtefactList(afFeatureList, self.featurelistview, self.model.getFeatureList(), select_id)
+            self.ViewArtefactList(afFeatureList, self.featurelistview,
+                                  self.model.getFeatureList(affilter=self.featurefilterview.GetFilterContent()),
+                                  select_id)
+            self.mainframe.AddFilterView(self.featurefilterview)
+            #
         elif item_id == "REQUIREMENTS":
-            self.ViewArtefactList(afRequirementList, self.requirementlistview, self.model.getRequirementList(), select_id)
+            self.ViewArtefactList(afRequirementList, self.requirementlistview,
+                                  self.model.getRequirementList(affilter=self.requirementfilterview.GetFilterContent()),
+                                  select_id)
+            self.mainframe.AddFilterView(self.requirementfilterview)
+            #
         elif item_id == "TESTCASES":
-            self.ViewArtefactList(afTestcaseList, self.testcaselistview, self.model.getTestcaseList(), select_id)
+            self.ViewArtefactList(afTestcaseList, self.testcaselistview,
+                                  self.model.getTestcaseList(affilter=self.testcasefilterview.GetFilterContent()),
+                                  select_id)
+            self.mainframe.AddFilterView(self.testcasefilterview)
+            #
         elif item_id == "TESTSUITES":
-            self.ViewArtefactList(afTestsuiteList, self.testsuitelistview, self.model.getTestsuiteList(), select_id)
+            self.ViewArtefactList(afTestsuiteList, self.testsuitelistview,
+                                  self.model.getTestsuiteList(affilter=self.testsuitefilterview.GetFilterContent()),
+                                  select_id)
+            self.mainframe.AddFilterView(self.testsuitefilterview)
+            #
         elif item_id == "USECASES":
-            self.ViewArtefactList(afUsecaseList, self.usecaselistview, self.model.getUsecaseList(), select_id)
+            self.ViewArtefactList(afUsecaseList, self.usecaselistview,
+                                  self.model.getUsecaseList(affilter=self.usecasefilterview.GetFilterContent()),
+                                  select_id)
+            self.mainframe.AddFilterView(self.usecasefilterview)
+            ##
         elif parent_id == "FEATURES":
             self.ViewArtefact(self.model.getFeature(item_id), afFeatureNotebook, self.featureview)
+            self.mainframe.AddFilterView(self.featurefilterview)
         elif parent_id == "REQUIREMENTS":
             self.ViewArtefact(self.model.getRequirement(item_id), afRequirementNotebook, self.requirementview)
+            self.mainframe.AddFilterView(self.requirementfilterview)
         elif parent_id == "TESTCASES":
             self.ViewArtefact(self.model.getTestcase(item_id), afTestcaseNotebook, self.testcaseview)
+            self.mainframe.AddFilterView(self.testcasefilterview)
         elif parent_id == "USECASES":
             self.ViewArtefact(self.model.getUsecase(item_id), afUsecaseNotebook, self.usecaseview)
+            self.mainframe.AddFilterView(self.usecasefilterview)
         elif parent_id == "TESTSUITES":
             self.ViewArtefact(self.model.getTestsuite(item_id), afTestsuiteView, self.testsuiteview)
+            self.mainframe.AddFilterView(self.testsuitefilterview)
         elif item_id == "TRASHFEATURES":
             self.ViewArtefactList(afFeatureList, self.trashfeaturelistview, self.model.getFeatureList(deleted=True), select_id)
+            self.mainframe.AddFilterView(self.nofilterview)
         elif item_id == "TRASHREQUIREMENTS":
             self.ViewArtefactList(afRequirementList, self.trashrequirementlistview, self.model.getRequirementList(deleted=True), select_id)
+            self.mainframe.AddFilterView(self.nofilterview)
         elif item_id == "TRASHTESTCASES":
             self.ViewArtefactList(afTestcaseList, self.trashtestcaselistview, self.model.getTestcaseList(deleted=True), select_id)
+            self.mainframe.AddFilterView(self.nofilterview)
         elif item_id == "TRASHUSECASES":
             self.ViewArtefactList(afUsecaseList, self.trashusecaselistview, self.model.getUsecaseList(deleted=True), select_id)
+            self.mainframe.AddFilterView(self.nofilterview)
         elif item_id == "TRASHTESTSUITES":
             self.ViewArtefactList(afTestsuiteList, self.trashtestsuitelistview, self.model.getTestsuiteList(deleted=True), select_id)
+            self.mainframe.AddFilterView(self.nofilterview)
         elif item_id == "TRASH":
             self.ViewTrashInfo(self.model.getNumberOfDeletedArtefacts())
+            self.mainframe.AddFilterView(self.nofilterview)
 
 
     def updateView(self, editresult, parent_id, item_id):
@@ -1024,6 +1103,7 @@ class MyApp(wx.App):
                 importer = _afimporter.afImporter(self.mainframe, self.model, path)
                 importer.Run()
                 self.InitView()
+                self.InitFilters()
             except:
                 _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error importing artefacts!'))
 

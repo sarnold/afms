@@ -55,8 +55,15 @@ class MainFrame(wx.Frame):
         self.rightWindowSizer = wx.BoxSizer(wx.VERTICAL)
         self.rightWindow.SetSizer(self.rightWindowSizer)
 
+        self.bottomWindowSizer = wx.BoxSizer(wx.VERTICAL)
+        self.bottomWindow.SetSizer(self.bottomWindowSizer)
+
         self.treeCtrl = afProductTree(self.leftWindow)
         self.treeCtrl.Disable()
+
+        self.expand = False
+        self.filterview = None
+
 
     def AddContentView(self, contentview):
         panel = contentview(self.rightWindow)
@@ -66,26 +73,79 @@ class MainFrame(wx.Frame):
         panel.Layout()
         return panel
 
+
+    def AddFilterView(self, filterview):
+        """Place a view filter panel in the bottom window"""
+        if self.filterview == filterview: return
+        if self.filterview is not None:
+            # hide filter currently shown
+            self.filterview.Hide()
+        self.filterview = filterview
+        self.filterview.Show()
+        self.filterview.SetupScrolling()
+        self.bottomWindowSizer.Clear(deleteWindows = False)
+        self.bottomWindowSizer.Add(filterview, 1, wx.ALL | wx.EXPAND, 5)
+        self.bottomWindow.Layout()
+        filterview.Layout()
+
+
+    def OnFilterSizeButtonClick(self, event):
+        size = self.bottomWindow.GetSize()
+        self.expand = not self.expand
+        if self.expand:
+            size[1] = self.bottomWindow.GetMaximumSizeY()
+            self.filtersizebutton.SetLabel(_('Filter')+' <<')
+        else:
+            size[1] = self.bottomWindow.GetMinimumSizeY()
+            self.filtersizebutton.SetLabel(_('Filter')+' >>')
+        self.bottomWindow.Show(self.expand)
+        self.bottomWindow.SetSize(size)
+        self.bottomWindow.SetDefaultSize(size)
+        wx.LayoutAlgorithm().LayoutWindow(self, self.rightWindow)
+        self.rightWindow.Refresh()
+
+
     def SetupStatusBar(self):
         self.statusbar = self.CreateStatusBar()
         self.statusbar.SetFieldsCount(3)
         # Sets the three fields to be relative widths to each other.
         self.statusbar.SetStatusWidths([-2, -1, -2])
 
+
     def SetupSashLayout(self, parent):
         winids = []
-        # A window like a statusbar
-        bottomwin = wx.SashLayoutWindow(
-                parent, -1, wx.DefaultPosition, (200, 30),
+
+        # where the view filter control bar goes to
+        h = 30
+        filterfootwin = wx.SashLayoutWindow(
+                parent, -1, wx.DefaultPosition, (200, h),
                 wx.NO_BORDER|wx.SW_3D
                 )
-        bottomwin.SetDefaultSize((1000, self.config.ReadInt("sash_pos_y", 30)))
+        filterfootwin.SetDefaultSize((1000, h))
+        filterfootwin.SetMaximumSizeY(h)
+        filterfootwin.SetMinimumSizeY(h)
+        filterfootwin.SetOrientation(wx.LAYOUT_HORIZONTAL)
+        filterfootwin.SetAlignment(wx.LAYOUT_BOTTOM)
+        filterfootwin.SetBackgroundColour(wx.WHITE)
+        filterfootwin.SetSashVisible(wx.SASH_TOP, True)
+
+        headpanel = wx.Panel(filterfootwin, style=wx.BORDER_STATIC )
+        headpanel.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_3DFACE))
+        self.filtersizebutton = wx.Button(headpanel, wx.ID_ANY, 'Filter >>')
+        self.Bind(wx.EVT_BUTTON, self.OnFilterSizeButtonClick, self.filtersizebutton)
+
+        # where the view filter goes to
+        h = 200
+        bottomwin = wx.SashLayoutWindow(
+                parent, -1, wx.DefaultPosition, (parent.GetClientSize()[0], h),
+                wx.NO_BORDER|wx.SW_3D
+                )
         bottomwin.SetMaximumSizeY(200)
-        bottomwin.SetMinimumSizeY(50)
+        bottomwin.SetMinimumSizeY(h)
         bottomwin.SetOrientation(wx.LAYOUT_HORIZONTAL)
         bottomwin.SetAlignment(wx.LAYOUT_BOTTOM)
-        bottomwin.SetBackgroundColour(wx.WHITE)
-        bottomwin.SetSashVisible(wx.SASH_TOP, True)
+        bottomwin.SetSashVisible(wx.SASH_TOP, False)
+        bottomwin.Hide()
 
         # A window to the left of the client window
         leftwin =  wx.SashLayoutWindow(
@@ -111,6 +171,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_SASH_DRAGGED_RANGE, self.OnSashDrag, id=min(winids), id2=max(winids))
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_CLOSE, self.OnCloseWindow)
+
 
     def SetupToolbar(self):
         tb = self.CreateToolBar( wx.TB_HORIZONTAL | wx.NO_BORDER | wx.TB_FLAT )
@@ -262,6 +323,7 @@ class MainFrame(wx.Frame):
 
     def OnSize(self, event):
         wx.LayoutAlgorithm().LayoutWindow(self, self.rightWindow)
+        event.Skip()
 
     def OnClose(self, evt):
         """Event handler for window closing"""
