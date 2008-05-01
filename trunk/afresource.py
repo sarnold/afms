@@ -33,6 +33,17 @@ ARTEFACTS = [{"name": _("Features"),      "id": "FEATURES"},
 
 TRASH =  {"name": _("Trash"), "id": "TRASH"}
 
+TEXTFILTER = [
+_('contains the string'),
+_("doesn't contain the string"),
+_('contains the string (exact case)'),
+_("doesn't contain the string (exact case)"),
+_('contains the word'),
+_("doesn't contain the word"),
+_('matches the regexp'),
+_("doesn't match the regexp")
+]
+
 PRIORITY_NAME = [_("Essential"), _("Expected"), _("Desired"), _("Optional")]
 STATUS_SUBMITTED, STATUS_APPROVED, STATUS_COMPLETED = (0, 1, 2)
 STATUS_NAME = [_("Submitted"), _("Approved"), _("Completed")]

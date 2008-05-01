@@ -41,7 +41,7 @@ class afHtmlWindow(html.HtmlWindow):
         if "wxMSW" in wx.PlatformInfo:
             # Original font sizes are [7, 8, 10, 12, 16, 22, 30]
             _FONT_SIZES = [5, 6,  8, 10, 14, 20, 24]
-            self.SetFonts("MS Sans Serif", "Courier New", _FONT_SIZES)
+            self.SetFonts("Microsoft Sans Serif", "Courier New", _FONT_SIZES)
         else:
             #FIXME: consider other platforms
             pass

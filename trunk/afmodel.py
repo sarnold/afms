@@ -31,7 +31,7 @@ This module implements the model part in the design.
 @version: $Rev$
 """
 
-import os
+import os, time, re
 import sqlite3
 import random, time
 import logging
@@ -47,11 +47,20 @@ _TYPEID_REQUIREMENT = 1
 _TYPEID_USECASE     = 2
 _TYPEID_TESTCASE    = 3
 _TYPEID_TESTSUITE   = 4
+_TYPEIDS = (_TYPEID_FEATURE, _TYPEID_REQUIREMENT, _TYPEID_USECASE, _TYPEID_TESTCASE, _TYPEID_TESTSUITE)
 
 _CHANGEID_NEW      = 0
 _CHANGEID_EDIT     = 1
 _CHANGEID_DELETE   = 2
 _CHANGEID_UNDELETE = 3
+
+def _regexp(expr, s):
+    b = None != re.compile(expr).search(s)
+    ##print 'afmodel._regexp',  repr(expr), repr(s), b
+    return b
+
+def _gettime(timestr):
+    return time.mktime(time.strptime(timestr, afresource.TIME_FORMAT))
 
 
 class afModel(object):
@@ -76,6 +85,11 @@ class afModel(object):
         return self.productfilename
 
 
+    def _InitFunctions(self):
+        self.connection.create_function("regexp", 2, _regexp)
+        self.connection.create_function("gettime", 1, _gettime)
+
+
     def requestNewProduct(self, path):
         """
         Request to create a new product
@@ -89,6 +103,7 @@ class afModel(object):
         if os.path.exists(self.productfilename):
             os.remove(self.productfilename)
         self.connection = sqlite3.connect(self.productfilename)
+        self._InitFunctions()
         c = self.connection.cursor()
         c.execute('''create table product (property text, value text);''')
         c.execute("insert into product values ('title', '');")
@@ -114,7 +129,7 @@ class afModel(object):
         c.execute("create table requirement_testcase_relation (rq_id integer, tc_id integer, delcnt integer default 0);")
         c.execute("create table requirement_usecase_relation (rq_id integer, uc_id integer, delcnt integer default 0);")
         c.execute("create table feature_requirement_relation (ft_id integer, rq_id integer, delcnt integer default 0);")
-
+        c.execute('create temporary table lastchanges (afid integer, aftype integer, changetype integer, date text, user text, description text)')
         #self.InsertTestData()
         self.connection.commit()
 
@@ -136,6 +151,12 @@ class afModel(object):
         os.chdir(self.currentdir)
         logging.debug("afmodel.requestOpenProduct(%s)" % path)
         self.connection = sqlite3.connect(self.productfilename)
+        self._InitFunctions()
+        c = self.connection.cursor()
+        c.execute('create temporary table lastchanges (afid integer, aftype integer, changetype integer, date text, user text, description text)')
+        for aftype in (_TYPEID_FEATURE, _TYPEID_REQUIREMENT, _TYPEID_USECASE, _TYPEID_TESTCASE, _TYPEID_TESTSUITE):
+            c.execute('insert into lastchanges select afid, aftype, changetype, max(date), user, description from changelog where aftype=? group by afid', (aftype, ))
+        self.connection.commit()
 
     #---------------------------------------------------------------------
 
@@ -382,7 +403,7 @@ class afModel(object):
 
     def getChangelist(self, aftype, afid):
         query_string = 'select user, date, description, changetype from changelog where aftype==%d and afid==%d' % (aftype, afid)
-        query_string += ' order by date asc'
+        query_string += ' order by date desc'
         changelist = self.getData(query_string)
         cllist = []
         for cl in changelist:
@@ -462,12 +483,14 @@ class afModel(object):
         return self.getIDs('testsuites')
 
 
-    def getFeatureList(self, deleted=False):
+    def getFeatureList(self, deleted=False, affilter=None):
         """
         Get list with all features from database
         @type  deleted: boolean
         @param deleted: If C{True}, a list with all features marked as deleted is returned;
                         Otherways all ordinary features are returned
+        @type  affilter: afFilter or derived class
+        @param affilter: a filter object to filter only specific artefacts
         @rtype:  object list
         @return: list with feature objects just containing basedata
         """
@@ -475,18 +498,30 @@ class afModel(object):
             where_string = 'delcnt!=0'
         else:
             where_string = 'delcnt==0'
-        query_string = 'select ID, title, priority, status, version, risk, description from features where %s;' % where_string
-        plainfeatures = self.getData(query_string)
+
+        query_string = 'select ID, title, priority, status, version, risk, description from features where %s %s;'
+        c = self.connection.cursor()
+        if affilter is not None and affilter.isApplied():
+            (clause, params) = affilter.GetSQLWhereClause('and')
+            params['aftype'] = _TYPEID_FEATURE
+        else:
+            (clause, params) = ('', {})
+
+        query_string = query_string % (where_string, clause)
+        c.execute(query_string, params)
+        plainfeatures = c.fetchall()
         ftlist = self._FeatureListFromPlainList(plainfeatures)
         return ftlist
 
 
-    def getRequirementList(self, deleted=False):
+    def getRequirementList(self, deleted=False, affilter=None):
         """
         Get list with all requirements from database
         @type  deleted: boolean
         @param deleted: If C{True}, a list with all requirements marked as deleted is returned;
                         Otherways all ordinary requirements are returned
+        @type  affilter: afFilter or derived class
+        @param affilter: a filter object to filter only specific artefacts
         @rtype:  object list
         @return: list with requirements objects just containing basedata
         """
@@ -494,18 +529,61 @@ class afModel(object):
             where_string = 'delcnt!=0'
         else:
             where_string = 'delcnt==0'
-        query_string = 'select ID, title, priority, status, complexity, assigned, effort, category, version, description from requirements where %s;' % where_string
-        plainrequirements = self.getData(query_string)
+
+        query_string = 'select ID, title, priority, status, complexity, assigned, effort, category, version, description from requirements where %s %s;'
+        c = self.connection.cursor()
+        if affilter is not None and affilter.isApplied():
+            (clause, params) = affilter.GetSQLWhereClause('and')
+            params['aftype'] = _TYPEID_REQUIREMENT
+        else:
+            (clause, params) = ('', {})
+
+        query_string = query_string % (where_string, clause)
+        c.execute(query_string, params)
+        plainrequirements = c.fetchall()
         rqlist = self._RequirementListFromPlainList(plainrequirements)
         return rqlist
 
 
-    def getTestcaseList(self, deleted=False):
+    def getUsecaseList(self, deleted=False, affilter=None):
+        """
+        Get list with all or some usecases from database
+        @type  deleted: boolean
+        @param deleted: If C{True}, a list with all usecases marked as deleted is returned;
+                        Otherways all ordinary usecases are returned
+        @type  affilter: afFilter or derived class
+        @param affilter: a filter object to filter only specific artefacts
+        @rtype:  object list
+        @return: list with usecase objects just containig basedata
+        """
+        if deleted:
+            where_string = 'delcnt!=0'
+        else:
+            where_string = 'delcnt==0'
+
+        query_string = 'select ID, title, priority, usefrequency, actors, stakeholders from usecases where %s %s;'
+        c = self.connection.cursor()
+        if affilter is not None and affilter.isApplied():
+            (clause, params) = affilter.GetSQLWhereClause('and')
+            params['aftype'] = _TYPEID_USECASE
+        else:
+            (clause, params) = ('', {})
+
+        query_string = query_string % (where_string, clause)
+        c.execute(query_string, params)
+        plainusecases = c.fetchall()
+        uclist = self._UsecaseListFromPlainList(plainusecases)
+        return uclist
+
+
+    def getTestcaseList(self, deleted=False, affilter=None):
         """
         Get list with all testcases from database
         @type  deleted: boolean
         @param deleted: If C{True}, a list with all testcases marked as deleted is returned;
                         Otherways all ordinary testcases are returned
+        @type  affilter: afFilter or derived class
+        @param affilter: a filter object to filter only specific artefacts
         @rtype:  object list
         @return: list with testcase objects just containing basedata
         """
@@ -513,9 +591,19 @@ class afModel(object):
             where_string = 'delcnt!=0'
         else:
             where_string = 'delcnt==0'
-        query_string = 'select id, title, version, purpose from testcases where %s;' % where_string
-        tclist = self.getData(query_string)
-        tclist = self._TestcaseListFromPlainList(tclist)
+
+        query_string = 'select id, title, version, purpose from testcases where %s %s;'
+        c = self.connection.cursor()
+        if affilter is not None and affilter.isApplied():
+            (clause, params) = affilter.GetSQLWhereClause('and')
+            params['aftype'] = _TYPEID_TESTCASE
+        else:
+            (clause, params) = ('', {})
+
+        query_string = query_string % (where_string, clause)
+        c.execute(query_string, params)
+        plaintestcases = c.fetchall()
+        tclist = self._TestcaseListFromPlainList(plaintestcases)
         return tclist
 
 
@@ -530,25 +618,6 @@ class afModel(object):
             tcobj.setChangelist(self.getChangelist(_TYPEID_TESTCASE, tcobj['ID']))
             tclist.append(tcobj)
         return tclist
-
-
-    def getUsecaseList(self, deleted=False, idlist=None):
-        """
-        Get list with all or some usecases from database
-        @type  deleted: boolean
-        @param deleted: If C{True}, a list with all usecases marked as deleted is returned;
-                        Otherways all ordinary usecases are returned
-        @rtype:  object list
-        @return: list with usecase objects just containig basedata
-        """
-        if deleted:
-            where_string = 'delcnt!=0'
-        else:
-            where_string = 'delcnt==0'
-        query_string = 'select ID, title, priority, usefrequency, actors, stakeholders from usecases where %s;'  % where_string
-        uclist = self.getData(query_string)
-        uclist = self._UsecaseListFromPlainList(uclist)
-        return uclist
 
 
     def _UsecaseListFromPlainList(self, ucplainlist):
@@ -566,12 +635,14 @@ class afModel(object):
         return uclist
 
 
-    def getTestsuiteList(self, deleted=False):
+    def getTestsuiteList(self, deleted=False, affilter=None):
         """
         Get list with all testsuites from database
-        @type  deleted: boolean
-        @param deleted: If C{True}, a list with all testsuites marked as deleted is returned;
-                        Otherways all ordinary testsuites are returned
+        @type   deleted: boolean
+        @param  deleted: If C{True}, a list with all testsuites marked as deleted is returned;
+                         Otherways all ordinary testsuites are returned
+        @type  affilter: afFilter or derived class
+        @param affilter: a filter object to filter only specific artefacts
         @rtype:  óbject list
         @return: list with testsuite objects just containing basedata
         """
@@ -579,8 +650,18 @@ class afModel(object):
             where_string = 'delcnt!=0'
         else:
             where_string = 'delcnt==0'
-        query_string = 'select ID, title, description, execorder from testsuites where %s;' % where_string
-        tsplainlist = self.getData(query_string)
+
+        query_string = 'select ID, title, description, execorder from testsuites where %s %s;'
+        c = self.connection.cursor()
+        if affilter is not None and affilter.isApplied():
+            (clause, params) = affilter.GetSQLWhereClause('and')
+            params['aftype'] = _TYPEID_TESTSUITE
+        else:
+            (clause, params) = ('', {})
+
+        query_string = query_string % (where_string, clause)
+        c.execute(query_string, params)
+        tsplainlist = c.fetchall()
         tslist = []
         for tsplain in tsplainlist:
             ts = cTestsuite(ID=tsplain[0], title=tsplain[1], description=tsplain[2], execorder=tsplain[3])
@@ -596,7 +677,7 @@ class afModel(object):
         return tslist
 
 
-    def getArtefactNames(self):
+    def getArtefactNames(self, filters):
         """
         Return name/title and ID of all (undeleted) artefacts in database
 
@@ -609,10 +690,16 @@ class afModel(object):
         """
         r = {}
         c = self.connection.cursor()
-        for item, tablename in zip(afresource.ARTEFACTS, self.tablenames):
+        for item, tablename, affilter, typeid in zip(afresource.ARTEFACTS, self.tablenames, filters, _TYPEIDS):
             key = item["id"]
             r[key] = []
-            c.execute('select ID, title from %s where delcnt==0;' % tablename)
+            if affilter.isApplied():
+                (clause, params) = affilter.GetSQLWhereClause('and')
+                params['aftype'] = typeid
+            else:
+                (clause, params) = ('', {})
+
+            c.execute('select ID, title from %s where delcnt==0 %s;' % (tablename, clause), params)
             for row in c:
                 r[key].append((row[0], row[1]))
 
@@ -865,6 +952,7 @@ class afModel(object):
         savedata = (afid, aftype, changelog['changetype'], changelog['date'],
                     changelog['user'], changelog['description'])
         c.execute('insert into changelog values (?, ?, ?, ?, ?, ?)', savedata)
+        c.execute('insert into lastchanges values (?, ?, ?, ?, ?, ?)', savedata)
         if commit:
             self.connection.commit()
 
@@ -905,6 +993,28 @@ class afModel(object):
         c = self.connection.cursor()
         c.execute(query_string)
         return [item[0] for item in c.fetchall()]
+
+
+    def requestChangersList(self):
+        """
+        Get a list with all users listed in the changelog
+        """
+        query_string = 'select distinct user from changelog order by user asc;'
+        c = self.connection.cursor()
+        c.execute(query_string)
+        return [item[0] for item in c.fetchall()]
+
+
+    def requestVersionList(self, afkind):
+        """
+        Get a list with all version columns of a specific table
+        """
+        tablemap = {'FEATURES': 'features', 'REQUIREMENTS': 'requirements', 'TESTCASES': 'testcases'}
+        query_string = 'select distinct version from %s order by version asc;' % tablemap[afkind]
+        c = self.connection.cursor()
+        c.execute(query_string)
+        return [item[0] for item in c.fetchall()]
+
 
     #---------------------------------------------------------------------
 

@@ -8,7 +8,11 @@ Changes
   under a single folder named afms-x.x.x where x.x.x
   is the version number
 
+* Basic filter functionality implemented
 
+Bug fixes
+~~~~~~~~~
+* In table view of artefacts the date and user of the last change to the artefact is shown now.
 
 ===============================
 AFMS Release 0.1.4 (2008-04-10)

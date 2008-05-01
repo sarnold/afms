@@ -138,7 +138,7 @@ msgstr "Aufwand"
 #: _afartefact.py:175
 #: _afrequirementview.py:44
 msgid "Origin"
-msgstr "Herrkunft"
+msgstr "Herkunft"
 
 #: _afartefact.py:175
 #: _afrequirementview.py:44

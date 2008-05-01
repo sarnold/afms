@@ -54,7 +54,9 @@ distrib:
 	zip -r $(ZIPARCHIVE) $(TARGETDIR)
 
 clean:
-	rm -r $(TARGETDIR)
+	-rm -r $(TARGETDIR)
 
 veryclean:
-	rm -r $(DISTRIBDIR)
+	-rm -r $(DISTRIBDIR)
+    
+.PHONY: distrib
