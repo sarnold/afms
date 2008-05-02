@@ -220,7 +220,7 @@ class afFeatureFilterView(afBaseFilterView):
 
     def ApplyFilterClick(self, evt):
         self.applied = True
-        evt.SetClientData('FEATURES')
+        evt.SetClientData({'aftype' : 'FEATURES', 'state': self.applied})
         evt.Skip()
 
 
@@ -230,7 +230,7 @@ class afFeatureFilterView(afBaseFilterView):
         for lbox in [self.lbox_textfields, self.lbox_priority, self.lbox_status, self.lbox_risk, self.lbox_version]:
             for i in range(lbox.GetCount()):
                 lbox.Deselect(i)
-        evt.SetClientData('FEATURES')
+        evt.SetClientData({'aftype' : 'FEATURES', 'state': self.applied})
         evt.Skip()
 
 
@@ -295,7 +295,7 @@ class afRequirementFilterView(afBaseFilterView):
 
     def ApplyFilterClick(self, evt):
         self.applied = True
-        evt.SetClientData('REQUIREMENTS')
+        evt.SetClientData({'aftype' : 'REQUIREMENTS', 'state': self.applied})
         evt.Skip()
 
 
@@ -306,7 +306,7 @@ class afRequirementFilterView(afBaseFilterView):
                      self.lbox_assigned, self.lbox_category, self.lbox_complexity]:
             for i in range(lbox.GetCount()):
                 lbox.Deselect(i)
-        evt.SetClientData('REQUIREMENTS')
+        evt.SetClientData({'aftype' : 'REQUIREMENTS', 'state': self.applied})
         evt.Skip()
 
 
@@ -372,7 +372,7 @@ class afUsecaseFilterView(afBaseFilterView):
 
     def ApplyFilterClick(self, evt):
         self.applied = True
-        evt.SetClientData('USECASES')
+        evt.SetClientData({'aftype' : 'USECASES', 'state': self.applied})
         evt.Skip()
 
 
@@ -383,7 +383,7 @@ class afUsecaseFilterView(afBaseFilterView):
                      self.lbox_stakeholders, self.lbox_actors]:
             for i in range(lbox.GetCount()):
                 lbox.Deselect(i)
-        evt.SetClientData('USECASES')
+        evt.SetClientData({'aftype' : 'USECASES', 'state': self.applied})
         evt.Skip()
 
 
@@ -442,7 +442,7 @@ class afTestcaseFilterView(afBaseFilterView):
 
     def ApplyFilterClick(self, evt):
         self.applied = True
-        evt.SetClientData('TESTCASES')
+        evt.SetClientData({'aftype' : 'TESTCASES', 'state': self.applied})
         evt.Skip()
 
 
@@ -452,7 +452,7 @@ class afTestcaseFilterView(afBaseFilterView):
         for lbox in [self.lbox_textfields, self.lbox_version]:
             for i in range(lbox.GetCount()):
                 lbox.Deselect(i)
-        evt.SetClientData('TESTCASES')
+        evt.SetClientData({'aftype' : 'TESTCASES', 'state': self.applied})
         evt.Skip()
 
 
@@ -499,7 +499,7 @@ class afTestsuiteFilterView(afBaseFilterView):
 
     def ApplyFilterClick(self, evt):
         self.applied = True
-        evt.SetClientData('TESTSUITES')
+        evt.SetClientData({'aftype' : 'TESTSUITES', 'state': self.applied})
         evt.Skip()
 
 
@@ -508,7 +508,7 @@ class afTestsuiteFilterView(afBaseFilterView):
         for lbox in [self.lbox_textfields]:
             for i in range(lbox.GetCount()):
                 lbox.Deselect(i)
-        evt.SetClientData('TESTSUITES')
+        evt.SetClientData({'aftype' : 'TESTSUITES', 'state': self.applied})
         evt.Skip()
 
 

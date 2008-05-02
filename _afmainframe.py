@@ -89,6 +89,17 @@ class MainFrame(wx.Frame):
         filterview.Layout()
 
 
+    def SetFilterInfo(self, filterstate):
+        for aftype, state in filterstate.iteritems():
+            if state:
+                color = wx.GREEN
+            else:
+                color = self.headpanel.GetBackgroundColour()
+            print aftype, state, color
+            self.filterstatus[aftype].SetBackgroundColour(color)
+        self.headpanel.Refresh()
+
+
     def OnFilterSizeButtonClick(self, event):
         size = self.bottomWindow.GetSize()
         self.expand = not self.expand
@@ -131,8 +142,21 @@ class MainFrame(wx.Frame):
 
         headpanel = wx.Panel(filterfootwin, style=wx.BORDER_STATIC )
         headpanel.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_3DFACE))
-        self.filtersizebutton = wx.Button(headpanel, wx.ID_ANY, 'Filter >>')
+        self.filtersizebutton = wx.Button(headpanel, wx.ID_ANY, _('Filter') + ' >>')
         self.Bind(wx.EVT_BUTTON, self.OnFilterSizeButtonClick, self.filtersizebutton)
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+        hbox.Add(self.filtersizebutton)
+        hbox.AddStretchSpacer()
+
+        self.filterstatus = {}
+        for artefact in afresource.ARTEFACTLIST:
+            stext = wx.StaticText(headpanel, -1, ' '+afresource.ARTEFACTSHORT[artefact]+' ', style=wx.BORDER_STATIC )
+            hbox.Add(stext,  0, wx.LEFT | wx.TOP, 5)
+            self.filterstatus[artefact] = stext
+
+        hbox.AddSpacer(10)
+        headpanel.SetSizer(hbox)
+        self.headpanel = headpanel
 
         # where the view filter goes to
         h = 200
