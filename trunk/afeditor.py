@@ -159,7 +159,12 @@ class MyApp(wx.App):
             self.Bind(wx.EVT_BUTTON, self.ApplyFilterClick, id=fid)
             self.Bind(wx.EVT_BUTTON, self.ApplyFilterClick, id=fid+1)
 
-        self.PARENTID = "FEATURES REQUIREMENTS USECASES TESTCASES TESTSUITES".split()
+        self.PARENTID = afresource.ARTEFACTLIST
+
+        self.filterstate = {}
+        for item in self.PARENTID:
+            self.filterstate[item] = False
+
         self.delfuncs = (self.model.deleteFeature, self.model.deleteRequirement, self.model.deleteUsecase, self.model.deleteTestcase, self.model.deleteTestsuite)
 
         self.Bind(wx.EVT_MENU, self.OnNewProduct, id=101)
@@ -199,7 +204,10 @@ class MyApp(wx.App):
     def ApplyFilterClick(self, evt):
         self.InitView()
         self.DisableUpdateNodeView = True
-        self.mainframe.treeCtrl.SetSelection(evt.GetClientData())
+        evtdata = evt.GetClientData()
+        self.filterstate[evtdata['aftype']] = evtdata['state']
+        self.mainframe.treeCtrl.SetSelection(evtdata['aftype'])
+        self.mainframe.SetFilterInfo(self.filterstate)
 
 
     def copyArtefactToClipboard(self, evt=None):

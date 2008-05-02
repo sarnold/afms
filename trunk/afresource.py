@@ -31,6 +31,12 @@ ARTEFACTS = [{"name": _("Features"),      "id": "FEATURES"},
              {"name": _("Testcases"),     "id": "TESTCASES"},
              {"name": _("Testsuites"),    "id": "TESTSUITES"}]
 
+ARTEFACTLIST = ["FEATURES", "REQUIREMENTS", "USECASES", "TESTCASES", "TESTSUITES"]
+ARTEFACTSHORT = {'USECASES': _('UC'), 'TESTCASES': _('TC'),
+                 'REQUIREMENTS': _('RQ'), 'FEATURES': _('FT'), 'TESTSUITES': _('TS')}
+
+
+
 TRASH =  {"name": _("Trash"), "id": "TRASH"}
 
 TEXTFILTER = [
