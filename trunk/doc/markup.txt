@@ -1,0 +1,42 @@
+.. $Id$
+
+
+===========================================
+AFMS: Markup for afeditor_ and testrunner_
+===========================================
+
+
+.. contents::
+
+----
+
+
+Markup
+======
+Most of the multiline edit fields support different markups.
+You may use either plain text, HTML markup or reStructuredText markup.
+
+
+HTML Markup
+-----------
+Enter the tag <html> in the first line of the description and </html> in the last line.
+Between these tags you may use most of the basic HTML tags. 
+
+|example1|
+
+Rendering takes place after closing the dialog. In normal view mode the rendered text 
+is shown.
+
+|example2|
+
+.. |EXAMPLE1| image:: images/screenshot_edit_product_html.png
+.. |EXAMPLE2| image:: images/screenshot_view_product_html.png
+  
+
+reStructuredText markup
+-----------------------
+Place the directive ".. REST" in the first line of the description. Then you can use 
+reStructuredText_ markup.
+
+
+.. include:: common.txt

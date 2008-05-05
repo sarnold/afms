@@ -59,10 +59,15 @@ class afBaseFilterView(scrolled.ScrolledPanel):
     def AddButtons(self, btnId):
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         labels = [_('Apply'), _('Reset'), _('Save'), _('Load')]
+        btns = []
         for label in labels:
             btn = wx.Button(self, btnId, label)
+            btns.append(btn)
             btnId += 1
             hbox.Add(btn)
+        # TODO: Implement load/save functions
+        btns[2].Hide()
+        btns[3].Hide()
         self.vbox.Add(hbox, 0, wx.ALL|wx.EXPAND, 5)
 
 
@@ -235,11 +240,11 @@ class afFeatureFilterView(afBaseFilterView):
 
 
     def SaveFilterClick(self, evt):
-        print 'Save'
+        pass # not yet implemented
 
 
     def LoadFilterClick(self, evt):
-        print 'Load'
+        pass # not yet implemented
 
 
     def InitFilterContent(self, ff):
@@ -311,11 +316,11 @@ class afRequirementFilterView(afBaseFilterView):
 
 
     def SaveFilterClick(self, evt):
-        print 'Save'
+        pass # not yet implemented
 
 
     def LoadFilterClick(self, evt):
-        print 'Load'
+        pass # not yet implemented
 
 
     def InitFilterContent(self, ff):
@@ -388,11 +393,11 @@ class afUsecaseFilterView(afBaseFilterView):
 
 
     def SaveFilterClick(self, evt):
-        print 'Save'
+        pass # not yet implemented
 
 
     def LoadFilterClick(self, evt):
-        print 'Load'
+        pass # not yet implemented
 
 
     def InitFilterContent(self, ff):
@@ -457,11 +462,11 @@ class afTestcaseFilterView(afBaseFilterView):
 
 
     def SaveFilterClick(self, evt):
-        print 'Save'
+        pass # not yet implemented
 
 
     def LoadFilterClick(self, evt):
-        print 'Load'
+        pass # not yet implemented
 
 
     def InitFilterContent(self, ff):
@@ -513,11 +518,11 @@ class afTestsuiteFilterView(afBaseFilterView):
 
 
     def SaveFilterClick(self, evt):
-        print 'Save'
+        pass # not yet implemented
 
 
     def LoadFilterClick(self, evt):
-        print 'Load'
+        pass # not yet implemented
 
 
     def InitFilterContent(self, ff):

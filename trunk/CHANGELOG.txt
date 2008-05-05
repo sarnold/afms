@@ -1,6 +1,12 @@
 ===============================
-AFMS Release 0.1.x (2008-xx-xx)
+AFMS Release 0.2.0 (2008-05-05)
 ===============================
+
+New features
+~~~~~~~~~~~~
+* Basic filter functionality implemented
+
+* Preview button available when editing artefacts
 
 Changes
 ~~~~~~~
@@ -8,11 +14,10 @@ Changes
   under a single folder named afms-x.x.x where x.x.x
   is the version number
 
-* Basic filter functionality implemented
-
 Bug fixes
 ~~~~~~~~~
 * In table view of artefacts the date and user of the last change to the artefact is shown now.
+
 
 ===============================
 AFMS Release 0.1.4 (2008-04-10)
