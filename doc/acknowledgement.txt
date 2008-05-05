@@ -1,0 +1,58 @@
+.. $Id$
+
+.. header:: 
+    .. raw:: html
+
+        <!-- begin_mainmenu $select -->
+        <div class="tabs">
+          <ul>
+          <li>
+          <a href="index.html"><span>Main page</span></a>
+          </li>
+          <li>
+          <a href="afeditor.html"><span>afeditor</span></a>
+          </li>
+          <li>
+          <a href="testrunner.html"><span>testrunner</span></a>
+          </li>
+          <li id="current">
+          <a href="acknowledgement.html"><span>Acknowledgement</span></a>
+          </li>
+          <li>
+          <a href="changelog.html"><span>Changelog</span></a>
+          </li>
+          </ul>
+        </div>
+        <!-- end_mainmenu -->
+
+
+==========================================
+AFMS Acknowledgment
+==========================================
+
+
+AFMS is implemented in Python_ and uses wxPython_ as GUI Toolkit.
+reStructuredText_ is used for rendering on demand.
+
+The database engine is sqlite_.
+
+The different icons are taken from several icon collections:
+
+Sweetie BasePack 
+    * URL: http://sweetie.sublink.ca/preview/icons/Sweetie-BasePack-v3
+    * Licence: Creative Commons Attribution-ShareAlike 3.0 License Agreement, 
+      http://creativecommons.org/licenses/by-sa/3.0/
+
+Nuvola
+    * URL:	http://www.icon-king.com
+    * Licence: GNU Lesser General Public License, http://www.gnu.org/licenses/lgpl.html
+
+Tango
+    * URL: http://tango.freedesktop.org/releases/tango-icon-theme-0.8.1.tar.gz
+    * Licence: Creative Commons Attribution-ShareAlike 2.5 License Agreement, 
+      http://creativecommons.org/licenses/by-sa/2.5/
+
+
+.. include:: common.txt
+
+

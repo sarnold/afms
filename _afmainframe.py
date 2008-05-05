@@ -95,7 +95,6 @@ class MainFrame(wx.Frame):
                 color = wx.GREEN
             else:
                 color = self.headpanel.GetBackgroundColour()
-            print aftype, state, color
             self.filterstatus[aftype].SetBackgroundColour(color)
         self.headpanel.Refresh()
 

@@ -43,7 +43,7 @@ class EditArtefactDialog(wx.Dialog):
 
         btnsizer = wx.StdDialogButtonSizer()
 
-        btn = wx.Button(self, wx.NewId(), _('Preview' + '...'))
+        btn = wx.Button(self, wx.NewId(), _('Preview') + '...')
         btnsizer.Add(btn)
         self.Bind(wx.EVT_BUTTON, self.PreviewClick, id=btn.GetId())
 

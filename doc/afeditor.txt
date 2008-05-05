@@ -1,61 +1,38 @@
-=================
-AFMS Short Manual
-=================
+.. $Id$
 
-:Author: |author|
-:Revision: $Rev$
-:Copyright: |author|, 2008
-:Homepage: http://sourceforge.net/projects/afms/
+.. header:: 
+    .. raw:: html
+
+        <!-- begin_mainmenu $select -->
+        <div class="tabs">
+          <ul>
+          <li>
+          <a href="index.html"><span>Main page</span></a>
+          </li>
+          <li id="current">
+          <a href="afeditor.html"><span>afeditor</span></a>
+          </li>
+          <li>
+          <a href="testrunner.html"><span>testrunner</span></a>
+          </li>
+          <li>
+          <a href="acknowledgement.html"><span>Acknowledgement</span></a>
+          </li>
+          <li>
+          <a href="changelog.html"><span>Changelog</span></a>
+          </li>
+          </ul>
+        </div>
+        <!-- end_mainmenu -->
+
+
+===============================
+AFMS: Short Manual for afeditor
+===============================
 
 .. contents::
 
-.. $Id$
-
-Introduction
-============
-AFMS is an "Artefact Management System" to manage some of the artefacts  
-appearing in the software development process of a product. These artefacts are
-namely
-
-* Features
-* Requirements
-* Use cases
-* Test cases 
-* Test suites
-
-
-With the program *afeditor* the management system provides a GUI to create, edit and 
-delete artefacts and to edit relations between artefacts. 
-The *afeditor* allows to export artefacts in either HTML or XML format.
-
-The program *testrunner* is used to manually "execute" test cases organized in a test suite
-and to log the test results.
-
-The AFMS programs are implemented in Python_ using wxPython_ for the graphical user interfaces.
-Furthermore the `docutils package <http://docutils.sourceforge.net/>`_ is required.
-No other components are required.
-
-Artefacts and other data are stored in SQLite_ databases. SQLite_ (pysqlite) comes with current
-Python_ releases.
-
-AFMS is a standalone application, no database servers, web servers or similar are required.
-The intended use of AFMS is for small and medium sized projects where only a small number
-of people has to edit the artefacts.
-
-AFMS is strongly inspired by the `Open Source Requirements Management System`_ and the
-`Ready-to-use Software Engineering Templates`_
-
-AFMS is free software: you can redistribute it and/or modify
-it under the terms of the `GNU General Public License
-<http://www.gnu.org/licenses/>`_ as published 
-by the Free Software Foundation, either version 2 of the License, 
-or (at your option) any later version.
-
-
-
-
-Getting started with afeditor
-=============================
+----
 
 Overview screenshot
 -------------------
@@ -274,6 +251,26 @@ and you check for example a requiremt to be imported, then all test cases and us
 to that requirement are checked too.
 
 
+Using filters to show only specific artefacts
+---------------------------------------------
+Pressing the botton "Filter" in the bottom panel expands or collapses the filter settings window.
+
+.. image:: images/screenshot_filterpanel.png
+
+Filters are specific for each artefact. The image above shows the filter window for use cases.
+There are 3 types of filter settings:
+
+* Filter those artefacts where text fields fulfills a certain condition. In the example above only 
+  those use cases are shown where the text fileds 'Main scenario' or 'Alt scenario' contains 
+  the string 'Save'. Other available conditions are for example "doesn't contain the word" or 
+  "matches the regexp" (regular expression).
+* Filter those artefacts having the selected properties, i.e. where 'Priority' is "Essential' or 'Expected'.
+* Filter artefacts changed within a certain time intervall by a certain user.
+
+After changing the filter settings the button 'Apply' makes the filter to come into effect.
+The button 'Reset' clears all the the filter fields and switches filtering off.
+
+
 Keyboard shortcuts
 ------------------
 
@@ -294,148 +291,6 @@ Ctrl-Space    Toggles the check state of all list items
 ============  ======================================================
 
 
---------------------------------------------------------------------------------
 
 
-.. _testrunner:
-
-Getting started with testrunner
-===============================
-
-Overview screenshot
--------------------
-.. image:: images/screenshot_tr_overview.png
-
-
-Create a new test run
----------------------
-You may start *testrunner* from the shell calling "testrunner.py". For Microsoft Windows, 
-you may run "testrunner.pyw" if you don't like the console.
-
-Select "New test run" from the "File" menu to create a new test run. 
-A wizard will guide you through the four required steps:
-#. Select the database with the artefacts of the software product
-#. Select the test suite which should be run
-#. Enter description of the test run (i.e. release information) and the name of the tester
-#. Enter the filename to save the test run to
-
-
-Execute test cases
-------------------
-To 'execute' a test case you simply have to activate the test case in the list 
-i.e. with a double click. A dialog opens where you can enter the test result.
-
-
-Pausing a test run
-------------------
-All test results are saved immediately. Thus you can quit the application anytime and resume
-test execution later.
-
-
-Abort test run
---------------
-Choose the menu item "Cancel current test run" from the "Test" menu.
-After entering the reason for cancelation all pending test cases will be marked as skipped.
-and the remark field will show the ´reason for cancelation.
-
-
-Query information about a test run
-----------------------------------
-Select menu item "About current test run" from the "Test" menu. This will give information about 
-the prduct, the test suite and the test run.
-
-
-Export test run as HTML or XML
-------------------------------
-Select "Export as HTML" or "Export as XML" from the "File" menu.
-A test report will be saved in the selected format. For HTML output the cascading style sheet
-afmsreport.css will be used,
-
-
-Special features
-----------------
-If you are using `HTML Markup`_ in one of the attributes of a test case (i.e. in the 'Steps'
-field) you may enter a link like ``script://sample.sh``. 
-When clicking this link testrunner tries to execute the specified script in a shell.
-
-
---------------------------------------------------------------------------------
-
-
-Markup
-======
-Most of the multiline edit fields support different markups.
-You may use either plain text, HTML markup or reStructuredText markup.
-
-
-HTML Markup
------------
-Enter the tag <html> in the first line of the description and </html> in the last line.
-Between these tags you may use most of the basic HTML tags. 
-
-|example1|
-
-Rendering takes place after closing the dialog. In normal view mode the rendered text 
-is shown.
-
-|example2|
-
-.. |EXAMPLE1| image:: images/screenshot_edit_product_html.png
-.. |EXAMPLE2| image:: images/screenshot_view_product_html.png
-  
-
-reStructuredText markup
------------------------
-Place the directive ".. REST" in the first line of the description. Then you can use 
-reStructuredText_ markup.
-
-
-
-
-Acknowledgment
-==============
-
-AFMS is implemented in Python_ and uses wxPython_ as GUI Toolkit.
-reStructuredText_ is used for rendering on demand.
-
-The database engine is sqlite_.
-
-The different icons are taken from several icon collections:
-
-Sweetie BasePack 
-    * URL: http://sweetie.sublink.ca/preview/icons/Sweetie-BasePack-v3
-    * Licence: Creative Commons Attribution-ShareAlike 3.0 License Agreement, 
-      http://creativecommons.org/licenses/by-sa/3.0/
-
-Nuvola
-    * URL:	http://www.icon-king.com
-    * Licence: GNU Lesser General Public License, http://www.gnu.org/licenses/lgpl.html
-
-Tango
-    * URL: http://tango.freedesktop.org/releases/tango-icon-theme-0.8.1.tar.gz
-    * Licence: Creative Commons Attribution-ShareAlike 2.5 License Agreement, 
-      http://creativecommons.org/licenses/by-sa/2.5/
-
-
-.. _Python: http://www.python.org/
-.. _wxPython: http://www.wxPython.org
-.. _SQlite: http://www.sqlite.org
-.. _reStructuredText: http://docutils.sourceforge.net
-
-.. _`Open Source Requirements Management System`: http://sourceforge.net/projects/osrmt
-.. _`Ready-to-use Software Engineering Templates`: http://readyset.tigris.org/
-
-.. |new_feature_btn| image:: images/f_new.png
-.. |new_requirement_btn| image:: images/rq_new.png
-.. |new_usecase_btn| image:: images/uc_new.png
-.. |new_testcase_btn| image:: images/tc_new.png
-.. |new_testsuite_btn| image:: images/ts_new.png
-.. |del_af_btn| image:: images/24-tag-remove.png
-.. |author| unicode:: Achim U+00A0 K U+00F6 hler
-
-.. footer:: *Last update* |date|
-.. |date| date:: %Y-%m-%d, %H:%M CET
-
-.. meta::
-   :description: Artefact Management System (AFMS) Short Manual
-   :keywords: Management, Features, Requirements, Use cases, Test cases, Test suites
+.. include:: common.txt

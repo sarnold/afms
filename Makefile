@@ -28,7 +28,9 @@ TR_SRC := testrunner.py $(wildcard tr*.py) $(wildcard _tr*.py) testrunner.pyw
 ICON_SRC := $(wildcard icons/*.png) \
             $(addprefix icons/, mkimage.py README.txt COPYRIGHT.txt) 
 
-DOC_SRC := $(addprefix doc\, afms.txt afms.html afmsdoc.css makedoc.cmd makedoc.sh) \
+DOC_SRC := $(addprefix doc\, afmsdoc.css makedoc.cmd makedoc.sh) \
+           $(wildcard doc\*.txt) \
+           $(addprefix doc\graphics\, grid.jpeg tab_b.gif tab_l.gif tab_r.gif) \
            $(wildcard doc\images\*.png) 
 
 include version.py
@@ -56,7 +58,7 @@ distrib:
 clean:
 	-rm -r $(TARGETDIR)
 
-veryclean:
+veryclean: clean
 	-rm -r $(DISTRIBDIR)
     
-.PHONY: distrib
+.PHONY: distrib clean veryclean
