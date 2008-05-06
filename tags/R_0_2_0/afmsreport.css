@@ -1,0 +1,111 @@
+/*
+Copyright 2008 Achim Köhler
+
+This file is part of AFMS.
+
+AFMS is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published 
+by the Free Software Foundation, either version 2 of the License, 
+or (at your option) any later version.
+
+AFMS is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AFMS.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/* $Id$ */
+
+BODY, TH, TD, INPUT, SELECT {
+ font-family: Verdana, Helvetica, Arial, sans-serif;
+}
+TD, TH {
+	border-style:none;
+	vertical-align:top;
+	background-color: #CCCCCC;
+	width: 80%;
+}
+TH {
+	background-color: #FFFF66;
+	text-align:right;
+	width: 20%;	
+}
+
+h1, h2 {
+	background-image: none;
+	background: #9999CC;
+	color: #000;
+	margin-bottom: 0;
+}
+h1 {
+ border-left: solid 1.2em #4444FF;
+}
+
+h2 {
+ border-left: solid 0.7em #4444FF;
+}
+
+h3 {
+	border-left: solid 0.7em #5555FF;
+	background: #9999FF;
+}
+
+h4 {
+ border-left: solid 0.7em #5555FF;
+ background: #AAAAFF;
+}
+
+
+div.requirement {
+	margin-left : 30px;
+	background-color: #E5E5E5;
+}
+
+div.usecases {
+	margin-left : 30px;
+}
+
+div.producttitle
+{
+	font-weight:bold;
+	margin-bottom:1em;
+}
+
+div.productdescription
+{
+}
+
+p.footer
+{
+	font-style : italic;
+	font-size : small;
+}
+
+
+
+table.navi {
+vertical-align: middle;
+border-spacing: 10pt 0pt;
+}
+
+table.navi td {
+background-color: #AAAAAA;
+padding: 0pt 10pt 0pt 5pt;
+}
+
+p.alert {
+	background-color: #EE0000;
+}
+
+#bodycol h3, #bodycol h4 { border: 0; }
+
+p.fail {
+    background-color: #EE0000;
+}
+
+p.pass {
+    background-color: #00EE00;
+}

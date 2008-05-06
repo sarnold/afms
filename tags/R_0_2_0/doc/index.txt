@@ -1,0 +1,81 @@
+.. $Id$
+
+.. header:: 
+    .. raw:: html
+
+        <!-- begin_mainmenu $select -->
+        <div class="tabs">
+          <ul>
+          <li id="current">
+          <a href="index.html"><span>Main page</span></a>
+          </li>
+          <li>
+          <a href="afeditor.html"><span>afeditor</span></a>
+          </li>
+          <li>
+          <a href="testrunner.html"><span>testrunner</span></a>
+          </li>
+          <li>
+          <a href="acknowledgement.html"><span>Acknowledgement</span></a>
+          </li>
+          <li>
+          <a href="changelog.html"><span>Changelog</span></a>
+          </li>
+          </ul>
+        </div>
+        <!-- end_mainmenu -->
+
+
+================================
+Artefact Management System AFMS 
+================================
+
+:Author: |author|
+:Revision: $Rev: 10 $
+:Copyright: |author|, 2008
+:Homepage: http://sourceforge.net/projects/afms/
+
+----
+
+
+AFMS is an "Artefact Management System" to manage some of the artefacts  
+appearing in the software development process of a product. These artefacts are
+namely
+
+* Features
+* Requirements
+* Use cases
+* Test cases 
+* Test suites
+
+
+With the program afeditor_ the management system provides a GUI to create, edit and 
+delete artefacts and to edit relations between artefacts. 
+The afeditor_ allows to export artefacts in either HTML or XML format.
+
+The program testrunner_ is used to manually "execute" test cases organized in a test suite
+and to log the test results.
+
+The AFMS programs are implemented in Python_ using wxPython_ for the graphical user interfaces.
+Furthermore the `docutils package <http://docutils.sourceforge.net/>`_ is required.
+No other components are required.
+
+Artefacts and other data are stored in SQLite_ databases. SQLite_ (pysqlite) comes with current
+Python_ releases.
+
+AFMS is a standalone application, no database servers, web servers or similar are required.
+The intended use of AFMS is for small and medium sized projects where only a small number
+of people has to edit the artefacts.
+
+AFMS is strongly inspired by the `Open Source Requirements Management System`_ and the
+`Ready-to-use Software Engineering Templates`_
+
+AFMS is free software: you can redistribute it and/or modify
+it under the terms of the `GNU General Public License
+<http://www.gnu.org/licenses/>`_ as published 
+by the Free Software Foundation, either version 2 of the License, 
+or (at your option) any later version.
+
+
+
+.. include:: common.txt
