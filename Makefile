@@ -27,11 +27,15 @@ TR_SRC := testrunner.py $(wildcard tr*.py) $(wildcard _tr*.py) testrunner.pyw
 
 ICON_SRC := $(wildcard icons/*.png) \
             $(addprefix icons/, mkimage.py README.txt COPYRIGHT.txt) 
+ICON_SRC := $(subst /,\,$(ICON_SRC))
 
-DOC_SRC := $(addprefix doc\, afmsdoc.css makedoc.cmd makedoc.sh) \
-           $(wildcard doc\*.txt) \
-           $(addprefix doc\graphics\, grid.jpeg tab_b.gif tab_l.gif tab_r.gif) \
-           $(wildcard doc\images\*.png) 
+DOC_SRC := $(addprefix doc/, afmsdoc.css makedoc.cmd makedoc.sh) \
+           $(wildcard $(addprefix doc/, *.txt)) \
+           $(addprefix doc/graphics/, grid.jpeg tab_b.gif tab_l.gif tab_r.gif) \
+           $(wildcard doc/images/*.png) 
+DOC_SRC := $(subst /,\,$(DOC_SRC))
+
+DOC_HTML = $(subst /,\,$(wildcard $(addprefix doc/, *.html)))
 
 include version.py
 
@@ -51,6 +55,7 @@ distrib:
 	cp --parents $(AFE_SRC) $(TARGETDIR)
 	cp --parents $(TR_SRC) $(TARGETDIR)
 	cp --parents $(DOC_SRC) $(TARGETDIR)
+	cp --parents $(DOC_HTML) $(TARGETDIR)
 	tar --create --file $(ARCHIVE) $(TARGETDIR)
 	gzip $(ARCHIVE)
 	zip -r $(ZIPARCHIVE) $(TARGETDIR)
