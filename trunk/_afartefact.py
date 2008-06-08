@@ -74,11 +74,20 @@ class cArtefact():
         return self._basedata
 
 
+    def _writeHistory(self, s):
+        s += '<history>\n'
+        for cle in self.getChangelist():
+            s += cle.xmlrepr('item')
+        s += '</history>\n'
+        return s
+
+
     def xmlrepr(self, tagname):
         """Return base data as XML string"""
         s = '<%s>\n' % tagname
         for key in self._keys:
             s += '<%s><![CDATA[%s]]></%s>\n' % (key, self._basedata[key], key)
+        s = self._writeHistory(s)
         s += '</%s>\n' % tagname
         return s
 
@@ -99,6 +108,35 @@ class cChangelogEntry():
 
     def __setitem__(self, key, value):
         self._basedata[key] = value
+        
+        
+    def labels(self):
+        return [_('Date'), _('User'), _('Description')]
+        
+        
+    def keys(self):
+        return ['date', 'user', 'description']
+
+
+    def getPrintableDataDict(self, formatter=None):
+        if formatter == None: formatter = self.identity
+        basedata = self._basedata.copy()
+        if len(basedata['description']) <= 0:
+            basedata['description'] = _(afresource.CHANGETYPE_NAME[basedata['changetype']])
+        else:
+            basedata['description'] = formatter(basedata['description'])
+        basedata['user'] = formatter(basedata['user'])
+        return basedata
+
+
+    def xmlrepr(self, tagname):
+        """Return base data as XML string"""
+        data = self.getPrintableDataDict(lambda s: s)
+        s = '<%s>\n' % tagname
+        for key in self.keys():
+            s += '<%s><![CDATA[%s]]></%s>\n' % (key, data[key], key)
+        s += '</%s>\n' % tagname
+        return s
 
 #----------------------------------------------------------------------
 
