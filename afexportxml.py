@@ -29,6 +29,14 @@ Export database to xml output
 @version: $Rev$
 """
 
+import os
+if __name__=="__main__":
+    import sys, gettext
+    basepath = os.path.abspath(os.path.dirname(sys.argv[0]))
+    LOCALEDIR = os.path.join(basepath, 'locale')
+    DOMAIN = "afms"
+    gettext.install(DOMAIN, LOCALEDIR, unicode=True)
+
 import codecs
 from time import localtime, gmtime, strftime
 import afmodel
@@ -154,6 +162,7 @@ class afExportXML():
             self.of.write('</%s>\n' % d["outertag"])
 
 
+
 if __name__=="__main__":
     import os, sys, getopt
     
@@ -195,7 +204,9 @@ if __name__=="__main__":
     
     model = afmodel.afModel(controller = None)
     try:
+        cwd = os.getcwd()
         model.requestOpenProduct(args[0])
+        os.chdir(cwd)
     except:
         print("Error opening database file %s" % args[0])
         sys.exit(1)

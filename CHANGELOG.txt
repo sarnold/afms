@@ -1,4 +1,20 @@
 ===============================
+AFMS Release 0.x.x (2008-xx-yy)
+===============================
+
+Changes
+~~~~~~~
+* History (Changelog) is now included in the HTML and XML report
+* CSS is embedded in the HTML report 
+
+Bug fixes
+~~~~~~~~~
+* afexporthtml.py and afexportxml.py are now working as command 
+line tool again. There was a bug due to to the usage of 
+gettext introduced in release 0.1.4.
+
+
+===============================
 AFMS Release 0.2.1 (2008-05-07)
 ===============================
 

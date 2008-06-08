@@ -29,11 +29,19 @@ Export database to html output
 @version: $Rev$
 """
 
+import os
+if __name__=="__main__":
+    import sys, gettext
+    basepath = os.path.abspath(os.path.dirname(sys.argv[0]))
+    LOCALEDIR = os.path.join(basepath, 'locale')
+    DOMAIN = "afms"
+    gettext.install(DOMAIN, LOCALEDIR, unicode=True)
+
 import codecs
 from time import localtime, gmtime, strftime
 import afmodel
 import afconfig
-import afresource
+import afresource, _afartefact
 from afresource import ENCODING
 import _afdocutils
 
@@ -45,7 +53,7 @@ HTMLHEADER = \
 <head>
 <meta http-equiv="content-type" content="text/html; charset=%s">
 <title>AFMS Report</title>
-<link href="afmsreport.css" rel="stylesheet" type="text/css">
+%s
 </head>
 <body>
 """
@@ -104,6 +112,10 @@ class afExportHTML():
         self.emptytestsuites = []
         self.testcasesnotintestsuites = []
         self.attached_usecase_ids = []
+        self.featurehistory = []
+        self.requirementhistory = []
+        self.usecasehistory = []
+        self.testcasehistory = []
 
         self.of = codecs.open(outfilename, encoding=ENCODING, mode="w", errors='strict')
         self.writeHTMLHeader()
@@ -124,6 +136,9 @@ class afExportHTML():
 
         self.writeTag('h1', '<a name="problems">%s</a>' % __(_('Detected problems')))
         self.writeProblems()
+        
+        self.writeTag('h1', '<a name="history">%s</a>' % __(_('Artefact History')))
+        self.writeHistory()
 
         self.writeHTMLFooter()
         self.of.close()
@@ -134,7 +149,20 @@ class afExportHTML():
 
 
     def writeHTMLHeader(self):
-        self.of.write(HTMLHEADER % ENCODING)
+        cssfile = 'afmsreport.css'
+        p = os.path.join(os.path.dirname(__file__), cssfile)
+        if os.path.exists(p):
+            fp = codecs.open(p, encoding='utf-8', errors = 'ignore')
+            css = ''
+            for line in fp:
+                if line.startswith('/* start */'): break
+            for line in fp:
+                css += line
+            fp.close()
+        else:
+            css = ''
+        css = '<style type="text/css">\n<!--\n' + css + '\n@import %s;\n-->\n</style>\n' % cssfile
+        self.of.write(HTMLHEADER % (ENCODING, css))
 
 
     def writeHTMLFooter(self):
@@ -184,7 +212,21 @@ class afExportHTML():
         self.of.write('<li><a href="#emptytestsuites">%s</a></li>' % _('Empty testsuites'))
         self.of.write('<li><a href="#lonelyusecases">%s</a></li>' % _('Usecases not belonging to requirements'))
         self.of.write('</ul>')
+        
+        self.of.write('<li><a href="#history">%s</a></li>' % __(_('Artefact History')))
+        self.of.write('<ul>')
+        self.of.write('<li><a href="#HF">%s</a></li>\n' % __(_('Features')))
+        self.of.write('\n'.join(self.featurehistory))
+        self.of.write('<li><a href="#HR">%s</a></li>\n' % __(_('Requirements')))
+        self.of.write('\n'.join(self.requirementhistory))
+        self.of.write('<li><a href="#HUC">%s</a></li>\n' % __(_('Usecases')))
+        self.of.write('\n'.join(self.usecasehistory))
+        self.of.write('<li><a href="#HTC">%s</a></li>\n' % __(_('Testcases')))
+        self.of.write('</ul>')
+        
         self.of.write("</ol>")
+
+        
 
 
     def writeProblems(self):
@@ -234,6 +276,8 @@ class afExportHTML():
                 basedata = feature.getPrintableDataDict(self.formatField)
 
                 self.writeTag('h2', '<a name="F-%(ID)03d">F-%(ID)03d: %(title)s</a>' % basedata)
+                historylink = '<tr><th><a href="#HF-%(ID)03d">History</a></th><td>&nbsp;</td></tr>\n' % basedata
+                self.appendHistory(self.featurehistory, basedata, 'F', feature.getChangelist())
                 self.of.write('<table>\n')
                 for label, key in zip(feature.labels()[2:], feature.keys()[2:]):
                     self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
@@ -250,6 +294,7 @@ class afExportHTML():
                     self.lonelyfeatures.append(feature)
                     self.of.write('<p class="alert">%s</p>' % _('None'))
                 self.of.write('</td></tr>\n')
+                self.of.write(historylink)
                 self.of.write('</table>\n')
 
 
@@ -260,6 +305,9 @@ class afExportHTML():
                 basedata = requirement.getPrintableDataDict(self.formatField)
 
                 self.writeTag('h2', '<a name="REQ-%(ID)03d">REQ-%(ID)03d: %(title)s</a>' % basedata)
+                historylink = '<tr><th><a href="#HREQ-%(ID)03d">History</a></th><td>&nbsp;</td></tr>\n' % basedata
+                self.appendHistory(self.requirementhistory, basedata, 'REQ', requirement.getChangelist())
+
                 self.of.write('<div class="requirement">\n')
 
                 self.of.write('<table>\n')
@@ -278,6 +326,7 @@ class afExportHTML():
                     self.untestedrequirements.append(requirement)
                     self.of.write('<p class="alert">%s</p>' % _('None'))
                 self.of.write('</td></tr>\n')
+                self.of.write(historylink)
                 self.of.write('</table>\n')
 
                 self.of.write('<div class="usecases">\n')
@@ -301,6 +350,9 @@ class afExportHTML():
         self.of.write('<table>\n')
         for label, key in zip(usecase.labels()[2:], usecase.keys()[2:]):
                 self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
+        
+        self.of.write('<tr><th><a href="#HUC-%(ID)03d">History</a></th><td>&nbsp;</td></tr>\n' % basedata)
+        self.appendHistory(self.usecasehistory, basedata, 'UC', usecase.getChangelist())
         self.of.write('</table>\n')
 
 
@@ -311,6 +363,9 @@ class afExportHTML():
             basedata = testcase.getPrintableDataDict(self.formatField)
 
             self.writeTag('h2', '<a name="TC-%(ID)03d">TC-%(ID)03d: %(title)s</a>' % basedata)
+            historylink = '<tr><th><a href="#HTC-%(ID)03d">History</a></th><td>&nbsp;</td></tr>\n' % basedata
+            self.appendHistory(self.testcasehistory, basedata, 'TC', testcase.getChangelist())
+
             self.of.write('<table>\n')
             for label, key in zip(testcase.labels()[2:], testcase.keys()[2:]):
                 self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
@@ -340,6 +395,7 @@ class afExportHTML():
                 self.testcasesnotintestsuites.append(testcase)
                 self.of.write('<p class="alert">%s</p>' % _('None'))
 
+            self.of.write(historylink)
             self.of.write('</table>\n')
 
 
@@ -366,7 +422,38 @@ class afExportHTML():
                 self.of.write('<p class="alert">%s</p>' % _('None'))
 
             self.of.write('</table>\n')
+            
+            
+    def appendHistory(self, hlist, basedata, keystr, changelist):
+        basedata["keystr"] = keystr
+        s1 = '<h3><a name="H%(keystr)s-%(ID)03d"><a href="#%(keystr)s-%(ID)03d">%(keystr)s-%(ID)03d: %(title)s</a></a></h3>\n' % basedata
+        
+        s2 = '<table class="history">\n<tr>'
+        cle = _afartefact.cChangelogEntry('', '')
+        for label in cle.labels():
+                s2 += '<th class="history">%s</th>' % (label,)
+        s2 += '</tr>\n'
+        for cle in changelist:
+            basedata = cle.getPrintableDataDict(self.formatField)
+            s2 += '<tr>'
+            for key in cle.keys():
+                s2 += '<td class="history">%s</td>' % (basedata[key], )
+            s2 += '</tr>\n'
+        s2 += '<table>\n'
+        hlist.append(s1+s2)
+        
+    
+    def writeHistory(self):
+        self.of.write('<h2><a name="HF">%s</a></h2>\n' % __(_('Features')))
+        self.of.write('\n'.join(self.featurehistory))
+        self.of.write('<h2><a name="HR">%s</a></h2>\n' % __(_('Requirements')))
+        self.of.write('\n'.join(self.requirementhistory))
+        self.of.write('<h2><a name="HUC">%s</a></h2>\n' % __(_('Usecases')))
+        self.of.write('\n'.join(self.usecasehistory))
+        self.of.write('<h2><a name="HTC">%s</a></h2>\n' % __(_('Testcases')))
+        self.of.write('\n'.join(self.testcasehistory))
 
+        
 
 if __name__=="__main__":
     import os, sys, getopt
@@ -409,7 +496,9 @@ if __name__=="__main__":
 
     model = afmodel.afModel(controller = None)
     try:
+        cwd = os.getcwd()
         model.requestOpenProduct(args[0])
+        os.chdir(cwd)
     except:
         print("Error opening database file %s" % args[0])
         print(sys.exc_info())
