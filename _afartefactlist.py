@@ -408,6 +408,47 @@ class afSimpleSectionListWithButton(afSimpleSectionList):
 
 #-------------------------------------------------------------------------
 
+class afGlossaryEntryList(afArtefactList):
+    """Widget for displaying glossaryentry lists"""
+    def __init__(self, parent, ID = -1, checkstyle=False):
+        self.column_titles = [_('ID'), _('Term'), _('Description')]
+        self.key = "GLOSSARYENTRIES"
+        afArtefactList.__init__(self, parent, self.column_titles, ID, checkstyle=checkstyle)
+
+
+    def FormatRow(self, geobj):
+        return (self.idformat % geobj['ID'],
+                geobj['title'],
+                self.toText(geobj['description']))
+
+#-------------------------------------------------------------------------
+
+class afGlossaryEntryListWithButton(afGlossaryEntryList):
+    """Widget for displaying glossaryentry lists with add button"""
+    def __init__(self, parent, ID = -1, checkstyle=False):
+        afGlossaryEntryList.__init__(self, parent, ID, checkstyle=checkstyle)
+
+        self.add_button = wx.Button(self, 5138, _("Add") + " ...")
+        self.Bind(wx.EVT_BUTTON, self.OnAddButtonClick, self.add_button)
+        self.GetSizer().Add(self.add_button, 0, wx.ALIGN_LEFT)
+
+
+    def OnAddButtonClick(self, evt):
+        if 0:
+            items = ['%(ID)d: %(title)s' % simplesection for simplesection in self.artefactlist]
+            dlg = EditSimpleSectionLevelDialog(items)
+            dlgResult = dlg.ShowModal()
+            if  dlgResult == wx.ID_OK:
+                items = dlg.GetItems()
+            dlg.Destroy()
+            if  dlgResult != wx.ID_OK: return
+
+            ID = [int(s.split(':', 1)[0]) for s in items]
+            evt.SetClientData(ID)
+        evt.Skip()
+
+#-------------------------------------------------------------------------
+
 class afChangeList(afArtefactList):
     """Widget for displaying change lists"""
     def __init__(self, parent, ID = -1, checkstyle=False):

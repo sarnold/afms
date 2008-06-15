@@ -37,7 +37,8 @@ import random, time
 import logging
 import afconfig
 import afresource
-from _afartefact import cFeature, cRequirement, cUsecase, cTestcase, cTestsuite, cChangelogEntry, cProduct, cSimpleSection
+from _afartefact import cFeature, cRequirement, cUsecase, cTestcase, cTestsuite
+from _afartefact import cChangelogEntry, cProduct, cSimpleSection, cGlossaryEntry
 
 # Database version
 _DBVERSION = "1.1"
@@ -48,7 +49,8 @@ _TYPEID_USECASE     = 2
 _TYPEID_TESTCASE    = 3
 _TYPEID_TESTSUITE   = 4
 _TYPEID_SIMPLESECTION = 5
-_TYPEIDS = (_TYPEID_FEATURE, _TYPEID_REQUIREMENT, _TYPEID_USECASE, _TYPEID_TESTCASE, _TYPEID_TESTSUITE, _TYPEID_SIMPLESECTION)
+_TYPEID_GLOSSARYENTRY = 6
+_TYPEIDS = (_TYPEID_FEATURE, _TYPEID_REQUIREMENT, _TYPEID_USECASE, _TYPEID_TESTCASE, _TYPEID_TESTSUITE, _TYPEID_SIMPLESECTION, _TYPEID_GLOSSARYENTRY)
 
 _CHANGEID_NEW      = 0
 _CHANGEID_EDIT     = 1
@@ -80,7 +82,7 @@ class afModel(object):
         self.productfilename = None
         self.connection = None
         self.version = 0
-        self.tablenames = "features requirements usecases testcases testsuites simplesections".split()
+        self.tablenames = "features requirements usecases testcases testsuites simplesections glossary".split()
 
 
     def getFilename(self):
@@ -96,6 +98,7 @@ class afModel(object):
         logging.debug("afmodel._updateto_1_1()")
         c.execute("update product set value=? where property=='dbversion';", (_DBVERSION,))
         c.execute("create table simplesections (ID integer primary key autoincrement, title text, content text, level integer, delcnt integer default 0);")
+        c.execute("create table glossary (ID integer primary key autoincrement, title text, description text, delcnt integer default 0);")
         self.connection.commit()
 
 
@@ -141,7 +144,7 @@ class afModel(object):
         c.execute("create table feature_requirement_relation (ft_id integer, rq_id integer, delcnt integer default 0);")
         c.execute('create temporary table lastchanges (afid integer, aftype integer, changetype integer, date text, user text, description text)')
         self._updateto_1_1(c)
-        #self.InsertTestData()
+        self.InsertTestData()
         self.connection.commit()
 
 
@@ -1402,7 +1405,7 @@ class afModel(object):
         """
         Save SimpleSection to database
         @param simplesection: SimpleSection object
-        @type  requirement: cSimpleSection
+        @type  simplesection: cSimpleSection
         @return: updated SimpleSection object and boolean flag indicating if the
                  saved artefact is a new artefact
         @rtype:  tuple (cSimpleSection, bool)
@@ -1514,6 +1517,114 @@ class afModel(object):
             ID = idlist[i]
             c.execute("update simplesections set level=? where id=?", (i, ID))
         self.connection.commit()
+
+    #---------------------------------------------------------------------
+
+    def getGlossaryEntry(self, ID):
+        """Retrieve a GlossaryEntry with ID from database and return it as a cGlossaryEntry object"""
+        c = self.connection.cursor()
+        if ID < 0:
+            glossaryentry = cGlossaryEntry()
+        else:
+            query_string = 'select ID, title, description from glossary where ID = %d;' % ID
+            c.execute(query_string)
+            basedata = c.fetchone()
+            glossaryentry = cGlossaryEntry(ID=basedata[0], title=basedata[1], description=basedata[2])
+        return glossaryentry
+
+
+    def getGlossaryEntryIDs(self):
+        """
+        Get list with all ID's of all GlossaryEntry from database
+        @rtype:  list
+        @return: list with all GlossaryEntry ID
+        """
+        query_string = 'select ID from glossary where delcnt==0 order by level;'
+        c = self.connection.cursor()
+        c.execute(query_string)
+        return [data[0] for data in c.fetchall()]
+
+
+    def saveGlossaryEntry(self, glossaryentry):
+        """
+        Save GlossaryEntry to database
+        @param glossaryentry: GlossaryEntry object
+        @type  glossaryentry: cGlossaryEntry
+        @return: updated GlossaryEntry object and boolean flag indicating if the
+                 saved artefact is a new artefact
+        @rtype:  tuple (cGlossaryEntry, bool)
+        """
+        logging.debug("afmodel.saveGlossaryEntry()")
+
+        plainglossaryentry = [glossaryentry['ID'], glossaryentry['title'], glossaryentry['description']]
+        plainglossaryentry.append(0) # append delcnt
+        sqlstr = []
+        sqlstr.append("insert into glossary values (NULL, ?, ?, ?, ?)")
+        sqlstr.append("select max(ID) from glossary")
+        sqlstr.append("update glossary set "\
+            "'title'=?, 'description'=?, 'delcnt'=? where ID=?")
+        (basedata, new_artefact) = self.saveArtefact(plainglossaryentry, sqlstr, commit=True)
+        ge_id = basedata[0]
+
+        return (self.getGlossaryEntry(ge_id), new_artefact)
+
+
+    def getGlossaryEntryList(self, deleted=False, affilter=None):
+        """
+        Get list with all GlossaryEntry from database
+        @type   deleted: boolean
+        @param  deleted: If C{True}, a list with all GlossaryEntry marked as deleted is returned;
+                         Otherways all ordinary GlossaryEntry are returned
+        @type  affilter: afFilter or derived class
+        @param affilter: a filter object to filter only specific artefacts
+        @rtype:  object list
+        @return: list with GlossaryEntry objects
+        """
+        if deleted:
+            where_string = 'delcnt!=0'
+        else:
+            where_string = 'delcnt==0'
+
+        query_string = 'select ID, title, description from glossary where %s %s;'
+        c = self.connection.cursor()
+        if affilter is not None and affilter.isApplied():
+            (clause, params) = affilter.GetSQLWhereClause('and')
+            params['aftype'] = _TYPEID_GLOSSARYENTRY
+        else:
+            (clause, params) = ('', {})
+
+        query_string = query_string % (where_string, clause)
+        c.execute(query_string, params)
+        gelist = [cGlossaryEntry(ID=ge[0], title=ge[1], description=ge[2]) for ge in c.fetchall()]
+
+        return gelist
+
+
+    def deleteGlossaryEntry(self, item_id, delcnt=1):
+        """
+        Delete a GlossaryEntry
+
+        See L{deleteFeature} for details.
+        @type  item_id: integer
+        @param item_id: GlossaryEntry ID
+        @type   delcnt: integer
+        @param  delcnt: a value of 0 means restore the GlossaryEntry,
+                        a value > 0 means delete the GlossaryEntry
+        @rtype:  cGlossaryEntry
+        @return: GlossaryEntry object
+        """
+        logging.debug("afmodel.deleteGlossaryEntry(%i)" % item_id)
+        c = self.connection.cursor()
+        c.execute("update glossary set delcnt=? where id=?", (delcnt, item_id))
+        if delcnt > 0:
+            incr = 1
+            changetype = _CHANGEID_DELETE
+        else:
+            incr = -1
+            changetype = _CHANGEID_UNDELETE
+
+        self.connection.commit()
+        return self.getGlossaryEntry(item_id)
 
     #---------------------------------------------------------------------
 
@@ -1631,3 +1742,8 @@ class afModel(object):
             title = 'Title %d' % i
             content = "Content %d" % i
             c.execute('insert into simplesections values (NULL, ?, ?, ?, 0)', (title, content, i))
+
+        for i in range(5):
+            title = 'Term %d' % i
+            description = "Description %d" % i
+            c.execute('insert into glossary values (NULL, ?, ?, 0)', (title, description))
