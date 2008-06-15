@@ -284,7 +284,8 @@ class afExportHTML():
                 basedata = simplesection.getPrintableDataDict(self.formatField)
 
                 self.writeTag('h1', '<a name="SS-%(ID)03d">SS-%(ID)03d: %(title)s</a>' % basedata)
-                self.of.write('<div class="simplesection">\n%s\n</div>' % self.formatField(basedata['content']))
+                #self.of.write('<div class="simplesection">\n%s\n</div>' % self.formatField(basedata['content']))
+                self.of.write('<div class="simplesection">\n%(content)s\n</div>' % basedata)
                 historylink = '<p><a href="#HSS-%(ID)03d">History</a></p>\n' % basedata
                 self.appendHistory(self.simplesectionhistory, basedata, 'SS', simplesection.getChangelist())
                 self.of.write(historylink)
