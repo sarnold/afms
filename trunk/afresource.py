@@ -30,15 +30,15 @@ ARTEFACTS = [{"name": _("Features"),      "id": "FEATURES"},
              {"name": _("Usecases"),      "id": "USECASES"},
              {"name": _("Testcases"),     "id": "TESTCASES"},
              {"name": _("Testsuites"),    "id": "TESTSUITES"},
-             {"name": _("Text sections"), "id": "SIMPLESECTIONS"}]
+             {"name": _("Text sections"), "id": "SIMPLESECTIONS"},
+             {"name": _("Glossary"),      "id": "GLOSSARYENTRIES"}]
 
-ARTEFACTSTREEVIEWORDER = [5, 0, 1, 2, 3, 4]
+ARTEFACTSTREEVIEWORDER = [5, 6, 0, 1, 2, 3, 4]
 
-ARTEFACTLIST = ["FEATURES", "REQUIREMENTS", "USECASES", "TESTCASES", "TESTSUITES", "SIMPLESECTIONS"]
+ARTEFACTLIST = ["FEATURES", "REQUIREMENTS", "USECASES", "TESTCASES", "TESTSUITES", "SIMPLESECTIONS", "GLOSSARYENTRIES"]
 ARTEFACTSHORT = {'USECASES': _('UC'), 'TESTCASES': _('TC'),
-                 'REQUIREMENTS': _('RQ'), 'FEATURES': _('FT'), 'TESTSUITES': _('TS'), 'SIMPLESECTIONS': _('SS')}
-
-
+                 'REQUIREMENTS': _('RQ'), 'FEATURES': _('FT'), 'TESTSUITES': _('TS'),
+                 'SIMPLESECTIONS': _('SS'), 'GLOSSARYENTRIES' : _('GE')}
 
 TRASH =  {"name": _("Trash"), "id": "TRASH"}
 

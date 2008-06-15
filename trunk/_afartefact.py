@@ -547,3 +547,29 @@ class cSimpleSection(cArtefact):
         for label, key in zip(self._labels, self._keys):
             s += u"%s: %s\n" % (label, self._basedata[key])
         return s.encode('iso-8859-1')
+
+#----------------------------------------------------------------------
+
+class cGlossaryEntry(cArtefact):
+    def __init__(self, ID=-1, title='', description=''):
+        cArtefact.__init__(self)
+        self._labels = [_("ID"), _("Term"), _("Description")]
+        self._keys = ['ID', 'title', 'description']
+        self._basedata = {
+            'ID'           : ID,
+            'title'        : title,
+            'description'  : description,}
+
+
+    def getPrintableDataDict(self, formatter=None):
+        if formatter == None: formatter = self.identity
+        basedata = self._basedata.copy()
+        basedata['description'] = formatter(basedata['description'])
+        return basedata
+
+
+    def getClipboardText(self):
+        s = u""
+        for label, key in zip(self._labels, self._keys):
+            s += u"%s: %s\n" % (label, self._basedata[key])
+        return s.encode('iso-8859-1')

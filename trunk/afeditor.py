@@ -56,6 +56,7 @@ from _aftestcaseview import *
 from _afusecaseview import *
 from _aftestsuiteview import *
 from _afsimplesectionview import *
+from _afglossaryentryview import *
 from _afmainframe import *
 from _afeditartefactdlg import *
 import afexporthtml
@@ -127,22 +128,25 @@ class MyApp(wx.App):
 
         self.productview = 0
         self.trashview = -1
-        self.listview = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
-        self.trashlistview = self.listview[6:]
+        self.listview = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
+        self.trashlistview = self.listview[7:]
         (self.featurelistview, self.requirementlistview,
          self.testcaselistview, self.testsuitelistview, self.usecaselistview,
-         self.simplesectionlistview,
+         self.simplesectionlistview,self.glossaryentrylistview,
          self.trashfeaturelistview, self.trashrequirementlistview,
          self.trashtestcaselistview, self.trashtestsuitelistview,
-         self.trashusecaselistview, self.trashsimplesectionlistview) = self.listview
+         self.trashusecaselistview, self.trashsimplesectionlistview,
+         self.trashglossaryentrylistview,) = self.listview
 
-        self.singleview = (20, 21, 22, 23, 24, 25)
+        self.singleview = (20, 21, 22, 23, 24, 25, 26)
         (self.featureview, self.requirementview, self.testcaseview,
-         self.usecaseview, self.testsuiteview, self.simplesectionview)   = self.singleview
+         self.usecaseview, self.testsuiteview, self.simplesectionview,
+         self.glossaryentryview)   = self.singleview
 
-        self.notebooktab = {self.featureview   : 0,  self.requirementview   : 0,
-                            self.testcaseview  : 0,  self.usecaseview       : 0,
-                            self.testsuiteview : 0,  self.simplesectionview : 0}
+        self.notebooktab = {self.featureview       : 0,  self.requirementview   : 0,
+                            self.testcaseview      : 0,  self.usecaseview       : 0,
+                            self.testsuiteview     : 0,  self.simplesectionview : 0,
+                            self.glossaryentryview : 0}
         self.currentview = None
 
         self.featurefilterview = _affilterview.afFeatureFilterView(self.mainframe.bottomWindow)
@@ -153,9 +157,11 @@ class MyApp(wx.App):
         self.testcasefilterview = _affilterview.afTestcaseFilterView(self.mainframe.bottomWindow)
         self.testsuitefilterview = _affilterview.afTestsuiteFilterView(self.mainframe.bottomWindow)
         self.simplesectionfilterview = _affilterview.afNoFilterView(self.mainframe.bottomWindow)
+        self.glossaryentryfilterview = _affilterview.afNoFilterView(self.mainframe.bottomWindow)
 
         filterviews = [self.featurefilterview, self.requirementfilterview, self.productfilterview,
-            self.testcasefilterview, self.testsuitefilterview, self.usecasefilterview, self.simplesectionfilterview]
+            self.testcasefilterview, self.testsuitefilterview, self.usecasefilterview,
+            self.simplesectionfilterview, self.glossaryentryfilterview]
         for filterview in filterviews:
             filterview.Hide()
             fid = filterview.btnId
@@ -171,7 +177,7 @@ class MyApp(wx.App):
 
         self.delfuncs = (self.model.deleteFeature, self.model.deleteRequirement,
             self.model.deleteUsecase, self.model.deleteTestcase,
-            self.model.deleteTestsuite, self.model.deleteSimpleSection)
+            self.model.deleteTestsuite, self.model.deleteSimpleSection, self.model.deleteGlossaryEntry)
 
         self.Bind(wx.EVT_MENU, self.OnNewProduct, id=101)
         self.Bind(wx.EVT_MENU, self.OnOpenProduct, id=102)
@@ -421,7 +427,8 @@ class MyApp(wx.App):
                     self.usecasefilterview.GetFilterContent(),
                     self.testcasefilterview.GetFilterContent(),
                     self.testsuitefilterview.GetFilterContent(),
-                    self.simplesectionfilterview.GetFilterContent()]
+                    self.simplesectionfilterview.GetFilterContent(),
+                    self.glossaryentryfilterview.GetFilterContent()]
         artefactinfo = self.model.getArtefactNames(filters)
         number_of_deleted_artefacts = self.model.getNumberOfDeletedArtefacts()
         self.DisableOnSelChanged = True
@@ -1049,6 +1056,12 @@ class MyApp(wx.App):
                                   self.model.getSimpleSectionList(affilter=self.simplesectionfilterview.GetFilterContent()),
                                   select_id)
             self.mainframe.AddFilterView(self.simplesectionfilterview)
+            #
+        elif item_id == "GLOSSARYENTRIES":
+            self.ViewArtefactList(afGlossaryEntryListWithButton, self.glossaryentrylistview,
+                                  self.model.getGlossaryEntryList(affilter=self.glossaryentryfilterview.GetFilterContent()),
+                                  select_id)
+            self.mainframe.AddFilterView(self.glossaryentryfilterview)
             ##
         elif parent_id == "FEATURES":
             self.ViewArtefact(self.model.getFeature(item_id), afFeatureNotebook, self.featureview)
@@ -1068,6 +1081,9 @@ class MyApp(wx.App):
         elif parent_id == "SIMPLESECTIONS":
             self.ViewArtefact(self.model.getSimpleSection(item_id), afSimpleSectionNotebook, self.simplesectionview)
             self.mainframe.AddFilterView(self.simplesectionfilterview)
+        elif parent_id == "GLOSSARYENTRIES":
+            self.ViewArtefact(self.model.getGlossaryEntry(item_id), afGlossaryEntryView, self.glossaryentryview)
+            self.mainframe.AddFilterView(self.glossaryentryfilterview)
         elif item_id == "TRASHFEATURES":
             self.ViewArtefactList(afFeatureList, self.trashfeaturelistview, self.model.getFeatureList(deleted=True), select_id)
             self.mainframe.AddFilterView(self.nofilterview)
@@ -1085,6 +1101,11 @@ class MyApp(wx.App):
             self.mainframe.AddFilterView(self.nofilterview)
         elif item_id == "TRASHSIMPLESECTIONS":
             self.ViewArtefactList(afSimpleSectionList, self.trashsimplesectionlistview, self.model.getSimpleSectionList(deleted=True), select_id)
+            self.mainframe.AddFilterView(self.nofilterview)
+        elif item_id == "TRASHGLOSSARYENTRIES":
+            self.ViewArtefactList(afGlossaryEntryList, self.trashglossaryentrylistview,
+                                  self.model.getGlossaryEntryList(deleted=True),
+                                  select_id)
             self.mainframe.AddFilterView(self.nofilterview)
         elif item_id == "TRASH":
             self.ViewTrashInfo(self.model.getNumberOfDeletedArtefacts())
