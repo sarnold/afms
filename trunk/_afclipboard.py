@@ -54,6 +54,9 @@ def getArtefactFromClipboard():
         elif wx.TheClipboard.IsSupported(wx.CustomDataFormat('AFMS_TESTSUITE')):
             af_kind = 'AFMS_TESTSUITE'
             af_data = afTestsuiteDataObjectSimple()
+        elif wx.TheClipboard.IsSupported(wx.CustomDataFormat('AFMS_SIMPLESECTION')):
+            af_kind = 'AFMS_SIMPLESECTION'
+            af_data = afSimpleSectionDataObjectSimple()
 
         if af_data is not None:
             if wx.TheClipboard.GetData(af_data):
@@ -180,4 +183,21 @@ class afTestsuiteDataObjectSimple(afArtefactDataObjectSimple):
 
 
 class afTestsuiteTextObjectSimple(afArtefactTextObjectSimple):
+    pass
+
+# ---------------------------------------------------------------------
+
+def copySimpleSectionToClipboard(simplesection):
+    af_data = afSimpleSectionDataObjectSimple(pickle.dumps(simplesection))
+    af_text = afSimpleSectionTextObjectSimple('AFMS_SIMPLESECTION', simplesection)
+    copyArtefactToClipboard(af_data, af_text)
+
+
+class afSimpleSectionDataObjectSimple(afArtefactDataObjectSimple):
+    def __init__(self, artefact = None):
+        wx.PyDataObjectSimple.__init__(self, wx.CustomDataFormat('AFMS_SIMPLESECTION'))
+        self.data = artefact
+
+
+class afSimpleSectionTextObjectSimple(afArtefactTextObjectSimple):
     pass

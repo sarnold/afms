@@ -203,6 +203,7 @@ class MainFrame(wx.Frame):
         edit_bmp = _afimages.getAFEditBitmap()
         tcnew_bmp = _afimages.getTCNewBitmap()
         tsnew_bmp = _afimages.getTSNewBitmap()
+        snew_bmp = _afimages.getSNewBitmap()
         fnew_bmp = _afimages.getFNewBitmap()
         rqnew_bmp = _afimages.getRQNewBitmap()
         ucnew_bmp = _afimages.getUCNewBitmap()
@@ -214,46 +215,28 @@ class MainFrame(wx.Frame):
 
         tb.SetToolBitmapSize(tsize)
         tb.AddLabelTool(10, _("New"), new_bmp, shortHelp=_("New Product"), longHelp=_("Create new product"))
-        self.Bind(wx.EVT_TOOL, self.OnNewProduct, id=10)
-
         tb.AddLabelTool(11, _("Open"), open_bmp, shortHelp=_("Open Product"), longHelp=_("Open existing product"))
-        self.Bind(wx.EVT_TOOL, self.OnOpenProduct, id=11)
-
         tb.AddLabelTool(12, _("Edit"), edit_bmp, shortHelp=_("Edit artefact"), longHelp=_("Edit selected artefact"))
-        self.Bind(wx.EVT_TOOL, self.OnEditArtefact, id=12)
         tb.EnableTool(12, False)
-
         tb.AddLabelTool(30, _("Copy"), copy_bmp, shortHelp=_("Copy artefact"), longHelp=_("Copy selected artefact to clipboard"))
-        self.Bind(wx.EVT_TOOL, self.OnCopyArtefact, id=30)
         tb.EnableTool(30, False)
-
         tb.AddLabelTool(31, _("Paste"), paste_bmp, shortHelp=_("Paste artefact"), longHelp=_("Paste artefact from clipboard"))
-        self.Bind(wx.EVT_TOOL, self.OnPasteArtefact, id=31)
         tb.EnableTool(31, False)
-
         tb.AddLabelTool(18, _("Delete"), delete_bmp, shortHelp=_("Delete artefact"), longHelp=_("Delete selected artefact"))
-        self.Bind(wx.EVT_TOOL, self.OnDeleteArtefact, id=18)
         tb.EnableTool(18, False)
-
         tb.AddLabelTool(13, _('New'), fnew_bmp, shortHelp=_('New feature'), longHelp=_('Create new feature'))
-        self.Bind(wx.EVT_TOOL, self.OnNewFeature, id=13)
         tb.EnableTool(13, False)
-
         tb.AddLabelTool(14, _('New'), rqnew_bmp, shortHelp=_('New requirement'), longHelp=_('Create/attach new requirement'))
-        self.Bind(wx.EVT_TOOL, self.OnNewRequirement, id=14)
         tb.EnableTool(14, False)
-
         tb.AddLabelTool(17, _('New'), ucnew_bmp, shortHelp=_('New usecase'), longHelp=_('Create/attach new usecase'))
-        self.Bind(wx.EVT_TOOL, self.OnNewUsecase, id=17)
         tb.EnableTool(17, False)
-
         tb.AddLabelTool(15, _('New'), tcnew_bmp, shortHelp=_('New testcase'), longHelp=_('Create/attach new testcase'))
-        self.Bind(wx.EVT_TOOL, self.OnNewTestcase, id=15)
         tb.EnableTool(15, False)
-
         tb.AddLabelTool(16, _('New'), tsnew_bmp, shortHelp=_('New testsuite'), longHelp=_('Create new testsuite'))
-        self.Bind(wx.EVT_TOOL, self.OnNewTestsuite, id=16)
         tb.EnableTool(16, False)
+        tb.AddLabelTool(19, _('New'), snew_bmp, shortHelp=_('New text section'), longHelp=_('Create new text section'))
+        tb.EnableTool(19, False)
+
         tb.Realize()
 
     def SetupMenu(self):
@@ -277,45 +260,42 @@ class MainFrame(wx.Frame):
 
         # bind the menu event to an event handler
         self.Bind(wx.EVT_MENU, self.OnClose, id=wx.ID_EXIT)
-        self.Bind(wx.EVT_MENU, self.OnNewProduct, id = 101)
-        self.Bind(wx.EVT_MENU, self.OnOpenProduct, id = 102)
 
         # and put the menu on the menubar
         menuBar.Append(menu, _('&File'))
 
         menu = wx.Menu()
         menu.Append(201, _('&Edit artefact ...\tCtrl-E'), _('Edit selected artefact'))
-        self.Bind(wx.EVT_MENU, self.OnEditArtefact, id = 201)
         menu.Enable(201, False)
+
         menu.Append(203, _('&Copy artefact\tCtrl-C'), _('Copy selected artefact to clipboard'))
-        self.Bind(wx.EVT_MENU, self.OnCopyArtefact, id = 203)
         menu.Enable(203, False)
+
         menu.Append(204, _('&Paste artefact\tCtrl-V'), _('Paste artefact from clipboard'))
-        self.Bind(wx.EVT_MENU, self.OnPasteArtefact, id = 204)
         menu.Enable(204, False)
+
         menu.Append(202, _('&Delete artefact ...\tDel'), _('Delete selected artefact'))
-        self.Bind(wx.EVT_MENU, self.OnDeleteArtefact, id = 202)
         menu.Enable(202, False)
         menuBar.Append(menu, _('&Edit'))
 
         menu = wx.Menu()
         menu.Append(301, _('New &feature ...'), _('Create new feature'))
-        self.Bind(wx.EVT_MENU, self.OnNewFeature, id = 301)
         menu.Enable(301, False)
+
         menu.Append(302, _('New &requirement ...'), _('Create new requirement'))
-        self.Bind(wx.EVT_MENU, self.OnNewRequirement, id = 302)
         menu.Enable(302, False)
 
         menu.Append(305, _('New &usecase ...'), _('Create new usecase'))
-        self.Bind(wx.EVT_MENU, self.OnNewUsecase, id = 305)
         menu.Enable(305, False)
 
         menu.Append(303, _('New &testcase ...'), _('Create new testcase'))
-        self.Bind(wx.EVT_MENU, self.OnNewTestcase, id = 303)
         menu.Enable(303, False)
+
         menu.Append(304, _('New test&suite ...'), _('Create new testsuite'))
-        self.Bind(wx.EVT_MENU, self.OnNewTestsuite, id = 304)
         menu.Enable(304, False)
+
+        menu.Append(306, _('New text section ...'), _('Create new text section'))
+        menu.Enable(306, False)
         menuBar.Append(menu, _('&New'))
 
         menu = wx.Menu()
@@ -344,13 +324,16 @@ class MainFrame(wx.Frame):
         wx.LayoutAlgorithm().LayoutWindow(self, self.rightWindow)
         self.rightWindow.Refresh()
 
+
     def OnSize(self, event):
         wx.LayoutAlgorithm().LayoutWindow(self, self.rightWindow)
         event.Skip()
 
+
     def OnClose(self, evt):
         """Event handler for window closing"""
         self.Close()
+
 
     def OnCloseWindow(self, evt):
         self.config.WriteInt("window_size_x", self.GetSize().width)
@@ -362,58 +345,6 @@ class MainFrame(wx.Frame):
         self.config.Write("language", afresource.GetLanguage())
         self.Destroy()
 
-    def OnNewProduct(self, evt):
-        "Propagate event"
-        evt.SetId(101)
-        evt.Skip()
-
-    def OnOpenProduct(self, evt):
-        "Propagate event"
-        evt.SetId(102)
-        evt.Skip()
-
-    def OnEditArtefact(self, evt):
-       "Propagate event"
-       evt.SetId(201)
-       evt.Skip()
-
-    def OnNewFeature(self, evt):
-       "Propagate event"
-       evt.SetId(301)
-       evt.Skip()
-
-    def OnNewRequirement(self, evt):
-       "Propagate event"
-       evt.SetId(302)
-       evt.Skip()
-
-    def OnNewUsecase(self, evt):
-       "Propagate event"
-       evt.SetId(305)
-       evt.Skip()
-
-    def OnNewTestcase(self, evt):
-       "Propagate event"
-       evt.SetId(303)
-       evt.Skip()
-
-    def OnNewTestsuite(self, evt):
-       "Propagate event"
-       evt.SetId(304)
-       evt.Skip()
-
-    def OnDeleteArtefact(self, evt):
-       "Propagate event"
-       evt.SetId(202)
-       evt.Skip()
-
-    def OnCopyArtefact(self, evt):
-        evt.SetId(203)
-        evt.Skip()
-
-    def OnPasteArtefact(self, evt):
-        evt.SetId(204)
-        evt.Skip()
 
     def OnAbout(self, evt):
         info = wx.AboutDialogInfo()
@@ -437,9 +368,9 @@ class MainFrame(wx.Frame):
         self.InitTree(artefactnames, number_of_deleted_artefacts)
         self.treeCtrl.SelectItem(self.treeCtrl.root)
         self.SetStatusText(path, 2)
-        for m, i in zip([0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2], [103, 104, 105, 201, 202, 203, 204, 301, 302, 303, 304, 305]):
+        for m, i in zip([0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2], [103, 104, 105, 201, 202, 203, 204, 301, 302, 303, 304, 305, 306]):
             self.GetMenuBar().GetMenu(m).Enable(i, True)
-        for i in (12,13,14,15,16, 17, 18, 30, 31):
+        for i in (12,13,14,15,16, 17, 18, 19, 30, 31):
             self.GetToolBar().EnableTool(i, True)
 
 

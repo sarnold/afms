@@ -32,6 +32,7 @@ and Testsuites. This module implements the controller part in the design.
 @version: $Rev$
 """
 
+#TODO: Menu item and toolbar button to create a new simplesection
 
 import os, sys, time
 import logging, gettext
@@ -54,6 +55,7 @@ from _afrequirementview import *
 from _aftestcaseview import *
 from _afusecaseview import *
 from _aftestsuiteview import *
+from _afsimplesectionview import *
 from _afmainframe import *
 from _afeditartefactdlg import *
 import afexporthtml
@@ -125,21 +127,22 @@ class MyApp(wx.App):
 
         self.productview = 0
         self.trashview = -1
-        self.listview = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-        self.trashlistview = self.listview[5:]
+        self.listview = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+        self.trashlistview = self.listview[6:]
         (self.featurelistview, self.requirementlistview,
          self.testcaselistview, self.testsuitelistview, self.usecaselistview,
+         self.simplesectionlistview,
          self.trashfeaturelistview, self.trashrequirementlistview,
          self.trashtestcaselistview, self.trashtestsuitelistview,
-         self.trashusecaselistview) = self.listview
+         self.trashusecaselistview, self.trashsimplesectionlistview) = self.listview
 
-        self.singleview = (20, 21, 22, 23, 24)
+        self.singleview = (20, 21, 22, 23, 24, 25)
         (self.featureview, self.requirementview, self.testcaseview,
-         self.usecaseview, self.testsuiteview)   = self.singleview
+         self.usecaseview, self.testsuiteview, self.simplesectionview)   = self.singleview
 
-        self.notebooktab = {self.featureview   : 0,  self.requirementview : 0,
-                            self.testcaseview  : 0,  self.usecaseview     : 0,
-                            self.testsuiteview : 0}
+        self.notebooktab = {self.featureview   : 0,  self.requirementview   : 0,
+                            self.testcaseview  : 0,  self.usecaseview       : 0,
+                            self.testsuiteview : 0,  self.simplesectionview : 0}
         self.currentview = None
 
         self.featurefilterview = _affilterview.afFeatureFilterView(self.mainframe.bottomWindow)
@@ -149,9 +152,10 @@ class MyApp(wx.App):
         self.usecasefilterview = _affilterview.afUsecaseFilterView(self.mainframe.bottomWindow)
         self.testcasefilterview = _affilterview.afTestcaseFilterView(self.mainframe.bottomWindow)
         self.testsuitefilterview = _affilterview.afTestsuiteFilterView(self.mainframe.bottomWindow)
+        self.simplesectionfilterview = _affilterview.afNoFilterView(self.mainframe.bottomWindow)
 
         filterviews = [self.featurefilterview, self.requirementfilterview, self.productfilterview,
-            self.testcasefilterview, self.testsuitefilterview, self.usecasefilterview]
+            self.testcasefilterview, self.testsuitefilterview, self.usecasefilterview, self.simplesectionfilterview]
         for filterview in filterviews:
             filterview.Hide()
             fid = filterview.btnId
@@ -165,7 +169,9 @@ class MyApp(wx.App):
         for item in self.PARENTID:
             self.filterstate[item] = False
 
-        self.delfuncs = (self.model.deleteFeature, self.model.deleteRequirement, self.model.deleteUsecase, self.model.deleteTestcase, self.model.deleteTestsuite)
+        self.delfuncs = (self.model.deleteFeature, self.model.deleteRequirement,
+            self.model.deleteUsecase, self.model.deleteTestcase,
+            self.model.deleteTestsuite, self.model.deleteSimpleSection)
 
         self.Bind(wx.EVT_MENU, self.OnNewProduct, id=101)
         self.Bind(wx.EVT_MENU, self.OnOpenProduct, id=102)
@@ -183,6 +189,20 @@ class MyApp(wx.App):
         self.Bind(wx.EVT_MENU, self.OnNewTestcase, id = 303)
         self.Bind(wx.EVT_MENU, self.OnNewTestsuite, id = 304)
         self.Bind(wx.EVT_MENU, self.OnNewUsecase, id = 305)
+        self.Bind(wx.EVT_MENU, self.OnNewSimpleSection, id = 306)
+
+        self.Bind(wx.EVT_TOOL, self.OnNewProduct, id=10)
+        self.Bind(wx.EVT_TOOL, self.OnOpenProduct, id=11)
+        self.Bind(wx.EVT_TOOL, self.OnEditArtefact, id=12)
+        self.Bind(wx.EVT_TOOL, self.copyArtefactToClipboard, id=30)
+        self.Bind(wx.EVT_TOOL, self.pasteArtefactFromClipboard, id=31)
+        self.Bind(wx.EVT_TOOL, self.OnDeleteArtefact, id=18)
+        self.Bind(wx.EVT_TOOL, self.OnNewFeature, id=13)
+        self.Bind(wx.EVT_TOOL, self.OnNewRequirement, id=14)
+        self.Bind(wx.EVT_TOOL, self.OnNewUsecase, id=17)
+        self.Bind(wx.EVT_TOOL, self.OnNewTestcase, id=15)
+        self.Bind(wx.EVT_TOOL, self.OnNewTestsuite, id=16)
+        self.Bind(wx.EVT_TOOL, self.OnNewSimpleSection, id=19)
 
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged, id=300)
         self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.OnTreeItemActivated, id=301)
@@ -190,15 +210,23 @@ class MyApp(wx.App):
 
         self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
 
+        self.Bind(wx.EVT_BUTTON, self.OnSimpleSectionLevelChanged, id=5137)
+
         global arguments
         if len(arguments) > 0:
             try:
                 self.OpenProduct(arguments[0])
             except IOError:
-                print("Could not open file %s" % arguments[0])
+                print(_("Could not open file %s")% arguments[0])
                 sys.exit(2)
 
         return True
+
+
+    def OnSimpleSectionLevelChanged(self, evt):
+        self.model.assignSimpleSectionLevels(evt.GetClientData())
+        self.InitView()
+        self.mainframe.treeCtrl.SetSelection('SIMPLESECTIONS')
 
 
     def ApplyFilterClick(self, evt):
@@ -227,11 +255,11 @@ class MyApp(wx.App):
             return
 
         artefact = [self.model.getFeature, self.model.getRequirement, self.model.getUsecase,
-                   self.model.getTestcase, self.model.getTestsuite][idx](item_id)
+                   self.model.getTestcase, self.model.getTestsuite, self.model.getSimpleSection][idx](item_id)
 
         copytoclip = [_afclipboard.copyFeatureToClipboard, _afclipboard.copyRequirementToClipboard,
                       _afclipboard.copyUsecaseToClipboard, _afclipboard.copyTestcaseToClipboard,
-                      _afclipboard.copyTestsuiteToClipboard][idx]
+                      _afclipboard.copyTestsuiteToClipboard, _afclipboard.copySimpleSectionToClipboard][idx]
         copytoclip(artefact)
 
 
@@ -279,6 +307,13 @@ class MyApp(wx.App):
                 # reformat data to the same format as it is returned by self.model.getTestsuiteList()
                 self.contentview.AppendItem(data)
             self.updateView([wx.ID_OK, new_artefact, data, None], 'TESTSUITES', -1)
+
+        elif af_kind == 'AFMS_SIMPLESECTION':
+            (data, new_artefact) = self.model.saveSimpleSection(afobj)
+            if self.currentview == self.simplesectionlistview:
+                # reformat data to the same format as it is returned by self.model.getSimpleSectionList()
+                self.contentview.AppendItem(data)
+            self.updateView([wx.ID_OK, new_artefact, data, None], 'SIMPLESECTIONS', -1)
 
 
     def OnPageChanged(self, evt):
@@ -385,7 +420,8 @@ class MyApp(wx.App):
                     self.requirementfilterview.GetFilterContent(),
                     self.usecasefilterview.GetFilterContent(),
                     self.testcasefilterview.GetFilterContent(),
-                    self.testsuitefilterview.GetFilterContent()]
+                    self.testsuitefilterview.GetFilterContent(),
+                    self.simplesectionfilterview.GetFilterContent()]
         artefactinfo = self.model.getArtefactNames(filters)
         number_of_deleted_artefacts = self.model.getNumberOfDeletedArtefacts()
         self.DisableOnSelChanged = True
@@ -624,6 +660,15 @@ class MyApp(wx.App):
         self.requestEditView("TESTSUITES", -1)
 
 
+    def OnNewSimpleSection(self, evt):
+        """
+        The menu item or toolbar item 'New text section' was issued
+        @type  evt: wx.CommandEvent
+        @param evt: event data
+        """
+        self.requestEditView("SIMPLESECTIONS", -1)
+
+
     def OnSelChanged(self, evt):
         """
         The selection in the product tree has changed
@@ -811,6 +856,10 @@ class MyApp(wx.App):
         return self.EditArtefact(_("Edit testsuite"), afTestsuiteView, self.model.saveTestsuite, testsuite)
 
 
+    def EditSimpleSection(self, simplesection):
+        return self.EditArtefact(_("Edit section"), afSimpleSectionNotebook, self.model.saveSimpleSection, simplesection)
+
+
     def EditArtefact(self, title, contentview, savedata, data):
         """
         Edit artefact in a dialog window.
@@ -905,6 +954,9 @@ class MyApp(wx.App):
         elif parent_id == "TESTSUITES":
             result = self.EditTestsuite(self.model.getTestsuite(item_id))
 
+        elif parent_id == "SIMPLESECTIONS":
+            result = self.EditSimpleSection(self.model.getSimpleSection(item_id))
+
         if result[0] == wx.ID_SAVE:
             self.InitFilters()
 
@@ -991,6 +1043,12 @@ class MyApp(wx.App):
                                   self.model.getUsecaseList(affilter=self.usecasefilterview.GetFilterContent()),
                                   select_id)
             self.mainframe.AddFilterView(self.usecasefilterview)
+            #
+        elif item_id == "SIMPLESECTIONS":
+            self.ViewArtefactList(afSimpleSectionListWithButton, self.simplesectionlistview,
+                                  self.model.getSimpleSectionList(affilter=self.simplesectionfilterview.GetFilterContent()),
+                                  select_id)
+            self.mainframe.AddFilterView(self.simplesectionfilterview)
             ##
         elif parent_id == "FEATURES":
             self.ViewArtefact(self.model.getFeature(item_id), afFeatureNotebook, self.featureview)
@@ -1007,6 +1065,9 @@ class MyApp(wx.App):
         elif parent_id == "TESTSUITES":
             self.ViewArtefact(self.model.getTestsuite(item_id), afTestsuiteView, self.testsuiteview)
             self.mainframe.AddFilterView(self.testsuitefilterview)
+        elif parent_id == "SIMPLESECTIONS":
+            self.ViewArtefact(self.model.getSimpleSection(item_id), afSimpleSectionNotebook, self.simplesectionview)
+            self.mainframe.AddFilterView(self.simplesectionfilterview)
         elif item_id == "TRASHFEATURES":
             self.ViewArtefactList(afFeatureList, self.trashfeaturelistview, self.model.getFeatureList(deleted=True), select_id)
             self.mainframe.AddFilterView(self.nofilterview)
@@ -1021,6 +1082,9 @@ class MyApp(wx.App):
             self.mainframe.AddFilterView(self.nofilterview)
         elif item_id == "TRASHTESTSUITES":
             self.ViewArtefactList(afTestsuiteList, self.trashtestsuitelistview, self.model.getTestsuiteList(deleted=True), select_id)
+            self.mainframe.AddFilterView(self.nofilterview)
+        elif item_id == "TRASHSIMPLESECTIONS":
+            self.ViewArtefactList(afSimpleSectionList, self.trashsimplesectionlistview, self.model.getSimpleSectionList(deleted=True), select_id)
             self.mainframe.AddFilterView(self.nofilterview)
         elif item_id == "TRASH":
             self.ViewTrashInfo(self.model.getNumberOfDeletedArtefacts())
@@ -1065,7 +1129,6 @@ class MyApp(wx.App):
             logging.debug("afeditor.updateView() (1)")
             self.updateNodeView(None, parent_id, item_id)
             self.mainframe.treeCtrl.SetSelection(parent_id)
-            pass
         else:
             # Update artefact view in right panel
             logging.debug("afeditor.updateView() (2)")

@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -34,19 +34,20 @@ class afImporter():
         self.parentwin = parentwin
         self.basemodel = basemodel
         self.importpath = importpath
-        
-        
+
+
     def Run(self):
         self.model = afmodel.afModel(self)
         self.model.requestOpenProduct(self.importpath)
         self.dlg = ImportArtefactDialog(self.parentwin, -1)
         self.dlg.Bind(wx.EVT_CHECKLISTBOX, self.OnListItemChecked)
         self.dlg.InitContent(self.model.getFeatureList(), self.model.getRequirementList(),
-            self.model.getUsecaseList(), self.model.getTestcaseList(), self.model.getTestsuiteList())
+            self.model.getUsecaseList(), self.model.getTestcaseList(),
+            self.model.getTestsuiteList(), self.model.getSimpleSectionList())
         if self.dlg.ShowModal() == wx.ID_OK:
             self.ImportArtefacts()
         self.dlg.Destroy()
-        
+
 
     def OnListItemChecked(self, evt):
         """Event handler called when list item is checked/unchecked
@@ -59,14 +60,14 @@ class afImporter():
         if state == False:
             # nothing to do if artefact becomes unchecked
             return
-        
+
         (listkind, ID) = listobj.GetSelectionID()
         if listkind == 'FEATURES':
             feature = self.model.getFeature(ID)
             related_requirements_ids = [item['ID'] for item in feature.getRelatedRequirements()]
             logging.debug("_afimporter.OnListItemChecked(): auto checking requirements %s" % str(related_requirements_ids))
             self.dlg.CheckArtefacts('REQUIREMENTS', related_requirements_ids)
-            
+
         elif listkind == 'REQUIREMENTS':
             requirement = self.model.getRequirement(ID)
             related_testcases_ids = [item['ID'] for item in requirement.getRelatedTestcases()]
@@ -75,7 +76,7 @@ class afImporter():
             logging.debug("_afimporter.OnListItemChecked(): auto checking usecases  %s" % str(related_usecases_ids))
             self.dlg.CheckArtefacts('TESTCASES', related_testcases_ids)
             self.dlg.CheckArtefacts('USECASES', related_usecases_ids)
-            
+
         elif listkind == 'TESTSUITES':
             testsuite = self.model.getTestsuite(ID)
             related_testcases_ids = [item['ID'] for item in testsuite.getRelatedTestcases()]
@@ -92,10 +93,10 @@ class afImporter():
             newartefact = savefn(artefact)[0]
             new_aflist.append(newartefact['ID'])
 
-        
+
     def ImportArtefacts(self):
-        (ftlist, rqlist, uclist, tclist, tslist) = self.dlg.GetCheckedArtefacts()
-        (new_ftlist, new_rqlist, new_uclist, new_tclist, new_tslist) = ([], [], [], [], [])
+        (ftlist, rqlist, uclist, tclist, tslist, sslist) = self.dlg.GetCheckedArtefacts()
+        (new_ftlist, new_rqlist, new_uclist, new_tclist, new_tslist, new_sslist) = ([], [], [], [], [], [])
         changelog = cChangelogEntry(user=afconfig.CURRENT_USER,
             date=time.strftime(afresource.TIME_FORMAT), description='')
 
@@ -104,6 +105,7 @@ class afImporter():
         self._Import(tclist, new_tclist, self.basemodel.saveTestcase, self.model.getTestcase, changelog)
         self._Import(uclist, new_uclist, self.basemodel.saveUsecase, self.model.getUsecase, changelog)
         self._Import(tslist, new_tslist, self.basemodel.saveTestsuite, self.model.getTestsuite, changelog)
+        self._Import(sslist, new_sslist, self.basemodel.saveSimpleSection, self.model.getSimpleSection, changelog)
 
         # now we have import all checked artefacts. Next step is
         # to import the corresponding artefact relations

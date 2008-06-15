@@ -29,11 +29,14 @@ ARTEFACTS = [{"name": _("Features"),      "id": "FEATURES"},
              {"name": _("Requirements"),  "id": "REQUIREMENTS"},
              {"name": _("Usecases"),      "id": "USECASES"},
              {"name": _("Testcases"),     "id": "TESTCASES"},
-             {"name": _("Testsuites"),    "id": "TESTSUITES"}]
+             {"name": _("Testsuites"),    "id": "TESTSUITES"},
+             {"name": _("Text sections"), "id": "SIMPLESECTIONS"}]
 
-ARTEFACTLIST = ["FEATURES", "REQUIREMENTS", "USECASES", "TESTCASES", "TESTSUITES"]
+ARTEFACTSTREEVIEWORDER = [5, 0, 1, 2, 3, 4]
+
+ARTEFACTLIST = ["FEATURES", "REQUIREMENTS", "USECASES", "TESTCASES", "TESTSUITES", "SIMPLESECTIONS"]
 ARTEFACTSHORT = {'USECASES': _('UC'), 'TESTCASES': _('TC'),
-                 'REQUIREMENTS': _('RQ'), 'FEATURES': _('FT'), 'TESTSUITES': _('TS')}
+                 'REQUIREMENTS': _('RQ'), 'FEATURES': _('FT'), 'TESTSUITES': _('TS'), 'SIMPLESECTIONS': _('SS')}
 
 
 

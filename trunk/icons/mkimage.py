@@ -48,7 +48,8 @@ command_lines = [
     "-a -u -n AFCopy 24-tag-manager.png icons.py",
     "-a -u -n AFDelete 24-tag-remove.png icons.py",
     "-a -u -n AFPaste 24-tag-add.png icons.py",
-    "-a -u -n AFEdit 24-tag-pencil.png icons.py"
+    "-a -u -n AFEdit 24-tag-pencil.png icons.py",
+    "-a -u -n SNew s_new.png icons.py",
     ]
     
 if __name__ == "__main__":

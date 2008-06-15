@@ -22,12 +22,14 @@
 # $Id$
 
 import sys
+import logging
 import wx
 import  wx.lib.mixins.listctrl  as  listmix
 import _afimages
 import afconfig
 import afresource
-import logging
+from _afsimplesectionleveldialog import EditSimpleSectionLevelDialog
+
 
 class ArtefactListCtrl(wx.ListCtrl, listmix.ListCtrlAutoWidthMixin, listmix.CheckListCtrlMixin):
     def __init__(self, parent, ID, pos=wx.DefaultPosition,
@@ -96,6 +98,7 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
 
     def InitContent(self, artefact_list, select_id=0):
         self.itemDataMap = {}
+        self.artefactlist = artefact_list
         for i in range(len(artefact_list)):
             ID = artefact_list[i]['ID']
             data = self.FormatRow(artefact_list[i])
@@ -362,6 +365,46 @@ class afTestsuiteList(afArtefactList):
                 tsobj['title'],
                 tsobj['nbroftestcase'],
                 self.toText(tsobj['description']))
+
+#-------------------------------------------------------------------------
+
+class afSimpleSectionList(afArtefactList):
+    """Widget for displaying simplesection lists"""
+    def __init__(self, parent, ID = -1, checkstyle=False):
+        self.column_titles = [_('ID'), _('Level'), _('Title')]
+        self.key = "SIMPLESECTIONS"
+        afArtefactList.__init__(self, parent, self.column_titles, ID, checkstyle=checkstyle)
+
+
+    def FormatRow(self, ssobj):
+        return (self.idformat % ssobj['ID'],
+                ssobj['level'],
+                ssobj['title'])
+
+#-------------------------------------------------------------------------
+
+class afSimpleSectionListWithButton(afSimpleSectionList):
+    """Widget for displaying simplesection lists with button to edit order"""
+    def __init__(self, parent, ID = -1, checkstyle=False):
+        afSimpleSectionList.__init__(self, parent, ID, checkstyle=checkstyle)
+
+        self.level_button = wx.Button(self, 5137, _("Edit order") + " ...")
+        self.Bind(wx.EVT_BUTTON, self.OnLevelButtonClick, self.level_button)
+        self.GetSizer().Add(self.level_button, 0, wx.ALIGN_LEFT)
+
+
+    def OnLevelButtonClick(self, evt):
+        items = ['%(ID)d: %(title)s' % simplesection for simplesection in self.artefactlist]
+        dlg = EditSimpleSectionLevelDialog(items)
+        dlgResult = dlg.ShowModal()
+        if  dlgResult == wx.ID_OK:
+            items = dlg.GetItems()
+        dlg.Destroy()
+        if  dlgResult != wx.ID_OK: return
+
+        ID = [int(s.split(':', 1)[0]) for s in items]
+        evt.SetClientData(ID)
+        evt.Skip()
 
 #-------------------------------------------------------------------------
 

@@ -45,7 +45,8 @@ class afProductTree(wx.TreeCtrl):
         self.SetItemImage(self.root, fldropenidx, wx.TreeItemIcon_Expanded)
 
         self.treeChild = {}
-        for item in afresource.ARTEFACTS:
+        for i in afresource.ARTEFACTSTREEVIEWORDER:
+            item = afresource.ARTEFACTS[i]
             child = self.AppendItem(self.root, _(item["name"]))
             self.SetPyData(child, item["id"])
             self.SetItemImage(child, fldridx, wx.TreeItemIcon_Normal)
@@ -59,7 +60,8 @@ class afProductTree(wx.TreeCtrl):
         self.SetItemImage(trash, self.emptytrashidx, wx.TreeItemIcon_Expanded)
         self.treeChild[afresource.TRASH["id"]] = trash
         self.trashChild = {}
-        for item in afresource.ARTEFACTS:
+        for i in afresource.ARTEFACTSTREEVIEWORDER:
+            item = afresource.ARTEFACTS[i]
             child = self.AppendItem(trash, _(item["name"]))
             self.SetPyData(child, afresource.TRASH["id"]+item["id"])
             self.SetItemImage(child, self.emptytrashidx, wx.TreeItemIcon_Normal)

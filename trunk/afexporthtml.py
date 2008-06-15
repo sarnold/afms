@@ -116,12 +116,16 @@ class afExportHTML():
         self.requirementhistory = []
         self.usecasehistory = []
         self.testcasehistory = []
+        self.simplesectionhistory = []
 
         self.of = codecs.open(outfilename, encoding=ENCODING, mode="w", errors='strict')
         self.writeHTMLHeader()
         self.writeTOC()
         self.writeTag('h1', '<a name="productinfo">%s</a>' % __(_('Product information')))
         self.writeProductInfo()
+
+        self.writeSimpleSections()
+
         self.writeTag('h1', '<a name="features">%s</a>' % __(_('Features')))
         self.writeFeatures()
 
@@ -136,7 +140,7 @@ class afExportHTML():
 
         self.writeTag('h1', '<a name="problems">%s</a>' % __(_('Detected problems')))
         self.writeProblems()
-        
+
         self.writeTag('h1', '<a name="history">%s</a>' % __(_('Artefact History')))
         self.writeHistory()
 
@@ -189,7 +193,13 @@ class afExportHTML():
     def writeTOC(self):
         self.writeTag("h1", __(_('Table of Contents')))
         self.of.write("<ol>")
-        self.of.write('<li><a href="#productinfo">%s</a></li>' % _('Product information'))
+        self.of.write('<li><a href="#productinfo">%s</a></li>\n' % _('Product information'))
+
+        idlist = self.model.getSimpleSectionIDs()
+        for ID in idlist:
+                simplesection = self.model.getSimpleSection(ID)
+                basedata = simplesection.getPrintableDataDict(self.formatField)
+                self.of.write('<li><a href="#SS-%(ID)03d">%(title)s</a></li>\n' % basedata)
 
         self.of.write('<li><a href="#features">%s</a></li>' % _('Features'))
         self.writeList(self.model.getFeatureList(), 'F')
@@ -212,7 +222,7 @@ class afExportHTML():
         self.of.write('<li><a href="#emptytestsuites">%s</a></li>' % _('Empty testsuites'))
         self.of.write('<li><a href="#lonelyusecases">%s</a></li>' % _('Usecases not belonging to requirements'))
         self.of.write('</ul>')
-        
+
         self.of.write('<li><a href="#history">%s</a></li>' % __(_('Artefact History')))
         self.of.write('<ul>')
         self.of.write('<li><a href="#HF">%s</a></li>\n' % __(_('Features')))
@@ -223,10 +233,8 @@ class afExportHTML():
         self.of.write('\n'.join(self.usecasehistory))
         self.of.write('<li><a href="#HTC">%s</a></li>\n' % __(_('Testcases')))
         self.of.write('</ul>')
-        
-        self.of.write("</ol>")
 
-        
+        self.of.write("</ol>")
 
 
     def writeProblems(self):
@@ -267,6 +275,19 @@ class afExportHTML():
         pi = self.model.getProductInformation()
         self.of.write('<div class="producttitle">\n%s\n</div>' % self.formatField(pi['title']))
         self.of.write('<div class="productdescription">\n%s\n</div>' % self.formatField(pi['description']))
+
+
+    def writeSimpleSections(self):
+            idlist = self.model.getSimpleSectionIDs()
+            for ID in idlist:
+                simplesection = self.model.getSimpleSection(ID)
+                basedata = simplesection.getPrintableDataDict(self.formatField)
+
+                self.writeTag('h1', '<a name="SS-%(ID)03d">SS-%(ID)03d: %(title)s</a>' % basedata)
+                self.of.write('<div class="simplesection">\n%s\n</div>' % self.formatField(basedata['content']))
+                historylink = '<p><a href="#HSS-%(ID)03d">History</a></p>\n' % basedata
+                self.appendHistory(self.simplesectionhistory, basedata, 'SS', simplesection.getChangelist())
+                self.of.write(historylink)
 
 
     def writeFeatures(self):
@@ -350,7 +371,7 @@ class afExportHTML():
         self.of.write('<table>\n')
         for label, key in zip(usecase.labels()[2:], usecase.keys()[2:]):
                 self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
-        
+
         self.of.write('<tr><th><a href="#HUC-%(ID)03d">History</a></th><td>&nbsp;</td></tr>\n' % basedata)
         self.appendHistory(self.usecasehistory, basedata, 'UC', usecase.getChangelist())
         self.of.write('</table>\n')
@@ -422,12 +443,12 @@ class afExportHTML():
                 self.of.write('<p class="alert">%s</p>' % _('None'))
 
             self.of.write('</table>\n')
-            
-            
+
+
     def appendHistory(self, hlist, basedata, keystr, changelist):
         basedata["keystr"] = keystr
         s1 = '<h3><a name="H%(keystr)s-%(ID)03d"><a href="#%(keystr)s-%(ID)03d">%(keystr)s-%(ID)03d: %(title)s</a></a></h3>\n' % basedata
-        
+
         s2 = '<table class="history">\n<tr>'
         cle = _afartefact.cChangelogEntry('', '')
         for label in cle.labels():
@@ -441,8 +462,8 @@ class afExportHTML():
             s2 += '</tr>\n'
         s2 += '<table>\n'
         hlist.append(s1+s2)
-        
-    
+
+
     def writeHistory(self):
         self.of.write('<h2><a name="HF">%s</a></h2>\n' % __(_('Features')))
         self.of.write('\n'.join(self.featurehistory))
@@ -452,8 +473,10 @@ class afExportHTML():
         self.of.write('\n'.join(self.usecasehistory))
         self.of.write('<h2><a name="HTC">%s</a></h2>\n' % __(_('Testcases')))
         self.of.write('\n'.join(self.testcasehistory))
+        self.of.write('<h2><a name="HSS">%s</a></h2>\n' % __(_('Text sections')))
+        self.of.write('\n'.join(self.simplesectionhistory))
 
-        
+
 
 if __name__=="__main__":
     import os, sys, getopt

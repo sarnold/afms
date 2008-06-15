@@ -52,6 +52,10 @@ class cArtefact():
         self._changelist = changelist
 
 
+    def clearRelations(self):
+        pass
+
+
     def getChangelist(self):
         return self._changelist
 
@@ -108,12 +112,12 @@ class cChangelogEntry():
 
     def __setitem__(self, key, value):
         self._basedata[key] = value
-        
-        
+
+
     def labels(self):
         return [_('Date'), _('User'), _('Description')]
-        
-        
+
+
     def keys(self):
         return ['date', 'user', 'description']
 
@@ -509,3 +513,37 @@ class cProduct(cArtefact):
             'title'       : title,
             'description' : description,
             'dbversion'   : dbversion }
+
+
+    def getPrintableDataDict(self, formatter=None):
+        if formatter == None: formatter = self.identity
+        basedata = self._basedata.copy()
+        basedata['description'] = formatter(basedata['description'])
+        return basedata
+
+#----------------------------------------------------------------------
+
+class cSimpleSection(cArtefact):
+    def __init__(self, ID=-1, title='', content='', level=-1):
+        cArtefact.__init__(self)
+        self._labels = [_("ID"), _("Title"), _("Content"), _("Level")]
+        self._keys = ['ID', 'title', 'content', 'level']
+        self._basedata = {
+            'ID'       : ID,
+            'title'    : title,
+            'content'  : content,
+            'level'    : level    }
+
+
+    def getPrintableDataDict(self, formatter=None):
+        if formatter == None: formatter = self.identity
+        basedata = self._basedata.copy()
+        basedata['content'] = formatter(basedata['content'])
+        return basedata
+
+
+    def getClipboardText(self):
+        s = u""
+        for label, key in zip(self._labels, self._keys):
+            s += u"%s: %s\n" % (label, self._basedata[key])
+        return s.encode('iso-8859-1')
