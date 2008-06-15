@@ -21,7 +21,8 @@
 
 AFE_SRC := $(wildcard af*.py) $(wildcard _af*.py) version.py afeditor.pyw \
            COPYING.txt README.txt CHANGELOG.txt \
-           $(addprefix locale\de\LC_MESSAGES\, afms.mo)
+           $(addprefix locale\de\LC_MESSAGES\, afms.mo) \
+           $(addprefix locale\en\LC_MESSAGES\, afms.mo)
 
 TR_SRC := testrunner.py $(wildcard tr*.py) $(wildcard _tr*.py) testrunner.pyw
 

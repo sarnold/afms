@@ -37,17 +37,18 @@ import random, time
 import logging
 import afconfig
 import afresource
-from _afartefact import cFeature, cRequirement, cUsecase, cTestcase, cTestsuite, cChangelogEntry, cProduct
+from _afartefact import cFeature, cRequirement, cUsecase, cTestcase, cTestsuite, cChangelogEntry, cProduct, cSimpleSection
 
-# Database version, reserved for future use
-_DBVERSION = "1.0"
+# Database version
+_DBVERSION = "1.1"
 
 _TYPEID_FEATURE     = 0
 _TYPEID_REQUIREMENT = 1
 _TYPEID_USECASE     = 2
 _TYPEID_TESTCASE    = 3
 _TYPEID_TESTSUITE   = 4
-_TYPEIDS = (_TYPEID_FEATURE, _TYPEID_REQUIREMENT, _TYPEID_USECASE, _TYPEID_TESTCASE, _TYPEID_TESTSUITE)
+_TYPEID_SIMPLESECTION = 5
+_TYPEIDS = (_TYPEID_FEATURE, _TYPEID_REQUIREMENT, _TYPEID_USECASE, _TYPEID_TESTCASE, _TYPEID_TESTSUITE, _TYPEID_SIMPLESECTION)
 
 _CHANGEID_NEW      = 0
 _CHANGEID_EDIT     = 1
@@ -78,7 +79,8 @@ class afModel(object):
             self.currentdir = os.getcwd()
         self.productfilename = None
         self.connection = None
-        self.tablenames = "features requirements usecases testcases testsuites".split()
+        self.version = 0
+        self.tablenames = "features requirements usecases testcases testsuites simplesections".split()
 
 
     def getFilename(self):
@@ -90,6 +92,13 @@ class afModel(object):
         self.connection.create_function("gettime", 1, _gettime)
 
 
+    def _updateto_1_1(self, c):
+        logging.debug("afmodel._updateto_1_1()")
+        c.execute("update product set value=? where property=='dbversion';", (_DBVERSION,))
+        c.execute("create table simplesections (ID integer primary key autoincrement, title text, content text, level integer, delcnt integer default 0);")
+        self.connection.commit()
+
+
     def requestNewProduct(self, path):
         """
         Request to create a new product
@@ -98,6 +107,7 @@ class afModel(object):
         """
         self.currentdir = os.path.dirname(path)
         self.productfilename = path
+        self.version = _DBVERSION
         os.chdir(self.currentdir)
         logging.debug("afmodel.(%s)" % path)
         if os.path.exists(self.productfilename):
@@ -130,15 +140,18 @@ class afModel(object):
         c.execute("create table requirement_usecase_relation (rq_id integer, uc_id integer, delcnt integer default 0);")
         c.execute("create table feature_requirement_relation (ft_id integer, rq_id integer, delcnt integer default 0);")
         c.execute('create temporary table lastchanges (afid integer, aftype integer, changetype integer, date text, user text, description text)')
+        self._updateto_1_1(c)
         #self.InsertTestData()
         self.connection.commit()
 
 
-    def requestOpenProduct(self, path):
+    def requestOpenProduct(self, path, autoupdate=True):
         """
         Request to open an existing product database
         @param path: File name of the product database
         @type  path: string
+        @param autoupdate: Flag to automatically update older database versions
+        @type  autoupdate: boolean
         """
         if not os.path.isabs(path):
             path = os.path.abspath(path)
@@ -157,6 +170,15 @@ class afModel(object):
         for aftype in (_TYPEID_FEATURE, _TYPEID_REQUIREMENT, _TYPEID_USECASE, _TYPEID_TESTCASE, _TYPEID_TESTSUITE):
             c.execute('insert into lastchanges select afid, aftype, changetype, max(date), user, description from changelog where aftype=? group by afid', (aftype, ))
         self.connection.commit()
+        c.execute('select value from product where property="dbversion";')
+        self.version = float(c.fetchone()[0])
+        self.connection.commit()
+
+        if autoupdate == False: return
+
+        if self.version < 1.1:
+            self._updateto_1_1(c)
+            self.version = 1.1
 
     #---------------------------------------------------------------------
 
@@ -698,8 +720,12 @@ class afModel(object):
                 params['aftype'] = typeid
             else:
                 (clause, params) = ('', {})
+            if typeid == _TYPEID_SIMPLESECTION:
+                orderclause = 'order by level'
+            else:
+                orderclause = 'order by ID'
 
-            c.execute('select ID, title from %s where delcnt==0 %s;' % (tablename, clause), params)
+            c.execute('select ID, title from %s where delcnt==0 %s %s;' % (tablename, clause, orderclause), params)
             for row in c:
                 r[key].append((row[0], row[1]))
 
@@ -1343,6 +1369,154 @@ class afModel(object):
 
     #---------------------------------------------------------------------
 
+    def getSimpleSection(self, ID):
+        """Retrieve a SimpleSection with ID from database and return it as a cSimpleSection object"""
+        c = self.connection.cursor()
+
+        if ID < 0:
+            simplesection = cSimpleSection()
+        else:
+            query_string = 'select ID, title, content, level from simplesections where ID = %d;' % ID
+            c.execute(query_string)
+            basedata = c.fetchone()
+            simplesection = cSimpleSection(ID=basedata[0], title=basedata[1], content=basedata[2],
+                               level=basedata[3])
+
+        simplesection.setChangelist(self.getChangelist(_TYPEID_SIMPLESECTION, ID))
+        return simplesection
+
+
+    def getSimpleSectionIDs(self):
+        """
+        Get list with all ID's of all SimpleSections from database
+        @rtype:  list
+        @return: list with all SimpleSection ID
+        """
+        query_string = 'select ID from simplesections where delcnt==0 order by level;'
+        c = self.connection.cursor()
+        c.execute(query_string)
+        return [data[0] for data in c.fetchall()]
+
+
+    def saveSimpleSection(self, simplesection):
+        """
+        Save SimpleSection to database
+        @param simplesection: SimpleSection object
+        @type  requirement: cSimpleSection
+        @return: updated SimpleSection object and boolean flag indicating if the
+                 saved artefact is a new artefact
+        @rtype:  tuple (cSimpleSection, bool)
+        """
+        logging.debug("afmodel.saveSimpleSection()")
+        if simplesection['ID'] < 0:
+            # it is a new simple section
+            c = self.connection.cursor()
+            c.execute('select max(level) from simplesections;')
+            try:
+                maxlevel = c.fetchone()[0]
+            except IndexError:
+                maxlevel = 0
+            simplesection['level'] = maxlevel + 1
+
+        plainsimplesection = [simplesection['ID'], simplesection['title'], simplesection['content'], simplesection['level']]
+        plainsimplesection.append(0) # append delcnt
+        sqlstr = []
+        sqlstr.append("insert into simplesections values (NULL, ?, ?, ?, ?)")
+        sqlstr.append("select max(ID) from simplesections")
+        sqlstr.append("update simplesections set "\
+            "'title'=?, 'content'=?, level=?, 'delcnt'=? where ID=?")
+        (basedata, new_artefact) = self.saveArtefact(plainsimplesection, sqlstr, commit=True)
+        ss_id = basedata[0]
+
+        changelog = simplesection.getChangelog()
+        changelog['changetype'] = [_CHANGEID_EDIT, _CHANGEID_NEW][bool(new_artefact)]
+        self.saveChangelog(_TYPEID_SIMPLESECTION, ss_id, changelog, commit = True)
+
+        return (self.getSimpleSection(ss_id), new_artefact)
+
+
+    def getSimpleSectionList(self, deleted=False, affilter=None):
+        """
+        Get list with all SimpleSections from database
+        @type   deleted: boolean
+        @param  deleted: If C{True}, a list with all SimpleSections marked as deleted is returned;
+                         Otherways all ordinary SimpleSections are returned
+        @type  affilter: afFilter or derived class
+        @param affilter: a filter object to filter only specific artefacts
+        @rtype:  object list
+        @return: list with SimpleSections objects
+        """
+        if deleted:
+            where_string = 'delcnt!=0'
+        else:
+            where_string = 'delcnt==0'
+
+        query_string = 'select ID, title, content, level from simplesections where %s %s'
+        c = self.connection.cursor()
+        if affilter is not None and affilter.isApplied():
+            (clause, params) = affilter.GetSQLWhereClause('and')
+            params['aftype'] = _TYPEID_SIMPLESECTION
+        else:
+            (clause, params) = ('', {})
+
+        query_string = query_string % (where_string, clause)
+        query_string += ' order by level;'
+        c.execute(query_string, params)
+        ssplainlist = c.fetchall()
+        sslist = []
+        for ssplain in ssplainlist:
+            ss = cSimpleSection(ID=ssplain[0], title=ssplain[1], content=ssplain[2], level=ssplain[3])
+            sslist.append(ss)
+
+        return sslist
+
+
+    def deleteSimpleSection(self, item_id, delcnt=1):
+        """
+        Delete a SimpleSection
+
+        See L{deleteFeature} for details.
+        @type  item_id: integer
+        @param item_id: SimpleSection ID
+        @type   delcnt: integer
+        @param  delcnt: a value of 0 means restore the SimpleSection,
+                        a value > 0 means delete the SimpleSection
+        @rtype:  cSimpleSection
+        @return: SimpleSection object
+        """
+        logging.debug("afmodel.deleteSimpleSection(%i)" % item_id)
+        c = self.connection.cursor()
+        c.execute("update simplesections set delcnt=? where id=?", (delcnt, item_id))
+        if delcnt > 0:
+            incr = 1
+            changetype = _CHANGEID_DELETE
+        else:
+            incr = -1
+            changetype = _CHANGEID_UNDELETE
+
+        cle = cChangelogEntry(user=self.controller.getUsername(),
+                              description='',
+                              date=self.controller.getCurrentTimeStr(),
+                              changetype=changetype)
+        self.saveChangelog(_TYPEID_SIMPLESECTION, item_id, cle, False)
+
+        self.connection.commit()
+        return self.getSimpleSection(item_id)
+
+
+    def assignSimpleSectionLevels(self, idlist):
+        '''Assign level to all simplesections
+        @type  idlist: integer list
+        @param idlist: List with IDs ofall simplesections. Order determines level.
+        '''
+        c = self.connection.cursor()
+        for i in range(len(idlist)):
+            ID = idlist[i]
+            c.execute("update simplesections set level=? where id=?", (i, ID))
+        self.connection.commit()
+
+    #---------------------------------------------------------------------
+
     def InsertTestData(self):
         """
         Insert testdata into database.
@@ -1453,4 +1627,7 @@ class afModel(object):
             c.execute("insert into changelog values (?, ?, ?, ?, ?, ?)",
                 (afid, aftype, changetype, date, user, description))
 
-
+        for i in range(5):
+            title = 'Title %d' % i
+            content = "Content %d" % i
+            c.execute('insert into simplesections values (NULL, ?, ?, ?, 0)', (title, content, i))

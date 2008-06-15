@@ -7,8 +7,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -50,6 +50,7 @@ class afExportXML():
         self.of = codecs.open(outfilename, encoding=ENCODING, mode="w", errors='strict')
         self.writeXMLHeader()
         self.writeProductInfo()
+        self.writeSimpleSections()
         self.writeFeatures()
         self.writeRequirements()
         self.writeTestcases()
@@ -57,18 +58,18 @@ class afExportXML():
         self.writeRelations()
         self.writeXMLFooter()
         self.of.close()
-        
+
 
     def writeXMLHeader(self):
         self.of.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         self.of.write('<!-- Created from %s at %s !-->\n' % (self.model.getFilename(), strftime(afresource.TIME_FORMAT, localtime())))
         self.of.write('<product>\n')
-        
+
 
     def writeXMLFooter(self):
         self.of.write('</product>\n')
-        
-        
+
+
     def writeTag(self, tag, content):
         self.of.write("<%s><![CDATA[%s]]></%s>\n" % (tag, content, tag))
 
@@ -81,8 +82,17 @@ class afExportXML():
         pi = self.model.getProductInformation()
         self.writeTag('producttitle', pi['title'])
         self.writeTag('productdescription', pi['description'])
-        
-        
+
+
+    def writeSimpleSections(self):
+        idlist = self.model.getSimpleSectionIDs()
+        self.of.write('<simplesections>\n')
+        for ID in idlist:
+            simplesection = self.model.getSimpleSection(ID)
+            self.of.write(simplesection.xmlrepr('simplesection'))
+        self.of.write('</simplesections>\n')
+
+
     def writeFeatures(self):
         idlist = self.model.getFeatureIDs()
         self.of.write('<features>\n')
@@ -99,8 +109,8 @@ class afExportXML():
             requirement = self.model.getRequirement(ID)
             self.of.write(requirement.xmlrepr())
         self.of.write('</requirements>\n')
-        
-                
+
+
     def writeUsecase(self, uc_id):
         idlist = self.model.getUsecaseIDs()
         self.of.write('<usecases>\n')
@@ -108,8 +118,8 @@ class afExportXML():
             usecase = self.model.getUsecase(ID)
             self.of.write(usecase.xmlrepr())
         self.of.write('</usecases>\n')
-        
-        
+
+
     def writeTestcases(self):
         idlist = self.model.getTestcaseIDs()
         self.of.write('<testcases>\n')
@@ -117,7 +127,7 @@ class afExportXML():
             testcase = self.model.getTestcase(ID)
             self.of.write(testcase.xmlrepr())
         self.of.write('</testcases>\n')
-        
+
 
     def writeTestsuites(self):
         idlist = self.model.getTestsuiteIDs()
@@ -126,8 +136,8 @@ class afExportXML():
             testsuite = self.model.getTestsuite(ID)
             self.of.write(testsuite.xmlrepr())
         self.of.write('</testsuites>\n')
-        
-        
+
+
     def writeRelations(self):
         data = [\
             {   'func'          : self.model.getFeatureRequirementRelations,
@@ -165,10 +175,10 @@ class afExportXML():
 
 if __name__=="__main__":
     import os, sys, getopt
-    
+
     def version():
         print("Version unknown")
-        
+
     def usage():
         print("Usage:\n%s [-h|--help] [-V|--version] [-o <ofile>|--output=<ofile>] <ifile>\n"
         "  -h, --help                      show help and exit\n"
@@ -176,8 +186,8 @@ if __name__=="__main__":
         "  -o <ofile>, --output=<ofile>    output to file <ofile>\n"
         "  <ifile>                         database file"
         % sys.argv[0])
-        
-        
+
+
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ho:V", ["help", "output=", "version"])
     except getopt.GetoptError, err:
@@ -201,7 +211,7 @@ if __name__=="__main__":
     if len(args) != 1:
         usage()
         sys.exit(1)
-    
+
     model = afmodel.afModel(controller = None)
     try:
         cwd = os.getcwd()
@@ -210,8 +220,8 @@ if __name__=="__main__":
     except:
         print("Error opening database file %s" % args[0])
         sys.exit(1)
-    
+
     if output is None:
         output =  os.path.splitext(args[0])[0] + ".html"
-        
+
     export = afExportXML(output, model)

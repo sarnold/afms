@@ -33,6 +33,7 @@ tc_new.bmp
 tc_new.png
 ts_new.bmp
 uc_new.bmp
+s_new.png
 
 
 Tango
