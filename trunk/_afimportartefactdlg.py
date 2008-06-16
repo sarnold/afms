@@ -95,7 +95,7 @@ class ArtefactNotebook(wx.Notebook):
     def __init__(self, parent):
         wx.Notebook.__init__(self, parent)
 
-        self.artefactlist = [obj(self, checkstyle = True) for obj in [afFeatureList, afRequirementList, afUsecaseList, afTestcaseList, afTestsuiteList, afSimpleSectionList]]
+        self.artefactlist = [obj(self, checkstyle = True) for obj in [afFeatureList, afRequirementList, afUsecaseList, afTestcaseList, afTestsuiteList, afSimpleSectionList, afGlossaryEntryList]]
         for i in range(len(afresource.ARTEFACTS)):
             self.AddPage(self.artefactlist[i], _(afresource.ARTEFACTS[i]['name']))
 

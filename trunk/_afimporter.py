@@ -43,7 +43,8 @@ class afImporter():
         self.dlg.Bind(wx.EVT_CHECKLISTBOX, self.OnListItemChecked)
         self.dlg.InitContent(self.model.getFeatureList(), self.model.getRequirementList(),
             self.model.getUsecaseList(), self.model.getTestcaseList(),
-            self.model.getTestsuiteList(), self.model.getSimpleSectionList())
+            self.model.getTestsuiteList(), self.model.getSimpleSectionList(),
+            self.model.getGlossaryEntryList())
         if self.dlg.ShowModal() == wx.ID_OK:
             self.ImportArtefacts()
         self.dlg.Destroy()
@@ -95,8 +96,8 @@ class afImporter():
 
 
     def ImportArtefacts(self):
-        (ftlist, rqlist, uclist, tclist, tslist, sslist) = self.dlg.GetCheckedArtefacts()
-        (new_ftlist, new_rqlist, new_uclist, new_tclist, new_tslist, new_sslist) = ([], [], [], [], [], [])
+        (ftlist, rqlist, uclist, tclist, tslist, sslist, gelist) = self.dlg.GetCheckedArtefacts()
+        (new_ftlist, new_rqlist, new_uclist, new_tclist, new_tslist, new_sslist, new_gelist) = ([], [], [], [], [], [], [])
         changelog = cChangelogEntry(user=afconfig.CURRENT_USER,
             date=time.strftime(afresource.TIME_FORMAT), description='')
 
@@ -106,6 +107,7 @@ class afImporter():
         self._Import(uclist, new_uclist, self.basemodel.saveUsecase, self.model.getUsecase, changelog)
         self._Import(tslist, new_tslist, self.basemodel.saveTestsuite, self.model.getTestsuite, changelog)
         self._Import(sslist, new_sslist, self.basemodel.saveSimpleSection, self.model.getSimpleSection, changelog)
+        self._Import(gelist, new_gelist, self.basemodel.saveGlossaryEntry, self.model.getGlossaryEntry, changelog)
 
         # now we have import all checked artefacts. Next step is
         # to import the corresponding artefact relations

@@ -70,7 +70,7 @@ class afGlossaryEntryView(wx.Panel):
     def GetContent(self):
         return cGlossaryEntry(title=self.title_edit.GetValue(),
             description=self.description_edit.GetValue(),
-            ID=self.id_editGetValue())
+            ID=int(self.id_edit.GetValue()))
 
     def ChangeSelection(self, n):
         pass

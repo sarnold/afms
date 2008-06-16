@@ -725,13 +725,14 @@ class afModel(object):
                 (clause, params) = ('', {})
             if typeid == _TYPEID_SIMPLESECTION:
                 orderclause = 'order by level'
+            elif typeid == _TYPEID_GLOSSARYENTRY:
+                orderclause = 'order by upper(title)'
             else:
                 orderclause = 'order by ID'
 
             c.execute('select ID, title from %s where delcnt==0 %s %s;' % (tablename, clause, orderclause), params)
             for row in c:
                 r[key].append((row[0], row[1]))
-
         return r
 
 
@@ -1539,7 +1540,7 @@ class afModel(object):
         @rtype:  list
         @return: list with all GlossaryEntry ID
         """
-        query_string = 'select ID from glossary where delcnt==0 order by level;'
+        query_string = 'select ID from glossary where delcnt==0 order by upper(title);'
         c = self.connection.cursor()
         c.execute(query_string)
         return [data[0] for data in c.fetchall()]
@@ -1559,7 +1560,7 @@ class afModel(object):
         plainglossaryentry = [glossaryentry['ID'], glossaryentry['title'], glossaryentry['description']]
         plainglossaryentry.append(0) # append delcnt
         sqlstr = []
-        sqlstr.append("insert into glossary values (NULL, ?, ?, ?, ?)")
+        sqlstr.append("insert into glossary values (NULL, ?, ?, ?)")
         sqlstr.append("select max(ID) from glossary")
         sqlstr.append("update glossary set "\
             "'title'=?, 'description'=?, 'delcnt'=? where ID=?")
@@ -1585,7 +1586,7 @@ class afModel(object):
         else:
             where_string = 'delcnt==0'
 
-        query_string = 'select ID, title, description from glossary where %s %s;'
+        query_string = 'select ID, title, description from glossary where %s %s'
         c = self.connection.cursor()
         if affilter is not None and affilter.isApplied():
             (clause, params) = affilter.GetSQLWhereClause('and')
@@ -1594,6 +1595,7 @@ class afModel(object):
             (clause, params) = ('', {})
 
         query_string = query_string % (where_string, clause)
+        query_string += ' order by upper(title);'
         c.execute(query_string, params)
         gelist = [cGlossaryEntry(ID=ge[0], title=ge[1], description=ge[2]) for ge in c.fetchall()]
 

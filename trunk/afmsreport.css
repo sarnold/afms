@@ -94,7 +94,15 @@ p.footer
 	font-size : small;
 }
 
+dt
+{
+	font-weight:bold;
+}
 
+dd
+{
+	margin-bottom:1em;
+}
 
 table.navi {
 vertical-align: middle;

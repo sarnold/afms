@@ -126,6 +126,9 @@ class afExportHTML():
 
         self.writeSimpleSections()
 
+        self.writeTag('h1', '<a name="glossary">%s</a>' % __(_('Terms and Abbreviations')))
+        self.writeGlossary()
+
         self.writeTag('h1', '<a name="features">%s</a>' % __(_('Features')))
         self.writeFeatures()
 
@@ -201,19 +204,21 @@ class afExportHTML():
                 basedata = simplesection.getPrintableDataDict(self.formatField)
                 self.of.write('<li><a href="#SS-%(ID)03d">%(title)s</a></li>\n' % basedata)
 
-        self.of.write('<li><a href="#features">%s</a></li>' % _('Features'))
+        self.of.write('<li><a href="#glossary">%s</a></li>\n' % __(_('Terms and Abbreviations')))
+
+        self.of.write('<li><a href="#features">%s</a></li>\n' % _('Features'))
         self.writeList(self.model.getFeatureList(), 'F')
 
-        self.of.write('<li><a href="#requirements">%s</a></li>' % _('Requirements'))
+        self.of.write('<li><a href="#requirements">%s</a></li>\n' % _('Requirements'))
         self.writeList(self.model.getRequirementList(), 'REQ')
 
-        self.of.write('<li><a href="#testcases">%s</a></li>' % _('Testcases'))
+        self.of.write('<li><a href="#testcases">%s</a></li>\n' % _('Testcases'))
         self.writeList(self.model.getTestcaseList(), 'TC')
 
-        self.of.write('<li><a href="#testsuites">%s</a></li>' % _('Testsuites'))
+        self.of.write('<li><a href="#testsuites">%s</a></li>\n' % _('Testsuites'))
         self.writeList(self.model.getTestsuiteList(), 'TS')
 
-        self.of.write('<li><a href="#problems">%s</a></li>' % _('Detected problems'))
+        self.of.write('<li><a href="#problems">%s</a></li>\n' % _('Detected problems'))
         self.of.write('<ul>')
         self.of.write('<li><a href="#lonelyfeatures">%s</a></li>' % _('Features without requirements'))
         self.of.write('<li><a href="#untestedrequirements">%s</a></li>' % _('Requirements without testcases'))
@@ -289,6 +294,19 @@ class afExportHTML():
                 historylink = '<p><a href="#HSS-%(ID)03d">History</a></p>\n' % basedata
                 self.appendHistory(self.simplesectionhistory, basedata, 'SS', simplesection.getChangelist())
                 self.of.write(historylink)
+
+
+    def writeGlossary(self):
+            idlist = self.model.getGlossaryEntryIDs()
+            if len(idlist) <= 0:
+                self.writeTag('p', _('None'))
+                return
+            self.of.write('<dl class="glossary">\n')
+            for ID in idlist:
+                glossaryentry = self.model.getGlossaryEntry(ID)
+                basedata = glossaryentry.getPrintableDataDict(self.formatField)
+                self.of.write('<dt>%(title)s</dt>\n<dd>%(description)s</dd>\n' % basedata)
+            self.of.write('</dl>\n')
 
 
     def writeFeatures(self):
