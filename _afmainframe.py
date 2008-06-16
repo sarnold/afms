@@ -296,6 +296,9 @@ class MainFrame(wx.Frame):
 
         menu.Append(306, _('New text section ...'), _('Create new text section'))
         menu.Enable(306, False)
+
+        menu.Append(307, _('New glossary entry ...'), _('Create new glossary entry'))
+        menu.Enable(307, False)
         menuBar.Append(menu, _('&New'))
 
         menu = wx.Menu()
@@ -368,7 +371,7 @@ class MainFrame(wx.Frame):
         self.InitTree(artefactnames, number_of_deleted_artefacts)
         self.treeCtrl.SelectItem(self.treeCtrl.root)
         self.SetStatusText(path, 2)
-        for m, i in zip([0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2], [103, 104, 105, 201, 202, 203, 204, 301, 302, 303, 304, 305, 306]):
+        for m, i in zip([0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2], [103, 104, 105, 201, 202, 203, 204, 301, 302, 303, 304, 305, 306, 307]):
             self.GetMenuBar().GetMenu(m).Enable(i, True)
         for i in (12,13,14,15,16, 17, 18, 19, 30, 31):
             self.GetToolBar().EnableTool(i, True)

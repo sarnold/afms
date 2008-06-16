@@ -57,6 +57,9 @@ def getArtefactFromClipboard():
         elif wx.TheClipboard.IsSupported(wx.CustomDataFormat('AFMS_SIMPLESECTION')):
             af_kind = 'AFMS_SIMPLESECTION'
             af_data = afSimpleSectionDataObjectSimple()
+        elif wx.TheClipboard.IsSupported(wx.CustomDataFormat('AFMS_GLOSSARYENTRY')):
+            af_kind = 'AFMS_GLOSSARYENTRY'
+            af_data = afGlossaryEntryDataObjectSimple()
 
         if af_data is not None:
             if wx.TheClipboard.GetData(af_data):
@@ -200,4 +203,21 @@ class afSimpleSectionDataObjectSimple(afArtefactDataObjectSimple):
 
 
 class afSimpleSectionTextObjectSimple(afArtefactTextObjectSimple):
+    pass
+
+# ---------------------------------------------------------------------
+
+def copyGlossaryEntryToClipboard(glossaryentry):
+    af_data = afGlossaryEntryDataObjectSimple(pickle.dumps(glossaryentry))
+    af_text = afGlossaryEntryTextObjectSimple('AFMS_GLOSSARYENTRY', glossaryentry)
+    copyArtefactToClipboard(af_data, af_text)
+
+
+class afGlossaryEntryDataObjectSimple(afArtefactDataObjectSimple):
+    def __init__(self, artefact = None):
+        wx.PyDataObjectSimple.__init__(self, wx.CustomDataFormat('AFMS_GLOSSARYENTRY'))
+        self.data = artefact
+
+
+class afGlossaryEntryTextObjectSimple(afArtefactTextObjectSimple):
     pass

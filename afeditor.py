@@ -196,6 +196,7 @@ class MyApp(wx.App):
         self.Bind(wx.EVT_MENU, self.OnNewTestsuite, id = 304)
         self.Bind(wx.EVT_MENU, self.OnNewUsecase, id = 305)
         self.Bind(wx.EVT_MENU, self.OnNewSimpleSection, id = 306)
+        self.Bind(wx.EVT_MENU, self.OnAddGlossaryEntry, id=307)
 
         self.Bind(wx.EVT_TOOL, self.OnNewProduct, id=10)
         self.Bind(wx.EVT_TOOL, self.OnOpenProduct, id=11)
@@ -217,6 +218,7 @@ class MyApp(wx.App):
         self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
 
         self.Bind(wx.EVT_BUTTON, self.OnSimpleSectionLevelChanged, id=5137)
+        self.Bind(wx.EVT_BUTTON, self.OnAddGlossaryEntry, id=307)
 
         global arguments
         if len(arguments) > 0:
@@ -233,6 +235,10 @@ class MyApp(wx.App):
         self.model.assignSimpleSectionLevels(evt.GetClientData())
         self.InitView()
         self.mainframe.treeCtrl.SetSelection('SIMPLESECTIONS')
+
+
+    def OnAddGlossaryEntry(self, evt):
+        self.requestEditView("GLOSSARYENTRIES", -1)
 
 
     def ApplyFilterClick(self, evt):
@@ -261,11 +267,13 @@ class MyApp(wx.App):
             return
 
         artefact = [self.model.getFeature, self.model.getRequirement, self.model.getUsecase,
-                   self.model.getTestcase, self.model.getTestsuite, self.model.getSimpleSection][idx](item_id)
+                   self.model.getTestcase, self.model.getTestsuite, self.model.getSimpleSection,
+                   self.model.getGlossaryEntry][idx](item_id)
 
         copytoclip = [_afclipboard.copyFeatureToClipboard, _afclipboard.copyRequirementToClipboard,
                       _afclipboard.copyUsecaseToClipboard, _afclipboard.copyTestcaseToClipboard,
-                      _afclipboard.copyTestsuiteToClipboard, _afclipboard.copySimpleSectionToClipboard][idx]
+                      _afclipboard.copyTestsuiteToClipboard, _afclipboard.copySimpleSectionToClipboard,
+                      _afclipboard.copyGlossaryEntryToClipboard][idx]
         copytoclip(artefact)
 
 
@@ -320,6 +328,13 @@ class MyApp(wx.App):
                 # reformat data to the same format as it is returned by self.model.getSimpleSectionList()
                 self.contentview.AppendItem(data)
             self.updateView([wx.ID_OK, new_artefact, data, None], 'SIMPLESECTIONS', -1)
+
+        elif af_kind == 'AFMS_GLOSSARYENTRY':
+            (data, new_artefact) = self.model.saveGlossaryEntry(afobj)
+            if self.currentview == self.glossaryentrylistview:
+                # reformat data to the same format as it is returned by self.model.getGlossaryEntryList()
+                self.contentview.AppendItem(data)
+            self.updateView([wx.ID_OK, new_artefact, data, None], 'GLOSSARYENTRIES', -1)
 
 
     def OnPageChanged(self, evt):
@@ -867,6 +882,10 @@ class MyApp(wx.App):
         return self.EditArtefact(_("Edit section"), afSimpleSectionNotebook, self.model.saveSimpleSection, simplesection)
 
 
+    def EditGlossaryEntry(self, glossaryentry):
+        return self.EditArtefact(_("Edit glossary entry"), afGlossaryEntryView, self.model.saveGlossaryEntry, glossaryentry)
+
+
     def EditArtefact(self, title, contentview, savedata, data):
         """
         Edit artefact in a dialog window.
@@ -963,6 +982,9 @@ class MyApp(wx.App):
 
         elif parent_id == "SIMPLESECTIONS":
             result = self.EditSimpleSection(self.model.getSimpleSection(item_id))
+
+        elif parent_id == "GLOSSARYENTRIES":
+            result = self.EditGlossaryEntry(self.model.getGlossaryEntry(item_id))
 
         if result[0] == wx.ID_SAVE:
             self.InitFilters()

@@ -51,6 +51,7 @@ class afExportXML():
         self.writeXMLHeader()
         self.writeProductInfo()
         self.writeSimpleSections()
+        self.writeGlossary()
         self.writeFeatures()
         self.writeRequirements()
         self.writeTestcases()
@@ -91,6 +92,15 @@ class afExportXML():
             simplesection = self.model.getSimpleSection(ID)
             self.of.write(simplesection.xmlrepr('simplesection'))
         self.of.write('</simplesections>\n')
+
+
+    def writeGlossary(self):
+            idlist = self.model.getGlossaryEntryIDs()
+            self.of.write('<glossary>\n')
+            for ID in idlist:
+                glossaryentry = self.model.getGlossaryEntry(ID)
+                self.of.write(glossaryentry.xmlrepr('glossaryentry'))
+            self.of.write('</glossary>\n')
 
 
     def writeFeatures(self):
