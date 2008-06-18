@@ -36,6 +36,7 @@ AFMS: Short Manual for afeditor
 
 Overview screenshot
 -------------------
+
 .. image:: images/screenshot_overview.png
 
 
@@ -213,6 +214,20 @@ in the test suite.
 
 Test suites are important for the testrunner_ program, because *testrunner* allows 'execution'
 of all test cases in a test suite.
+
+
+Adding text sections and glossary entries
+-----------------------------------------
+Adding text sections and glossary entries works quite the same as for other artefacts.
+
+For new text sections select "New text section" from the "New menu" or press the corresponding 
+toolbar button |new_textsection_btn|. As a special feature of text sections you can edit the order of 
+text sections. Select the "Text sections" icon in the tree view and press the button "Edit order"
+below the list of text sections. An editor will pop up where you can shuffle around the sections.
+
+Adding glossary entries could be done by selecting "New glossary entry" from the "New" menu.
+A toolbar button is not available. Instead of that there is a "Add" button shown at the end 
+of the glossary list if you highlight "Glossary" in the tree view.
 
 
 Deleting artefacts

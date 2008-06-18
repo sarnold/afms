@@ -1418,6 +1418,7 @@ class afModel(object):
             c.execute('select max(level) from simplesections;')
             try:
                 maxlevel = c.fetchone()[0]
+                if maxlevel is None: maxlevel = 0
             except IndexError:
                 maxlevel = 0
             simplesection['level'] = maxlevel + 1

@@ -50,7 +50,8 @@ namely
 
 
 With the program afeditor_ the management system provides a GUI to create, edit and 
-delete artefacts and to edit relations between artefacts. 
+delete artefacts and to edit relations between artefacts. In addition to the artefacts 
+listed above the afeditor_ supports simple text sections and a glossary.
 The afeditor_ allows to export artefacts in either HTML or XML format.
 
 The program testrunner_ is used to manually "execute" test cases organized in a test suite
