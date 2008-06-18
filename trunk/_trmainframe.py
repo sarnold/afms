@@ -205,7 +205,6 @@ class MainFrame(wx.Frame):
         self.config.WriteInt("window_size_y", self.GetSize().height)
         self.config.WriteInt("window_pos_x", self.GetPosition().x)
         self.config.WriteInt("window_pos_y", self.GetPosition().y)
-        print afresource.GetLanguage()
         self.config.Write("language", afresource.GetLanguage())
         self.Destroy()
 
@@ -288,7 +287,7 @@ class TestcaseListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
 
     def UpdateItem(self, index, status):
         self.itemDataMap[index][1] = status
-        self.list.SetStringItem(index, 1, afresource.TEST_STATUS_NAME[status])
+        self.list.SetStringItem(index, 1, _(afresource.TEST_STATUS_NAME[status]))
         item = self.list.GetItem(index)
         item.SetTextColour(self.color[status])
         item.SetImage(self.img[status])
