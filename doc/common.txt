@@ -17,6 +17,8 @@
 .. |new_usecase_btn| image:: images/uc_new.png
 .. |new_testcase_btn| image:: images/tc_new.png
 .. |new_testsuite_btn| image:: images/ts_new.png
+.. |new_textsection_btn| image:: images/s_new.png
+
 .. |del_af_btn| image:: images/24-tag-remove.png
 .. |author| unicode:: Achim U+00A0 K U+00F6 hler
 
