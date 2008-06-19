@@ -144,7 +144,7 @@ class afModel(object):
         c.execute("create table feature_requirement_relation (ft_id integer, rq_id integer, delcnt integer default 0);")
         c.execute('create temporary table lastchanges (afid integer, aftype integer, changetype integer, date text, user text, description text)')
         self._updateto_1_1(c)
-        self.InsertTestData()
+        ##self.InsertTestData()
         self.connection.commit()
 
 

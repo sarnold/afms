@@ -291,7 +291,7 @@ class afExportHTML():
                 self.writeTag('h1', '<a name="SS-%(ID)03d">SS-%(ID)03d: %(title)s</a>' % basedata)
                 #self.of.write('<div class="simplesection">\n%s\n</div>' % self.formatField(basedata['content']))
                 self.of.write('<div class="simplesection">\n%(content)s\n</div>' % basedata)
-                historylink = '<p><a href="#HSS-%(ID)03d">History</a></p>\n' % basedata
+                historylink = '<p><a href="#HSS-%03d">%s</a></p>\n' % (basedata['ID'], __(_('History')))
                 self.appendHistory(self.simplesectionhistory, basedata, 'SS', simplesection.getChangelist())
                 self.of.write(historylink)
 
@@ -316,7 +316,7 @@ class afExportHTML():
                 basedata = feature.getPrintableDataDict(self.formatField)
 
                 self.writeTag('h2', '<a name="F-%(ID)03d">F-%(ID)03d: %(title)s</a>' % basedata)
-                historylink = '<tr><th><a href="#HF-%(ID)03d">History</a></th><td>&nbsp;</td></tr>\n' % basedata
+                historylink = '<tr><th><a href="#HF-%03d">%s</a></th><td>&nbsp;</td></tr>\n' % (basedata['ID'], __(_('History')))
                 self.appendHistory(self.featurehistory, basedata, 'F', feature.getChangelist())
                 self.of.write('<table>\n')
                 for label, key in zip(feature.labels()[2:], feature.keys()[2:]):
@@ -345,7 +345,7 @@ class afExportHTML():
                 basedata = requirement.getPrintableDataDict(self.formatField)
 
                 self.writeTag('h2', '<a name="REQ-%(ID)03d">REQ-%(ID)03d: %(title)s</a>' % basedata)
-                historylink = '<tr><th><a href="#HREQ-%(ID)03d">History</a></th><td>&nbsp;</td></tr>\n' % basedata
+                historylink = '<tr><th><a href="#HREQ-%03d">%s</a></th><td>&nbsp;</td></tr>\n' % (basedata['ID'], __(_('History')))
                 self.appendHistory(self.requirementhistory, basedata, 'REQ', requirement.getChangelist())
 
                 self.of.write('<div class="requirement">\n')
@@ -391,7 +391,7 @@ class afExportHTML():
         for label, key in zip(usecase.labels()[2:], usecase.keys()[2:]):
                 self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
 
-        self.of.write('<tr><th><a href="#HUC-%(ID)03d">History</a></th><td>&nbsp;</td></tr>\n' % basedata)
+        self.of.write('<tr><th><a href="#HUC-%03d">%s</a></th><td>&nbsp;</td></tr>\n' % (basedata['ID'], __(_('History'))))
         self.appendHistory(self.usecasehistory, basedata, 'UC', usecase.getChangelist())
         self.of.write('</table>\n')
 
@@ -403,7 +403,7 @@ class afExportHTML():
             basedata = testcase.getPrintableDataDict(self.formatField)
 
             self.writeTag('h2', '<a name="TC-%(ID)03d">TC-%(ID)03d: %(title)s</a>' % basedata)
-            historylink = '<tr><th><a href="#HTC-%(ID)03d">History</a></th><td>&nbsp;</td></tr>\n' % basedata
+            historylink = '<tr><th><a href="#HTC-%03d">%s</a></th><td>&nbsp;</td></tr>\n' % (basedata['ID'], __(_('History')))
             self.appendHistory(self.testcasehistory, basedata, 'TC', testcase.getChangelist())
 
             self.of.write('<table>\n')
@@ -508,18 +508,20 @@ if __name__=="__main__":
         "  -h, --help                      show help and exit\n"
         "  -V, --version                   show version and exit\n"
         "  -o <ofile>, --output=<ofile>    output to file <ofile>\n"
+        "  -l <lang>, --language=<lang>    select output language (de|en)"
         "  <ifile>                         database file"
         % sys.argv[0])
 
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:V", ["help", "output=", "version"])
+        opts, args = getopt.getopt(sys.argv[1:], "ho:l:V", ["help", "output=", "language", "version"])
     except getopt.GetoptError, err:
         # print help information and exit:
         print str(err) # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
     output = None
+    language = 'en'
     for o, a in opts:
         if o in ("-V", "--version"):
             version()
@@ -529,11 +531,20 @@ if __name__=="__main__":
             sys.exit()
         elif o in ("-o", "--output"):
             output = a
+        elif o in ("-l", "--language"):
+            language = a
         else:
             assert False, "unhandled option"
 
     if len(args) != 1:
         usage()
+        sys.exit(1)
+
+    try:
+        t = gettext.translation(DOMAIN, LOCALEDIR, languages=[language])
+        t.install(unicode=True)
+    except IOError:
+        print('Unsupported language: %s' % language)
         sys.exit(1)
 
     model = afmodel.afModel(controller = None)

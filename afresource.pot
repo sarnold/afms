@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2008-06-16 22:06+Westeuropäische Sommerzeit\n"
+"POT-Creation-Date: 2008-06-19 21:11+Westeuropäische Sommerzeit\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -44,7 +44,7 @@ msgstr ""
 #: _afartefactlist.py:414 _affeatureview.py:41 _afglossaryentryview.py:35
 #: _afrequirementview.py:43 _afsimplesectionview.py:40 _aftestcaseview.py:40
 #: _aftestsuiteview.py:36 _afusecaseview.py:42 _trartefact.py:32
-#: _trmainframe.py:259 _trtestcaseview.py:35
+#: _trmainframe.py:258 _trtestcaseview.py:35
 msgid "ID"
 msgstr ""
 
@@ -61,7 +61,7 @@ msgstr ""
 #: _affeatureview.py:41 _affilterview.py:209 _affilterview.py:279
 #: _affilterview.py:433 _affilterview.py:498 _afproductinformation.py:32
 #: _afrequirementview.py:43 _afsimplesectionview.py:40 _aftestcaseview.py:40
-#: _aftestsuiteview.py:35 _trartefact.py:32 _trmainframe.py:261
+#: _aftestsuiteview.py:35 _trartefact.py:32 _trmainframe.py:260
 #: _trtestcaseview.py:35
 msgid "Title"
 msgstr ""
@@ -75,7 +75,7 @@ msgstr ""
 
 #: _afartefact.py:151 _afartefact.py:215 _afartefactlist.py:269
 #: _afartefactlist.py:295 _affeatureview.py:41 _affilterview.py:119
-#: _afrequirementview.py:43 _trmainframe.py:260
+#: _afrequirementview.py:43 _trmainframe.py:259
 msgid "Status"
 msgstr ""
 
@@ -174,7 +174,7 @@ msgstr ""
 
 #: _afartefact.py:447 _afartefactlist.py:358 _aftestsuiteview.py:69
 #: afexporthtml.py:138 afexporthtml.py:215 afexporthtml.py:239
-#: afexporthtml.py:493 afresource.py:31
+#: afexporthtml.py:494 afresource.py:31
 msgid "Testcases"
 msgstr ""
 
@@ -563,21 +563,21 @@ msgstr ""
 msgid "&Help"
 msgstr ""
 
-#: _afmainframe.py:362 _trmainframe.py:215
+#: _afmainframe.py:362 _trmainframe.py:214
 msgid "Select language"
 msgstr ""
 
-#: _afmainframe.py:362 _trmainframe.py:215
+#: _afmainframe.py:362 _trmainframe.py:214
 msgid ""
 "Select program language\n"
 "(This takes effect after restarting the program.)"
 msgstr ""
 
-#: _afmainframe.py:363 _trmainframe.py:216
+#: _afmainframe.py:363 _trmainframe.py:215
 msgid "English"
 msgstr ""
 
-#: _afmainframe.py:363 _trmainframe.py:216
+#: _afmainframe.py:363 _trmainframe.py:215
 msgid "German"
 msgstr ""
 
@@ -605,7 +605,7 @@ msgstr ""
 msgid "Edit text section order"
 msgstr ""
 
-#: _afsimplesectionleveldialog.py:35 afexporthtml.py:495 afresource.py:33
+#: _afsimplesectionleveldialog.py:35 afexporthtml.py:496
 msgid "Text sections"
 msgstr ""
 
@@ -980,12 +980,12 @@ msgid "Terms and Abbreviations"
 msgstr ""
 
 #: afexporthtml.py:132 afexporthtml.py:209 afexporthtml.py:233
-#: afexporthtml.py:487 afresource.py:28
+#: afexporthtml.py:488 afresource.py:28
 msgid "Features"
 msgstr ""
 
 #: afexporthtml.py:135 afexporthtml.py:212 afexporthtml.py:235
-#: afexporthtml.py:489 afresource.py:29
+#: afexporthtml.py:490 afresource.py:29
 msgid "Requirements"
 msgstr ""
 
@@ -1033,33 +1033,37 @@ msgstr ""
 msgid "Usecases not belonging to requirements"
 msgstr ""
 
-#: afexporthtml.py:237 afexporthtml.py:491 afresource.py:30
+#: afexporthtml.py:237 afexporthtml.py:492 afresource.py:30
 msgid "Usecases"
 msgstr ""
 
-#: afexporthtml.py:250 afexporthtml.py:302 afexporthtml.py:335
-#: afexporthtml.py:367 afexporthtml.py:423 afexporthtml.py:436
-#: afexporthtml.py:462 trexporthtml.py:134
+#: afexporthtml.py:250 afexporthtml.py:303 afexporthtml.py:336
+#: afexporthtml.py:368 afexporthtml.py:424 afexporthtml.py:437
+#: afexporthtml.py:463 trexporthtml.py:134
 msgid "None"
 msgstr ""
 
-#: afexporthtml.py:325 afexporthtml.py:413
+#: afexporthtml.py:294
+msgid "History"
+msgstr ""
+
+#: afexporthtml.py:326 afexporthtml.py:414
 msgid "Related requirements"
 msgstr ""
 
-#: afexporthtml.py:357
+#: afexporthtml.py:358
 msgid "Attached testcases"
 msgstr ""
 
-#: afexporthtml.py:379
+#: afexporthtml.py:380
 msgid "No use cases"
 msgstr ""
 
-#: afexporthtml.py:426
+#: afexporthtml.py:427
 msgid "Related testsuites"
 msgstr ""
 
-#: afexporthtml.py:452
+#: afexporthtml.py:453
 msgid "Included testcases"
 msgstr ""
 
@@ -1074,8 +1078,12 @@ msgid ""
 "under the terms of the GNU General Public License; see the accompanied file COPYING for details."
 msgstr ""
 
+#: afresource.py:33
+msgid "Text Sections"
+msgstr ""
+
 #: afresource.py:34
-msgid "Glossary"
+msgid "Glossary Entries"
 msgstr ""
 
 #: afresource.py:39

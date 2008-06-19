@@ -30,8 +30,8 @@ ARTEFACTS = [{"name": _("Features"),      "id": "FEATURES"},
              {"name": _("Usecases"),      "id": "USECASES"},
              {"name": _("Testcases"),     "id": "TESTCASES"},
              {"name": _("Testsuites"),    "id": "TESTSUITES"},
-             {"name": _("Text sections"), "id": "SIMPLESECTIONS"},
-             {"name": _("Glossary"),      "id": "GLOSSARYENTRIES"}]
+             {"name": _("Text Sections"), "id": "SIMPLESECTIONS"},
+             {"name": _("Glossary Entries"),      "id": "GLOSSARYENTRIES"}]
 
 ARTEFACTSTREEVIEWORDER = [5, 6, 0, 1, 2, 3, 4]
 

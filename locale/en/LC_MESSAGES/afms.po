@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: afms\n"
-"POT-Creation-Date: 2008-06-16 22:06+Westeuropäische Sommerzeit\n"
+"POT-Creation-Date: 2008-06-19 21:11+Westeuropäische Sommerzeit\n"
 "PO-Revision-Date: \n"
 "Last-Translator: achimk <achimk@users.sourceforge.net>\n"
 "Language-Team:  <achimk@users.sourceforge.net>\n"
@@ -78,7 +78,7 @@ msgstr "User"
 #: _aftestsuiteview.py:36
 #: _afusecaseview.py:42
 #: _trartefact.py:32
-#: _trmainframe.py:259
+#: _trmainframe.py:258
 #: _trtestcaseview.py:35
 msgid "ID"
 msgstr "ID"
@@ -117,7 +117,7 @@ msgstr "Priority"
 #: _aftestcaseview.py:40
 #: _aftestsuiteview.py:35
 #: _trartefact.py:32
-#: _trmainframe.py:261
+#: _trmainframe.py:260
 #: _trtestcaseview.py:35
 msgid "Title"
 msgstr "Title"
@@ -144,7 +144,7 @@ msgstr "Version"
 #: _affeatureview.py:41
 #: _affilterview.py:119
 #: _afrequirementview.py:43
-#: _trmainframe.py:260
+#: _trmainframe.py:259
 msgid "Status"
 msgstr "Status"
 
@@ -292,7 +292,7 @@ msgstr "Notes && Questions"
 #: afexporthtml.py:138
 #: afexporthtml.py:215
 #: afexporthtml.py:239
-#: afexporthtml.py:493
+#: afexporthtml.py:494
 #: afresource.py:31
 msgid "Testcases"
 msgstr "Testcases"
@@ -723,12 +723,12 @@ msgid "&Help"
 msgstr "&Help"
 
 #: _afmainframe.py:362
-#: _trmainframe.py:215
+#: _trmainframe.py:214
 msgid "Select language"
 msgstr "Select language"
 
 #: _afmainframe.py:362
-#: _trmainframe.py:215
+#: _trmainframe.py:214
 msgid ""
 "Select program language\n"
 "(This takes effect after restarting the program.)"
@@ -737,12 +737,12 @@ msgstr ""
 "(This takes effect after restarting the program.)"
 
 #: _afmainframe.py:363
-#: _trmainframe.py:216
+#: _trmainframe.py:215
 msgid "English"
 msgstr "English"
 
 #: _afmainframe.py:363
-#: _trmainframe.py:216
+#: _trmainframe.py:215
 msgid "German"
 msgstr "German"
 
@@ -772,8 +772,7 @@ msgid "Edit text section order"
 msgstr "Edit text section order"
 
 #: _afsimplesectionleveldialog.py:35
-#: afexporthtml.py:495
-#: afresource.py:33
+#: afexporthtml.py:496
 msgid "Text sections"
 msgstr "Text sections"
 
@@ -1179,7 +1178,7 @@ msgstr "Glossary"
 #: afexporthtml.py:132
 #: afexporthtml.py:209
 #: afexporthtml.py:233
-#: afexporthtml.py:487
+#: afexporthtml.py:488
 #: afresource.py:28
 msgid "Features"
 msgstr "Features"
@@ -1187,7 +1186,7 @@ msgstr "Features"
 #: afexporthtml.py:135
 #: afexporthtml.py:212
 #: afexporthtml.py:235
-#: afexporthtml.py:489
+#: afexporthtml.py:490
 #: afresource.py:29
 msgid "Requirements"
 msgstr "Requirements"
@@ -1248,40 +1247,44 @@ msgid "Usecases not belonging to requirements"
 msgstr "Usecases not belonging to requirements"
 
 #: afexporthtml.py:237
-#: afexporthtml.py:491
+#: afexporthtml.py:492
 #: afresource.py:30
 msgid "Usecases"
 msgstr "Usecases"
 
 #: afexporthtml.py:250
-#: afexporthtml.py:302
-#: afexporthtml.py:335
-#: afexporthtml.py:367
-#: afexporthtml.py:423
-#: afexporthtml.py:436
-#: afexporthtml.py:462
+#: afexporthtml.py:303
+#: afexporthtml.py:336
+#: afexporthtml.py:368
+#: afexporthtml.py:424
+#: afexporthtml.py:437
+#: afexporthtml.py:463
 #: trexporthtml.py:134
 msgid "None"
 msgstr "None"
 
-#: afexporthtml.py:325
-#: afexporthtml.py:413
+#: afexporthtml.py:294
+msgid "History"
+msgstr "Changelog"
+
+#: afexporthtml.py:326
+#: afexporthtml.py:414
 msgid "Related requirements"
 msgstr "Related requirements"
 
-#: afexporthtml.py:357
+#: afexporthtml.py:358
 msgid "Attached testcases"
 msgstr "Attached testcases"
 
-#: afexporthtml.py:379
+#: afexporthtml.py:380
 msgid "No use cases"
 msgstr "No use cases"
 
-#: afexporthtml.py:426
+#: afexporthtml.py:427
 msgid "Related testsuites"
 msgstr "Related testsuites"
 
-#: afexporthtml.py:452
+#: afexporthtml.py:453
 msgid "Included testcases"
 msgstr "Included testcases"
 
@@ -1300,9 +1303,13 @@ msgstr ""
 "This is free software, and you are welcome to redistribute it\n"
 "under the terms of the GNU General Public License; see the accompanied file COPYING for details."
 
+#: afresource.py:33
+msgid "Text Sections"
+msgstr "Text Sections"
+
 #: afresource.py:34
-msgid "Glossary"
-msgstr "Glossary"
+msgid "Glossary Entries"
+msgstr "Glossary Entries"
 
 #: afresource.py:39
 msgid "TC"
