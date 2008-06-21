@@ -45,9 +45,11 @@ VERSION := $(subst ",,$(VERSION))
 DISTRIBDIR := distrib
 ARCHIVE := $(addprefix $(DISTRIBDIR)/, $(addsuffix .tar, afms-$(VERSION)))
 ZIPARCHIVE := $(addprefix $(DISTRIBDIR)/, $(addsuffix .zip, afms-$(VERSION)))
+WINZIPARCHIVE := $(addprefix $(DISTRIBDIR)/, $(addsuffix .zip, afms-win32-$(VERSION)))
+WINTARGETDIR := afms-win32-$(VERSION)
 TARGETDIR := afms-$(VERSION)
 
-all: distrib clean
+all: distrib windistrib clean
 
 distrib:
 	cd doc && cmd /C makedoc.cmd
@@ -59,7 +61,11 @@ distrib:
 	cp --parents $(DOC_HTML) $(TARGETDIR)
 	tar --create --file $(ARCHIVE) $(TARGETDIR)
 	gzip $(ARCHIVE)
-	zip -r $(ZIPARCHIVE) $(TARGETDIR)
+	zip -9 -r $(ZIPARCHIVE) $(TARGETDIR)
+    
+windistrib:
+	python setup.py py2exe
+	zip -9 -r $(WINZIPARCHIVE) $(WINTARGETDIR)
 
 clean:
 	-rm -r $(TARGETDIR)

@@ -17,12 +17,18 @@ REQUIREMENTS
 * wxPython 2.8.7.1, see http://www.wxpython.org/
 * docutils 0.4, see http://docutils.sourceforge.net/
 
+For Win32 there is also a binary distribution created with py2exe. All the required 
+things are included in that distribution.
+
 
 INSTALLATION
 ============
 1. Expand the .tgz or .zip archive in an empty directory of your choice
 2. For the artefact editor run afeditor.py
 3. For test execution run testrunner.py
+
+For Win32 binary distribution: unpack all files from the .zip archive
+in a folder. Run afeditor.exe or testrunner.exe.
 
 
 COPYRIGHT

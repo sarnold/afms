@@ -20,8 +20,9 @@
 
 # $Id$
 
+import os
 from docutils import core, io
-
+import _afhelper
 
 def html_parts(input_string, source_path=None, destination_path=None,
                input_encoding='unicode', doctitle=1, initial_header_level=1):
@@ -50,7 +51,12 @@ def html_parts(input_string, source_path=None, destination_path=None,
     """
     overrides = {'input_encoding': input_encoding,
                  'doctitle_xform': doctitle,
-                 'initial_header_level': initial_header_level}
+                 'initial_header_level': initial_header_level,
+                 'stylesheet': None,
+                 'embed_stylesheet' : 'off',
+                 'stylesheet_path' : os.path.join(_afhelper.module_path(), 'html4css1.css'),
+                 'template' : os.path.join(_afhelper.module_path(), 'template.txt')
+                }
     parts = core.publish_parts(
         source=input_string, source_path=source_path,
         destination_path=destination_path,
