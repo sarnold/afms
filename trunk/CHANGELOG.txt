@@ -1,13 +1,21 @@
 ===============================
-AFMS Release 0.x.x (2008-xx-yy)
+AFMS Release 0.3.0 (2008-06-21)
 ===============================
 
 New features
 ~~~~~~~~~~~~
+* Win32 binaries are now available, thanks to py2exe
+
+* New artefact type 'Text sections' for plain text sections
+
+* New artefact type 'Glossary entry' to support a glossary
+
+* afexporthtml.py: added command line option '-l', 
+  '--language' to set output language
+
 * English language is now supported using message catalog 
   locale/en/LC_MESSAGES/afms.po 
 
-* New artefact type 'Text sections' for plain text sections
 
 Changes
 ~~~~~~~
@@ -20,6 +28,9 @@ Bug fixes
 * afexporthtml.py and afexportxml.py are now working as command 
   line tool again. There was a bug due to to the usage of 
   gettext introduced in release 0.1.4.
+  
+* Fixed bugs 1989554 and 1989552: update of test result view in testrunner
+  now works properly
 
 
 ===============================
