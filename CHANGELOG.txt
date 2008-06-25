@@ -1,4 +1,13 @@
 ===============================
+AFMS Release x.x.x (2008-xx-xx)
+===============================
+
+Bug fixes
+~~~~~~~~~  
+* Fixed bug 2000163: language resource files now come along with Win32 binaries
+
+
+===============================
 AFMS Release 0.3.0 (2008-06-21)
 ===============================
 
