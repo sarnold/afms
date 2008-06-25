@@ -18,12 +18,21 @@
 
 # $Id$
 
+"""Distutils setup file for preparing  Win32 binary distibution using py2exe"""
+
 from distutils.core import setup
 import zipfile, os, sys, py2exe
 from version import VERSION
 
 addonfile1 = os.path.join(sys.prefix,'Lib/site-packages/docutils/writers/html4css1/html4css1.css')
 addonfile2 = os.path.join(sys.prefix,'Lib/site-packages/docutils/writers/html4css1/template.txt')
+
+data_files = [("", ['html4css1.css', 'template.txt'])]
+languages = ['de', 'en']
+for lang in languages:
+    path = 'locale/%s/LC_MESSAGES' % lang
+    file = path + '/afms.mo'
+    data_files.append((path, [file]))
 
 setup(
     windows = [{'script': 'afeditor.py',     'icon_resources': [(1, "icons/applications-system.ico")]}, 
@@ -32,10 +41,7 @@ setup(
                {'script': 'afexportxml.py',  'icon_resources': [(1, "icons/applications-system.ico")]}, 
                {'script': 'trexporthtml.py', 'icon_resources': [(1, "icons/applications-system.ico")]}, 
                {'script': 'trexportxml.py',  'icon_resources': [(1, "icons/applications-system.ico")]}],
-    data_files = [("", ['html4css1.css', 'template.txt']),
-                  ("", ['CHANGELOG.txt', 'COPYING.txt', 'README.txt']),
-    
-    ],
+    data_files = data_files,
     options = {
         "py2exe":{
             "dist_dir": 'afms-win32-%s' % VERSION,
