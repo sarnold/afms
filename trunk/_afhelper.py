@@ -23,6 +23,7 @@
 
 import os, sys
 import wx
+from _afchangelogentryview import *
 
 
 def ExceptionMessageBox(exceptiondata, title="Exception"):
@@ -70,12 +71,43 @@ class DontAnnoyYesNoDialog(wx.Dialog):
         self.SetSizer(sizer)
         sizer.Fit(self)
 
+
 def DontAnnoyMessageBox(title, message):
     dlg = DontAnnoyYesNoDialog(title, message)
     dlgresult = dlg.ShowModal()
     dont_annoy = dlg.cb.GetValue()
     dlg.Destroy()
     return (dlgresult, dont_annoy)
+
+
+class ChangelogEntryDialog(wx.Dialog):
+    def __init__(self, title=""):
+        wx.Dialog.__init__(self, parent=None, title=title, style = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        self.panel = afChangelogEntryView(self, viewonly=False)
+        sizer.Add(self.panel, 1, wx.EXPAND)
+
+        btnsizer = wx.StdDialogButtonSizer()
+        btnsizer.AddButton(wx.Button(self, wx.ID_OK))
+        btnsizer.AddButton(wx.Button(self, wx.ID_CANCEL))
+        btnsizer.Realize()
+
+        sizer.Add(btnsizer, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 5)
+
+        self.SetSizer(sizer)
+        sizer.Fit(self)
+        self.SetMinSize((600,400))
+        self.SetSize(self.GetMinSize())
+        self.Layout()
+
+
+def ChangelogEntryMessageBox(title):
+    dlg = ChangelogEntryDialog(title)
+    dlgresult = dlg.ShowModal()
+    cle = dlg.panel.GetContent()
+    dlg.Destroy()
+    return (dlgresult, cle)
 
 
 def we_are_frozen():

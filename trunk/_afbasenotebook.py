@@ -27,6 +27,7 @@ from _afhtmlwindow import *
 from _afartefactlist import afChangeList
 import afresource
 from _afartefact import cChangelogEntry
+from _afchangelogentryview import afChangelogEntryView
 
 class afBaseNotebook(wx.Notebook):
     def __init__(self, parent, id = -1, viewonly = True):
@@ -63,49 +64,20 @@ class afBaseNotebook(wx.Notebook):
 
 
     def AddChangelogPanel(self):
-        panel = wx.Panel(self, -1)
-
         if self.viewonly:
+            panel = wx.Panel(self, -1)
             sizer = wx.BoxSizer(wx.VERTICAL)
             self.changelist = afChangeList(panel, -1, checkstyle=False)
             sizer.Add(self.changelist, 2, wx.BOTTOM| wx.EXPAND, 3)
+            panel.SetSizer(sizer)
         else:
-            sizer = wx.FlexGridSizer(3, 2, 10, 10)
-            self.changelog_edit = wx.TextCtrl(panel, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
-            self.changedate_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
-            #TODO: think about where the user name should come from
-            self.changeuser_edit = wx.TextCtrl(panel, -1, afconfig.CURRENT_USER, style = wx.TE_READONLY)
-            self.timer = wx.Timer(self)
-            self.timer.Start(1000)
-            self.Bind(wx.EVT_TIMER, self.OnTimer)
-
-            labels = [_("Date"), _("User"), _("Description")]
-
-            statictext = []
-            for label in labels:
-                st = wx.StaticText(panel, -1, label+':')
-                statictext.append(st)
-
-            edit = [self.changedate_edit, self.changeuser_edit, self.changelog_edit]
-
-            for i in range(3):
-                sizer.Add(statictext[i], 0, wx.EXPAND | wx.ALIGN_BOTTOM)
-                sizer.Add(edit[i], 0, wx.EXPAND | wx.ALIGN_LEFT)
-            sizer.AddGrowableCol(1)
-            sizer.AddGrowableRow(2)
-            sizer.SetFlexibleDirection(wx.BOTH)
-
-        mainsizer = wx.BoxSizer(wx.VERTICAL)
-        mainsizer.Add(sizer, 1, wx.ALL | wx.EXPAND, 6)
-        panel.SetSizer(mainsizer)
+            panel = afChangelogEntryView(self, viewonly=self.viewonly)
+        self.changelogpanel = panel
         self.AddPage(panel, _('Changelog'))
 
 
     def GetChangelogContent(self):
-        changelogentry = cChangelogEntry(user=self.changeuser_edit.GetValue(),
-                                         description=self.changelog_edit.GetValue(),
-                                         date=self.changedate_edit.GetValue())
-        return changelogentry
+        return self.changelogpanel.GetContent()
 
 
     def OnTimer(self, evt):

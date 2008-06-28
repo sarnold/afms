@@ -30,6 +30,7 @@ class cArtefact():
     def __init__(self):
         self._changelist = []
         self._changelog = None
+        self._supportschangelog = False
 
 
     def __getitem__(self, key):
@@ -95,6 +96,11 @@ class cArtefact():
         s += '</%s>\n' % tagname
         return s
 
+
+    def supportsChangelog(self):
+        """Return True when a changelog is part of an artefact"""
+        return self._supportschangelog
+
 #----------------------------------------------------------------------
 
 class cChangelogEntry():
@@ -150,7 +156,7 @@ class cFeature(cArtefact):
         cArtefact.__init__(self)
         self._labels = [_('ID'), _('Title'), _('Priority'), _('Status'), _('Version'), _('Risk'), _('Description')]
         self._keys = ['ID', 'title','priority', 'status', 'version', 'risk', 'description']
-
+        self._supportschangelog = True
         self._basedata = {
             'ID'            : ID,
             'title'         : title,
@@ -212,6 +218,7 @@ class cRequirement(cArtefact):
                  complexity=0, assigned='', effort=0, category=0, origin='',
                  rationale='', description=''):
         cArtefact.__init__(self)
+        self._supportschangelog = True
         self._labels = [_('ID'), _('Title'), _('Priority'), _('Status'), _('Version'),
                         _('Complexity'), _('Assigned'), _('Effort'), _('Category'),
                         _('Origin'), _('Rationale'), _('Description')]
@@ -311,6 +318,11 @@ class cRequirement(cArtefact):
     def xmlrepr(self):
         return cArtefact.xmlrepr(self, 'requirement')
 
+
+    def supportsChangelogEntry(self):
+        """Return True when a changelog entry is part of an artefact"""
+        return True
+
 #----------------------------------------------------------------------
 
 class cUsecase(cArtefact):
@@ -318,6 +330,7 @@ class cUsecase(cArtefact):
                  stakeholders='', prerequisites='', mainscenario='',
                  altscenario='', notes=''):
         cArtefact.__init__(self)
+        self._supportschangelog = True
         self._labels = [_('ID'), _('Summary'), _('Priority'), _('Use frequency'),
                         _('Actors'), _('Stakeholders'), _('Prerequisites'),
                         _('Main scenario'), _('Alt scenario'), _('Notes')]
@@ -373,11 +386,17 @@ class cUsecase(cArtefact):
     def xmlrepr(self):
         return cArtefact.xmlrepr(self, 'usecase')
 
+
+    def supportsChangelogEntry(self):
+        """Return True when a changelog entry is part of an artefact"""
+        return True
+
 #----------------------------------------------------------------------
 
 class cTestcase(cArtefact):
     def __init__(self, ID=-1, title='', purpose='', prerequisite='', testdata='', steps='', notes='', version='1.0'):
         cArtefact.__init__(self)
+        self._supportschangelog = True
         self._labels = [_('ID'), _('Title'), _('Purpose'),
                   _('Prerequisite'), _('Testdata'), _('Steps'),
                   _('Notes && Questions'), _('Version')]
@@ -439,11 +458,17 @@ class cTestcase(cArtefact):
     def xmlrepr(self):
         return cArtefact.xmlrepr(self, 'testcase')
 
+
+    def supportsChangelogEntry(self):
+        """Return True when a changelog entry is part of an artefact"""
+        return True
+
 #----------------------------------------------------------------------
 
 class cTestsuite(cArtefact):
     def __init__(self, ID=-1, title='', description='', execorder='', nbroftestcases='N/A'):
         cArtefact.__init__(self)
+        self._supportschangelog = False
         self._labels = [_("ID"), _("Title"), _("Description"), _("Execution order ID's"), '# '+_('Testcases')]
         self._keys = ['ID', 'title', 'description', 'execorder', 'nbroftestcase']
         self._basedata = {
@@ -526,6 +551,7 @@ class cProduct(cArtefact):
 class cSimpleSection(cArtefact):
     def __init__(self, ID=-1, title='', content='', level=-1):
         cArtefact.__init__(self)
+        self._supportschangelog = True
         self._labels = [_("ID"), _("Title"), _("Content"), _("Level")]
         self._keys = ['ID', 'title', 'content', 'level']
         self._basedata = {
@@ -553,6 +579,7 @@ class cSimpleSection(cArtefact):
 class cGlossaryEntry(cArtefact):
     def __init__(self, ID=-1, title='', description=''):
         cArtefact.__init__(self)
+        self._supportschangelog = False
         self._labels = [_("ID"), _("Term"), _("Description")]
         self._keys = ['ID', 'title', 'description']
         self._basedata = {

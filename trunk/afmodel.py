@@ -1048,7 +1048,7 @@ class afModel(object):
 
     #---------------------------------------------------------------------
 
-    def deleteFeature(self, item_id, delcnt=1):
+    def deleteFeature(self, item_id, delcnt=1, changelogentry=None):
         """
         Delete a feature and it's relations
 
@@ -1085,17 +1085,21 @@ class afModel(object):
             new_delcnt = max(0, row[2] + incr) # prevent delcnt < 0
             c.execute("update feature_requirement_relation set delcnt=? where ft_id=? and rq_id=?", (new_delcnt, row[0], row[1]))
 
-        cle = cChangelogEntry(user=self.controller.getUsername(),
-                              description='',
-                              date=self.controller.getCurrentTimeStr(),
-                              changetype=changetype)
-        self.saveChangelog(_TYPEID_FEATURE, item_id, cle, False)
+        if changelogentry is None:
+            changelogentry = cChangelogEntry(user=self.controller.getUsername(),
+                                  description='',
+                                  date=self.controller.getCurrentTimeStr(),
+                                  changetype=changetype)
+        else:
+            changelogentry[changetype] = changetype
+
+        self.saveChangelog(_TYPEID_FEATURE, item_id, changelogentry, False)
 
         self.connection.commit()
         return self.getFeature(item_id)
 
 
-    def deleteRequirement(self, item_id, delcnt=1):
+    def deleteRequirement(self, item_id, delcnt=1, changelogentry=None):
         """
         Delete a feature and it's relations
 
@@ -1136,17 +1140,21 @@ class afModel(object):
             new_delcnt = max(0, row[2] + incr) # prevent delcnt < 0
             c.execute("update requirement_usecase_relation set delcnt=? where rq_id=? and uc_id=?", (new_delcnt, row[0], row[1]))
 
-        cle = cChangelogEntry(user=self.controller.getUsername(),
-                              description='',
-                              date=self.controller.getCurrentTimeStr(),
-                              changetype=changetype)
-        self.saveChangelog(_TYPEID_REQUIREMENT, item_id, cle, False)
+        if changelogentry is None:
+            changelogentry = cChangelogEntry(user=self.controller.getUsername(),
+                                  description='',
+                                  date=self.controller.getCurrentTimeStr(),
+                                  changetype=changetype)
+        else:
+            changelogentry[changetype] = changetype
+
+        self.saveChangelog(_TYPEID_REQUIREMENT, item_id, changelogentry, False)
 
         self.connection.commit()
         return self.getRequirement(item_id)
 
 
-    def deleteTestcase(self, item_id, delcnt=1):
+    def deleteTestcase(self, item_id, delcnt=1, changelogentry=None):
         """
         Delete a testcase and it's relations
 
@@ -1181,17 +1189,21 @@ class afModel(object):
             new_delcnt = max(0, row[2] + incr) # prevent delcnt < 0
             c.execute("update requirement_testcase_relation set delcnt=? where rq_id=? and tc_id=?", (new_delcnt, row[0], row[1]))
 
-        cle = cChangelogEntry(user=self.controller.getUsername(),
-                              description='',
-                              date=self.controller.getCurrentTimeStr(),
-                              changetype=changetype)
-        self.saveChangelog(_TYPEID_TESTCASE, item_id, cle, False)
+        if changelogentry is None:
+            changelogentry = cChangelogEntry(user=self.controller.getUsername(),
+                                  description='',
+                                  date=self.controller.getCurrentTimeStr(),
+                                  changetype=changetype)
+        else:
+            changelogentry[changetype] = changetype
+
+        self.saveChangelog(_TYPEID_TESTCASE, item_id, changelogentry, False)
 
         self.connection.commit()
         return self.getTestcase(item_id)
 
 
-    def deleteUsecase(self, item_id, delcnt=1):
+    def deleteUsecase(self, item_id, delcnt=1, changelogentry=None):
         """
         Delete a usecase and it's relations
 
@@ -1220,17 +1232,21 @@ class afModel(object):
             new_delcnt = max(0, row[2] + incr) # prevent delcnt < 0
             c.execute("update requirement_usecase_relation set delcnt=? where rq_id=? and uc_id=?", (new_delcnt, row[0], row[1]))
 
-        cle = cChangelogEntry(user=self.controller.getUsername(),
-                              description='',
-                              date=self.controller.getCurrentTimeStr(),
-                              changetype=changetype)
-        self.saveChangelog(_TYPEID_USECASE, item_id, cle, False)
+        if changelogentry is None:
+            changelogentry = cChangelogEntry(user=self.controller.getUsername(),
+                                  description='',
+                                  date=self.controller.getCurrentTimeStr(),
+                                  changetype=changetype)
+        else:
+            changelogentry[changetype] = changetype
+
+        self.saveChangelog(_TYPEID_USECASE, item_id, changelogentry, False)
 
         self.connection.commit()
         return self.getUsecase(item_id)
 
 
-    def deleteTestsuite(self, item_id, delcnt=1):
+    def deleteTestsuite(self, item_id, delcnt=1, changelogentry=None):
         """
         Delete a testsuite and it's relations
 
@@ -1476,7 +1492,7 @@ class afModel(object):
         return sslist
 
 
-    def deleteSimpleSection(self, item_id, delcnt=1):
+    def deleteSimpleSection(self, item_id, delcnt=1, changelogentry=None):
         """
         Delete a SimpleSection
 
@@ -1493,17 +1509,19 @@ class afModel(object):
         c = self.connection.cursor()
         c.execute("update simplesections set delcnt=? where id=?", (delcnt, item_id))
         if delcnt > 0:
-            incr = 1
             changetype = _CHANGEID_DELETE
         else:
-            incr = -1
             changetype = _CHANGEID_UNDELETE
 
-        cle = cChangelogEntry(user=self.controller.getUsername(),
-                              description='',
-                              date=self.controller.getCurrentTimeStr(),
-                              changetype=changetype)
-        self.saveChangelog(_TYPEID_SIMPLESECTION, item_id, cle, False)
+        if changelogentry is None:
+            changelogentry = cChangelogEntry(user=self.controller.getUsername(),
+                                  description='',
+                                  date=self.controller.getCurrentTimeStr(),
+                                  changetype=changetype)
+        else:
+            changelogentry[changetype] = changetype
+
+        self.saveChangelog(_TYPEID_SIMPLESECTION, item_id, changelogentry, False)
 
         self.connection.commit()
         return self.getSimpleSection(item_id)
@@ -1603,7 +1621,7 @@ class afModel(object):
         return gelist
 
 
-    def deleteGlossaryEntry(self, item_id, delcnt=1):
+    def deleteGlossaryEntry(self, item_id, delcnt=1, changelogentry=None):
         """
         Delete a GlossaryEntry
 
@@ -1619,13 +1637,6 @@ class afModel(object):
         logging.debug("afmodel.deleteGlossaryEntry(%i)" % item_id)
         c = self.connection.cursor()
         c.execute("update glossary set delcnt=? where id=?", (delcnt, item_id))
-        if delcnt > 0:
-            incr = 1
-            changetype = _CHANGEID_DELETE
-        else:
-            incr = -1
-            changetype = _CHANGEID_UNDELETE
-
         self.connection.commit()
         return self.getGlossaryEntry(item_id)
 
