@@ -2,6 +2,12 @@
 AFMS Release x.x.x (2008-xx-xx)
 ===============================
 
+Changes
+~~~~~~~
+* When deleting or restoring an artefact a message box now 
+  appears to enter a changelog message.
+  
+  
 Bug fixes
 ~~~~~~~~~  
 * Fixed bug 2000163: language resource files now come along with Win32 binaries
