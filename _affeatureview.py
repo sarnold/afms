@@ -142,7 +142,7 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
         else:
             self.validator_hook = feature.validator
             self.initial_feature = feature
-            self.changelog_edit.SetValidator(ArtefactHookValidator(self.ValidateRequirement))
+            self.changelogpanel.changelog_edit.SetValidator(ArtefactHookValidator(self.ValidateRequirement))
 
         self.Show()
         self.GetParent().Layout()
@@ -176,5 +176,5 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
         if result == 1:
             # set focus to changelog description
             self.ChangeSelection(2)
-            self.changelog_edit.SetFocus()
+            self.changelogpanel.changelog_edit.SetFocus()
         return result == 0

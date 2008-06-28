@@ -32,7 +32,6 @@ and Testsuites. This module implements the controller part in the design.
 @version: $Rev$
 """
 
-#TODO: Menu item and toolbar button to create a new simplesection
 
 import os, sys, time
 import logging, gettext
@@ -178,6 +177,11 @@ class MyApp(wx.App):
         self.delfuncs = (self.model.deleteFeature, self.model.deleteRequirement,
             self.model.deleteUsecase, self.model.deleteTestcase,
             self.model.deleteTestsuite, self.model.deleteSimpleSection, self.model.deleteGlossaryEntry)
+
+        self.getfuncs = (self.model.getFeature, self.model.getRequirement,
+                         self.model.getUsecase, self.model.getTestcase,
+                         self.model.getTestsuite, self.model.getSimpleSection,
+                         self.model.getGlossaryEntry)
 
         self.Bind(wx.EVT_MENU, self.OnNewProduct, id=101)
         self.Bind(wx.EVT_MENU, self.OnOpenProduct, id=102)
@@ -521,8 +525,15 @@ class MyApp(wx.App):
             (retval, self.dont_annoy_at_delete) = _afhelper.DontAnnoyMessageBox(_("Really delete artefact?"), _("Delete artefact"))
             if retval != wx.ID_YES: return
 
+        artefact = self.getfuncs[self.PARENTID.index(parent_id)](item_id)
+        if artefact.supportsChangelog():
+            (retval, changelogentry) = _afhelper.ChangelogEntryMessageBox(_("Enter changelog"))
+            if retval != wx.ID_OK: return
+        else:
+            changelogentry = None
+
         try:
-            self.delfuncs[self.PARENTID.index(parent_id)](item_id)
+            self.delfuncs[self.PARENTID.index(parent_id)](item_id, changelogentry=changelogentry)
 
             (wxTreeParentId, wxTreeChildId) = self.mainframe.treeCtrl.FindItem(parent_id, item_id)
             self.mainframe.treeCtrl.Delete(wxTreeChildId)
@@ -1008,8 +1019,16 @@ class MyApp(wx.App):
         if not self.dont_annoy_at_undelete:
             (retval, self.dont_annoy_at_undelete) = _afhelper.DontAnnoyMessageBox(_("Really restore artefact?"), _("Restore artefact"))
             if retval == wx.NO: return
+
+        artefact = self.getfuncs[self.PARENTID.index(parent_id)](item_id)
+        if artefact.supportsChangelog():
+            (retval, changelogentry) = _afhelper.ChangelogEntryMessageBox(_("Enter changelog"))
+            if retval != wx.ID_OK: return
+        else:
+            changelogentry = None
+
         try:
-            data = self.delfuncs[self.PARENTID.index(parent_id)](item_id, delcnt=0)
+            data = self.delfuncs[self.PARENTID.index(parent_id)](item_id, delcnt=0, changelogentry=changelogentry)
             self.updateNodeView("TRASH", "TRASH"+parent_id)
             self.mainframe.AddItem(parent_id, data)
             self.mainframe.treeCtrl.UpdateTrashIcons(self.model.getNumberOfDeletedArtefacts())
