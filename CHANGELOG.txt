@@ -7,10 +7,15 @@ Changes
 * When deleting or restoring an artefact a message box now 
   appears to enter a changelog message.
   
+* When editing artefacts most of multiline text controls are now using monospaced font.
+  This makes editing restructured text easier. 
+  
   
 Bug fixes
 ~~~~~~~~~  
 * Fixed bug 2000163: language resource files now come along with Win32 binaries
+
+* Required files template.txt and html4css1.css are now in the source distribution
 
 
 ===============================
