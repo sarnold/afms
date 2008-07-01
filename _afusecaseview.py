@@ -23,6 +23,7 @@
 
 import wx
 from _afhtmlwindow import *
+from _aftextctrl import *
 from _afartefactlist import *
 from _afvalidators import NotEmptyValidator
 import _afbasenotebook
@@ -73,10 +74,10 @@ class afUsecaseNotebook(_afbasenotebook.afBaseNotebook):
             self.usefreq_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.USEFREQUENCY_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.actors_edit = wx.ComboBox(panel1, -1, choices = afconfig.ACTOR_NAME, style=wx.CB_DROPDOWN)
             self.stakeholders_edit = wx.ComboBox(panel1, -1, choices = afconfig.STAKEHOLDER_NAME, style=wx.CB_DROPDOWN)
-            self.prerequisite_edit = wx.TextCtrl(panel1, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER)
-            self.mainscenario_edit = wx.TextCtrl(panel1, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER)
-            self.altscenario_edit = wx.TextCtrl(panel1, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER)
-            self.notes_edit = wx.TextCtrl(panel1, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER)
+            self.prerequisite_edit = afTextCtrl(panel1)
+            self.mainscenario_edit = afTextCtrl(panel1)
+            self.altscenario_edit = afTextCtrl(panel1)
+            self.notes_edit = afTextCtrl(panel1)
 
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.prerequisite_edit)
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.mainscenario_edit)

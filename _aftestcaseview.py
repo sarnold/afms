@@ -23,6 +23,7 @@
 
 import wx
 from _afhtmlwindow import *
+from _aftextctrl import *
 from _afartefactlist import *
 from _afvalidators import NotEmptyValidator
 import _afbasenotebook
@@ -56,11 +57,11 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
             self.title_edit = wx.TextCtrl(panel, -1, "", validator = NotEmptyValidator())
             self.id_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
             self.version_edit = wx.TextCtrl(panel, -1, "")
-            self.purpose_edit = wx.TextCtrl(panel, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
-            self.prerequisite_edit = wx.TextCtrl(panel, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
-            self.testdata_edit = wx.TextCtrl(panel, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
-            self.steps_edit = wx.TextCtrl(panel, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
-            self.notes_edit = wx.TextCtrl(panel, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
+            self.purpose_edit = afTextCtrl(panel)
+            self.prerequisite_edit = afTextCtrl(panel)
+            self.testdata_edit = afTextCtrl(panel)
+            self.steps_edit = afTextCtrl(panel)
+            self.notes_edit = afTextCtrl(panel)
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.purpose_edit)
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.prerequisite_edit)
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.testdata_edit)

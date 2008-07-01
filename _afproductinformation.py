@@ -23,6 +23,7 @@
 
 import wx
 from _afhtmlwindow import *
+from _aftextctrl import *
 from _afvalidators import NotEmptyValidator
 
 
@@ -37,7 +38,7 @@ class afProductInformation(wx.Panel):
             self.description_edit = afHtmlWindow(self, -1)
         else:
             self.title_edit = wx.TextCtrl(self, -1, "", validator = NotEmptyValidator())
-            self.description_edit = wx.TextCtrl(self, -1, "", style = wx.TE_MULTILINE|wx.TE_PROCESS_TAB)
+            self.description_edit = afTextCtrl(self)
 
         sizer = wx.FlexGridSizer(2, 2, 10, 10)
         sizer.Add(title_text, 0, wx.EXPAND | wx.ALIGN_BOTTOM )
