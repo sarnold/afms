@@ -23,6 +23,7 @@
 
 import wx
 from _afhtmlwindow import *
+from _aftextctrl import *
 from _afartefactlist import *
 from _afvalidators import NotEmptyValidator
 import _afbasenotebook
@@ -48,7 +49,7 @@ class afSimpleSectionNotebook(_afbasenotebook.afBaseNotebook):
             self.content_edit = afHtmlWindow(panel, -1)
         else:
             self.title_edit = wx.TextCtrl(panel, -1, "", validator = NotEmptyValidator())
-            self.content_edit = wx.TextCtrl(panel, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
+            self.content_edit = afTextCtrl(panel)
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.content_edit)
 
         self.id_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)

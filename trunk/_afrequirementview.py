@@ -23,6 +23,7 @@
 
 import wx
 from _afhtmlwindow import *
+from _aftextctrl import *
 from _afartefactlist import *
 from _afvalidators import NotEmptyValidator, ArtefactHookValidator
 import _afbasenotebook
@@ -80,10 +81,9 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
             self.assigned_edit = wx.ComboBox(panel1, -1, choices = afconfig.ASSIGNED_NAME, style=wx.CB_DROPDOWN)
             self.effort_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.EFFORT_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.category_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.CATEGORY_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
-            self.description_edit = wx.TextCtrl(panel1, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
-            self.origin_edit = wx.TextCtrl(panel2, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
-            self.rationale_edit = wx.TextCtrl(panel2, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
-
+            self.description_edit = afTextCtrl(panel1)            
+            self.origin_edit = afTextCtrl(panel2)
+            self.rationale_edit = afTextCtrl(panel2)
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.description_edit)
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.origin_edit)
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.rationale_edit)

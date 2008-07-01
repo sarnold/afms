@@ -23,6 +23,7 @@
 
 import wx
 from _afhtmlwindow import *
+from _aftextctrl import *
 from _afvalidators import NotEmptyValidator
 from _afartefact import cGlossaryEntry
 
@@ -39,7 +40,7 @@ class afGlossaryEntryView(wx.Panel):
             self.description_edit = afHtmlWindow(self, -1)
         else:
             self.title_edit = wx.TextCtrl(self, -1, "", validator = NotEmptyValidator())
-            self.description_edit = wx.TextCtrl(self, -1, "", style = wx.TE_MULTILINE|wx.TE_PROCESS_TAB)
+            self.description_edit = afTextCtrl(self)
 
         self.id_edit = wx.TextCtrl(self, -1, "", style = wx.TE_READONLY)
         self.id_edit.Enable(False)

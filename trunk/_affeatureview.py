@@ -23,6 +23,7 @@
 
 import wx
 from _afhtmlwindow import *
+from _aftextctrl import *
 from _afartefactlist import *
 from _afvalidators import NotEmptyValidator, ArtefactHookValidator
 import afconfig
@@ -66,7 +67,7 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
             self.priority_edit = wx.ComboBox(panel, -1, choices = [_(i) for i in afresource.PRIORITY_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.status_edit = wx.ComboBox(panel, -1, choices = [_(i) for i in afresource.STATUS_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.risk_edit = wx.ComboBox(panel, -1, choices = [_(i) for i in afresource.RISK_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
-            self.description_edit = wx.TextCtrl(panel, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB )
+            self.description_edit = afTextCtrl(panel)
 
         self.id_edit.Enable(False)
         edit = [self.title_edit, self.id_edit, self.version_edit, self.priority_edit, \

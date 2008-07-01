@@ -24,6 +24,7 @@
 import  string
 import wx
 from _afhtmlwindow import *
+from _aftextctrl import *
 from _afartefactlist import *
 from _afvalidators import NotEmptyValidator
 from _afartefact import cTestsuite, cTestcase
@@ -46,7 +47,7 @@ class afTestsuiteView(wx.Panel):
         else:
             self.title_edit = wx.TextCtrl(self, -1, "", validator = NotEmptyValidator())
             self.id_edit = wx.TextCtrl(self, -1, "", style = wx.TE_READONLY)
-            self.description_edit = wx.TextCtrl(self, -1, "", style = wx.TE_MULTILINE|wx.TE_PROCESS_TAB)
+            self.description_edit = afTextCtrl(self)
             self.seq_edit = wx.TextCtrl(self, -1, "", validator = MyValidator(self))
             self.testcaselist = afTestcaseList(self, -1, checkstyle=True)
 
