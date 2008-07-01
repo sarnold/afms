@@ -21,6 +21,7 @@
 
 AFE_SRC := $(wildcard af*.py) $(wildcard _af*.py) version.py afeditor.pyw \
            COPYING.txt README.txt CHANGELOG.txt \
+           template.txt html4css1.css \
            $(addprefix locale\de\LC_MESSAGES\, afms.mo) \
            $(addprefix locale\en\LC_MESSAGES\, afms.mo)
 
