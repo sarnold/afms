@@ -300,11 +300,18 @@ class MainFrame(wx.Frame):
         menu.Append(307, _('New glossary entry ...'), _('Create new glossary entry'))
         menu.Enable(307, False)
         menuBar.Append(menu, _('&New'))
+        
+        menu = wx.Menu()
+        menu.Append(401, _('Database to archive ...'), _('Dump current database to archive file'))
+        menu.Enable(401, False)
+        menu.Append(402, _('Archive to database ...'), _('Create database from archive file'))
+        menu.Enable(402, True)
+        menuBar.Append(menu, _('&Archive'))
 
         menu = wx.Menu()
-        menu.Append(401, _('Language ...'), _('Set language'))
-        self.Bind(wx.EVT_MENU, self.OnChangeLanguage, id = 401)
-        menu.Enable(401, True)
+        menu.Append(501, _('Language ...'), _('Set language'))
+        self.Bind(wx.EVT_MENU, self.OnChangeLanguage, id = 501)
+        menu.Enable(501, True)
         menuBar.Append(menu, _('&Settings'))
 
         menu = wx.Menu()
@@ -371,7 +378,7 @@ class MainFrame(wx.Frame):
         self.InitTree(artefactnames, number_of_deleted_artefacts)
         self.treeCtrl.SelectItem(self.treeCtrl.root)
         self.SetStatusText(path, 2)
-        for m, i in zip([0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2], [103, 104, 105, 201, 202, 203, 204, 301, 302, 303, 304, 305, 306, 307]):
+        for m, i in zip([0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3], [103, 104, 105, 201, 202, 203, 204, 301, 302, 303, 304, 305, 306, 307, 401]):
             self.GetMenuBar().GetMenu(m).Enable(i, True)
         for i in (12,13,14,15,16, 17, 18, 19, 30, 31):
             self.GetToolBar().EnableTool(i, True)

@@ -65,7 +65,7 @@ import afresource
 import _afclipboard
 from _afartefact import cChangelogEntry
 
-import _affilterview, _affilter
+import _affilterview, _affilter, afdbtoarchive
 
 #TODO: validator for features, similar to requirements validator is missing
 #TODO: enter key on Feature/Requirement/... in tree should expand the tree
@@ -201,6 +201,9 @@ class MyApp(wx.App):
         self.Bind(wx.EVT_MENU, self.OnNewUsecase, id = 305)
         self.Bind(wx.EVT_MENU, self.OnNewSimpleSection, id = 306)
         self.Bind(wx.EVT_MENU, self.OnAddGlossaryEntry, id=307)
+        
+        self.Bind(wx.EVT_MENU, self.OnDatabaseToArchive, id = 401)
+        self.Bind(wx.EVT_MENU, self.OnArchiveToDatabase, id = 402)
 
         self.Bind(wx.EVT_TOOL, self.OnNewProduct, id=10)
         self.Bind(wx.EVT_TOOL, self.OnOpenProduct, id=11)
@@ -233,6 +236,33 @@ class MyApp(wx.App):
                 sys.exit(2)
 
         return True
+
+
+    def OnDatabaseToArchive(self, evt):
+        defaultFile = os.path.splitext(self.model.getFilename())[0] + ".ar.xml"
+        dlg = wx.FileDialog(
+            self.mainframe, message = _("Save archive as"),
+            defaultDir = self.model.currentdir,
+            defaultFile = defaultFile,
+            wildcard = afresource.XML_WILDCARD,
+            style=wx.SAVE | wx.CHANGE_DIR | wx.OVERWRITE_PROMPT
+            )
+        dlgResult = dlg.ShowModal()
+        if  dlgResult == wx.ID_OK:
+            path = dlg.GetPath()
+        dlg.Destroy()
+        if  dlgResult == wx.ID_OK:
+            try:
+                afdbtoarchive.afdbtoarchive(self.model.getFilename(), path)
+            except:
+                _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error saving archive'))
+                logging.error(str(sys.exc_info()))
+
+        
+        
+    def OnArchiveToDatabase(self, evt):
+        #TODO
+        wx.MessageBox('OnArchiveToDatabase still not implemented', 'Warning', wx.OK | wx.ICON_WARNING)
 
 
     def OnSimpleSectionLevelChanged(self, evt):
