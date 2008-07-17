@@ -65,7 +65,7 @@ import afresource
 import _afclipboard
 from _afartefact import cChangelogEntry
 
-import _affilterview, _affilter, afdbtoarchive
+import _affilterview, _affilter, afdbtoarchive, afarchivetodb
 
 #TODO: validator for features, similar to requirements validator is missing
 #TODO: enter key on Feature/Requirement/... in tree should expand the tree
@@ -201,7 +201,7 @@ class MyApp(wx.App):
         self.Bind(wx.EVT_MENU, self.OnNewUsecase, id = 305)
         self.Bind(wx.EVT_MENU, self.OnNewSimpleSection, id = 306)
         self.Bind(wx.EVT_MENU, self.OnAddGlossaryEntry, id=307)
-        
+
         self.Bind(wx.EVT_MENU, self.OnDatabaseToArchive, id = 401)
         self.Bind(wx.EVT_MENU, self.OnArchiveToDatabase, id = 402)
 
@@ -239,7 +239,7 @@ class MyApp(wx.App):
 
 
     def OnDatabaseToArchive(self, evt):
-        defaultFile = os.path.splitext(self.model.getFilename())[0] + ".ar.xml"
+        defaultFile = os.path.splitext(self.model.getFilename())[0] + ".xml"
         dlg = wx.FileDialog(
             self.mainframe, message = _("Save archive as"),
             defaultDir = self.model.currentdir,
@@ -258,12 +258,22 @@ class MyApp(wx.App):
                 _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error saving archive'))
                 logging.error(str(sys.exc_info()))
 
-        
-        
-    def OnArchiveToDatabase(self, evt):
-        #TODO
-        wx.MessageBox('OnArchiveToDatabase still not implemented', 'Warning', wx.OK | wx.ICON_WARNING)
 
+    def OnArchiveToDatabase(self, evt):
+        dlg = _afhelper.ArchiveToDBDialog(self.mainframe)
+        dlgResult = dlg.ShowModal()
+        (archive_filename, database_filename, openflag) = dlg.GetValue()
+        dlg.Destroy()
+        if  dlgResult == wx.ID_OK:
+            try:
+                self.mainframe.SetCursor(wx.HOURGLASS_CURSOR)
+                afarchivetodb.afarchivetodb(archive_filename, database_filename)
+                if openflag:
+                    self.OpenProduct(database_filename)
+            except:
+                _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error converting archive'))
+                logging.error(str(sys.exc_info()))
+            self.mainframe.SetCursor(wx.STANDARD_CURSOR)
 
     def OnSimpleSectionLevelChanged(self, evt):
         self.model.assignSimpleSectionLevels(evt.GetClientData())

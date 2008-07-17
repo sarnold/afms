@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2008-07-15 21:59+Westeuropäische Sommerzeit\n"
+"POT-Creation-Date: 2008-07-17 21:09+Westeuropäische Sommerzeit\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -287,6 +287,30 @@ msgstr ""
 msgid "Don't ask again in this session"
 msgstr ""
 
+#: _afhelper.py:177
+msgid "Convert archive to database"
+msgstr ""
+
+#: _afhelper.py:179
+msgid "Archive file"
+msgstr ""
+
+#: _afhelper.py:181
+msgid "Choose archive file"
+msgstr ""
+
+#: _afhelper.py:185 _trnewtestrunwiz.py:103
+msgid "Database file"
+msgstr ""
+
+#: _afhelper.py:187
+msgid "Save database file"
+msgstr ""
+
+#: _afhelper.py:193
+msgid "Open database after conversion"
+msgstr ""
+
 #: _afhtmlwindow.py:77
 msgid ""
 "Unable to execute %s\n"
@@ -375,7 +399,7 @@ msgstr ""
 msgid "Delete selected artefact"
 msgstr ""
 
-#: _afmainframe.py:225 afeditor.py:525
+#: _afmainframe.py:225 afeditor.py:565
 msgid "Delete artefact"
 msgstr ""
 
@@ -849,10 +873,6 @@ msgstr ""
 msgid "Browse"
 msgstr ""
 
-#: _trnewtestrunwiz.py:103
-msgid "Database file"
-msgstr ""
-
 #: _trnewtestrunwiz.py:105
 msgid "Open Database"
 msgstr ""
@@ -895,103 +915,115 @@ msgid ""
 "Enter remark!"
 msgstr ""
 
-#: afeditor.py:232
+#: afeditor.py:235
 msgid "Could not open file %s"
 msgstr ""
 
-#: afeditor.py:361
-msgid "Save new product to file"
+#: afeditor.py:244
+msgid "Save archive as"
 msgstr ""
 
-#: afeditor.py:376
-msgid "Error creating product"
+#: afeditor.py:258
+msgid "Error saving archive"
 msgstr ""
 
-#: afeditor.py:387
-msgid "Open product file"
+#: afeditor.py:274
+msgid "Error converting archive"
 msgstr ""
 
 #: afeditor.py:401
+msgid "Save new product to file"
+msgstr ""
+
+#: afeditor.py:416
+msgid "Error creating product"
+msgstr ""
+
+#: afeditor.py:427
+msgid "Open product file"
+msgstr ""
+
+#: afeditor.py:441
 msgid "Error opening product!"
 msgstr ""
 
-#: afeditor.py:525
+#: afeditor.py:565
 msgid "Really delete artefact?"
 msgstr ""
 
-#: afeditor.py:530 afeditor.py:1025
+#: afeditor.py:570 afeditor.py:1065
 msgid "Enter changelog"
 msgstr ""
 
-#: afeditor.py:561
+#: afeditor.py:601
 msgid "Save HTML to file"
 msgstr ""
 
-#: afeditor.py:585
+#: afeditor.py:625
 msgid "Save XML to file"
 msgstr ""
 
-#: afeditor.py:798
+#: afeditor.py:838
 msgid "Edit Product"
 msgstr ""
 
-#: afeditor.py:816
+#: afeditor.py:856
 msgid "Edit feature"
 msgstr ""
 
-#: afeditor.py:830
+#: afeditor.py:870
 msgid "Edit requirement"
 msgstr ""
 
-#: afeditor.py:851
+#: afeditor.py:891
 msgid ""
 "Artefact is already approved!\n"
 "Changelog description is required."
 msgstr ""
 
-#: afeditor.py:853
+#: afeditor.py:893
 msgid ""
 "Artefact is already completed!\n"
 "Changes are prohibited!"
 msgstr ""
 
-#: afeditor.py:865
+#: afeditor.py:905
 msgid "Edit testcase"
 msgstr ""
 
-#: afeditor.py:878
+#: afeditor.py:918
 msgid "Edit usecase"
 msgstr ""
 
-#: afeditor.py:889
+#: afeditor.py:929
 msgid "Edit testsuite"
 msgstr ""
 
-#: afeditor.py:893
+#: afeditor.py:933
 msgid "Edit section"
 msgstr ""
 
-#: afeditor.py:897
+#: afeditor.py:937
 msgid "Edit glossary entry"
 msgstr ""
 
-#: afeditor.py:934
+#: afeditor.py:974
 msgid "Error saving artefact"
 msgstr ""
 
-#: afeditor.py:1020
+#: afeditor.py:1060
 msgid "Really restore artefact?"
 msgstr ""
 
-#: afeditor.py:1020
+#: afeditor.py:1060
 msgid "Restore artefact"
 msgstr ""
 
-#: afeditor.py:1224
+#: afeditor.py:1264
 msgid "Import from product file"
 msgstr ""
 
-#: afeditor.py:1241
+#: afeditor.py:1281
 msgid "Error importing artefacts!"
 msgstr ""
 

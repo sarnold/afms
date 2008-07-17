@@ -110,6 +110,133 @@ def ChangelogEntryMessageBox(title):
     return (dlgresult, cle)
 
 
+class SimpleFileBrowser(wx.Panel):
+    def __init__(self, parent, id=-1, labelText='File name',
+            buttonText = '...', buttonStyle = wx.BU_EXACTFIT,
+            fileDialogTitle = 'Choose file', fileDialogStyle = wx.OPEN,
+            defaultDir = '.', defaultFile = '', fileWildcard='*.*', callbackFunc = None):
+        self.fileDialogTitle = fileDialogTitle
+        self.fileDialogStyle = fileDialogStyle
+        self.defaultDir = defaultDir
+        self.defaultFile = defaultFile
+        self.fileWildcard = fileWildcard
+        self.callbackFunc = callbackFunc
+        wx.Panel.__init__(self, parent, id)
+        self.label = wx.StaticText(self, -1, labelText)
+        self.edit  = wx.TextCtrl(self, -1)
+        self.button = wx.Button(self, -1, buttonText, style=buttonStyle)
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        sizer.Add(self.label, 0, wx.RIGHT | wx.ALIGN_CENTER, 10)
+        sizer.Add(self.edit, 1, wx.EXPAND)
+        sizer.Add(self.button, 0, wx.LEFT, 10)
+        self.SetSizer(sizer)
+        self.Layout()
+        self.Bind(wx.EVT_BUTTON, self.OnButtonClick, self.button)
+        self.edit.Bind(wx.EVT_KILL_FOCUS, self.OnText, self.edit)
+
+    def AlignWith(self, sfb):
+        if not isinstance(sfb, SimpleFileBrowser): raise TypeError
+        self._SameSize(self.label, sfb.label)
+        self._SameSize(self.button, sfb.button)
+
+    def _SameSize(self, widget1, widget2):
+        size1 = widget1.GetSize()
+        size2 = widget1.GetSize()
+        size1[0] = size2[0] = max(size1[0], size2[0])
+        widget1.SetMinSize(size1)
+        widget2.SetMinSize(size2)
+
+    def OnButtonClick(self, evt):
+        dlg = wx.FileDialog(
+            self, message = self.fileDialogTitle,
+            defaultDir = self.defaultDir,
+            defaultFile = self.defaultFile,
+            wildcard = self.fileWildcard,
+            style = self.fileDialogStyle)
+        dlgResult = dlg.ShowModal()
+        if  dlgResult == wx.ID_OK:
+            path = dlg.GetPath()
+            self.edit.SetValue(path)
+            self.OnText(None)
+        dlg.Destroy()
+
+    def OnText(self, evt):
+        if self.callbackFunc is not None:
+            text = self.edit.GetValue()
+            self.callbackFunc(text)
+
+    def GetValue(self):
+        return self.edit.GetValue()
+
+    def SetValue(self, value):
+        self.edit.SetValue(value)
+
+
+class ArchiveToDBDialog(wx.Dialog):
+    def __init__(self, parent, id=-1):
+        wx.Dialog.__init__(self, parent, id, title=_('Convert archive to database'))
+
+        fbc = { 'labelText' : _('Archive file') + ':',
+                'fileDialogStyle' : wx.OPEN | wx.CHANGE_DIR,
+                'fileDialogTitle' : _('Choose archive file'),
+                'callbackFunc' : self._ArchiveFileCallback,
+                'fileWildcard' : afresource.XML_WILDCARD}
+        self.infilebrowser = SimpleFileBrowser(self, **fbc)
+        fbc = { 'labelText' : _('Database file') + ':',
+                'fileDialogStyle' : wx.SAVE | wx.CHANGE_DIR | wx.OVERWRITE_PROMPT,
+                'fileDialogTitle' : _('Save database file'),
+                'callbackFunc' : self._DatabaseFileCallback,
+                'fileWildcard' : afresource.AF_WILDCARD}
+        self.outfilebrowser = SimpleFileBrowser(self, **fbc)
+        self.outfilebrowser.AlignWith(self.infilebrowser)
+
+        self.openflag = wx.CheckBox(self, -1, _('Open database after conversion'))
+        self.openflag.SetValue(True)
+
+        btnsizer = wx.StdDialogButtonSizer()
+        self.okbtn = wx.Button(self, wx.ID_OK)
+        self.okbtn.SetDefault()
+        self.okbtn.Enable(False)
+        btnsizer.AddButton(self.okbtn)
+        btn = wx.Button(self, wx.ID_CANCEL)
+        btnsizer.AddButton(btn)
+        btnsizer.Realize()
+
+        mainsizer = wx.BoxSizer(wx.VERTICAL)
+        mainsizer.Add(self.infilebrowser, 0, wx.EXPAND | wx.ALL, 15)
+        mainsizer.Add(self.outfilebrowser, 0, wx.EXPAND | wx.ALL, 15)
+        mainsizer.Add(self.openflag, 0, wx.EXPAND | wx.ALL, 15)
+        mainsizer.Add(btnsizer, 0, wx.EXPAND | wx.ALL, 15)
+        self.SetSizer(mainsizer)
+        mainsizer.SetMinSize((400, -1))
+        mainsizer.Fit(self)
+
+        self.Layout()
+
+    def _ArchiveFileCallback(self, path):
+        if len(path) <= 0:
+            self.okbtn.Enable(False)
+            return
+        if len(self.outfilebrowser.GetValue()) <= 0:
+            path = os.path.splitext(path)[0] + ".af"
+            self.outfilebrowser.SetValue(path)
+            self.okbtn.Enable(True)
+        else:
+            self.okbtn.Enable(True)
+
+    def _DatabaseFileCallback(self, path):
+        if len(path) <= 0:
+            self.okbtn.Enable(False)
+            return
+        if len(self.infilebrowser.GetValue()) <= 0:
+            self.okbtn.Enable(False)
+            return
+        self.okbtn.Enable(True)
+
+    def GetValue(self):
+        return (self.infilebrowser.GetValue(), self.outfilebrowser.GetValue(), self.openflag.GetValue())
+
+
 def we_are_frozen():
     """Returns whether we are frozen via py2exe.
     This will affect how we find out where we are located."""
