@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: afms\n"
-"POT-Creation-Date: 2008-07-15 21:59+Westeuropäische Sommerzeit\n"
+"POT-Creation-Date: 2008-07-17 21:08+Westeuropäische Sommerzeit\n"
 "PO-Revision-Date: \n"
 "Last-Translator: achimk <achimk@users.sourceforge.net>\n"
 "Language-Team:  <achimk@users.sourceforge.net>\n"
@@ -415,6 +415,31 @@ msgstr "Hinweise & Fragen"
 msgid "Don't ask again in this session"
 msgstr "In dieser Sitzung nicht mehr fragen"
 
+#: _afhelper.py:177
+msgid "Convert archive to database"
+msgstr "Archiv  in Datenbank umwandeln"
+
+#: _afhelper.py:179
+msgid "Archive file"
+msgstr "Archivdatei"
+
+#: _afhelper.py:181
+msgid "Choose archive file"
+msgstr "Archivedatei auswählen"
+
+#: _afhelper.py:185
+#: _trnewtestrunwiz.py:103
+msgid "Database file"
+msgstr "Datenbank-Datei"
+
+#: _afhelper.py:187
+msgid "Save database file"
+msgstr "Datenbank-Datei speichern"
+
+#: _afhelper.py:193
+msgid "Open database after conversion"
+msgstr "Datenbank nach Umwandlung öffnen"
+
 #: _afhtmlwindow.py:77
 msgid ""
 "Unable to execute %s\n"
@@ -520,7 +545,7 @@ msgid "Delete selected artefact"
 msgstr "Lösche selektiertes Artefakt"
 
 #: _afmainframe.py:225
-#: afeditor.py:525
+#: afeditor.py:565
 msgid "Delete artefact"
 msgstr "Lösche Artefakt"
 
@@ -1029,10 +1054,6 @@ msgstr "Schritt 4/4: Ausgabedatei für Testlauf wählen"
 msgid "Browse"
 msgstr "Durchsuchen"
 
-#: _trnewtestrunwiz.py:103
-msgid "Database file"
-msgstr "Datenbank-Datei"
-
 #: _trnewtestrunwiz.py:105
 msgid "Open Database"
 msgstr "Öffne Datenbank"
@@ -1081,56 +1102,68 @@ msgstr ""
 "Test übersprungen.\n"
 "Bemerkung eingeben!"
 
-#: afeditor.py:232
+#: afeditor.py:235
 msgid "Could not open file %s"
 msgstr "Kann Datei %s nicht öffnen"
 
-#: afeditor.py:361
+#: afeditor.py:244
+msgid "Save archive as"
+msgstr "Archiv speichern unter"
+
+#: afeditor.py:258
+msgid "Error saving archive"
+msgstr "Fehler beim Speichern der Archivdatei"
+
+#: afeditor.py:274
+msgid "Error converting archive"
+msgstr "Fehler bei Umwandlung des Archivs"
+
+#: afeditor.py:401
 msgid "Save new product to file"
 msgstr "Neues Produkt speichern unter"
 
-#: afeditor.py:376
+#: afeditor.py:416
 msgid "Error creating product"
 msgstr "Fehler bei der Erstellung des Produktes"
 
-#: afeditor.py:387
+#: afeditor.py:427
 msgid "Open product file"
 msgstr "Produkt öffnen"
 
-#: afeditor.py:401
+#: afeditor.py:441
 msgid "Error opening product!"
 msgstr "Fehler beim Öffnen des Produktes"
 
-#: afeditor.py:525
+#: afeditor.py:565
 msgid "Really delete artefact?"
 msgstr "Artefakt wirklich löschen?"
 
-#: afeditor.py:530
-#: afeditor.py:1025
+#: afeditor.py:570
+#: afeditor.py:1065
 msgid "Enter changelog"
 msgstr "Änderungsbeschreibung eingeben"
 
-#: afeditor.py:561
+#: afeditor.py:601
 msgid "Save HTML to file"
 msgstr "HTML speichern unter"
 
-#: afeditor.py:585
+#: afeditor.py:625
 msgid "Save XML to file"
 msgstr "XML speichern unter"
 
-#: afeditor.py:798
+#: afeditor.py:838
 msgid "Edit Product"
 msgstr "Produkt editieren"
 
-#: afeditor.py:816
+#: afeditor.py:856
 msgid "Edit feature"
 msgstr "Feature editieren"
 
-#: afeditor.py:830
+#: afeditor.py:870
 msgid "Edit requirement"
 msgstr "Anforderung editieren"
 
-#: afeditor.py:851
+#: afeditor.py:891
 msgid ""
 "Artefact is already approved!\n"
 "Changelog description is required."
@@ -1138,7 +1171,7 @@ msgstr ""
 "Artefakt ist bereits freigegeben!\n"
 "Eine Änderungsbeschreibung ist erforderlich."
 
-#: afeditor.py:853
+#: afeditor.py:893
 msgid ""
 "Artefact is already completed!\n"
 "Changes are prohibited!"
@@ -1146,43 +1179,43 @@ msgstr ""
 "Artefakt ist abgeschlossen!\n"
 "Änderungen sind nicht erlaubt!"
 
-#: afeditor.py:865
+#: afeditor.py:905
 msgid "Edit testcase"
 msgstr "Testfall editieren"
 
-#: afeditor.py:878
+#: afeditor.py:918
 msgid "Edit usecase"
 msgstr "Anwendungsfall editieren"
 
-#: afeditor.py:889
+#: afeditor.py:929
 msgid "Edit testsuite"
 msgstr "Testsuite editieren"
 
-#: afeditor.py:893
+#: afeditor.py:933
 msgid "Edit section"
 msgstr "Textabschnitt bearbeiten"
 
-#: afeditor.py:897
+#: afeditor.py:937
 msgid "Edit glossary entry"
 msgstr "Glossareintrag bearbeiten"
 
-#: afeditor.py:934
+#: afeditor.py:974
 msgid "Error saving artefact"
 msgstr "Fehler beim Speichern des Artefakts"
 
-#: afeditor.py:1020
+#: afeditor.py:1060
 msgid "Really restore artefact?"
 msgstr "Artefakt wirklich wiederherstellen?"
 
-#: afeditor.py:1020
+#: afeditor.py:1060
 msgid "Restore artefact"
 msgstr "Artefakt wiederherstellen"
 
-#: afeditor.py:1224
+#: afeditor.py:1264
 msgid "Import from product file"
 msgstr "Importiere aus Produkt-Datei"
 
-#: afeditor.py:1241
+#: afeditor.py:1281
 msgid "Error importing artefacts!"
 msgstr "Fehler beim Import der Artefakte!"
 
