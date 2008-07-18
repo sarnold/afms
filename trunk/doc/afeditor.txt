@@ -253,6 +253,9 @@ XML reports only contains the artefacts. HTML reports contains some additional p
 
 To create the report use the menu commands "Export as HTML" or "Export as XML" from the "File" menu.
 
+Report creation could also be done using the standalone scripts
+*afexporthtml.py* and *afexportxml.py*.
+
 
 Import artefacts from another database
 --------------------------------------
@@ -285,6 +288,27 @@ There are 3 types of filter settings:
 After changing the filter settings the button 'Apply' makes the filter to come into effect.
 The button 'Reset' clears all the the filter fields and switches filtering off.
 
+
+Archiving a database
+--------------------
+*afeditor* supports writing a artefact database to an archive and converting an 
+archive to a database.
+The command "Database to archive" from the "Archive" menu asks for the name of the archive file 
+and saves he current database to an archive.
+
+The opposite is done with the command "Archive to database" from the same menu.
+You are asked for the archive file name, the database file name and whether to open the 
+database after conversion or not.
+
+.. image:: images/archive_to_database_dialog.png
+
+Archive format is XML. Main intention of archives is to have a human readable format 
+which allows for generating diffs between or merging of different archive versions.
+Of course archives could be used to import and export from and to various other formats.
+
+Creating an archive and converting an archive to a database 
+may also be done using the standalone scripts 
+*afarchivetodb.py* and *afdbtoarchive.py*.
 
 Keyboard shortcuts
 ------------------

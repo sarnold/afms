@@ -2,6 +2,13 @@
 AFMS Release x.x.x (2008-xx-xx)
 ===============================
 
+New features
+~~~~~~~~~~~~
+* Artefact database may now be archived as XML files and these XML archives 
+  may be converted to databases again.
+  This may be done from within afeditor or using the
+  standalone scripts afarchivetodb.py and afdbtoarchive.py.
+
 Changes
 ~~~~~~~
 * When deleting or restoring an artefact a message box now 
