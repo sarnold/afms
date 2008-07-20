@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: afms\n"
-"POT-Creation-Date: 2008-07-17 21:08+Westeuropäische Sommerzeit\n"
+"POT-Creation-Date: 2008-07-20 21:50+Westeuropäische Sommerzeit\n"
 "PO-Revision-Date: \n"
 "Last-Translator: achimk <achimk@users.sourceforge.net>\n"
 "Language-Team:  <achimk@users.sourceforge.net>\n"
@@ -510,10 +510,6 @@ msgid "Edit selected artefact"
 msgstr "Selektiertes Artefakt bearbeiten"
 
 #: _afmainframe.py:221
-msgid "Copy"
-msgstr "Kopieren"
-
-#: _afmainframe.py:221
 msgid "Copy artefact"
 msgstr "Artefakt kopieren"
 
@@ -522,9 +518,10 @@ msgstr "Artefakt kopieren"
 msgid "Copy selected artefact to clipboard"
 msgstr "Kopiere selektiertes Artefakt in die Zwischenablage"
 
-#: _afmainframe.py:223
-msgid "Paste"
-msgstr "Einfügen"
+#: _afmainframe.py:221
+#: _aftextctrl.py:54
+msgid "Copy"
+msgstr "Kopieren"
 
 #: _afmainframe.py:223
 msgid "Paste artefact"
@@ -535,14 +532,20 @@ msgstr "Artefakt einfügen"
 msgid "Paste artefact from clipboard"
 msgstr "Artefakt aus Zwischenablage einfügen"
 
-#: _afmainframe.py:225
-msgid "Delete"
-msgstr "Löschen"
+#: _afmainframe.py:223
+#: _aftextctrl.py:55
+msgid "Paste"
+msgstr "Einfügen"
 
 #: _afmainframe.py:225
 #: _afmainframe.py:277
 msgid "Delete selected artefact"
 msgstr "Lösche selektiertes Artefakt"
+
+#: _afmainframe.py:225
+#: _aftextctrl.py:56
+msgid "Delete"
+msgstr "Löschen"
 
 #: _afmainframe.py:225
 #: afeditor.py:565
@@ -849,6 +852,54 @@ msgstr "Einige Testfall-ID sind nicht in der Ausführungsreihenfolge"
 #: _aftestsuiteview.py:147
 msgid "Some testcase ID's in execution order are not in this testsuite"
 msgstr "Einige Testfall-ID in der Ausführungsreihenfolge sind nicht in der Testsuite"
+
+#: _aftextctrl.py:50
+msgid "Undo"
+msgstr "Rückgängig"
+
+#: _aftextctrl.py:51
+msgid "Redo"
+msgstr "Wiederherstellen"
+
+#: _aftextctrl.py:53
+msgid "Cut"
+msgstr "Ausschneiden"
+
+#: _aftextctrl.py:58
+msgid "Select All"
+msgstr "Alles markieren"
+
+#: _aftextctrl.py:60
+msgid "Bold"
+msgstr "Fett"
+
+#: _aftextctrl.py:61
+msgid "Italic"
+msgstr "Kursiv"
+
+#: _aftextctrl.py:62
+msgid "Fixed Width"
+msgstr "Feste Breite"
+
+#: _aftextctrl.py:63
+msgid "Bullet List"
+msgstr "Punkteliste"
+
+#: _aftextctrl.py:64
+msgid "Numbered List"
+msgstr "Nummerierte Liste"
+
+#: _aftextctrl.py:66
+msgid "Plain Text"
+msgstr "Einfacher Text"
+
+#: _aftextctrl.py:67
+msgid "HTML"
+msgstr "HTML"
+
+#: _aftextctrl.py:68
+msgid "ReStructured Text"
+msgstr "ReStructured Text"
 
 #: _aftrashinformation.py:33
 msgid "Trash overview"
