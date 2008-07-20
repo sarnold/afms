@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: afms\n"
-"POT-Creation-Date: 2008-07-17 21:08+Westeuropäische Sommerzeit\n"
+"POT-Creation-Date: 2008-07-20 21:50+Westeuropäische Sommerzeit\n"
 "PO-Revision-Date: \n"
 "Last-Translator: achimk <achimk@users.sourceforge.net>\n"
 "Language-Team:  <achimk@users.sourceforge.net>\n"
@@ -510,10 +510,6 @@ msgid "Edit selected artefact"
 msgstr "Edit selected artefact"
 
 #: _afmainframe.py:221
-msgid "Copy"
-msgstr "Copy"
-
-#: _afmainframe.py:221
 msgid "Copy artefact"
 msgstr "Copy artefact"
 
@@ -522,9 +518,10 @@ msgstr "Copy artefact"
 msgid "Copy selected artefact to clipboard"
 msgstr "Copy selected artefact to clipboard"
 
-#: _afmainframe.py:223
-msgid "Paste"
-msgstr "Paste"
+#: _afmainframe.py:221
+#: _aftextctrl.py:54
+msgid "Copy"
+msgstr "Copy"
 
 #: _afmainframe.py:223
 msgid "Paste artefact"
@@ -535,14 +532,20 @@ msgstr "Paste artefact"
 msgid "Paste artefact from clipboard"
 msgstr "Paste artefact from clipboard"
 
-#: _afmainframe.py:225
-msgid "Delete"
-msgstr "Delete"
+#: _afmainframe.py:223
+#: _aftextctrl.py:55
+msgid "Paste"
+msgstr "Paste"
 
 #: _afmainframe.py:225
 #: _afmainframe.py:277
 msgid "Delete selected artefact"
 msgstr "Delete selected artefact"
+
+#: _afmainframe.py:225
+#: _aftextctrl.py:56
+msgid "Delete"
+msgstr "Delete"
 
 #: _afmainframe.py:225
 #: afeditor.py:565
@@ -849,6 +852,54 @@ msgstr "Some testcase ID's in this testsuite are not listed in execution order"
 #: _aftestsuiteview.py:147
 msgid "Some testcase ID's in execution order are not in this testsuite"
 msgstr "Some testcase ID's in execution order are not in this testsuite"
+
+#: _aftextctrl.py:50
+msgid "Undo"
+msgstr "Undo"
+
+#: _aftextctrl.py:51
+msgid "Redo"
+msgstr "Redo"
+
+#: _aftextctrl.py:53
+msgid "Cut"
+msgstr "Cut"
+
+#: _aftextctrl.py:58
+msgid "Select All"
+msgstr "Select All"
+
+#: _aftextctrl.py:60
+msgid "Bold"
+msgstr "Bold"
+
+#: _aftextctrl.py:61
+msgid "Italic"
+msgstr "Italic"
+
+#: _aftextctrl.py:62
+msgid "Fixed Width"
+msgstr "Fixed Width"
+
+#: _aftextctrl.py:63
+msgid "Bullet List"
+msgstr "Bullet List"
+
+#: _aftextctrl.py:64
+msgid "Numbered List"
+msgstr "Numbered List"
+
+#: _aftextctrl.py:66
+msgid "Plain Text"
+msgstr "Plain Text"
+
+#: _aftextctrl.py:67
+msgid "HTML"
+msgstr "HTML"
+
+#: _aftextctrl.py:68
+msgid "ReStructured Text"
+msgstr "ReStructured Text"
 
 #: _aftrashinformation.py:33
 msgid "Trash overview"

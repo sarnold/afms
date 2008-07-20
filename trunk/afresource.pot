@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2008-07-17 21:09+Westeuropäische Sommerzeit\n"
+"POT-Creation-Date: 2008-07-20 21:53+Westeuropäische Sommerzeit\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -368,10 +368,6 @@ msgid "Edit selected artefact"
 msgstr ""
 
 #: _afmainframe.py:221
-msgid "Copy"
-msgstr ""
-
-#: _afmainframe.py:221
 msgid "Copy artefact"
 msgstr ""
 
@@ -379,8 +375,8 @@ msgstr ""
 msgid "Copy selected artefact to clipboard"
 msgstr ""
 
-#: _afmainframe.py:223
-msgid "Paste"
+#: _afmainframe.py:221 _aftextctrl.py:54
+msgid "Copy"
 msgstr ""
 
 #: _afmainframe.py:223
@@ -391,12 +387,16 @@ msgstr ""
 msgid "Paste artefact from clipboard"
 msgstr ""
 
-#: _afmainframe.py:225
-msgid "Delete"
+#: _afmainframe.py:223 _aftextctrl.py:55
+msgid "Paste"
 msgstr ""
 
 #: _afmainframe.py:225 _afmainframe.py:277
 msgid "Delete selected artefact"
+msgstr ""
+
+#: _afmainframe.py:225 _aftextctrl.py:56
+msgid "Delete"
 msgstr ""
 
 #: _afmainframe.py:225 afeditor.py:565
@@ -679,6 +679,54 @@ msgstr ""
 
 #: _aftestsuiteview.py:147
 msgid "Some testcase ID's in execution order are not in this testsuite"
+msgstr ""
+
+#: _aftextctrl.py:50
+msgid "Undo"
+msgstr ""
+
+#: _aftextctrl.py:51
+msgid "Redo"
+msgstr ""
+
+#: _aftextctrl.py:53
+msgid "Cut"
+msgstr ""
+
+#: _aftextctrl.py:58
+msgid "Select All"
+msgstr ""
+
+#: _aftextctrl.py:60
+msgid "Bold"
+msgstr ""
+
+#: _aftextctrl.py:61
+msgid "Italic"
+msgstr ""
+
+#: _aftextctrl.py:62
+msgid "Fixed Width"
+msgstr ""
+
+#: _aftextctrl.py:63
+msgid "Bullet List"
+msgstr ""
+
+#: _aftextctrl.py:64
+msgid "Numbered List"
+msgstr ""
+
+#: _aftextctrl.py:66
+msgid "Plain Text"
+msgstr ""
+
+#: _aftextctrl.py:67
+msgid "HTML"
+msgstr ""
+
+#: _aftextctrl.py:68
+msgid "ReStructured Text"
 msgstr ""
 
 #: _aftrashinformation.py:33

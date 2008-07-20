@@ -89,9 +89,11 @@ class afHtmlWindow(html.HtmlWindow):
         line breaks with <br> tags to give proper line wrapping
         """
         value = value.strip()
-        if value.startswith((".. rest", ".. REST")):
+        if value.upper().startswith(".. REST\n\n"):
             value = _afdocutils.html_body(value, doctitle=0, initial_header_level=3)
-        elif not value.startswith(("<html>", "<HTML>")):
+        elif value.upper().startswith(".. HTML\n\n"):
+            value = '<html>' + value[7:] + '</html>'
+        elif not value.upper().startswith("<HTML>"):
             value = value.replace("&", "&amp;");
             value = value.replace(">", "&gt;")
             value = value.replace("<", "&lt;")
