@@ -84,6 +84,12 @@ XML_WILDCARD = _("XML file (*.xml)|*.xml|"  \
 
 TR_WILDCARD = _("TR Database (*.tr)|*.tr|"     \
                 "All files (*.*)|*.*")
+                
+IMG_WILDCARD = _('All image files (%(ext)s)|%(ext)s|') % {'ext' : '*.png;*.jpg;*.jpeg;*.gif'} +\
+               _('JPEG files (%(ext)s)|%(ext)s|') % {'ext' : '*.jpg;*.jpeg'} +\
+               _('PNG files (%(ext)s)|%(ext)s|') % {'ext' : '*.png'} +\
+               _('GIF files (%(ext)s)|%(ext)s|') % {'ext' : '*.gif'} +\
+               _('All files (%(ext)s)|%(ext)s|') % {'ext' : '*.*'}
 
 _language = 'en'
 
