@@ -245,7 +245,7 @@ class MyApp(wx.App):
             defaultDir = self.model.currentdir,
             defaultFile = defaultFile,
             wildcard = afresource.XML_WILDCARD,
-            style=wx.SAVE | wx.CHANGE_DIR | wx.OVERWRITE_PROMPT
+            style=wx.SAVE | wx.OVERWRITE_PROMPT
             )
         dlgResult = dlg.ShowModal()
         if  dlgResult == wx.ID_OK:
@@ -412,6 +412,7 @@ class MyApp(wx.App):
             try:
                 self.model.requestNewProduct(path)
                 self.InitView()
+                afconfig.basedir = os.path.dirname(self.model.getFilename())
             except:
                 _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error creating product'))
                 logging.error(str(sys.exc_info()))
@@ -450,6 +451,7 @@ class MyApp(wx.App):
         self.model.requestOpenProduct(path)
         self.InitFilters()
         self.InitView()
+        afconfig.basedir = os.path.dirname(self.model.getFilename())
 
 
     def InitFilters(self):
@@ -602,7 +604,7 @@ class MyApp(wx.App):
             defaultDir = self.model.currentdir,
             defaultFile = os.path.splitext(self.model.getFilename())[0] + ".html",
             wildcard = self.htmlwildcard,
-            style=wx.SAVE | wx.CHANGE_DIR | wx.OVERWRITE_PROMPT
+            style=wx.SAVE | wx.OVERWRITE_PROMPT
             )
         dlgResult = dlg.ShowModal()
         if  dlgResult == wx.ID_OK:
@@ -626,7 +628,7 @@ class MyApp(wx.App):
             defaultDir = self.model.currentdir,
             defaultFile = os.path.splitext(self.model.getFilename())[0] + ".xml",
             wildcard = _(afresource.XML_WILDCARD),
-            style=wx.SAVE | wx.CHANGE_DIR | wx.OVERWRITE_PROMPT
+            style=wx.SAVE | wx.OVERWRITE_PROMPT
             )
         dlgResult = dlg.ShowModal()
         if  dlgResult == wx.ID_OK:
@@ -1265,7 +1267,7 @@ class MyApp(wx.App):
             defaultDir = self.model.currentdir,
             defaultFile = "",
             wildcard = self.wildcard,
-            style=wx.OPEN | wx.CHANGE_DIR | wx.FILE_MUST_EXIST
+            style=wx.OPEN | wx.FILE_MUST_EXIST
             )
         dlgResult = dlg.ShowModal()
         if  dlgResult == wx.ID_OK:

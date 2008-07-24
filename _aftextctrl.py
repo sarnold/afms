@@ -21,9 +21,29 @@
 
 # $Id$
 
-import  wx
-        
+import os, os.path
+if __name__=="__main__":
+    import sys, gettext
+    basepath = os.path.abspath(os.path.dirname(sys.argv[0]))
+    LOCALEDIR = os.path.join(basepath, 'locale')
+    DOMAIN = "afms"
+    gettext.install(DOMAIN, LOCALEDIR, unicode=True)
 
+import wx
+import afresource, afconfig       
+
+def getRelFolder(reffolder, folder):
+    commonprefix = os.path.commonprefix([reffolder, folder])
+    if commonprefix != '':
+        folder = folder[len(commonprefix):]
+        reffolder = reffolder[len(commonprefix):]
+        n = len(reffolder.split(os.sep))
+        relfolder = os.sep.join(['..'] * n)
+        folder =  os.path.join(relfolder, folder)
+        if folder.startswith(os.sep):
+            folder = folder.lstrip(os.sep)
+    return folder
+    
 class afTextCtrl(wx.TextCtrl):
     (MODE_PLAIN, MODE_HTML, MODE_REST) = (0, 1, 2)
     REST_TAG = '.. REST\n\n'
@@ -62,6 +82,7 @@ class afTextCtrl(wx.TextCtrl):
             menuitem(text=_('Fixed Width'), handler=self.handleFixedWidth, enabler=self._CanFormat),
             menuitem(text=_('Bullet List'), handler=self.handleBulletList, enabler=self._CanFormat),
             menuitem(text=_('Numbered List'), handler=self.handleNumberedList, enabler=self._CanFormat),
+            menuitem(text=_('Insert Image')+'...', handler = self.handleInsertImage, enabler=self._CanInsertImage),
             None,
             menuitem(text=_('Plain Text'), handler=self.handlePlainText, enabler=self.true, kind=wx.ITEM_RADIO),
             menuitem(text=_('HTML'), handler=self.handleHTML, enabler=self.true, kind=wx.ITEM_RADIO),
@@ -122,7 +143,16 @@ class afTextCtrl(wx.TextCtrl):
         
     def _CanFormat(self):
         '''Return true if we can perform text formating commands'''
-        return self.CanCut() & (self.mode != afTextCtrl.MODE_PLAIN)
+        return self.CanCut() and (self.mode != afTextCtrl.MODE_PLAIN)
+        
+    
+    def _CanInsertImage(self):
+        if self.mode == afTextCtrl.MODE_HTML:
+            return self.IsEditable()
+        if self.mode == afTextCtrl.MODE_PLAIN:
+            return False
+        (col, lineno) = self.PositionToXY(self.GetInsertionPoint())
+        return self.IsEditable() and (col == 0) and len(self.GetLineText(lineno).strip()) == 0
         
         
     def handleUndo(self, evt): 
@@ -211,6 +241,44 @@ class afTextCtrl(wx.TextCtrl):
     def handleNumberedList(self, evt):
         self._handleList((('<ol>', '</ol>\n'), ('', '\n')), (('<li>','</li>'), ('#. ', '')))
         
+    
+    def handleInsertImage(self, evt):
+        dlg = wx.FileDialog(
+            self, message = _("Choose image file"),
+            defaultDir = afconfig.basedir,
+            defaultFile = "",
+            wildcard = afresource.IMG_WILDCARD,
+            style=wx.OPEN | wx.FILE_MUST_EXIST
+            )
+        dlgResult = dlg.ShowModal()
+        path = dlg.GetPath()
+        dlg.Destroy()
+        if  dlgResult != wx.ID_OK: return
+            
+        # try to compute relative path
+        reffolder = afconfig.basedir
+        folder = os.path.dirname(path)
+        path = os.path.join(getRelFolder(reffolder, folder), os.path.basename(path))
+        
+        if self.mode == afTextCtrl.MODE_HTML:
+            self.WriteText('<p><img src="%s" /></p>' % path)
+            return
+            
+        (col, lineno) = self.PositionToXY(self.GetInsertionPoint())
+        (previousline, nextline) = ('', '')
+        if lineno > 0:
+            previousline = self.GetLineText(lineno-1).strip()
+        if lineno < self.GetNumberOfLines() - 1:
+            nextline = self.GetLineText(lineno+1).strip()
+        
+        inserttext = ''
+        if len(previousline) != 0:
+            inserttext += '\n'
+        inserttext += '.. image:: %s' % path
+        if len(nextline) != 0:
+            inserttext += '\n'
+        self.WriteText(inserttext)
+        
         
     def handleHTML(self, evt):
         self._handleMarkup(afTextCtrl.HTML_TAG)
@@ -256,3 +324,32 @@ class afTextCtrl(wx.TextCtrl):
     def _formatListItem(self, line, tags):
         return tags[0] + line + tags[1]
         
+if __name__ == "__main__":
+    import unittest
+
+    class TestRelFolder(unittest.TestCase):
+        def setUp(self):
+            pass
+            
+        def tofolder(self, f):
+            return f.replace('/', os.sep)
+            
+        def test1(self):
+            reffolder = self.tofolder('/a/b/c')
+            folder = self.tofolder('/a/b/d')
+            relfolder = getRelFolder(reffolder, folder)
+            self.assertEqual(relfolder, self.tofolder('../d'))
+
+        def test2(self):
+            reffolder = self.tofolder('/a/b/c')
+            folder = self.tofolder('/a/b/c/d')
+            relfolder = getRelFolder(reffolder, folder)
+            self.assertEqual(relfolder, self.tofolder('d'))
+
+        def test3(self):
+            reffolder = self.tofolder('c:\\a\\b\\c')
+            folder = self.tofolder('d:\\a\\b\\c')
+            relfolder = getRelFolder(reffolder, folder)
+            self.assertEqual(relfolder, folder)
+
+    unittest.main()

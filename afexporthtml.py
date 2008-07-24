@@ -93,7 +93,8 @@ def formatField(fstr):
         fstr = fstr[6:]
         if fstr.endswith(("</html>", "</HTML>")):
             fstr = fstr[0:-7]
-
+    elif fstr.upper().startswith(".. HTML"):
+        fstr = fstr[7:]
     elif fstr.startswith((".. rest", ".. REST")):
         fstr = _afdocutils.html_body(fstr, doctitle=0, initial_header_level=3)
     else:
