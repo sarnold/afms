@@ -243,6 +243,8 @@ class cRequirement(cArtefact):
         self._relatedUsecases = []
         self._unrelatedUsecases = []
         self._relatedFeatures = []
+        self._relatedRequirements = []
+        self._unrelatedRequirements = []
 
 
     def clearRelations(self):
@@ -251,6 +253,8 @@ class cRequirement(cArtefact):
         self._relatedUsecases = []
         self._unrelatedUsecases = []
         self._relatedFeatures = []
+        self._unrelatedRequirements = []
+        self._relatedRequirements = []
 
 
     def setRelatedTestcases(self, testcases):
@@ -291,6 +295,22 @@ class cRequirement(cArtefact):
 
     def getRelatedFeatures(self):
         return self._relatedFeatures
+
+
+    def getUnrelatedRequirements(self):
+        return self._unrelatedRequirements
+
+
+    def getRelatedRequirements(self):
+        return self._relatedRequirements
+
+
+    def setUnrelatedRequirements(self, requirements):
+        self._unrelatedRequirements = requirements
+
+
+    def setRelatedRequirements(self, requirements):
+        self._relatedRequirements = requirements
 
 
     def getPrintableDataDict(self, formatter=None):

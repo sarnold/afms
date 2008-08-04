@@ -41,7 +41,7 @@ from _afartefact import cFeature, cRequirement, cUsecase, cTestcase, cTestsuite
 from _afartefact import cChangelogEntry, cProduct, cSimpleSection, cGlossaryEntry
 
 # Database version
-_DBVERSION = "1.1"
+_DBVERSION = "1.2"
 
 _TYPEID_FEATURE     = 0
 _TYPEID_REQUIREMENT = 1
@@ -102,6 +102,15 @@ class afModel(object):
         self.connection.commit()
 
 
+    def _updateto_1_2(self, c):
+        logging.debug("afmodel._updateto_1_2()")
+        # save new version
+        c.execute("update product set value=? where property=='dbversion';", ('1.2',))
+        # commands to update from 1.1 to 1.2
+        c.execute("create table requirement_requirement_relation (rq1_id integer, rq2_id integer, delcnt integer default 0);")
+        self.connection.commit()
+
+
     def requestNewProduct(self, path):
         """
         Request to create a new product
@@ -144,6 +153,7 @@ class afModel(object):
         c.execute("create table feature_requirement_relation (ft_id integer, rq_id integer, delcnt integer default 0);")
         c.execute('create temporary table lastchanges (afid integer, aftype integer, changetype integer, date text, user text, description text)')
         self._updateto_1_1(c)
+        self._updateto_1_2(c)
         ##self.InsertTestData()
         self.connection.commit()
 
@@ -182,6 +192,9 @@ class afModel(object):
         if self.version < 1.1:
             self._updateto_1_1(c)
             self.version = 1.1
+        if self.version < 1.2:
+            self._updateto_1_2(c)
+            self.version = 1.2
 
     #---------------------------------------------------------------------
 
@@ -288,6 +301,23 @@ class afModel(object):
         c.execute(query_string)
         features = self.getData(query_string)
         requirement.setRelatedFeatures(self._FeatureListFromPlainList(features))
+
+        # new in database version 1.2
+        query_string = '''select ID, title, priority, status, complexity,
+            assigned, effort, category, version, description from requirements where
+            id in (select rq1_id from requirement_requirement_relation where rq2_id==%d and delcnt==0) or
+            id in (select rq2_id from requirement_requirement_relation where rq1_id==%d and delcnt==0);''' % (ID, ID)
+        requirements_list = self.getData(query_string)
+        requirement.setRelatedRequirements(self._RequirementListFromPlainList(requirements_list))
+
+        query_string = '''select ID, title, priority, status, complexity,
+            assigned, effort, category, version, description from requirements where
+            id not in (select rq1_id from requirement_requirement_relation where rq2_id==%d and delcnt==0) and
+            id not in (select rq2_id from requirement_requirement_relation where rq1_id==%d and delcnt==0) and
+            id!=%d;''' % (ID, ID, ID)
+        requirements_list = self.getData(query_string)
+        requirement.setUnrelatedRequirements(self._RequirementListFromPlainList(requirements_list))
+        #
 
         requirement.setChangelist(self.getChangelist(_TYPEID_REQUIREMENT, ID))
         return requirement
@@ -842,6 +872,13 @@ class afModel(object):
         for uc in related_usecases:
             c.execute("insert into requirement_usecase_relation values (?,?,?)", (rq_id, uc['ID'], 0))
 
+        related_requirements = requirement.getRelatedRequirements()
+        c = self.connection.cursor()
+        c.execute("delete from requirement_requirement_relation where rq1_id=?", (rq_id,))
+        c.execute("delete from requirement_requirement_relation where rq2_id=?", (rq_id,))
+        for rq in related_requirements:
+            c.execute("insert into requirement_requirement_relation values (?,?,?)", (rq_id, rq['ID'], 0))
+
         changelog = requirement.getChangelog()
         changelog['changetype'] = [_CHANGEID_EDIT, _CHANGEID_NEW][bool(new_artefact)]
         self.saveChangelog(_TYPEID_REQUIREMENT, rq_id, changelog, False)
@@ -1091,7 +1128,7 @@ class afModel(object):
                                   date=self.controller.getCurrentTimeStr(),
                                   changetype=changetype)
         else:
-            changelogentry[changetype] = changetype
+            changelogentry['changetype'] = changetype
 
         self.saveChangelog(_TYPEID_FEATURE, item_id, changelogentry, False)
 
@@ -1140,13 +1177,19 @@ class afModel(object):
             new_delcnt = max(0, row[2] + incr) # prevent delcnt < 0
             c.execute("update requirement_usecase_relation set delcnt=? where rq_id=? and uc_id=?", (new_delcnt, row[0], row[1]))
 
+        c.execute("select all rq1_id, rq2_id, delcnt from requirement_requirement_relation where rq1_id=? or rq2_id=?", (item_id, item_id))
+        rows = c.fetchall()
+        for row in rows:
+            new_delcnt = max(0, row[2] + incr) # prevent delcnt < 0
+            c.execute("update requirement_requirement_relation set delcnt=? where rq1_id=? and rq2_id=?", (new_delcnt, row[0], row[1]))
+
         if changelogentry is None:
             changelogentry = cChangelogEntry(user=self.controller.getUsername(),
                                   description='',
                                   date=self.controller.getCurrentTimeStr(),
                                   changetype=changetype)
         else:
-            changelogentry[changetype] = changetype
+            changelogentry['changetype'] = changetype
 
         self.saveChangelog(_TYPEID_REQUIREMENT, item_id, changelogentry, False)
 
@@ -1195,7 +1238,7 @@ class afModel(object):
                                   date=self.controller.getCurrentTimeStr(),
                                   changetype=changetype)
         else:
-            changelogentry[changetype] = changetype
+            changelogentry['changetype'] = changetype
 
         self.saveChangelog(_TYPEID_TESTCASE, item_id, changelogentry, False)
 
@@ -1238,7 +1281,7 @@ class afModel(object):
                                   date=self.controller.getCurrentTimeStr(),
                                   changetype=changetype)
         else:
-            changelogentry[changetype] = changetype
+            changelogentry['changetype'] = changetype
 
         self.saveChangelog(_TYPEID_USECASE, item_id, changelogentry, False)
 
@@ -1359,6 +1402,11 @@ class afModel(object):
     def getRequirementTestcaseRelations(self):
         """Get requirement_testcase_relation table"""
         return self._getRelations("requirement_testcase_relation", "rq_id", "tc_id")
+
+
+    def getRequirementRequirementRelation(self):
+        """Get requirement_requirement_relation table"""
+        return self._getRelations("requirement_requirement_relation", "rq1_id", "rq2_id")
 
 
     def _getRelations(self, tablename, leftcolname, rightcolname):
@@ -1519,7 +1567,7 @@ class afModel(object):
                                   date=self.controller.getCurrentTimeStr(),
                                   changetype=changetype)
         else:
-            changelogentry[changetype] = changetype
+            changelogentry['changetype'] = changetype
 
         self.saveChangelog(_TYPEID_SIMPLESECTION, item_id, changelogentry, False)
 
@@ -1646,51 +1694,84 @@ class afModel(object):
         """
         Insert testdata into database.
         """
+        dummytext= """\
+But I must explain to you how all this mistaken idea of
+denouncing pleasure and praising pain was born and I will give
+you a complete account of the system, and expound the actual
+teachings of the great explorer of the truth, the master-
+builder of human happiness. No one rejects, dislikes, or avoids
+ pleasure itself, because it is pleasure, but because those who
+ do not know how to pursue pleasure rationally encounter
+consequences that are extremely painful. Nor again is there
+anyone who loves or pursues or desires to obtain pain of itself
+, because it is pain, but because occasionally circumstances
+occur in which toil and pain can procure him some great
+pleasure. To take a trivial example, which of us ever
+undertakes laborious physical exercise, except to obtain some
+advantage from it? But who has any right to find fault with a
+man who chooses to enjoy a pleasure that has no annoying
+consequences, or one who avoids a pain that produces no
+resultant pleasure?
+
+On the other hand, we denounce with righteous indignation and
+dislike men who are so beguiled and demoralized by the charms
+of pleasure of the moment, so blinded by desire, that they
+cannot foresee the pain and trouble that are bound to ensue;
+and equal blame belongs to those who fail in their duty through
+ weakness of will, which is the same as saying through
+shrinking from toil and pain. These cases are perfectly simple
+and easy to distinguish. In a free hour, when our power of
+choice is untrammelled and when nothing prevents our being able
+ to do what we like best, every pleasure is to be welcomed and
+every pain avoided. But in certain circumstances and owing to
+the claims of duty or the obligations of business is will
+frequently occur that pleasures have to be repudiated and
+annoyances accepted. The wise man therefore always holds in
+these matters to this principle of selection: he rejects
+pleasures to secure other greater pleasures, or else he endures
+ pains to avoid worse pains.
+"""
+        if 0:
+            n_features = 1000
+            n_requirements = 2000
+            n_testsuites = 500
+            n_testcases = 1000
+            n_usecases = 1000
+        else:
+            n_features = 10
+            n_requirements = 20
+            n_testsuites = 5
+            n_testcases = 10
+            n_usecases = 10
+
         c = self.connection.cursor()
         c.execute("""insert into product values ('title', 'Sample product');""")
-        s = \
-        """
-        This is a very <b>long</b> sample page description.
-        This is a very <b>long</b> sample page description.
-        This is a very <b>long</b> sample page description. <br>
-        This is a very <b>long</b> sample page description. <br>
-        This is a very <b>long</b> sample page description. <br>
-        This is a very <b>long</b> sample page description. <br>
-        This is a very <b>long</b> sample page description. <br>
-        This is a very <a href="http://www.google.de">long</a> sample page description. <br>
-        <a href="file://test.htm">Link zu Datei</a>
-        This is a very <b>long</b> sample page description. <br>
-        This is a very <b>long</b> sample page description. <br>
-        This is a very <b>long</b> sample page description. <br>
-        This is a very <b>long</b> sample page description. <br>
-        This is a very <b>long</b> sample page description. <br>
-        This is a very <b>long</b> sample page description. <br>
-        This is a very <b>long</b> sample page description. <br>
-        This is a very <b>long</b> sample page description. <br>
-        """
-        c.execute("insert into product values ('description', '%s');" % s)
+        c.execute("insert into product values ('description', '%s');" % dummytext)
 
-        for i in range(20):
-            title = "Feature %d" % i
+        print('Features...')
+        for i in range(n_features):
+            title = "Feature %d title" % i
             priority = random.randint(0,2)
             version = random.randint(1,10)
             status = random.randint(0,2)
             risk = random.randint(0,4)
-            description = "Description of feature %d" % i
+            description = "Description of feature %d\n%s" % (i, dummytext)
             c.execute("insert into features values (NULL, ?, ?, ?, ?, ?, ?, ?)", (title, priority, status, version, risk, description, 0) )
 
-        for i in range(4):
-            title = "Title %d" % i
-            description = "Desc %d" % i
+        print('Testsuites...')
+        for i in range(n_testsuites):
+            title = "Testsuite %d title" % i
+            description = "Description of testsuite %d\n%s" % (i, dummytext)
             c.execute("insert into testsuites values (NULL, ?, ?, ?, ?)", (title, description, "", 0) )
 
-        for i in range(5,11):
-            title = "Testcase %d" % i
-            purpose = "Purpose %d" % i
-            prerequisite = "Prereq %d" % i
-            testdata = "Testdata %d" % i
-            steps = "Steps %d" % i
-            notes = "Notes %d" % i
+        print('Testcases...')
+        for i in range(n_testcases):
+            title = "Testcase %d title" % i
+            purpose = "Purpose %d\n%s" % (i, dummytext)
+            prerequisite = "Prerequisite %d\n%s" % (i, dummytext)
+            testdata = "Testdata %d\n%s" % (i, dummytext)
+            steps = "Steps %d\n%s" % (i, dummytext)
+            notes = "Notes %d\n%s" % (i, dummytext)
             version = random.randint(1,10)
             c.execute("insert into testcases values (NULL, ?, ?, ?, ?, ?, ?, ?, ?)", (title, purpose, prerequisite, testdata, steps, notes, version, 0) )
 
@@ -1698,8 +1779,6 @@ class afModel(object):
         c.execute("insert into feature_requirement_relation values (2, 4, 0);")
         c.execute("insert into feature_requirement_relation values (2, 5, 0);")
         c.execute("insert into feature_requirement_relation values (3, 5, 0);")
-
-
 
         c.execute("insert into testsuite_testcase_relation values (1, 1, 0);")
         c.execute("insert into testsuite_testcase_relation values (1, 2, 0);")
@@ -1713,21 +1792,23 @@ class afModel(object):
         c.execute("insert into requirement_usecase_relation values (3, 3, 0);")
         c.execute("insert into requirement_usecase_relation values (3, 4, 0);")
 
-        for i in range(4):
-            title = "Summary %d" % i
+        print('Usecases...')
+        for i in range(n_usecases):
+            title = "Usecase %d summary" % i
             priority = random.randint(1,3)
             usefrequency = random.randint(1,3)
             actors = "Actors %d" %i
-            stakeholders = "stakeholders %d" %i
-            prerequisites = "prerequisites %d" %i
-            mainscenario = "mainscenario %d" %i
-            altscenario = "altscenario %d" %i
-            notes = "notes %d" %i
+            stakeholders = "Stakeholders %d" %i
+            prerequisites = "Prerequisites %d\n%s" % (i, dummytext)
+            mainscenario = "Mainscenario %d\n%s" % (i, dummytext)
+            altscenario = "Altscenario %d\n%s" % (i, dummytext)
+            notes = "Notes %d\n%s" % (i, dummytext)
             c.execute("insert into usecases values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (title, priority, usefrequency, actors, stakeholders, prerequisites, mainscenario, altscenario, notes, 0) )
 
-        for i in range (45,54):
-            title = "Req %d" % i
-            description = "Desc"
+        print('Requirements...')
+        for i in range (n_requirements):
+            title = "Requirement %d title" % i
+            description = "Description %d\n%s" % (i, dummytext)
             status = random.randint(0,2)
        	    complexity = random.randint(0,2)
             assigned = "Someone"
@@ -1741,10 +1822,10 @@ class afModel(object):
             c.execute("insert into requirements values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (title, priority, status, version, complexity, assigned, effort, category, origin, rationale, description, 0) )
 
-
+        print('Changes...')
         for i in range(6):
             description = "Description %d" % i
-            afid = 1
+            afid = i
             aftype = 0
             changetype = 1
             user = "Change author"
@@ -1752,12 +1833,14 @@ class afModel(object):
             c.execute("insert into changelog values (?, ?, ?, ?, ?, ?)",
                 (afid, aftype, changetype, date, user, description))
 
-        for i in range(5):
+        print('Simple sections...')
+        for i in range(50):
             title = 'Title %d' % i
-            content = "Content %d" % i
+            content = "Content %d\n%s" % (i, dummytext)
             c.execute('insert into simplesections values (NULL, ?, ?, ?, 0)', (title, content, i))
 
-        for i in range(5):
+        print('Glossary entries...')
+        for i in range(50):
             title = 'Term %d' % i
-            description = "Description %d" % i
+            description = "Description %d\n%s" % (i, dummytext)
             c.execute('insert into glossary values (NULL, ?, ?, 0)', (title, description))

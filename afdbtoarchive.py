@@ -47,6 +47,7 @@ class AFDB2XML(object):
     def run(self):
         connection = sqlite3.connect(self.database_filename)
         self.cursor = connection.cursor()
+        # See http://www.sqlite.org/faq.html#q7 for details
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' and name not like 'sqlite%' ORDER BY name;")
         table_names = [table_name[0] for table_name in self.cursor.fetchall()]
         for table_name in table_names:

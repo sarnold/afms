@@ -169,7 +169,13 @@ class afExportXML():
                 'outertag'      : 'requirement_testcase_relations',
                 'innerlefttag'  : 'requirement_id',
                 'innerrighttag' : 'testcase_id'
-            }]
+            },
+            {   'func'          : self.model.getRequirementRequirementRelation,
+                'outertag'      : 'requirement_requirement_relations',
+                'innerlefttag'  : 'requirement1_id',
+                'innerrighttag' : 'requirement2_id'
+            }
+            ]
 
         for d in data:
             self.of.write('<%s>\n' % d["outertag"])
