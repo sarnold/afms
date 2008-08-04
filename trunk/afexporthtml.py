@@ -355,6 +355,18 @@ class afExportHTML():
                 for label, key in zip(requirement.labels()[2:], requirement.keys()[2:]):
                     self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
 
+                self.of.write('<tr><th>%s</th><td>' % _('Releated requirements'))
+                related_requirements = requirement.getRelatedRequirements()
+                if len(related_requirements) > 0:
+                    self.of.write('<ul>')
+                    for rq in related_requirements:
+                        basedata = rq.getPrintableDataDict(self.formatField)
+                        self.of.write('<li><a href="#REQ-%(ID)03d">REQ-%(ID)03d: %(title)s</a></li>\n' % basedata)
+                    self.of.write('</ul>')
+                else:
+                    self.of.write('<p>%s</p>' % _('None'))
+                self.of.write('</td></tr>\n')
+
                 self.of.write('<tr><th>%s</th><td>' % _('Attached testcases'))
                 related_testcases = requirement.getRelatedTestcases()
                 if len(related_testcases) > 0:
@@ -367,6 +379,7 @@ class afExportHTML():
                     self.untestedrequirements.append(requirement)
                     self.of.write('<p class="alert">%s</p>' % _('None'))
                 self.of.write('</td></tr>\n')
+
                 self.of.write(historylink)
                 self.of.write('</table>\n')
 

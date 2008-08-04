@@ -81,7 +81,7 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
             self.assigned_edit = wx.ComboBox(panel1, -1, choices = afconfig.ASSIGNED_NAME, style=wx.CB_DROPDOWN)
             self.effort_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.EFFORT_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.category_edit = wx.ComboBox(panel1, -1, choices = [_(i) for i in afresource.CATEGORY_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
-            self.description_edit = afTextCtrl(panel1)            
+            self.description_edit = afTextCtrl(panel1)
             self.origin_edit = afTextCtrl(panel2)
             self.rationale_edit = afTextCtrl(panel2)
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.description_edit)
@@ -182,6 +182,17 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
         self.featurelist = self.AddRelatedArtefactPanel(afFeatureList, _("Related Features"))
 
         #-----------------------------------------------------------------
+        # Related requirements panel
+
+        panel5 = wx.Panel(self, -1)
+        self.requirementlist = afRequirementList(panel5, -1, checkstyle=not self.viewonly)
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        sizer.Add(self.requirementlist, 1, wx.ALL| wx.EXPAND, 6)
+        panel5.SetSizer(sizer)
+        self.AddPage(panel5, _("Releated Requirements"))
+        self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnListItemActivated)
+
+        #-----------------------------------------------------------------
 
         self.AddChangelogPanel()
 
@@ -208,6 +219,7 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
 
         self.testcaselist.InitCheckableContent(requirement.getUnrelatedTestcases(), requirement.getRelatedTestcases(), self.viewonly)
         self.usecaselist.InitCheckableContent(requirement.getUnrelatedUsecases(), requirement.getRelatedUsecases(), self.viewonly)
+        self.requirementlist.InitCheckableContent(requirement.getUnrelatedRequirements(), requirement.getRelatedRequirements(), self.viewonly)
         self.featurelist.InitContent(requirement.getRelatedFeatures())
 
         if self.viewonly:
@@ -246,6 +258,12 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
             uc = cUsecase(ID=uc_id)
             related_usecases.append(uc)
         requirement.setRelatedUsecases(related_usecases)
+
+        related_requirements = []
+        for rq_id in self.requirementlist.GetItemIDByCheckState()[0]:
+            rq = cRequirement(ID=rq_id)
+            related_requirements.append(rq)
+        requirement.setRelatedRequirements(related_requirements)
 
         requirement.setChangelog(self.GetChangelogContent())
 
