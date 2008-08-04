@@ -41,7 +41,7 @@ from _afartefact import cFeature, cRequirement, cUsecase, cTestcase, cTestsuite
 from _afartefact import cChangelogEntry, cProduct, cSimpleSection, cGlossaryEntry
 
 # Database version
-_DBVERSION = "1.2"
+_DBVERSION = "1.2" 
 
 _TYPEID_FEATURE     = 0
 _TYPEID_REQUIREMENT = 1
