@@ -189,7 +189,7 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer.Add(self.requirementlist, 1, wx.ALL| wx.EXPAND, 6)
         panel5.SetSizer(sizer)
-        self.AddPage(panel5, _("Releated Requirements"))
+        self.AddPage(panel5, _("Related Requirements"))
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnListItemActivated)
 
         #-----------------------------------------------------------------

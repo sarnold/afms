@@ -73,10 +73,13 @@ class afImporter():
             requirement = self.model.getRequirement(ID)
             related_testcases_ids = [item['ID'] for item in requirement.getRelatedTestcases()]
             related_usecases_ids = [item['ID'] for item in requirement.getRelatedUsecases()]
+            related_requirements_ids = [item['ID'] for item in requirement.getRelatedRequirements()]
             logging.debug("_afimporter.OnListItemChecked(): auto checking testcases %s" % str(related_testcases_ids))
             logging.debug("_afimporter.OnListItemChecked(): auto checking usecases  %s" % str(related_usecases_ids))
+            logging.debug("_afimporter.OnListItemChecked(): auto checking requirements  %s" % str(related_requirements_ids))
             self.dlg.CheckArtefacts('TESTCASES', related_testcases_ids)
             self.dlg.CheckArtefacts('USECASES', related_usecases_ids)
+            self.dlg.CheckArtefacts('REQUIREMENTS', related_requirements_ids)
 
         elif listkind == 'TESTSUITES':
             testsuite = self.model.getTestsuite(ID)
@@ -127,6 +130,10 @@ class afImporter():
             for uc_id, new_uc_id in zip(uclist, new_uclist):
                 if uc_id in related_usecase_ids:
                     self.basemodel.addRequirementUsecaseRelation(new_rq_id, new_uc_id)
+            related_requirement_ids = self.model.getRequirementIDsRelatedToRequirement(rq_id)
+            for req_id, new_req_id in zip(rqlist, new_rqlist):
+                if req_id in related_requirement_ids:
+                    self.basemodel.addRequirementRequirementRelation(new_rq_id, new_req_id)
 
         for ts_id, new_ts_id in zip(tslist, new_tslist):
             related_testcase_ids = self.model.getTestcaseIDsRelatedToTestsuite(ts_id)
