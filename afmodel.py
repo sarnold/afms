@@ -41,7 +41,7 @@ from _afartefact import cFeature, cRequirement, cUsecase, cTestcase, cTestsuite
 from _afartefact import cChangelogEntry, cProduct, cSimpleSection, cGlossaryEntry
 
 # Database version
-_DBVERSION = "1.2" 
+_DBVERSION = "1.2"
 
 _TYPEID_FEATURE     = 0
 _TYPEID_REQUIREMENT = 1
@@ -1366,6 +1366,10 @@ class afModel(object):
         self._AddRelation(("requirement_testcase_relation", "rq_id", "tc_id"), rq_id, tc_id)
 
 
+    def addRequirementRequirementRelation(self, rq_id, rrq_id):
+        self._AddRelation(("requirement_requirement_relation", "rq1_id", "rq2_id"), rq_id, rrq_id)
+
+
     def _AddRelation(self, table, left_id, right_id):
         """
         Base function to add a new relation to a table in the database
@@ -1433,6 +1437,13 @@ class afModel(object):
 
     def getTestcaseIDsRelatedToTestsuite(self, ts_id):
         query_string = 'select tc_id from testsuite_testcase_relation where ts_id=%d and delcnt==0' % ts_id
+        return [data[0] for data in self.getData(query_string)];
+
+
+    def getRequirementIDsRelatedToRequirement(self, rq_id):
+        query_string = '''select ID from requirements where
+            id in (select rq1_id from requirement_requirement_relation where rq2_id==%d and delcnt==0) or
+            id in (select rq2_id from requirement_requirement_relation where rq1_id==%d and delcnt==0);''' % (rq_id, rq_id)
         return [data[0] for data in self.getData(query_string)];
 
     #---------------------------------------------------------------------
