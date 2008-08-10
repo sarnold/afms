@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: afms\n"
-"POT-Creation-Date: 2008-07-24 20:58+Westeuropäische Sommerzeit\n"
+"POT-Creation-Date: 2008-08-10 11:09+Westeuropäische Sommerzeit\n"
 "PO-Revision-Date: \n"
 "Last-Translator: achimk <achimk@users.sourceforge.net>\n"
 "Language-Team:  <achimk@users.sourceforge.net>\n"
@@ -15,8 +15,8 @@ msgstr ""
 #: _afartefact.py:124
 #: _afartefact.py:157
 #: _afartefact.py:224
-#: _afartefact.py:472
-#: _afartefact.py:583
+#: _afartefact.py:492
+#: _afartefact.py:603
 #: _afartefactlist.py:270
 #: _afartefactlist.py:297
 #: _afartefactlist.py:358
@@ -58,11 +58,11 @@ msgstr "Benutzer"
 
 #: _afartefact.py:157
 #: _afartefact.py:222
-#: _afartefact.py:334
-#: _afartefact.py:400
-#: _afartefact.py:472
-#: _afartefact.py:555
-#: _afartefact.py:583
+#: _afartefact.py:354
+#: _afartefact.py:420
+#: _afartefact.py:492
+#: _afartefact.py:575
+#: _afartefact.py:603
 #: _afartefactlist.py:269
 #: _afartefactlist.py:295
 #: _afartefactlist.py:320
@@ -85,7 +85,7 @@ msgstr "ID"
 
 #: _afartefact.py:157
 #: _afartefact.py:222
-#: _afartefact.py:334
+#: _afartefact.py:354
 #: _afartefactlist.py:269
 #: _afartefactlist.py:295
 #: _afartefactlist.py:338
@@ -98,9 +98,9 @@ msgstr "Priorität"
 
 #: _afartefact.py:157
 #: _afartefact.py:222
-#: _afartefact.py:400
-#: _afartefact.py:472
-#: _afartefact.py:555
+#: _afartefact.py:420
+#: _afartefact.py:492
+#: _afartefact.py:575
 #: _afartefactlist.py:269
 #: _afartefactlist.py:295
 #: _afartefactlist.py:320
@@ -124,7 +124,7 @@ msgstr "Titel"
 
 #: _afartefact.py:157
 #: _afartefact.py:222
-#: _afartefact.py:402
+#: _afartefact.py:422
 #: _afartefactlist.py:270
 #: _afartefactlist.py:296
 #: _afartefactlist.py:320
@@ -196,58 +196,58 @@ msgstr "Herkunft"
 msgid "Rationale"
 msgstr "Erklärung"
 
-#: _afartefact.py:334
+#: _afartefact.py:354
 #: _afartefactlist.py:338
 #: _affilterview.py:359
 #: _afusecaseview.py:43
 msgid "Summary"
 msgstr "Zusammenfassung"
 
-#: _afartefact.py:334
+#: _afartefact.py:354
 #: _affilterview.py:365
 #: _afusecaseview.py:43
 msgid "Use frequency"
 msgstr "Häufigkeit"
 
-#: _afartefact.py:335
+#: _afartefact.py:355
 #: _afartefactlist.py:338
 #: _affilterview.py:366
 #: _afusecaseview.py:43
 msgid "Stakeholders"
 msgstr "Interessengruppen"
 
-#: _afartefact.py:335
+#: _afartefact.py:355
 #: _afartefactlist.py:338
 #: _affilterview.py:367
 #: _afusecaseview.py:44
 msgid "Actors"
 msgstr "Akteure"
 
-#: _afartefact.py:335
+#: _afartefact.py:355
 #: _affilterview.py:359
 #: _afusecaseview.py:44
 msgid "Prerequisites"
 msgstr "Vorbedingungen"
 
-#: _afartefact.py:336
+#: _afartefact.py:356
 #: _affilterview.py:359
 #: _afusecaseview.py:44
 msgid "Alt scenario"
 msgstr "Alternativszenario"
 
-#: _afartefact.py:336
+#: _afartefact.py:356
 #: _affilterview.py:359
 #: _afusecaseview.py:44
 msgid "Main scenario"
 msgstr "Hauptszenario"
 
-#: _afartefact.py:336
+#: _afartefact.py:356
 #: _affilterview.py:359
 #: _afusecaseview.py:44
 msgid "Notes"
 msgstr "Anmerkungen"
 
-#: _afartefact.py:400
+#: _afartefact.py:420
 #: _afartefactlist.py:320
 #: _affilterview.py:433
 #: _aftestcaseview.py:41
@@ -256,7 +256,7 @@ msgstr "Anmerkungen"
 msgid "Purpose"
 msgstr "Zweck"
 
-#: _afartefact.py:401
+#: _afartefact.py:421
 #: _affilterview.py:433
 #: _aftestcaseview.py:41
 #: _trartefact.py:33
@@ -264,7 +264,7 @@ msgstr "Zweck"
 msgid "Prerequisite"
 msgstr "Vorbedingung"
 
-#: _afartefact.py:401
+#: _afartefact.py:421
 #: _affilterview.py:433
 #: _aftestcaseview.py:41
 #: _trartefact.py:33
@@ -272,7 +272,7 @@ msgstr "Vorbedingung"
 msgid "Steps"
 msgstr "Schritte"
 
-#: _afartefact.py:401
+#: _afartefact.py:421
 #: _affilterview.py:433
 #: _aftestcaseview.py:41
 #: _trartefact.py:33
@@ -280,40 +280,40 @@ msgstr "Schritte"
 msgid "Testdata"
 msgstr "Testdaten"
 
-#: _afartefact.py:402
+#: _afartefact.py:422
 #: _aftestcaseview.py:41
 #: _trartefact.py:34
 msgid "Notes && Questions"
 msgstr "Hinweise && Fragen"
 
-#: _afartefact.py:472
+#: _afartefact.py:492
 #: _afartefactlist.py:358
 #: _aftestsuiteview.py:70
 #: afexporthtml.py:139
 #: afexporthtml.py:216
 #: afexporthtml.py:240
-#: afexporthtml.py:494
+#: afexporthtml.py:507
 #: afresource.py:31
 msgid "Testcases"
 msgstr "Testfälle"
 
-#: _afartefact.py:472
+#: _afartefact.py:492
 #: _aftestsuiteview.py:39
 msgid "Execution order ID's"
 msgstr "Ausführungsreihenfolge ID"
 
-#: _afartefact.py:555
+#: _afartefact.py:575
 #: _afartefactlist.py:374
 #: _afsimplesectionview.py:41
 msgid "Level"
 msgstr "Position"
 
-#: _afartefact.py:555
+#: _afartefact.py:575
 #: _afsimplesectionview.py:41
 msgid "Content"
 msgstr "Inhalt"
 
-#: _afartefact.py:583
+#: _afartefact.py:603
 #: _afartefactlist.py:414
 #: _afglossaryentryview.py:34
 msgid "Term"
@@ -815,12 +815,18 @@ msgstr "Zugeordnete Anwendungsfälle"
 msgid "Related Features"
 msgstr "Zugehörige Features"
 
+#: _afrequirementview.py:192
+#: _aftestcaseview.py:98
+#: _afusecaseview.py:133
+msgid "Related Requirements"
+msgstr "Zugehörige Anforderungen"
+
 #: _afsimplesectionleveldialog.py:30
 msgid "Edit text section order"
 msgstr "Reihenfolge Textabschnitte bearbeiten"
 
 #: _afsimplesectionleveldialog.py:35
-#: afexporthtml.py:496
+#: afexporthtml.py:509
 msgid "Text sections"
 msgstr "Textabschnitte"
 
@@ -831,11 +837,6 @@ msgstr "Abschnitt"
 #: _aftestcaseview.py:95
 msgid "Testcase"
 msgstr "Testfall"
-
-#: _aftestcaseview.py:98
-#: _afusecaseview.py:133
-msgid "Related Requirements"
-msgstr "Zugehörige Anforderungen"
 
 #: _aftestcaseview.py:101
 msgid "Related Testsuites"
@@ -1292,7 +1293,7 @@ msgstr "Glossar"
 #: afexporthtml.py:133
 #: afexporthtml.py:210
 #: afexporthtml.py:234
-#: afexporthtml.py:488
+#: afexporthtml.py:501
 #: afresource.py:28
 msgid "Features"
 msgstr "Features"
@@ -1300,7 +1301,7 @@ msgstr "Features"
 #: afexporthtml.py:136
 #: afexporthtml.py:213
 #: afexporthtml.py:236
-#: afexporthtml.py:490
+#: afexporthtml.py:503
 #: afresource.py:29
 msgid "Requirements"
 msgstr "Anforderungen"
@@ -1361,7 +1362,7 @@ msgid "Usecases not belonging to requirements"
 msgstr "Anwendungsfälle ohne Anforderungen"
 
 #: afexporthtml.py:238
-#: afexporthtml.py:492
+#: afexporthtml.py:505
 #: afresource.py:30
 msgid "Usecases"
 msgstr "Anwendungsfälle"
@@ -1369,10 +1370,11 @@ msgstr "Anwendungsfälle"
 #: afexporthtml.py:251
 #: afexporthtml.py:303
 #: afexporthtml.py:336
-#: afexporthtml.py:368
-#: afexporthtml.py:424
+#: afexporthtml.py:367
+#: afexporthtml.py:380
 #: afexporthtml.py:437
-#: afexporthtml.py:463
+#: afexporthtml.py:450
+#: afexporthtml.py:476
 #: trexporthtml.py:134
 msgid "None"
 msgstr "keine"
@@ -1380,29 +1382,30 @@ msgstr "keine"
 #: afexporthtml.py:295
 #: afexporthtml.py:320
 #: afexporthtml.py:349
-#: afexporthtml.py:395
-#: afexporthtml.py:407
+#: afexporthtml.py:408
+#: afexporthtml.py:420
 msgid "History"
 msgstr "Änderungsverlauf"
 
 #: afexporthtml.py:326
-#: afexporthtml.py:414
+#: afexporthtml.py:358
+#: afexporthtml.py:427
 msgid "Related requirements"
 msgstr "Zugeordnete Anforderungen"
 
-#: afexporthtml.py:358
+#: afexporthtml.py:370
 msgid "Attached testcases"
 msgstr "Zugehörige Testfälle"
 
-#: afexporthtml.py:380
+#: afexporthtml.py:393
 msgid "No use cases"
 msgstr "Keine Anwendungsfälle"
 
-#: afexporthtml.py:427
+#: afexporthtml.py:440
 msgid "Related testsuites"
 msgstr "Zugeordnete Testsuiten"
 
-#: afexporthtml.py:453
+#: afexporthtml.py:466
 msgid "Included testcases"
 msgstr "Zugehörige Testfälle"
 

@@ -1420,7 +1420,7 @@ class afModel(object):
 
     #---------------------------------------------------------------------
 
-    def getRequirementIDsReleatedToFeature(self, ft_id):
+    def getRequirementIDsRelatedToFeature(self, ft_id):
         query_string = 'select rq_id from feature_requirement_relation where ft_id=%d and delcnt==0' % ft_id
         return [data[0] for data in self.getData(query_string)];
 

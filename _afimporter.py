@@ -116,7 +116,7 @@ class afImporter():
         # to import the corresponding artefact relations
 
         for ft_id, new_ft_id in zip(ftlist, new_ftlist):
-            related_requirement_ids = self.model.getRequirementIDsReleatedToFeature(ft_id)
+            related_requirement_ids = self.model.getRequirementIDsRelatedToFeature(ft_id)
             for rq_id, new_rq_id in zip(rqlist, new_rqlist):
                 if rq_id in related_requirement_ids:
                     self.basemodel.addFeatureRequirementRelation(new_ft_id, new_rq_id)

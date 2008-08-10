@@ -1,5 +1,5 @@
 ===============================
-AFMS Release x.x.x (2008-xx-xx)
+AFMS Release 0.4.0 (2008-08-10)
 ===============================
 
 New features
@@ -8,6 +8,15 @@ New features
   may be converted to databases again.
   This may be done from within afeditor or using the
   standalone scripts afarchivetodb.py and afdbtoarchive.py.
+  
+* Multiline text strings starting with '.. HTML' followd by a blank line 
+  are now rendered as HTML. 
+  
+* Multiline text controls now have a popup menu offering simple text formatting 
+  commands. This works for HTML and REST renderers
+  
+* Relations between requirements are supported now.
+
 
 Changes
 ~~~~~~~
@@ -15,7 +24,7 @@ Changes
   appears to enter a changelog message.
   
 * When editing artefacts most of multiline text controls are now using monospaced font.
-  This makes editing restructured text easier. 
+  This makes editing restructured text (REST) easier. 
   
   
 Bug fixes
