@@ -30,8 +30,13 @@
 Artefact Management System AFMS 
 ================================
 
+.. include:: ../version.py
+   :start-after: VERSION = "
+   :end-before: "
+
+
 :Author: |author|
-:Revision: $Rev: 10 $
+:Revision: $Rev$
 :Copyright: |author|, 2008
 :Homepage: http://sourceforge.net/projects/afms/
 
