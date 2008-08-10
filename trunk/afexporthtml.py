@@ -355,7 +355,7 @@ class afExportHTML():
                 for label, key in zip(requirement.labels()[2:], requirement.keys()[2:]):
                     self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
 
-                self.of.write('<tr><th>%s</th><td>' % _('Releated requirements'))
+                self.of.write('<tr><th>%s</th><td>' % _('Related requirements'))
                 related_requirements = requirement.getRelatedRequirements()
                 if len(related_requirements) > 0:
                     self.of.write('<ul>')
