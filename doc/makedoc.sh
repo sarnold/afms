@@ -1,6 +1,8 @@
 # Create HTML documentation using docutils
 
-rst2html --stylesheet=afmsdoc.css index.txt index.html
+python patch_release_info.py index.txt > tmp.txt
+rst2html --stylesheet=afmsdoc.css tmp.txt index.html
+rm tmp.txt
 rst2html --stylesheet=afmsdoc.css afeditor.txt afeditor.html
 rst2html --stylesheet=afmsdoc.css testrunner.txt testrunner.html
 rst2html --stylesheet=afmsdoc.css markup.txt markup.html
