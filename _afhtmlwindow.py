@@ -29,6 +29,33 @@ import afconfig
 import _afdocutils
 
 
+def render(text, maskspecialchars=True, enclosingtag='span'):
+    """
+    If value is not HTML code, i.e. does not start with a <html> tag,
+    then mask special HTML chars and replace
+    line breaks with <br> tags to give proper line wrapping
+    """
+    text = text.strip()
+    if text.upper().startswith(".. REST\n\n"):
+        text = _afdocutils.html_body(text, doctitle=0, initial_header_level=3)
+    elif text.upper().startswith(".. HTML\n\n"):
+        text = text[7:]
+    elif text.upper().startswith('<HTML>'):
+        text = text[6:]
+        if text.upper().endswith('</HTML>'):
+            text = text[:-7]
+    else:
+        if maskspecialchars:
+            text = text.replace("&", "&amp;");
+            text = text.replace(">", "&gt;")
+            text = text.replace("<", "&lt;")
+            text = text.replace('"', "&quot;")
+        lines = text.split("\n")
+        ##text = '<html>' + "<br />".join(lines) + '</html>'
+        text = "<br />".join(lines)
+    return '<%s>%s</%s>' % (enclosingtag, text, enclosingtag)
+    
+
 class afHtmlWindow(html.HtmlWindow):
     def __init__(self, parent, id, size=wx.DefaultSize, enablescriptexec=False):
         self.watchdog = 0
@@ -84,23 +111,8 @@ class afHtmlWindow(html.HtmlWindow):
     def SetValue(self, value):
         """
         Set value to display.
-        If value is not HTML code, i.e. does not start with a <html> tag,
-        then mask special HTML chars and replace
-        line breaks with <br> tags to give proper line wrapping
-        """
-        value = value.strip()
-        if value.upper().startswith(".. REST\n\n"):
-            value = _afdocutils.html_body(value, doctitle=0, initial_header_level=3)
-        elif value.upper().startswith(".. HTML\n\n"):
-            value = '<html>' + value[7:] + '</html>'
-        elif not value.upper().startswith("<HTML>"):
-            value = value.replace("&", "&amp;");
-            value = value.replace(">", "&gt;")
-            value = value.replace("<", "&lt;")
-            value = value.replace('"', "&quot;")
-            lines = value.split("\n")
-            value = "<br>".join(lines)
-        self.SetPage(value)
+        """        
+        self.SetPage(render(value))
 
 
     logging.basicConfig(level=afconfig.loglevel, format=afconfig.logformat)
