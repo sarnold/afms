@@ -88,6 +88,11 @@ div.productdescription
 {
 }
 
+ul {
+	margin-top : 0;
+	margin-bottom : 0;
+}
+
 p.footer
 {
 	font-style : italic;
@@ -114,8 +119,10 @@ background-color: #AAAAAA;
 padding: 0pt 10pt 0pt 5pt;
 }
 
-p.alert {
+.alert {
 	background-color: #EE0000;
+	padding-right:1em;
+	padding-left:1em;
 }
 
 #bodycol h3, #bodycol h4 { border: 0; }

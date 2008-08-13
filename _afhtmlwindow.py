@@ -29,7 +29,7 @@ import afconfig
 import _afdocutils
 
 
-def render(text, maskspecialchars=True, enclosingtag='span'):
+def render(text, maskspecialchars=True, enclosingtag='div'):
     """
     If value is not HTML code, i.e. does not start with a <html> tag,
     then mask special HTML chars and replace
