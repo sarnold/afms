@@ -1,7 +1,7 @@
 # -*- coding: utf-8  -*-
 
 
-# TODO: problem analysis summary: requirements without testcases, features without requirements, ...
+# TODO: history
 
 import os
 if __name__=="__main__":
@@ -137,8 +137,41 @@ class afExportHTML():
         for id in idlist:
             (node, tocnode) = self.renderTestsuite(id)
             self.body.appendChild(node)
-            self.appendListItem(listnode, tocnode)            
-        
+            self.appendListItem(listnode, tocnode)     
+
+        # -- Problem reports ---
+        self.toc.appendChild(self._createTextElement('h2', _('Detected problems')))
+        self.body.appendChild(self._createTextElement('h1', _('Detected problems')))
+        hrefs  = ("lonelyfeatures","untestedrequirements", "lonelytestcases","unexecutedtestcases","emptytestsuites","lonelyusecases")
+        labels = (_('Features without requirements'), _('Requirements without testcases'), _('Testcases not belonging to requirements'), _('Testcases not belonging to testsuites'), _('Empty testsuites'), _('Usecases not belonging to requirements'))
+        getIDFuncs = (self.model.getIDofFeaturesWithoutRequirements, self.model.getIDofRequirementsWithoutTestcases,
+                     self.model.getIDofTestcasesWithoutRequirements, self.model.getIDofTestcasesWithoutTestsuites,
+                     self.model.getIDofTestsuitesWithoutTestcases, self.model.getIDofUsecasesWithoutRequirements)
+        getAFFuncs = (self.model.getFeature, self.model.getRequirement, self.model.getTestcase,
+                     self.model.getTestcase, self.model.getTestsuite, self.model.getUsecase)
+        renderFuncs = (self.renderFeatureAnchor, self.renderRequirementAnchor, self.renderTestcaseAnchor,
+                      self.renderTestcaseAnchor, self.renderTestsuiteAnchor, self.renderUsecaseAnchor)
+
+        tocnode = self._createElement('ul')
+        for href, label, getIDFunc, getAFFunc, renderFunc in zip(hrefs, labels, getIDFuncs, getAFFuncs, renderFuncs):
+            subnode = self._createElement('li')
+            subnode.appendChild(self._createTextElement('a', label, {'href': '#' + href}))
+            tocnode.appendChild(subnode)
+            
+            node = self._createElement('h2')
+            node.appendChild(self._createTextElement('a', label, {'name': href}))
+            self.body.appendChild(node)
+            idlist = getIDFunc()
+            if len(idlist) == 0:
+                subnode = self._createTextElement('p', _('None'), {'class': 'pass'})
+            else:
+                subnode = self._createElement('ul')
+                for id in idlist:
+                    self.appendListItem(subnode, renderFunc(getAFFunc(id), True))
+            self.body.appendChild(subnode)
+
+        self.toc.appendChild(tocnode)
+
 
     def appendListItem(self, listnode, itemnode):
         listitemnode = self._createElement('li')
