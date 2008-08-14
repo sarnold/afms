@@ -131,6 +131,6 @@ p.fail {
     background-color: #EE0000;
 }
 
-p.pass {
+.pass {
     background-color: #00EE00;
 }

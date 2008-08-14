@@ -1701,6 +1701,37 @@ class afModel(object):
 
     #---------------------------------------------------------------------
 
+    def getIDofFeaturesWithoutRequirements(self):
+        query_string = 'select ID from features where delcnt==0 and ID not in (select distinct ft_id from feature_requirement_relation where delcnt==0)'
+        return [data[0] for data in self.getData(query_string)];
+        
+        
+    def getIDofRequirementsWithoutTestcases(self):
+        query_string = 'select ID from requirements where delcnt==0 and ID not in (select distinct rq_id from requirement_testcase_relation where delcnt==0)'
+        return [data[0] for data in self.getData(query_string)];
+        
+        
+    def getIDofTestcasesWithoutRequirements(self):
+        query_string = 'select ID from testcases where delcnt==0 and ID not in (select distinct tc_id from requirement_testcase_relation where delcnt==0)'
+        return [data[0] for data in self.getData(query_string)];
+        
+    
+    def getIDofTestcasesWithoutTestsuites(self):
+        query_string = 'select ID from testcases where delcnt==0 and ID not in (select distinct tc_id from testsuite_testcase_relation where delcnt==0)'
+        return [data[0] for data in self.getData(query_string)];
+        
+        
+    def getIDofTestsuitesWithoutTestcases(self):
+        query_string = 'select ID from testsuites where delcnt==0 and ID not in (select distinct ts_id from testsuite_testcase_relation where delcnt==0)'
+        return [data[0] for data in self.getData(query_string)];
+        
+        
+    def getIDofUsecasesWithoutRequirements(self):
+        query_string = 'select ID from usecases where delcnt==0 and ID not in (select distinct uc_id from requirement_usecase_relation where delcnt==0)'
+        return [data[0] for data in self.getData(query_string)];
+        
+    #---------------------------------------------------------------------
+
     def InsertTestData(self):
         """
         Insert testdata into database.
