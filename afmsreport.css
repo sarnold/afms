@@ -134,3 +134,21 @@ p.fail {
 .pass {
     background-color: #00EE00;
 }
+
+.glossaryid {
+	font-size: x-small;
+	margin-bottom: 0;
+}
+
+span.glossarytitle {
+	background-color: #FFFF66;
+}
+
+div.glossarydescription {
+	background-color: #CCCCCC;
+}
+
+p.glossarytitle {
+	margin-top: 0;
+}
+
