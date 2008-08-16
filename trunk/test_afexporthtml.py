@@ -64,6 +64,9 @@ class afExportHTML():
         self.toc.appendChild(self._createTextElement('h1', _('Table of Contents')))
         self.body.appendChild(self.toc)
         
+        self.changelog = self._createElement('div', {'class': 'changelog'})
+        self.changelog.appendChild(self._createTextElement('h1', _('Changelog')))
+        
         # --- Product information ---
         (node, tocnode) = self.renderProductInformation()
         self.body.appendChild(node)
@@ -78,10 +81,28 @@ class afExportHTML():
         self.toc.appendChild(listnode)
         idlist = self.model.getSimpleSectionIDs()
         for id in idlist:
-            (node, tocnode) = self.renderSimpleSection(id)
+            (node, tocnode, changelognode) = self.renderSimpleSection(id)
             self.body.appendChild(node)
             self.appendListItem(listnode, tocnode)
+            self.changelog.appendChild(changelognode)
             
+        # --- Glossary ---
+        node = self._createElement('h2')
+        node.appendChild(self._createTextElement('a', _('Terms and Abbreviations'), {'href':'#glossary'}))
+        self.toc.appendChild(node)
+        node = self._createElement('h1')
+        node.appendChild(self._createTextElement('a', _('Terms and Abbreviations'), {'name':'glossary'}))
+        self.body.appendChild(node)
+        listnode = self._createElement('dl', {'class': 'glossary'})
+        self.body.appendChild(listnode)
+        cursor = self.model.connection.cursor()
+        # SQL query for demonstration purposes only
+        cursor.execute('select ID from glossary where delcnt==0 order by title;')
+        for id in [item[0] for item in cursor.fetchall()]:
+            (termnode, descnode) = self.renderGlossaryEntry(id)
+            listnode.appendChild(termnode)
+            listnode.appendChild(descnode)
+        
         # --- Features ---
         self.toc.appendChild(self._createTextElement('h2', _('Features')))
         self.body.appendChild(self._createTextElement('h1', _('Features')))
@@ -169,8 +190,9 @@ class afExportHTML():
                 for id in idlist:
                     self.appendListItem(subnode, renderFunc(getAFFunc(id), True))
             self.body.appendChild(subnode)
-
         self.toc.appendChild(tocnode)
+        
+        self.body.appendChild(self.changelog)
 
 
     def appendListItem(self, listnode, itemnode):
@@ -178,6 +200,18 @@ class afExportHTML():
         listitemnode.appendChild(itemnode)
         listnode.appendChild(listitemnode)
         
+    def renderGlossaryEntry(self, id):
+        glossaryentry = self.model.getGlossaryEntry(id)
+        termnode = self._createElement('dt')
+        termnode.appendChild(self._createTextElement('p', '[GE-%03d]' % glossaryentry['ID'], {'class': 'glossaryid'}))
+        subnode = self._createElement('p', {'class': 'glossarytitle'})
+        subnode.appendChild(self._createTextElement('span', glossaryentry['title'], {'class': 'glossarytitle'}))
+        termnode.appendChild(subnode)
+        descnode = self._createElement('dd')
+        subnode = self._createElement('div', {'class': 'glossarydescription'})
+        subnode.appendChild(self._render(glossaryentry['description']))
+        descnode.appendChild(subnode)
+        return (termnode, descnode)
         
     def renderProductInformation(self):
         productinfo = self.model.getProductInformation()
@@ -199,7 +233,9 @@ class afExportHTML():
         node.appendChild(subnode)
         node.appendChild(self._render(simplesection['content']))
         tocnode = self._createTextElement('a', 'SS-%(ID)03d: %(title)s' % simplesection, {'href': '#SS-%(ID)03d' % simplesection})
-        return (node, tocnode)
+        (changelognode, changeloglink) = self.renderChangelist('SS', simplesection)
+        node.appendChild(changeloglink)
+        return (node, tocnode, changelognode)
         
         
     def renderFeature(self, ID):
@@ -423,6 +459,21 @@ class afExportHTML():
             attribute = {'name': 'TS-%(ID)03d' % testsuite}
         return self._createTextElement('a', 'TS-%(ID)03d: %(title)s' % testsuite, attribute)
         
+    
+    def renderChangelist(self, anchorstr, artefact):
+        artefact['keystr'] = anchorstr
+        node = self._createElement('div')
+        headline = self._createElement('h3')
+        nameanchor = self._createElement('a', {'name': 'H%s-%03d' % (anchorstr, artefact['ID'])})
+        hrefanchor = self._createTextElement('a', '%(keystr)s-%(ID)03d: %(title)s' % artefact, {'href': '#%(keystr)s-%(ID)03d' % artefact})     
+        nameanchor.appendChild(hrefanchor)
+        headline.appendChild(nameanchor)
+        node.appendChild(headline)
+        
+        link = self._createElement('p', {'class': 'changeloglink'})
+        hrefanchor = self._createTextElement('a', _('Changelog'), {'href': '#H%(keystr)s-%(ID)03d' % artefact})
+        link.appendChild(hrefanchor)
+        return (node, link)
         
 
     def write(self, filename):
