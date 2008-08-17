@@ -65,18 +65,16 @@ class afExportHTML():
         self.body.appendChild(self.toc)
         
         self.changelog = self._createElement('div', {'class': 'changelog'})
-        self.changelog.appendChild(self._createTextElement('h1', _('Changelog')))
         
         # --- Product information ---
-        (node, tocnode) = self.renderProductInformation()
+        self.toc.appendChild(self._createHeadline('h2', _('Product information'), {'href': '#productinformation'}))
+        self.body.appendChild(self._createHeadline('h1', _('Product information'), {'name': 'productinformation'}))
+        node = self.renderProductInformation()
         self.body.appendChild(node)
-        subnode = self._createElement('h2')
-        subnode.appendChild(tocnode)
-        self.toc.appendChild(subnode)
         
         # --- Text sections ---
-        self.toc.appendChild(self._createTextElement('h2', _('Text sections')))
-        self.body.appendChild(self._createTextElement('h1', _('Text sections')))
+        self.toc.appendChild(self._createHeadline('h2', _('Text sections'), {'href': '#textsections'}))
+        self.body.appendChild(self._createHeadline('h1', _('Text sections'), {'name': 'textsections'}))
         listnode = self._createElement('ul')
         self.toc.appendChild(listnode)
         idlist = self.model.getSimpleSectionIDs()
@@ -87,12 +85,8 @@ class afExportHTML():
             self.changelog.appendChild(changelognode)
             
         # --- Glossary ---
-        node = self._createElement('h2')
-        node.appendChild(self._createTextElement('a', _('Terms and Abbreviations'), {'href':'#glossary'}))
-        self.toc.appendChild(node)
-        node = self._createElement('h1')
-        node.appendChild(self._createTextElement('a', _('Terms and Abbreviations'), {'name':'glossary'}))
-        self.body.appendChild(node)
+        self.toc.appendChild(self._createHeadline('h2', _('Terms and Abbreviations'), {'href': '#glossary'}))
+        self.body.appendChild(self._createHeadline('h1', _('Terms and Abbreviations'), {'name': 'glossary'}))
         listnode = self._createElement('dl', {'class': 'glossary'})
         self.body.appendChild(listnode)
         cursor = self.model.connection.cursor()
@@ -104,54 +98,58 @@ class afExportHTML():
             listnode.appendChild(descnode)
         
         # --- Features ---
-        self.toc.appendChild(self._createTextElement('h2', _('Features')))
-        self.body.appendChild(self._createTextElement('h1', _('Features')))
+        self.toc.appendChild(self._createHeadline('h2', _('Features'), {'href': '#features'}))
+        self.body.appendChild(self._createHeadline('h1', _('Features'), {'name': 'features'}))
         listnode = self._createElement('ul')
         self.toc.appendChild(listnode)
         idlist = self.model.getFeatureIDs()
         for id in idlist:
-            (node, tocnode) = self.renderFeature(id)
+            (node, tocnode, changelognode) = self.renderFeature(id)
             self.body.appendChild(node)
             self.appendListItem(listnode, tocnode)
+            self.changelog.appendChild(changelognode)
         
         # --- Requirements ---
-        self.toc.appendChild(self._createTextElement('h2', _('Requirements')))
-        self.body.appendChild(self._createTextElement('h1', _('Requirements')))
+        self.toc.appendChild(self._createHeadline('h2', _('Requirements'), {'href': '#requirements'}))
+        self.body.appendChild(self._createHeadline('h1', _('Requirements'), {'name': 'requirements'}))
         listnode = self._createElement('ul')
         self.toc.appendChild(listnode)
         cursor = self.model.connection.cursor()
         # SQL query for demonstration purposes only
         cursor.execute('select ID from requirements where delcnt==0 order by ID;')
         for id in [item[0] for item in cursor.fetchall()]:
-            (node, tocnode) = self.renderRequirement(id)
+            (node, tocnode, changelognode) = self.renderRequirement(id)
             self.body.appendChild(node)
             self.appendListItem(listnode, tocnode)
+            self.changelog.appendChild(changelognode)
             
         # --- Usecases ---
-        self.toc.appendChild(self._createTextElement('h2', _('Usecases')))
-        self.body.appendChild(self._createTextElement('h1', _('Usecases')))
+        self.toc.appendChild(self._createHeadline('h2', _('Usecases'), {'href': '#usecases'}))
+        self.body.appendChild(self._createHeadline('h1', _('Usecases'), {'name': 'usecases'}))
         listnode = self._createElement('ul')
         self.toc.appendChild(listnode)
         idlist = self.model.getUsecaseIDs()
         for id in idlist:
-            (node, tocnode) = self.renderUsecase(id)
+            (node, tocnode, changelognode) = self.renderUsecase(id)
             self.body.appendChild(node)
             self.appendListItem(listnode, tocnode)
+            self.changelog.appendChild(changelognode)
 
         # --- Testcases ---
-        self.toc.appendChild(self._createTextElement('h2', _('Testcases')))
-        self.body.appendChild(self._createTextElement('h1', _('Testcases')))
+        self.toc.appendChild(self._createHeadline('h2', _('Testcases'), {'href': '#testcases'}))
+        self.body.appendChild(self._createHeadline('h1', _('Testcases'), {'name': 'testcases'}))
         listnode = self._createElement('ul')
         self.toc.appendChild(listnode)
         idlist = self.model.getTestcaseIDs()
         for id in idlist:
-            (node, tocnode) = self.renderTestcase(id)
+            (node, tocnode, changelognode) = self.renderTestcase(id)
             self.body.appendChild(node)
             self.appendListItem(listnode, tocnode)
+            self.changelog.appendChild(changelognode)
             
         # --- Testsuites ---
-        self.toc.appendChild(self._createTextElement('h2', _('Testsuites')))
-        self.body.appendChild(self._createTextElement('h1', _('Testsuites')))
+        self.toc.appendChild(self._createHeadline('h2', _('Testsuites'), {'href': '#testsuites'}))
+        self.body.appendChild(self._createHeadline('h1', _('Testsuites'), {'name': 'testsuites'}))
         listnode = self._createElement('ul')
         self.toc.appendChild(listnode)
         idlist = self.model.getTestsuiteIDs()
@@ -161,8 +159,8 @@ class afExportHTML():
             self.appendListItem(listnode, tocnode)     
 
         # -- Problem reports ---
-        self.toc.appendChild(self._createTextElement('h2', _('Detected problems')))
-        self.body.appendChild(self._createTextElement('h1', _('Detected problems')))
+        self.toc.appendChild(self._createHeadline('h2', _('Detected problems'), {'href': '#problems'}))
+        self.body.appendChild(self._createHeadline('h1', _('Detected problems'), {'name': 'problems'}))
         hrefs  = ("lonelyfeatures","untestedrequirements", "lonelytestcases","unexecutedtestcases","emptytestsuites","lonelyusecases")
         labels = (_('Features without requirements'), _('Requirements without testcases'), _('Testcases not belonging to requirements'), _('Testcases not belonging to testsuites'), _('Empty testsuites'), _('Usecases not belonging to requirements'))
         getIDFuncs = (self.model.getIDofFeaturesWithoutRequirements, self.model.getIDofRequirementsWithoutTestcases,
@@ -184,7 +182,9 @@ class afExportHTML():
             self.body.appendChild(node)
             idlist = getIDFunc()
             if len(idlist) == 0:
-                subnode = self._createTextElement('p', _('None'), {'class': 'pass'})
+                subnode = self._createElement('p')
+                spannode = self._createTextElement('span', _('None'), {'class': 'pass'})
+                subnode.appendChild(spannode)
             else:
                 subnode = self._createElement('ul')
                 for id in idlist:
@@ -192,13 +192,26 @@ class afExportHTML():
             self.body.appendChild(subnode)
         self.toc.appendChild(tocnode)
         
+        self.toc.appendChild(self._createHeadline('h2', _('Changelog'), {'href': '#changelog'}))
+        self.body.appendChild(self._createHeadline('h1', _('Changelog'), {'name': 'changelog'}))
         self.body.appendChild(self.changelog)
+        
+        self.body.appendChild(self._createElement('hr'))
+        footer = _('Created from %s at %s') % (self.model.getFilename(), strftime(afresource.TIME_FORMAT, localtime()))
+        self.body.appendChild(self._createTextElement('p', footer, {'class': 'footer'}))
+
+
+    def _createHeadline(self, tagName, text, attribute):
+        node = self._createElement(tagName)
+        node.appendChild(self._createTextElement('a', text, attribute))
+        return node
 
 
     def appendListItem(self, listnode, itemnode):
         listitemnode = self._createElement('li')
         listitemnode.appendChild(itemnode)
         listnode.appendChild(listitemnode)
+        
         
     def renderGlossaryEntry(self, id):
         glossaryentry = self.model.getGlossaryEntry(id)
@@ -208,21 +221,18 @@ class afExportHTML():
         subnode.appendChild(self._createTextElement('span', glossaryentry['title'], {'class': 'glossarytitle'}))
         termnode.appendChild(subnode)
         descnode = self._createElement('dd')
-        subnode = self._createElement('div', {'class': 'glossarydescription'})
-        subnode.appendChild(self._render(glossaryentry['description']))
+        subnode = self._render(glossaryentry['description'])
+        subnode.setAttribute('class', 'glossarydescription')
         descnode.appendChild(subnode)
         return (termnode, descnode)
+        
         
     def renderProductInformation(self):
         productinfo = self.model.getProductInformation()
         node = self._createElement('div', {'class': 'productinfo'})
-        subnode = self._createElement('h1', {'id': 'productinfo'})
-        subnode.appendChild(self._createTextElement('a', _('Product information'), {'name': 'PRODUCTINFO'}))
-        node.appendChild(subnode)
         node.appendChild(self._createTextElement('div', productinfo['title'], {'class': 'producttitle'}))
         node.appendChild(self._render(productinfo['description']))
-        tocnode = self._createTextElement('a', _('Product information'), {'href': '#PRODUCTINFO'})
-        return (node, tocnode)
+        return node
         
         
     def renderSimpleSection(self, ID):
@@ -265,7 +275,9 @@ class afExportHTML():
         table.appendChild(self._createTableRow(_('Related Requirements'), subnode))
             
         tocnode = self.renderFeatureAnchor(feature, True)
-        return (node, tocnode)
+        (changelognode, changeloglink) = self.renderChangelist('FT', feature)
+        node.appendChild(changeloglink)
+        return (node, tocnode, changelognode)
         
 
     def renderFeatureAnchor(self, feature, href):
@@ -325,7 +337,9 @@ class afExportHTML():
         table.appendChild(self._createTableRow(_('Attached Testcases'), subnode))
 
         tocnode = self.renderRequirementAnchor(requirement, True)
-        return (node, tocnode)
+        (changelognode, changeloglink) = self.renderChangelist('REQ', requirement)
+        node.appendChild(changeloglink)
+        return (node, tocnode, changelognode)
         
         
     def renderRequirementAnchor(self, requirement, href):
@@ -365,7 +379,9 @@ class afExportHTML():
         table.appendChild(self._createTableRow(_('Related Requirements'), subnode))
             
         tocnode = self.renderUsecaseAnchor(usecase, True)
-        return (node, tocnode)
+        (changelognode, changeloglink) = self.renderChangelist('UC', usecase)
+        node.appendChild(changeloglink)
+        return (node, tocnode, changelognode)
         
         
     def renderUsecaseAnchor(self, usecase, href):
@@ -412,8 +428,10 @@ class afExportHTML():
         table.appendChild(self._createTableRow(_('Related Testsuites'), subnode))
 
         tocnode = self.renderTestcaseAnchor(testcase, True)
-        return (node, tocnode)
-        
+        (changelognode, changeloglink) = self.renderChangelist('TC', testcase)
+        node.appendChild(changeloglink)
+        return (node, tocnode, changelognode)
+
         
     def renderTestcaseAnchor(self, testcase, href):
         if href:
@@ -469,12 +487,34 @@ class afExportHTML():
         nameanchor.appendChild(hrefanchor)
         headline.appendChild(nameanchor)
         node.appendChild(headline)
-        
+        changelist = artefact.getChangelist()
+        if len(changelist) == 0:
+            node.appendChild(self._createTextElement('p', _('None')))
+        else:
+            attribute = {'class': 'history'}
+            table = self._createElement('table', attribute)
+            node.appendChild(table)
+            tr = self._createElement('tr')
+            table.appendChild(tr)
+            for label in changelist[0].labels():
+                tr.appendChild(self._createTextElement('th', label, attribute))
+            for changelogentry in changelist:
+                tr = self._createElement('tr')
+                table.appendChild(tr)
+                basedata = changelogentry.getPrintableDataDict()
+                tr.appendChild(self._createTextElement('td', basedata['date'], attribute))
+                tr.appendChild(self._createTextElement('td', basedata['user'], attribute))
+                td = self._createElement('td', attribute)
+                subnode = self._render(basedata['description'])
+                subnode.setAttribute('class', 'history')
+                td.appendChild(subnode)
+                tr.appendChild(td)
+                
         link = self._createElement('p', {'class': 'changeloglink'})
         hrefanchor = self._createTextElement('a', _('Changelog'), {'href': '#H%(keystr)s-%(ID)03d' % artefact})
         link.appendChild(hrefanchor)
         return (node, link)
-        
+    
 
     def write(self, filename):
         f = codecs.open(filename, encoding='UTF-8', mode="w", errors='strict')
