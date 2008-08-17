@@ -120,6 +120,10 @@ class cChangelogEntry():
         self._basedata[key] = value
 
 
+    def identity(self, s):
+        return s
+
+
     def labels(self):
         return [_('Date'), _('User'), _('Description')]
 
