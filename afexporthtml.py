@@ -36,129 +36,554 @@ if __name__=="__main__":
     LOCALEDIR = os.path.join(basepath, 'locale')
     DOMAIN = "afms"
     gettext.install(DOMAIN, LOCALEDIR, unicode=True)
-
-import codecs
+import codecs, logging
+from xml.dom.minidom import getDOMImplementation, XMLNS_NAMESPACE, parseString, parse
 from time import localtime, gmtime, strftime
 import afmodel
 import afconfig
 import afresource, _afartefact
 from afresource import ENCODING
-import _afdocutils
-
-
-HTMLHEADER = \
-"""
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-<meta http-equiv="content-type" content="text/html; charset=%s">
-<title>AFMS Report</title>
-%s
-</head>
-<body>
-"""
-
-HTMLFOOTER = \
-"""
-</body>
-</html>
-"""
-
-htmlentities = \
-    {u"ä": u"&auml;", u"ö": u"&ouml;", u"ü": u"&uuml;",
-     u"Ä": u"&Auml;", u"Ö": u"&Ouml;", u"Ü": u"&Uuml;",
-     u"ß": u"&szlig;", u"\"": u"&quot;"}
-
-htmlentities = (\
-    (u"ö",      u"Ö",      u"ä",      u"Ä",      u"ü",      u"Ü",      u"ß",       u"\""),
-    (u"&ouml;", u"&Ouml;", u"&auml;", u"&Auml;", u"&uuml;", u"&Uuml;", u"&szlig;", u"&quot;"))
-
-specialchars = (\
-    (u"&",     u">",    u"<",    u"ö",      u"Ö",      u"ä",      u"Ä",      u"ü",      u"Ü",      u"ß",       u"\""),
-    (u"&amp;", u"&gt;", u"&lt;", u"&ouml;", u"&Ouml;", u"&auml;", u"&Auml;", u"&uuml;", u"&Uuml;", u"&szlig;", u"&quot;"))
-
-def __(s, entities=htmlentities):
-    for k,v in zip(entities[0], entities[1]):
-        s = s.replace(k, v)
-    return s
-
-
-def formatField(fstr):
-    """
-    Format a field from database
-    Formatting depends on whether the field data starts with <html> or not.
-    """
-    fstr = fstr.strip(' \t\n')
-    if fstr.startswith(("<html>", "<HTML>")):
-        fstr = fstr[6:]
-        if fstr.endswith(("</html>", "</HTML>")):
-            fstr = fstr[0:-7]
-    elif fstr.upper().startswith(".. HTML"):
-        fstr = fstr[7:]
-    elif fstr.startswith((".. rest", ".. REST")):
-        fstr = _afdocutils.html_body(fstr, doctitle=0, initial_header_level=3)
-    else:
-        fstr = __(fstr, specialchars)
-        lines = fstr.split(u"\n")
-        fstr = "<br />".join(lines)
-    return fstr
+import _afhtmlwindow 
 
 
 class afExportHTML():
-    def __init__(self, outfilename, model):
+    def __init__(self, model):
         self.model = model
-        self.lonelyfeatures = []
-        self.lonelytestcases = []
-        self.untestedrequirements = []
-        self.emptytestsuites = []
-        self.testcasesnotintestsuites = []
-        self.attached_usecase_ids = []
-        self.featurehistory = []
-        self.requirementhistory = []
-        self.usecasehistory = []
-        self.testcasehistory = []
-        self.simplesectionhistory = []
+        self.title='AFMS Report'
+        self.encoding = 'UTF-8'
+        self.cssfile = 'afmsreport.css'
+        
+        self.impl = getDOMImplementation()
+        doctype = self.getDocType()
+        self.xmldoc = self.impl.createDocument(None, "html", doctype)
+        self.root = self.xmldoc.documentElement
+        self.root.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml')
 
-        self.of = codecs.open(outfilename, encoding=ENCODING, mode="w", errors='strict')
-        self.writeHTMLHeader()
-        self.writeTOC()
-        self.writeTag('h1', '<a name="productinfo">%s</a>' % __(_('Product information')))
-        self.writeProductInfo()
+        self.root.appendChild(self.getHead())
+        self.body = self.xmldoc.createElement('body')
+        self.root.appendChild(self.body)
+                
+        
+    def getDocType(self):
+        return self.impl.createDocumentType('html', '-//W3C//DTD XHTML 1.0 Strict//EN', 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd')        
+        
+        
+    def getHead(self):
+        head = self.xmldoc.createElement('head')  
+        node = self.xmldoc.createElement('meta')
+        node.setAttribute('content', "text/xhtml; charset=%s" % self.encoding)
+        node.setAttribute('http-equiv', "content-type")
+        head.appendChild(node)
+        node = self.xmldoc.createElement('title')
+        node.appendChild(self.xmldoc.createTextNode(self.title))
+        head.appendChild(node)
+        
+        node = self.xmldoc.createElement('style')
+        node.setAttribute('type', "text/css")
+        node.appendChild(self.xmldoc.createTextNode(self.getCSSFile()))
+        head.appendChild(node)
+        return head
+        
+        
+    def run(self):
+        self.toc = self._createElement('div', {'class': 'tableofcontent'})
+        self.toc.appendChild(self._createTextElement('h1', _('Table of Contents')))
+        self.body.appendChild(self.toc)
+        
+        self.changelog = self._createElement('div', {'class': 'changelog'})
+        
+        # --- Product information ---
+        self.toc.appendChild(self._createHeadline('h2', _('Product information'), {'href': '#productinformation'}))
+        self.body.appendChild(self._createHeadline('h1', _('Product information'), {'name': 'productinformation'}))
+        node = self.renderProductInformation()
+        self.body.appendChild(node)
+        
+        # --- Text sections ---
+        self.toc.appendChild(self._createHeadline('h2', _('Text sections'), {'href': '#textsections'}))
+        self.body.appendChild(self._createHeadline('h1', _('Text sections'), {'name': 'textsections'}))
+        listnode = self._createElement('ul')
+        self.toc.appendChild(listnode)
+        idlist = self.model.getSimpleSectionIDs()
+        for id in idlist:
+            (node, tocnode, changelognode) = self.renderSimpleSection(id)
+            self.body.appendChild(node)
+            self.appendListItem(listnode, tocnode)
+            self.changelog.appendChild(changelognode)
+            
+        # --- Glossary ---
+        self.toc.appendChild(self._createHeadline('h2', _('Terms and Abbreviations'), {'href': '#glossary'}))
+        self.body.appendChild(self._createHeadline('h1', _('Terms and Abbreviations'), {'name': 'glossary'}))
+        listnode = self._createElement('dl', {'class': 'glossary'})
+        self.body.appendChild(listnode)
+        cursor = self.model.connection.cursor()
+        # SQL query for demonstration purposes only
+        cursor.execute('select ID from glossary where delcnt==0 order by title;')
+        for id in [item[0] for item in cursor.fetchall()]:
+            (termnode, descnode) = self.renderGlossaryEntry(id)
+            listnode.appendChild(termnode)
+            listnode.appendChild(descnode)
+        
+        # --- Features ---
+        self.toc.appendChild(self._createHeadline('h2', _('Features'), {'href': '#features'}))
+        self.body.appendChild(self._createHeadline('h1', _('Features'), {'name': 'features'}))
+        listnode = self._createElement('ul')
+        self.toc.appendChild(listnode)
+        idlist = self.model.getFeatureIDs()
+        for id in idlist:
+            (node, tocnode, changelognode) = self.renderFeature(id)
+            self.body.appendChild(node)
+            self.appendListItem(listnode, tocnode)
+            self.changelog.appendChild(changelognode)
+        
+        # --- Requirements ---
+        self.toc.appendChild(self._createHeadline('h2', _('Requirements'), {'href': '#requirements'}))
+        self.body.appendChild(self._createHeadline('h1', _('Requirements'), {'name': 'requirements'}))
+        listnode = self._createElement('ul')
+        self.toc.appendChild(listnode)
+        cursor = self.model.connection.cursor()
+        # SQL query for demonstration purposes only
+        cursor.execute('select ID from requirements where delcnt==0 order by ID;')
+        for id in [item[0] for item in cursor.fetchall()]:
+            (node, tocnode, changelognode) = self.renderRequirement(id)
+            self.body.appendChild(node)
+            self.appendListItem(listnode, tocnode)
+            self.changelog.appendChild(changelognode)
+            
+        # --- Usecases ---
+        self.toc.appendChild(self._createHeadline('h2', _('Usecases'), {'href': '#usecases'}))
+        self.body.appendChild(self._createHeadline('h1', _('Usecases'), {'name': 'usecases'}))
+        listnode = self._createElement('ul')
+        self.toc.appendChild(listnode)
+        idlist = self.model.getUsecaseIDs()
+        for id in idlist:
+            (node, tocnode, changelognode) = self.renderUsecase(id)
+            self.body.appendChild(node)
+            self.appendListItem(listnode, tocnode)
+            self.changelog.appendChild(changelognode)
 
-        self.writeSimpleSections()
+        # --- Testcases ---
+        self.toc.appendChild(self._createHeadline('h2', _('Testcases'), {'href': '#testcases'}))
+        self.body.appendChild(self._createHeadline('h1', _('Testcases'), {'name': 'testcases'}))
+        listnode = self._createElement('ul')
+        self.toc.appendChild(listnode)
+        idlist = self.model.getTestcaseIDs()
+        for id in idlist:
+            (node, tocnode, changelognode) = self.renderTestcase(id)
+            self.body.appendChild(node)
+            self.appendListItem(listnode, tocnode)
+            self.changelog.appendChild(changelognode)
+            
+        # --- Testsuites ---
+        self.toc.appendChild(self._createHeadline('h2', _('Testsuites'), {'href': '#testsuites'}))
+        self.body.appendChild(self._createHeadline('h1', _('Testsuites'), {'name': 'testsuites'}))
+        listnode = self._createElement('ul')
+        self.toc.appendChild(listnode)
+        idlist = self.model.getTestsuiteIDs()
+        for id in idlist:
+            (node, tocnode) = self.renderTestsuite(id)
+            self.body.appendChild(node)
+            self.appendListItem(listnode, tocnode)     
 
-        self.writeTag('h1', '<a name="glossary">%s</a>' % __(_('Terms and Abbreviations')))
-        self.writeGlossary()
+        # -- Problem reports ---
+        self.toc.appendChild(self._createHeadline('h2', _('Detected problems'), {'href': '#problems'}))
+        self.body.appendChild(self._createHeadline('h1', _('Detected problems'), {'name': 'problems'}))
+        hrefs  = ("lonelyfeatures","untestedrequirements", "lonelytestcases","unexecutedtestcases","emptytestsuites","lonelyusecases")
+        labels = (_('Features without requirements'), _('Requirements without testcases'), _('Testcases not belonging to requirements'), _('Testcases not belonging to testsuites'), _('Empty testsuites'), _('Usecases not belonging to requirements'))
+        getIDFuncs = (self.model.getIDofFeaturesWithoutRequirements, self.model.getIDofRequirementsWithoutTestcases,
+                     self.model.getIDofTestcasesWithoutRequirements, self.model.getIDofTestcasesWithoutTestsuites,
+                     self.model.getIDofTestsuitesWithoutTestcases, self.model.getIDofUsecasesWithoutRequirements)
+        getAFFuncs = (self.model.getFeature, self.model.getRequirement, self.model.getTestcase,
+                     self.model.getTestcase, self.model.getTestsuite, self.model.getUsecase)
+        renderFuncs = (self.renderFeatureAnchor, self.renderRequirementAnchor, self.renderTestcaseAnchor,
+                      self.renderTestcaseAnchor, self.renderTestsuiteAnchor, self.renderUsecaseAnchor)
 
-        self.writeTag('h1', '<a name="features">%s</a>' % __(_('Features')))
-        self.writeFeatures()
+        tocnode = self._createElement('ul')
+        for href, label, getIDFunc, getAFFunc, renderFunc in zip(hrefs, labels, getIDFuncs, getAFFuncs, renderFuncs):
+            subnode = self._createElement('li')
+            subnode.appendChild(self._createTextElement('a', label, {'href': '#' + href}))
+            tocnode.appendChild(subnode)
+            
+            node = self._createElement('h2')
+            node.appendChild(self._createTextElement('a', label, {'name': href}))
+            self.body.appendChild(node)
+            idlist = getIDFunc()
+            if len(idlist) == 0:
+                subnode = self._createElement('p')
+                spannode = self._createTextElement('span', _('None'), {'class': 'pass'})
+                subnode.appendChild(spannode)
+            else:
+                subnode = self._createElement('ul')
+                for id in idlist:
+                    self.appendListItem(subnode, renderFunc(getAFFunc(id), True))
+            self.body.appendChild(subnode)
+        self.toc.appendChild(tocnode)
+        
+        # --- Changelog ---
+        self.toc.appendChild(self._createHeadline('h2', _('Changelog'), {'href': '#changelog'}))
+        self.body.appendChild(self._createHeadline('h1', _('Changelog'), {'name': 'changelog'}))
+        self.body.appendChild(self.changelog)
+        
+        # --- Footer ---
+        self.body.appendChild(self._createElement('hr'))
+        footer = _('Created from %s at %s by %s') % (self.model.getFilename(), strftime(afresource.TIME_FORMAT, localtime()), afconfig.CURRENT_USER)
+        self.body.appendChild(self._createTextElement('p', footer, {'class': 'footer'}))
 
-        self.writeTag('h1', '<a name="requirements">%s</a>' % __(_('Requirements')))
-        self.writeRequirements()
 
-        self.writeTag('h1', '<a name="testcases">%s</a>' % __(_('Testcases')))
-        self.writeTestcases()
-
-        self.writeTag('h1', '<a name="testsuites">%s</a>' % __(_('Testsuites')))
-        self.writeTestsuites()
-
-        self.writeTag('h1', '<a name="problems">%s</a>' % __(_('Detected problems')))
-        self.writeProblems()
-
-        self.writeTag('h1', '<a name="history">%s</a>' % __(_('Artefact History')))
-        self.writeHistory()
-
-        self.writeHTMLFooter()
-        self.of.close()
+    def _createHeadline(self, tagName, text, attribute):
+        node = self._createElement(tagName)
+        node.appendChild(self._createTextElement('a', text, attribute))
+        return node
 
 
-    def formatField(self, fstr):
-        return formatField(fstr)
+    def appendListItem(self, listnode, itemnode):
+        listitemnode = self._createElement('li')
+        listitemnode.appendChild(itemnode)
+        listnode.appendChild(listitemnode)
+        
+        
+    def renderGlossaryEntry(self, id):
+        glossaryentry = self.model.getGlossaryEntry(id)
+        termnode = self._createElement('dt')
+        termnode.appendChild(self._createTextElement('p', '[GE-%03d]' % glossaryentry['ID'], {'class': 'glossaryid'}))
+        subnode = self._createElement('p', {'class': 'glossarytitle'})
+        subnode.appendChild(self._createTextElement('span', glossaryentry['title'], {'class': 'glossarytitle'}))
+        termnode.appendChild(subnode)
+        descnode = self._createElement('dd')
+        subnode = self._render(glossaryentry['description'])
+        subnode.setAttribute('class', 'glossarydescription')
+        descnode.appendChild(subnode)
+        return (termnode, descnode)
+        
+        
+    def renderProductInformation(self):
+        productinfo = self.model.getProductInformation()
+        node = self._createElement('div', {'class': 'productinfo'})
+        node.appendChild(self._createTextElement('div', productinfo['title'], {'class': 'producttitle'}))
+        node.appendChild(self._render(productinfo['description']))
+        return node
+        
+        
+    def renderSimpleSection(self, ID):
+        simplesection = self.model.getSimpleSection(ID)
+        node = self._createElement('div', {'class': 'simplesection'})
+        subnode = self._createElement('h2')
+        subnode.appendChild(self._createTextElement('a', 'SS-%(ID)03d: %(title)s' % simplesection, {'name': 'SS-%(ID)03d' % simplesection}))
+        node.appendChild(subnode)
+        node.appendChild(self._render(simplesection['content']))
+        tocnode = self._createTextElement('a', 'SS-%(ID)03d: %(title)s' % simplesection, {'href': '#SS-%(ID)03d' % simplesection})
+        (changelognode, changeloglink) = self.renderChangelist('SS', simplesection)
+        node.appendChild(changeloglink)
+        return (node, tocnode, changelognode)
+        
+        
+    def renderFeature(self, ID):
+        feature = self.model.getFeature(ID)
+        basedata = feature.getPrintableDataDict()
+        node = self._createElement('div', {'class': 'feature'})
+        subnode = self._createElement('h2')
+        subnode.appendChild(self.renderFeatureAnchor(feature, False))
+        node.appendChild(subnode)
+        
+        table = self._createElement('table')
+        node.appendChild(table)
+        
+        table.appendChild(self._createTableRow(_('Description'), self._render(basedata['description'])))
+        table.appendChild(self._createTableRow(_('Priority'),    basedata['priority']))
+        table.appendChild(self._createTableRow(_('Status'),      basedata['status']))
+        table.appendChild(self._createTableRow(_('Version'),     basedata['version']))
+        table.appendChild(self._createTableRow(_('Risk'),        basedata['risk']))
+        
+        relatedrequirements = feature.getRelatedRequirements()
+        if len(relatedrequirements) == 0:
+            subnode = self._createTextElement('div', _('None'), {'class': 'alert'})
+        else:
+            subnode = self._createElement('ul')
+            for requirement in relatedrequirements:
+                self.appendListItem(subnode, self.renderRequirementAnchor(requirement, True))
+        table.appendChild(self._createTableRow(_('Related Requirements'), subnode))
+            
+        tocnode = self.renderFeatureAnchor(feature, True)
+        (changelognode, changeloglink) = self.renderChangelist('FT', feature)
+        node.appendChild(changeloglink)
+        return (node, tocnode, changelognode)
+        
+
+    def renderFeatureAnchor(self, feature, href):
+        if href:
+            attribute = {'href': '#FT-%(ID)03d' % feature}
+        else:
+            attribute = {'name': 'FT-%(ID)03d' % feature}
+        return self._createTextElement('a', 'FT-%(ID)03d: %(title)s' % feature, attribute)
 
 
-    def writeHTMLHeader(self):
-        cssfile = 'afmsreport.css'
-        p = os.path.join(os.path.dirname(__file__), cssfile)
+    def renderRequirement(self, ID):
+        requirement = self.model.getRequirement(ID)
+        basedata = requirement.getPrintableDataDict()
+        node = self._createElement('div', {'class': 'requirement'})
+        subnode = self._createElement('h2')
+        subnode.appendChild(self.renderRequirementAnchor(requirement, False))
+        node.appendChild(subnode)
+        
+        table = self._createElement('table')
+        node.appendChild(table)
+        table.appendChild(self._createTableRow(_('Description'), self._render(basedata['description'])))
+        table.appendChild(self._createTableRow(_('Priority'),    basedata['priority']))
+        table.appendChild(self._createTableRow(_('Status'),      basedata['status']))
+        table.appendChild(self._createTableRow(_('Version'),     basedata['version']))
+        table.appendChild(self._createTableRow(_('Complexity'),  basedata['complexity']))
+        table.appendChild(self._createTableRow(_('Assigned'),    basedata['assigned']))
+        table.appendChild(self._createTableRow(_('Effort'),      basedata['effort']))
+        table.appendChild(self._createTableRow(_('Category'),    basedata['category']))
+        table.appendChild(self._createTableRow(_('Origin'),      self._render(basedata['origin'])))
+        table.appendChild(self._createTableRow(_('Rationale'),   self._render(basedata['rationale'])))
+        
+        relatedfeatures = requirement.getRelatedFeatures()
+        if len(relatedfeatures) == 0:
+            subnode = self._createTextElement('span', _('None'), {'class': 'alert'})
+        else:
+            subnode = self._createElement('ul')
+            for feature in relatedfeatures:
+                self.appendListItem(subnode, self.renderFeatureAnchor(feature, True))
+        table.appendChild(self._createTableRow(_('Related Features'), subnode))
+        
+        relatedusecases = requirement.getRelatedUsecases()
+        if len(relatedusecases) == 0:
+            subnode = self._createTextElement('span', _('None'), {'class': 'alert'})
+        else:
+            subnode = self._createElement('ul')
+            for usecase in relatedusecases:
+                self.appendListItem(subnode, self.renderUsecaseAnchor(usecase, True))
+        table.appendChild(self._createTableRow(_('Attached Usecases'), subnode))
+
+        relatedtestcases = requirement.getRelatedTestcases()
+        if len(relatedtestcases) == 0:
+            subnode = self._createTextElement('span', _('None'), {'class': 'alert'})
+        else:
+            subnode = self._createElement('ul')
+            for testcase in relatedtestcases:
+                self.appendListItem(subnode, self.renderTestcaseAnchor(testcase, True))
+        table.appendChild(self._createTableRow(_('Attached Testcases'), subnode))
+
+        tocnode = self.renderRequirementAnchor(requirement, True)
+        (changelognode, changeloglink) = self.renderChangelist('REQ', requirement)
+        node.appendChild(changeloglink)
+        return (node, tocnode, changelognode)
+        
+        
+    def renderRequirementAnchor(self, requirement, href):
+        if href:
+            attribute = {'href': '#REQ-%(ID)03d' % requirement}
+        else:
+            attribute = {'name': 'REQ-%(ID)03d' % requirement}
+        return self._createTextElement('a', 'REQ-%(ID)03d: %(title)s' % requirement, attribute)
+        
+
+    def renderUsecase(self, ID):
+        usecase = self.model.getUsecase(ID)
+        basedata = usecase.getPrintableDataDict()
+        node = self._createElement('div', {'class': 'usecase'})
+        subnode = self._createElement('h2')
+        subnode.appendChild(self.renderUsecaseAnchor(usecase, False))
+        node.appendChild(subnode)
+        
+        table = self._createElement('table')
+        node.appendChild(table)
+        table.appendChild(self._createTableRow(_('Priority'),      basedata['priority']))
+        table.appendChild(self._createTableRow(_('Use frequency'), basedata['usefrequency']))
+        table.appendChild(self._createTableRow(_('Actors'),        basedata['actors']))
+        table.appendChild(self._createTableRow(_('Stakeholders'),  basedata['stakeholders']))
+        table.appendChild(self._createTableRow(_('Prerequisites'), self._render(basedata['prerequisites'])))
+        table.appendChild(self._createTableRow(_('Main scenario'), self._render(basedata['mainscenario'])))
+        table.appendChild(self._createTableRow(_('Alt scenario'),  self._render(basedata['altscenario'])))
+        table.appendChild(self._createTableRow(_('Notes'),         self._render(basedata['notes'])))
+        
+        relatedrequirements = usecase.getRelatedRequirements()
+        if len(relatedrequirements) == 0:
+            subnode = self._createTextElement('span', _('None'), {'class': 'alert'})
+        else:
+            subnode = self._createElement('ul')
+            for requirement in relatedrequirements:
+                self.appendListItem(subnode, self.renderRequirementAnchor(requirement, True))
+        table.appendChild(self._createTableRow(_('Related Requirements'), subnode))
+            
+        tocnode = self.renderUsecaseAnchor(usecase, True)
+        (changelognode, changeloglink) = self.renderChangelist('UC', usecase)
+        node.appendChild(changeloglink)
+        return (node, tocnode, changelognode)
+        
+        
+    def renderUsecaseAnchor(self, usecase, href):
+        if href:
+            attribute = {'href': '#UC-%(ID)03d' % usecase}
+        else:
+            attribute = {'name': 'UC-%(ID)03d' % usecase}
+        return self._createTextElement('a', 'UC-%(ID)03d: %(title)s' % usecase, attribute)
+
+        
+    def renderTestcase(self, ID):
+        testcase = self.model.getTestcase(ID)
+        basedata = testcase.getPrintableDataDict()
+        node = self._createElement('div', {'class': 'testcase'})
+        subnode = self._createElement('h2')
+        subnode.appendChild(self.renderTestcaseAnchor(testcase, False))
+        node.appendChild(subnode)
+        
+        table = self._createElement('table')
+        node.appendChild(table)
+        table.appendChild(self._createTableRow(_('Version'),      basedata['version']))
+        table.appendChild(self._createTableRow(_('Purpose'),      self._render(basedata['purpose'])))
+        table.appendChild(self._createTableRow(_('Prerequisite'), self._render(basedata['prerequisite'])))
+        table.appendChild(self._createTableRow(_('Testdata'),     self._render(basedata['testdata'])))
+        table.appendChild(self._createTableRow(_('Steps'),        self._render(basedata['steps'])))
+        table.appendChild(self._createTableRow(_('Notes'),        self._render(basedata['notes'])))
+        
+        relatedrequirements = testcase.getRelatedRequirements()
+        if len(relatedrequirements) == 0:
+            subnode = self._createTextElement('span', _('None'), {'class': 'alert'})
+        else:
+            subnode = self._createElement('ul')
+            for requirement in relatedrequirements:
+                self.appendListItem(subnode, self.renderRequirementAnchor(requirement, True))
+        table.appendChild(self._createTableRow(_('Related Requirements'), subnode))
+                        
+        relatedtestsuites = testcase.getRelatedTestsuites()
+        if len(relatedtestsuites) == 0:
+            subnode = self._createTextElement('span', _('None'), {'class': 'alert'})
+        else:
+            subnode = self._createElement('ul')
+            for testsuite in relatedtestsuites:
+                self.appendListItem(subnode, self.renderTestsuiteAnchor(testsuite, True))
+        table.appendChild(self._createTableRow(_('Related Testsuites'), subnode))
+
+        tocnode = self.renderTestcaseAnchor(testcase, True)
+        (changelognode, changeloglink) = self.renderChangelist('TC', testcase)
+        node.appendChild(changeloglink)
+        return (node, tocnode, changelognode)
+
+        
+    def renderTestcaseAnchor(self, testcase, href):
+        if href:
+            attribute = {'href': '#TC-%(ID)03d' % testcase}
+        else:
+            attribute = {'name': 'TC-%(ID)03d' % testcase}
+        return self._createTextElement('a', 'TC-%(ID)03d: %(title)s' % testcase, attribute)
+
+
+    def renderTestsuite(self, ID):
+        testsuite = self.model.getTestsuite(ID)
+        basedata = testsuite.getPrintableDataDict()
+        node = self._createElement('div', {'class': 'testsuite'})
+        subnode = self._createElement('h2')
+        subnode.appendChild(self.renderTestsuiteAnchor(testsuite, False))
+        node.appendChild(subnode)
+        
+        table = self._createElement('table')
+        node.appendChild(table)
+        table.appendChild(self._createTableRow(_('Description'),     self._render(basedata['description'])))
+        if len(basedata['execorder'].strip()) == 0:
+            table.appendChild(self._createTableRow(_("Execution order ID's"), self._createTextElement('span', _('None'))))
+        else:
+            table.appendChild(self._createTableRow(_("Execution order ID's"), basedata['execorder']))
+        
+        relatedtestcases = testsuite.getRelatedTestcases()
+        if len(relatedtestcases) == 0:
+            subnode = self._createTextElement('span', _('None'), {'class': 'alert'})
+        else:
+            subnode = self._createElement('ul')
+            for testcase in relatedtestcases:
+                self.appendListItem(subnode, self.renderTestcaseAnchor(testcase, True))
+        table.appendChild(self._createTableRow(_('Attached Testcases'), subnode))
+
+        tocnode = self.renderTestsuiteAnchor(testsuite, True)
+        return (node, tocnode)
+        
+        
+    def renderTestsuiteAnchor(self, testsuite, href):
+        if href:
+            attribute = {'href': '#TS-%(ID)03d' % testsuite}
+        else:
+            attribute = {'name': 'TS-%(ID)03d' % testsuite}
+        return self._createTextElement('a', 'TS-%(ID)03d: %(title)s' % testsuite, attribute)
+        
+    
+    def renderChangelist(self, anchorstr, artefact):
+        artefact['keystr'] = anchorstr
+        node = self._createElement('div')
+        headline = self._createElement('h3')
+        nameanchor = self._createElement('a', {'name': 'H%s-%03d' % (anchorstr, artefact['ID'])})
+        hrefanchor = self._createTextElement('a', '%(keystr)s-%(ID)03d: %(title)s' % artefact, {'href': '#%(keystr)s-%(ID)03d' % artefact})     
+        nameanchor.appendChild(hrefanchor)
+        headline.appendChild(nameanchor)
+        node.appendChild(headline)
+        changelist = artefact.getChangelist()
+        if len(changelist) == 0:
+            node.appendChild(self._createTextElement('p', _('None')))
+        else:
+            attribute = {'class': 'history'}
+            table = self._createElement('table', attribute)
+            node.appendChild(table)
+            tr = self._createElement('tr')
+            table.appendChild(tr)
+            for label in changelist[0].labels():
+                tr.appendChild(self._createTextElement('th', label, attribute))
+            for changelogentry in changelist:
+                tr = self._createElement('tr')
+                table.appendChild(tr)
+                basedata = changelogentry.getPrintableDataDict()
+                tr.appendChild(self._createTextElement('td', basedata['date'], attribute))
+                tr.appendChild(self._createTextElement('td', basedata['user'], attribute))
+                td = self._createElement('td', attribute)
+                subnode = self._render(basedata['description'])
+                subnode.setAttribute('class', 'history')
+                td.appendChild(subnode)
+                tr.appendChild(td)
+                
+        link = self._createElement('p', {'class': 'changeloglink'})
+        hrefanchor = self._createTextElement('a', _('Changelog'), {'href': '#H%(keystr)s-%(ID)03d' % artefact})
+        link.appendChild(hrefanchor)
+        return (node, link)
+    
+
+    def write(self, filename):
+        f = codecs.open(filename, encoding='UTF-8', mode="w", errors='strict')
+        self.xmldoc.writexml(f, indent='', addindent=' '*2, newl='\n', encoding=ENCODING)
+        f.close()
+        
+        
+    def _createTextElement(self, tagName, text, attribute={}):
+        node = self.xmldoc.createElement(tagName)
+        for name, value in attribute.iteritems():
+            node.setAttribute(name, value)
+        node.appendChild(self.xmldoc.createTextNode(text))
+        return node
+        
+        
+    def _createElement(self, elementname, attribute={}):
+        node = self.xmldoc.createElement(elementname)
+        for name, value in attribute.iteritems():
+            node.setAttribute(name, value)
+        return node
+        
+        
+    def _createTableRow(self, left, right):
+        tr = self._createElement('tr')
+        if type(left) in [type(''), type(u'')]:
+            th = self._createTextElement('th', left) 
+        else:
+            th = self._createElement('th')
+            th.appendChild(left)
+        if type(right) in [type(''), type(u'')]:
+            td = self._createTextElement('td', right) 
+        else:
+            td = self._createElement('td')
+            td.appendChild(right)
+        tr.appendChild(th)
+        tr.appendChild(td)
+        return tr
+        
+        
+    def getCSSFile(self):
+        p = os.path.join(os.path.dirname(__file__), self.cssfile)
         if os.path.exists(p):
             fp = codecs.open(p, encoding='utf-8', errors = 'ignore')
             css = ''
@@ -169,346 +594,16 @@ class afExportHTML():
             fp.close()
         else:
             css = ''
-        css = '<style type="text/css">\n<!--\n' + css + '\n@import %s;\n-->\n</style>\n' % cssfile
-        self.of.write(HTMLHEADER % (ENCODING, css))
-
-
-    def writeHTMLFooter(self):
-        self.of.write('<hr />')
-        footer = _('Created from %s at %s') % (self.model.getFilename(), strftime(afresource.TIME_FORMAT, localtime()))
-        self.of.write('<p class="footer">%s</p>' % footer)
-        self.of.write(HTMLFOOTER)
-
-
-    def writeTag(self, tag, content):
-        self.of.write("<%s>%s</%s>\n" % (tag, content, tag))
-
-
-    def writeList(self, aflist, label):
-        self.of.write("<ul>\n")
-        for af in aflist:
-            basedata = af.getPrintableDataDict()
-            basedata['_LABEL'] = label
-
-            self.of.write('<li><a href="#%(_LABEL)s-%(ID)03d">%(_LABEL)s-%(ID)03d: %(title)s</a></li>\n' % basedata)
-        self.of.write("</ul>\n")
-
-
-    def writeTOC(self):
-        self.writeTag("h1", __(_('Table of Contents')))
-        self.of.write("<ol>")
-        self.of.write('<li><a href="#productinfo">%s</a></li>\n' % _('Product information'))
-
-        idlist = self.model.getSimpleSectionIDs()
-        for ID in idlist:
-                simplesection = self.model.getSimpleSection(ID)
-                basedata = simplesection.getPrintableDataDict(self.formatField)
-                self.of.write('<li><a href="#SS-%(ID)03d">%(title)s</a></li>\n' % basedata)
-
-        self.of.write('<li><a href="#glossary">%s</a></li>\n' % __(_('Terms and Abbreviations')))
-
-        self.of.write('<li><a href="#features">%s</a></li>\n' % _('Features'))
-        self.writeList(self.model.getFeatureList(), 'F')
-
-        self.of.write('<li><a href="#requirements">%s</a></li>\n' % _('Requirements'))
-        self.writeList(self.model.getRequirementList(), 'REQ')
-
-        self.of.write('<li><a href="#testcases">%s</a></li>\n' % _('Testcases'))
-        self.writeList(self.model.getTestcaseList(), 'TC')
-
-        self.of.write('<li><a href="#testsuites">%s</a></li>\n' % _('Testsuites'))
-        self.writeList(self.model.getTestsuiteList(), 'TS')
-
-        self.of.write('<li><a href="#problems">%s</a></li>\n' % _('Detected problems'))
-        self.of.write('<ul>')
-        self.of.write('<li><a href="#lonelyfeatures">%s</a></li>' % _('Features without requirements'))
-        self.of.write('<li><a href="#untestedrequirements">%s</a></li>' % _('Requirements without testcases'))
-        self.of.write('<li><a href="#lonelytestcases">%s</a></li>' % _('Testcases not belonging to requirements'))
-        self.of.write('<li><a href="#unexecutedtestcases">%s</a></li>' % _('Testcases not belonging to testsuites'))
-        self.of.write('<li><a href="#emptytestsuites">%s</a></li>' % _('Empty testsuites'))
-        self.of.write('<li><a href="#lonelyusecases">%s</a></li>' % _('Usecases not belonging to requirements'))
-        self.of.write('</ul>')
-
-        self.of.write('<li><a href="#history">%s</a></li>' % __(_('Artefact History')))
-        self.of.write('<ul>')
-        self.of.write('<li><a href="#HF">%s</a></li>\n' % __(_('Features')))
-        self.of.write('\n'.join(self.featurehistory))
-        self.of.write('<li><a href="#HR">%s</a></li>\n' % __(_('Requirements')))
-        self.of.write('\n'.join(self.requirementhistory))
-        self.of.write('<li><a href="#HUC">%s</a></li>\n' % __(_('Usecases')))
-        self.of.write('\n'.join(self.usecasehistory))
-        self.of.write('<li><a href="#HTC">%s</a></li>\n' % __(_('Testcases')))
-        self.of.write('</ul>')
-
-        self.of.write("</ol>")
-
-
-    def writeProblems(self):
-        def writeListOrNone(aflist, label):
-            if len(aflist) > 0:
-                self.writeList(aflist, label)
-            else:
-                self.writeTag('p', _('None'))
-
-        self.writeTag('h2', '<a name="lonelyfeatures">%s</a>' % _('Features without requirements'))
-        writeListOrNone(self.lonelyfeatures, 'F')
-
-        self.writeTag('h2', '<a name="untestedrequirements">%s</a>' % _('Requirements without testcases'))
-        writeListOrNone(self.untestedrequirements, 'REQ')
-
-        self.writeTag('h2', '<a name="lonelytestcases">%s</a>' % _('Testcases not belonging to requirements'))
-        writeListOrNone(self.lonelytestcases, 'TC')
-
-        self.writeTag('h2', '<a name="unexecutedtestcases">%s</a>' % _('Testcases not belonging to testsuites'))
-        writeListOrNone(self.testcasesnotintestsuites, 'TC')
-
-        self.writeTag('h2', '<a name="emptytestsuites">%s</a>' % _('Empty testsuites'))
-        writeListOrNone(self.emptytestsuites, 'TS')
-
-        self.writeTag('h2', '<a name="lonelyusecases">%s</a>' % _('Usecases not belonging to requirements'))
-        all_uc_ids = set(self.model.getUsecaseIDs())
-        lonely_uc_ids = all_uc_ids.difference(set(self.attached_usecase_ids))
-        uclist = []
-        for uc_id in lonely_uc_ids:
-            uclist.append(self.model.getUsecase(uc_id))
-        writeListOrNone(uclist, 'UC')
-
-        for uc_id in lonely_uc_ids:
-            self.writeUsecase(uc_id)
-
-
-    def writeProductInfo(self):
-        pi = self.model.getProductInformation()
-        self.of.write('<div class="producttitle">\n%s\n</div>' % self.formatField(pi['title']))
-        self.of.write('<div class="productdescription">\n%s\n</div>' % self.formatField(pi['description']))
-
-
-    def writeSimpleSections(self):
-            idlist = self.model.getSimpleSectionIDs()
-            for ID in idlist:
-                simplesection = self.model.getSimpleSection(ID)
-                basedata = simplesection.getPrintableDataDict(self.formatField)
-
-                self.writeTag('h1', '<a name="SS-%(ID)03d">SS-%(ID)03d: %(title)s</a>' % basedata)
-                #self.of.write('<div class="simplesection">\n%s\n</div>' % self.formatField(basedata['content']))
-                self.of.write('<div class="simplesection">\n%(content)s\n</div>' % basedata)
-                historylink = '<p><a href="#HSS-%03d">%s</a></p>\n' % (basedata['ID'], __(_('History')))
-                self.appendHistory(self.simplesectionhistory, basedata, 'SS', simplesection.getChangelist())
-                self.of.write(historylink)
-
-
-    def writeGlossary(self):
-            idlist = self.model.getGlossaryEntryIDs()
-            if len(idlist) <= 0:
-                self.writeTag('p', _('None'))
-                return
-            self.of.write('<dl class="glossary">\n')
-            for ID in idlist:
-                glossaryentry = self.model.getGlossaryEntry(ID)
-                basedata = glossaryentry.getPrintableDataDict(self.formatField)
-                self.of.write('<dt>%(title)s</dt>\n<dd>%(description)s</dd>\n' % basedata)
-            self.of.write('</dl>\n')
-
-
-    def writeFeatures(self):
-            idlist = self.model.getFeatureIDs()
-            for ID in idlist:
-                feature = self.model.getFeature(ID)
-                basedata = feature.getPrintableDataDict(self.formatField)
-
-                self.writeTag('h2', '<a name="F-%(ID)03d">F-%(ID)03d: %(title)s</a>' % basedata)
-                historylink = '<tr><th><a href="#HF-%03d">%s</a></th><td>&nbsp;</td></tr>\n' % (basedata['ID'], __(_('History')))
-                self.appendHistory(self.featurehistory, basedata, 'F', feature.getChangelist())
-                self.of.write('<table>\n')
-                for label, key in zip(feature.labels()[2:], feature.keys()[2:]):
-                    self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
-
-                self.of.write('<tr><th>%s</th><td>' % _('Related requirements'))
-                related_requirements = feature.getRelatedRequirements()
-                if len(related_requirements) > 0:
-                    self.of.write('<ul>\n')
-                    for req in related_requirements:
-                        basedata = req.getPrintableDataDict(self.formatField)
-                        self.of.write('<li><a href="#REQ-%(ID)03d">REQ-%(ID)03d: %(title)s</a></li>\n' % basedata)
-                    self.of.write('</ul>\n')
-                else:
-                    self.lonelyfeatures.append(feature)
-                    self.of.write('<p class="alert">%s</p>' % _('None'))
-                self.of.write('</td></tr>\n')
-                self.of.write(historylink)
-                self.of.write('</table>\n')
-
-
-    def writeRequirements(self):
-            idlist = self.model.getRequirementIDs()
-            for ID in idlist:
-                requirement = self.model.getRequirement(ID)
-                basedata = requirement.getPrintableDataDict(self.formatField)
-
-                self.writeTag('h2', '<a name="REQ-%(ID)03d">REQ-%(ID)03d: %(title)s</a>' % basedata)
-                historylink = '<tr><th><a href="#HREQ-%03d">%s</a></th><td>&nbsp;</td></tr>\n' % (basedata['ID'], __(_('History')))
-                self.appendHistory(self.requirementhistory, basedata, 'REQ', requirement.getChangelist())
-
-                self.of.write('<div class="requirement">\n')
-
-                self.of.write('<table>\n')
-                for label, key in zip(requirement.labels()[2:], requirement.keys()[2:]):
-                    self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
-
-                self.of.write('<tr><th>%s</th><td>' % _('Related requirements'))
-                related_requirements = requirement.getRelatedRequirements()
-                if len(related_requirements) > 0:
-                    self.of.write('<ul>')
-                    for rq in related_requirements:
-                        basedata = rq.getPrintableDataDict(self.formatField)
-                        self.of.write('<li><a href="#REQ-%(ID)03d">REQ-%(ID)03d: %(title)s</a></li>\n' % basedata)
-                    self.of.write('</ul>')
-                else:
-                    self.of.write('<p>%s</p>' % _('None'))
-                self.of.write('</td></tr>\n')
-
-                self.of.write('<tr><th>%s</th><td>' % _('Attached testcases'))
-                related_testcases = requirement.getRelatedTestcases()
-                if len(related_testcases) > 0:
-                    self.of.write('<ul>')
-                    for tc in related_testcases:
-                        basedata = tc.getPrintableDataDict(self.formatField)
-                        self.of.write('<li><a href="#TC-%(ID)03d">TC-%(ID)03d: %(title)s</a></li>\n' % basedata)
-                    self.of.write('</ul>')
-                else:
-                    self.untestedrequirements.append(requirement)
-                    self.of.write('<p class="alert">%s</p>' % _('None'))
-                self.of.write('</td></tr>\n')
-
-                self.of.write(historylink)
-                self.of.write('</table>\n')
-
-                self.of.write('<div class="usecases">\n')
-                related_usecases = requirement.getRelatedUsecases()
-                if len(related_usecases) > 0:
-                    for uc in related_usecases:
-                        self.writeUsecase(uc['ID'])
-                        self.attached_usecase_ids.append(uc['ID'])
-                else:
-                    self.of.write('<p>%s</p>' % _('No use cases'))
-                self.of.write('</div>\n')
-                self.of.write('</div>\n')
-
-
-    def writeUsecase(self, uc_id):
-        usecase = self.model.getUsecase(uc_id)
-        basedata = usecase.getPrintableDataDict(self.formatField)
-
-        self.writeTag('h3', '<a name="UC-%(ID)03d">UC-%(ID)03d: %(title)s</a>' % basedata)
-
-        self.of.write('<table>\n')
-        for label, key in zip(usecase.labels()[2:], usecase.keys()[2:]):
-                self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
-
-        self.of.write('<tr><th><a href="#HUC-%03d">%s</a></th><td>&nbsp;</td></tr>\n' % (basedata['ID'], __(_('History'))))
-        self.appendHistory(self.usecasehistory, basedata, 'UC', usecase.getChangelist())
-        self.of.write('</table>\n')
-
-
-    def writeTestcases(self):
-        idlist = self.model.getTestcaseIDs()
-        for ID in idlist:
-            testcase = self.model.getTestcase(ID)
-            basedata = testcase.getPrintableDataDict(self.formatField)
-
-            self.writeTag('h2', '<a name="TC-%(ID)03d">TC-%(ID)03d: %(title)s</a>' % basedata)
-            historylink = '<tr><th><a href="#HTC-%03d">%s</a></th><td>&nbsp;</td></tr>\n' % (basedata['ID'], __(_('History')))
-            self.appendHistory(self.testcasehistory, basedata, 'TC', testcase.getChangelist())
-
-            self.of.write('<table>\n')
-            for label, key in zip(testcase.labels()[2:], testcase.keys()[2:]):
-                self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
-
-            self.of.write('<tr><th>%s</th><td>' % _('Related requirements'))
-            related_requirements = testcase.getRelatedRequirements()
-            if len(related_requirements) > 0:
-                self.of.write('<ul>')
-                for req in related_requirements:
-                    basedata = req.getPrintableDataDict(self.formatField)
-                    self.of.write('<li><a href="#REQ-%(ID)03d">REQ-%(ID)03d: %(title)s</a></li>\n' % basedata)
-                self.of.write('</ul>')
-            else:
-                self.lonelytestcases.append(testcase)
-                self.of.write('<p class="alert">%s</p>' % _('None'))
-            self.of.write('</td></tr>\n')
-
-            self.of.write('<tr><th>%s</th><td>' % _('Related testsuites'))
-            related_testsuites = testcase.getRelatedTestsuites()
-            if len(related_testsuites) > 0:
-                self.of.write('<ul>')
-                for ts in related_testsuites:
-                    basedata = ts.getPrintableDataDict(self.formatField)
-                    self.of.write('<li><a href="#TS-%(ID)03d">TS-%(ID)03d: %(title)s</a></li>\n' % basedata)
-                self.of.write('</ul>')
-            else:
-                self.testcasesnotintestsuites.append(testcase)
-                self.of.write('<p class="alert">%s</p>' % _('None'))
-
-            self.of.write(historylink)
-            self.of.write('</table>\n')
-
-
-    def writeTestsuites(self):
-        idlist = self.model.getTestsuiteIDs()
-        for ID in idlist:
-            testsuite = self.model.getTestsuite(ID)
-            basedata = testsuite.getPrintableDataDict(self.formatField)
-            self.writeTag('h2', '<a name="TS-%(ID)03d">TS-%(ID)03d: %(title)s</a>' % basedata)
-            self.of.write('<table>\n')
-            for label, key in zip(testsuite.labels()[2:], testsuite.keys()[2:]):
-                self.of.write('<tr><th>%s</th><td>%s</td></tr>\n' % (label, basedata[key]))
-
-            self.of.write('<tr><th>%s</th><td>' % _('Included testcases'))
-            includedtestcaselist = testsuite.getRelatedTestcases()
-            if len(includedtestcaselist) > 0:
-                self.of.write('<ul>')
-                for tc in includedtestcaselist:
-                    basedata = tc.getPrintableDataDict(self.formatField)
-                    self.of.write('<li><a href="#TC-%(ID)03d">TC-%(ID)03d: %(title)s</a></li>\n' % basedata)
-                self.of.write('</ul>')
-            else:
-                self.emptytestsuites.append(testsuite)
-                self.of.write('<p class="alert">%s</p>' % _('None'))
-
-            self.of.write('</table>\n')
-
-
-    def appendHistory(self, hlist, basedata, keystr, changelist):
-        basedata["keystr"] = keystr
-        s1 = '<h3><a name="H%(keystr)s-%(ID)03d"><a href="#%(keystr)s-%(ID)03d">%(keystr)s-%(ID)03d: %(title)s</a></a></h3>\n' % basedata
-
-        s2 = '<table class="history">\n<tr>'
-        cle = _afartefact.cChangelogEntry('', '')
-        for label in cle.labels():
-                s2 += '<th class="history">%s</th>' % (label,)
-        s2 += '</tr>\n'
-        for cle in changelist:
-            basedata = cle.getPrintableDataDict(self.formatField)
-            s2 += '<tr>'
-            for key in cle.keys():
-                s2 += '<td class="history">%s</td>' % (basedata[key], )
-            s2 += '</tr>\n'
-        s2 += '<table>\n'
-        hlist.append(s1+s2)
-
-
-    def writeHistory(self):
-        self.of.write('<h2><a name="HF">%s</a></h2>\n' % __(_('Features')))
-        self.of.write('\n'.join(self.featurehistory))
-        self.of.write('<h2><a name="HR">%s</a></h2>\n' % __(_('Requirements')))
-        self.of.write('\n'.join(self.requirementhistory))
-        self.of.write('<h2><a name="HUC">%s</a></h2>\n' % __(_('Usecases')))
-        self.of.write('\n'.join(self.usecasehistory))
-        self.of.write('<h2><a name="HTC">%s</a></h2>\n' % __(_('Testcases')))
-        self.of.write('\n'.join(self.testcasehistory))
-        self.of.write('<h2><a name="HSS">%s</a></h2>\n' % __(_('Text sections')))
-        self.of.write('\n'.join(self.simplesectionhistory))
-
+        css += "\n@import '%s';\n" % self.cssfile
+        return css
+        
+        
+    def _render(self, text):
+        text = _afhtmlwindow.render(text)
+        text = '<?xml version="1.0" encoding="UTF-8" ?>' + text
+        dom = parseString(text.encode('UTF-8'))
+        return dom.documentElement
+        
 
 
 if __name__=="__main__":
@@ -561,6 +656,9 @@ if __name__=="__main__":
         print('Unsupported language: %s' % language)
         sys.exit(1)
 
+    logging.basicConfig(level=afconfig.loglevel, format=afconfig.logformat)
+    logging.disable(afconfig.loglevel)
+
     model = afmodel.afModel(controller = None)
     try:
         cwd = os.getcwd()
@@ -574,4 +672,6 @@ if __name__=="__main__":
     if output is None:
         output =  os.path.splitext(args[0])[0] + ".html"
 
-    export = afExportHTML(output, model)
+    export = afExportHTML(model)
+    export.run()
+    export.write(output)
