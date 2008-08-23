@@ -1,4 +1,20 @@
 ===============================
+AFMS Release 0.x.x (2008xx-xx)
+===============================
+
+New features
+~~~~~~~~~~~~
+* Added table formating to popup menu of multiline text controls.
+  This works for HTML and REST renderers
+
+Changes
+~~~~~~~
+* Toolbar button for glossary entries replaces 'Add' button 
+  below the glossary list view 
+
+
+
+===============================
 AFMS Release 0.4.0 (2008-08-10)
 ===============================
 

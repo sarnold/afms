@@ -43,6 +43,7 @@ def getRelFolder(reffolder, folder):
         if folder.startswith(os.sep):
             folder = folder.lstrip(os.sep)
     return folder
+
     
 class afTextCtrl(wx.TextCtrl):
     (MODE_PLAIN, MODE_HTML, MODE_REST) = (0, 1, 2)
@@ -82,6 +83,7 @@ class afTextCtrl(wx.TextCtrl):
             menuitem(text=_('Fixed Width'), handler=self.handleFixedWidth, enabler=self._CanFormat),
             menuitem(text=_('Bullet List'), handler=self.handleBulletList, enabler=self._CanFormat),
             menuitem(text=_('Numbered List'), handler=self.handleNumberedList, enabler=self._CanFormat),
+            menuitem(text=_('Table'), handler=self.handleTable, enabler=self._CanFormat),
             menuitem(text=_('Insert Image')+'...', handler = self.handleInsertImage, enabler=self._CanInsertImage),
             None,
             menuitem(text=_('Plain Text'), handler=self.handlePlainText, enabler=self.true, kind=wx.ITEM_RADIO),
@@ -323,6 +325,44 @@ class afTextCtrl(wx.TextCtrl):
         
     def _formatListItem(self, line, tags):
         return tags[0] + line + tags[1]
+    
+    
+    def handleTable(self, evt):
+        '''Format a table'''
+        (start, to) = self.GetSelection()
+        text = self.GetStringSelection()
+        self.Replace(start, to, formatTable(text, self.mode))
+
+
+def formatTable(text, mode=afTextCtrl.MODE_REST):
+    numtabs = text.count('\t')
+    for i in range(numtabs, 1, -1):
+        text = text.replace('\t'*i, '\t')
+    lines = text.splitlines()
+    tabsperline = lines[0].count('\t')
+    maxcolsize = 0
+    for i in range(len(lines)):
+        if lines[i].count('\t') != tabsperline: return text
+        lines[i] = lines[i].split('\t')
+        maxcolsize = max(maxcolsize, max(map(len, lines[i])))
+        
+    if mode == afTextCtrl.MODE_HTML:
+        text = '<table border="1">\n'
+        for line in lines:
+            text += '<tr>\n'
+            text +=  '\n'.join(['  <td>' + item.rjust(maxcolsize) + '</td>' for item in line])
+            text += '\n</tr>\n'
+        text += '</table>\n'
+    else:
+        text = ''
+        sepline = '+-' + '-' * (maxcolsize+1)
+        sepline = sepline * (tabsperline+1) + '+\n'
+        for line in lines:
+            text += sepline
+            text += '| ' + ' | '.join([item.rjust(maxcolsize) for item in line]) + ' |\n'
+        text += sepline
+    return text
+        
         
 if __name__ == "__main__":
     import unittest
@@ -352,4 +392,92 @@ if __name__ == "__main__":
             relfolder = getRelFolder(reffolder, folder)
             self.assertEqual(relfolder, folder)
 
+    class TestFormatTable(unittest.TestCase):
+        inputs = ['1\t123\t12\n1\t2\t3', 
+                  '1\t\t2\t\t3\n11111\t2222\t3\n1\t\t2\t\t3',
+                  '\n',
+                  '\n\n']
+        
+        restresults = ['''\
++-----+-----+-----+
+|   1 | 123 |  12 |
++-----+-----+-----+
+|   1 |   2 |   3 |
++-----+-----+-----+
+''', '''\
++-------+-------+-------+
+|     1 |     2 |     3 |
++-------+-------+-------+
+| 11111 |  2222 |     3 |
++-------+-------+-------+
+|     1 |     2 |     3 |
++-------+-------+-------+
+''', '''\
++--+
+|  |
++--+
+''', '''\
++--+
+|  |
++--+
+|  |
++--+
+''']
+        htmlresults = ['''\
+<table>
+<tr>
+  <td>  1</td>
+  <td>123</td>
+  <td> 12</td>
+</tr>
+<tr>
+  <td>  1</td>
+  <td>  2</td>
+  <td>  3</td>
+</tr>
+</table>
+''', '''\
+<table>
+<tr>
+  <td>    1</td>
+  <td>    2</td>
+  <td>    3</td>
+</tr>
+<tr>
+  <td>11111</td>
+  <td> 2222</td>
+  <td>    3</td>
+</tr>
+<tr>
+  <td>    1</td>
+  <td>    2</td>
+  <td>    3</td>
+</tr>
+</table>
+''', '''\
+<table>
+<tr>
+  <td></td>
+</tr>
+</table>
+''', '''\
+<table>
+<tr>
+  <td></td>
+</tr>
+<tr>
+  <td></td>
+</tr>
+</table>
+''']
+        
+        def testRest(self):
+            for input, result in zip(TestFormatTable.inputs, TestFormatTable.restresults):
+                self.assertEqual(formatTable(input), result)
+ 
+        def testHTML(self):
+            for input, result in zip(TestFormatTable.inputs, TestFormatTable.htmlresults):
+                self.assertEqual(formatTable(input, afTextCtrl.MODE_HTML), result)
+
     unittest.main()
+        
