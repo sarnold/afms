@@ -207,6 +207,7 @@ class MainFrame(wx.Frame):
         fnew_bmp = _afimages.getFNewBitmap()
         rqnew_bmp = _afimages.getRQNewBitmap()
         ucnew_bmp = _afimages.getUCNewBitmap()
+        genew_bmp = _afimages.getGENewBitmap()
         new_bmp = _afimages.getProdNewBitmap()
         open_bmp = _afimages.getProdOpenBitmap()
         delete_bmp = _afimages.getAFDeleteBitmap()
@@ -236,6 +237,8 @@ class MainFrame(wx.Frame):
         tb.EnableTool(16, False)
         tb.AddLabelTool(19, _('New'), snew_bmp, shortHelp=_('New text section'), longHelp=_('Create new text section'))
         tb.EnableTool(19, False)
+        tb.AddLabelTool(20, _('New'), genew_bmp, shortHelp=_('New glossary entry'), longHelp=_('Create new glossary entry'))
+        tb.EnableTool(20, False)
 
         tb.Realize()
 
@@ -380,7 +383,7 @@ class MainFrame(wx.Frame):
         self.SetStatusText(path, 2)
         for m, i in zip([0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3], [103, 104, 105, 201, 202, 203, 204, 301, 302, 303, 304, 305, 306, 307, 401]):
             self.GetMenuBar().GetMenu(m).Enable(i, True)
-        for i in (12,13,14,15,16, 17, 18, 19, 30, 31):
+        for i in (12,13,14,15,16, 17, 18, 19, 20, 30, 31):
             self.GetToolBar().EnableTool(i, True)
 
 

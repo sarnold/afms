@@ -50,6 +50,7 @@ command_lines = [
     "-a -u -n AFPaste 24-tag-add.png icons.py",
     "-a -u -n AFEdit 24-tag-pencil.png icons.py",
     "-a -u -n SNew s_new.png icons.py",
+    "-a -u -n GENew ge_new.png icons.py",
     ]
     
 if __name__ == "__main__":

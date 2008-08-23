@@ -217,6 +217,7 @@ class MyApp(wx.App):
         self.Bind(wx.EVT_TOOL, self.OnNewTestcase, id=15)
         self.Bind(wx.EVT_TOOL, self.OnNewTestsuite, id=16)
         self.Bind(wx.EVT_TOOL, self.OnNewSimpleSection, id=19)
+        self.Bind(wx.EVT_TOOL, self.OnAddGlossaryEntry, id=20)
 
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged, id=300)
         self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.OnTreeItemActivated, id=301)
@@ -225,7 +226,6 @@ class MyApp(wx.App):
         self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
 
         self.Bind(wx.EVT_BUTTON, self.OnSimpleSectionLevelChanged, id=5137)
-        self.Bind(wx.EVT_BUTTON, self.OnAddGlossaryEntry, id=307)
 
         global arguments
         if len(arguments) > 0:
@@ -1141,7 +1141,7 @@ class MyApp(wx.App):
             self.mainframe.AddFilterView(self.simplesectionfilterview)
             #
         elif item_id == "GLOSSARYENTRIES":
-            self.ViewArtefactList(afGlossaryEntryListWithButton, self.glossaryentrylistview,
+            self.ViewArtefactList(afGlossaryEntryList, self.glossaryentrylistview,
                                   self.model.getGlossaryEntryList(affilter=self.glossaryentryfilterview.GetFilterContent()),
                                   select_id)
             self.mainframe.AddFilterView(self.glossaryentryfilterview)
