@@ -284,7 +284,7 @@ class afExportHTML():
         subnode.appendChild(self.renderFeatureAnchor(feature, False))
         node.appendChild(subnode)
         
-        table = self._createElement('table')
+        table = self._createElement('table', {'class': 'aftable'})
         node.appendChild(table)
         
         table.appendChild(self._createTableRow(_('Description'), self._render(basedata['description'])))
@@ -324,7 +324,7 @@ class afExportHTML():
         subnode.appendChild(self.renderRequirementAnchor(requirement, False))
         node.appendChild(subnode)
         
-        table = self._createElement('table')
+        table = self._createElement('table', {'class': 'aftable'})
         node.appendChild(table)
         table.appendChild(self._createTableRow(_('Description'), self._render(basedata['description'])))
         table.appendChild(self._createTableRow(_('Priority'),    basedata['priority']))
@@ -386,7 +386,7 @@ class afExportHTML():
         subnode.appendChild(self.renderUsecaseAnchor(usecase, False))
         node.appendChild(subnode)
         
-        table = self._createElement('table')
+        table = self._createElement('table', {'class': 'aftable'})
         node.appendChild(table)
         table.appendChild(self._createTableRow(_('Priority'),      basedata['priority']))
         table.appendChild(self._createTableRow(_('Use frequency'), basedata['usefrequency']))
@@ -428,7 +428,7 @@ class afExportHTML():
         subnode.appendChild(self.renderTestcaseAnchor(testcase, False))
         node.appendChild(subnode)
         
-        table = self._createElement('table')
+        table = self._createElement('table', {'class': 'aftable'})
         node.appendChild(table)
         table.appendChild(self._createTableRow(_('Version'),      basedata['version']))
         table.appendChild(self._createTableRow(_('Purpose'),      self._render(basedata['purpose'])))
@@ -477,7 +477,7 @@ class afExportHTML():
         subnode.appendChild(self.renderTestsuiteAnchor(testsuite, False))
         node.appendChild(subnode)
         
-        table = self._createElement('table')
+        table = self._createElement('table', {'class': 'aftable'})
         node.appendChild(table)
         table.appendChild(self._createTableRow(_('Description'),     self._render(basedata['description'])))
         if len(basedata['execorder'].strip()) == 0:
@@ -566,16 +566,17 @@ class afExportHTML():
         
         
     def _createTableRow(self, left, right):
-        tr = self._createElement('tr')
+        attribute = {'class': 'aftable'}
+        tr = self._createElement('tr', attribute)
         if type(left) in [type(''), type(u'')]:
-            th = self._createTextElement('th', left) 
+            th = self._createTextElement('th', left, attribute) 
         else:
-            th = self._createElement('th')
+            th = self._createElement('th', attribute)
             th.appendChild(left)
         if type(right) in [type(''), type(u'')]:
-            td = self._createTextElement('td', right) 
+            td = self._createTextElement('td', right, attribute) 
         else:
-            td = self._createElement('td')
+            td = self._createElement('td', attribute)
             td.appendChild(right)
         tr.appendChild(th)
         tr.appendChild(td)
@@ -605,7 +606,12 @@ class afExportHTML():
         return dom.documentElement
         
 
-
+def doExportHTML(path, model):
+    export = afExportHTML(model)
+    export.run()
+    export.write(path)
+    
+    
 if __name__=="__main__":
     import os, sys, getopt
 
@@ -672,6 +678,4 @@ if __name__=="__main__":
     if output is None:
         output =  os.path.splitext(args[0])[0] + ".html"
 
-    export = afExportHTML(model)
-    export.run()
-    export.write(output)
+    doExportHTML(output, model)

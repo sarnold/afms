@@ -6,11 +6,16 @@ New features
 ~~~~~~~~~~~~
 * Added table formating to popup menu of multiline text controls.
   This works for HTML and REST renderers
+  
+* Added Indent/Unindent command to popup menu of multiline text controls.  
+
 
 Changes
 ~~~~~~~
 * Toolbar button for glossary entries replaces 'Add' button 
   below the glossary list view 
+  
+* HTML export now makes XHTML
 
 
 
