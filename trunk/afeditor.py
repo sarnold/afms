@@ -611,10 +611,10 @@ class MyApp(wx.App):
             path = dlg.GetPath()
         dlg.Destroy()
         if  dlgResult == wx.ID_OK:
-            #try:
-                afexporthtml.afExportHTML(path, self.model)
-            #except:
-                #_afhelper.ExceptionMessageBox(sys.exc_info(), 'Error exporting to HTML!')
+            try:
+                afexporthtml.doExportHTML(path, self.model)
+            except:
+                _afhelper.ExceptionMessageBox(sys.exc_info(), 'Error exporting to HTML!')
 
 
     def OnExportXML(self, evt):

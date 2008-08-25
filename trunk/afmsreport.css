@@ -20,21 +20,22 @@ along with AFMS.  If not, see <http://www.gnu.org/licenses/>.
 /* $Id$ */
 /* start */
 
-BODY, TH, TD, INPUT, SELECT {
+      
+* {
  font-family: Verdana, Helvetica, Arial, sans-serif;
 }
-TD, TH {
-	border-style:none;
+
+
+table, table.docutils, td, th {
+	border-style:solid;
 	vertical-align:top;
-	background-color: #CCCCCC;
-	width: 80%;
+    text-align:left;
+    border-color:#888888;
+    border-width:thin;
 }
-TH {
-	background-color: #FFFF66;
-	text-align:right;
-	width: 20%;	
-}
-TABLE.history, th.history, td.history { 
+
+
+table.history, th.history, td.history { 
 	border-style:solid; 
 	border-width:thin;
 	border-color:#AAAAAA;
@@ -43,6 +44,23 @@ TABLE.history, th.history, td.history {
 	text-align:left;
 }
 
+table.aftable {
+	border-style:none;
+}
+
+td.aftable, th.aftable, tr.aftable {
+	border-style:none;
+    border-width: thin;
+	vertical-align:top;
+	background-color: #CCCCCC;
+	width: 80%;
+}
+
+th.aftable {
+	background-color: #FFFF66;
+	text-align:right;
+	width: 20%;	
+}
 
 h1, h2 {
 	background-image: none;
@@ -50,6 +68,7 @@ h1, h2 {
 	color: #000;
 	margin-bottom: 0;
 }
+
 h1 {
  border-left: solid 1.2em #4444FF;
 }
@@ -69,7 +88,7 @@ h4 {
 }
 
 
-div.requirement {
+div.requirement div.feature {
 	margin-left : 30px;
 	background-color: #E5E5E5;
 }
@@ -151,4 +170,3 @@ div.glossarydescription {
 p.glossarytitle {
 	margin-top: 0;
 }
-

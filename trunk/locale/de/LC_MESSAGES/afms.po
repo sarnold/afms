@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: afms\n"
-"POT-Creation-Date: 2008-08-17 21:12+Westeuropäische Sommerzeit\n"
+"POT-Creation-Date: 2008-08-25 21:47+Westeuropäische Sommerzeit\n"
 "PO-Revision-Date: \n"
 "Last-Translator: achimk <achimk@users.sourceforge.net>\n"
 "Language-Team:  <achimk@users.sourceforge.net>\n"
@@ -32,9 +32,9 @@ msgstr ""
 #: _afrequirementview.py:44
 #: _aftestsuiteview.py:38
 #: _trnewtestrunwiz.py:161
-#: test_afexporthtml.py:264
-#: test_afexporthtml.py:303
-#: test_afexporthtml.py:456
+#: afexporthtml.py:290
+#: afexporthtml.py:329
+#: afexporthtml.py:482
 #: trexporthtml.py:91
 msgid "Description"
 msgstr "Beschreibung"
@@ -96,9 +96,9 @@ msgstr "ID"
 #: _affilterview.py:116
 #: _afrequirementview.py:44
 #: _afusecaseview.py:43
-#: test_afexporthtml.py:265
-#: test_afexporthtml.py:304
-#: test_afexporthtml.py:365
+#: afexporthtml.py:291
+#: afexporthtml.py:330
+#: afexporthtml.py:391
 msgid "Priority"
 msgstr "Priorität"
 
@@ -140,9 +140,9 @@ msgstr "Titel"
 #: _aftestcaseview.py:41
 #: _trartefact.py:34
 #: _trtestcaseview.py:35
-#: test_afexporthtml.py:267
-#: test_afexporthtml.py:306
-#: test_afexporthtml.py:407
+#: afexporthtml.py:293
+#: afexporthtml.py:332
+#: afexporthtml.py:433
 msgid "Version"
 msgstr "Version"
 
@@ -154,8 +154,8 @@ msgstr "Version"
 #: _affilterview.py:119
 #: _afrequirementview.py:44
 #: _trmainframe.py:259
-#: test_afexporthtml.py:266
-#: test_afexporthtml.py:305
+#: afexporthtml.py:292
+#: afexporthtml.py:331
 msgid "Status"
 msgstr "Status"
 
@@ -163,7 +163,7 @@ msgstr "Status"
 #: _afartefactlist.py:270
 #: _affeatureview.py:42
 #: _affilterview.py:122
-#: test_afexporthtml.py:268
+#: afexporthtml.py:294
 msgid "Risk"
 msgstr "Risiko"
 
@@ -171,7 +171,7 @@ msgstr "Risiko"
 #: _afartefactlist.py:296
 #: _affilterview.py:287
 #: _afrequirementview.py:44
-#: test_afexporthtml.py:307
+#: afexporthtml.py:333
 msgid "Complexity"
 msgstr "Komplexität"
 
@@ -179,7 +179,7 @@ msgstr "Komplexität"
 #: _afartefactlist.py:296
 #: _affilterview.py:288
 #: _afrequirementview.py:44
-#: test_afexporthtml.py:310
+#: afexporthtml.py:336
 msgid "Category"
 msgstr "Kategorie"
 
@@ -187,7 +187,7 @@ msgstr "Kategorie"
 #: _afartefactlist.py:296
 #: _affilterview.py:289
 #: _afrequirementview.py:44
-#: test_afexporthtml.py:309
+#: afexporthtml.py:335
 msgid "Effort"
 msgstr "Aufwand"
 
@@ -195,7 +195,7 @@ msgstr "Aufwand"
 #: _afartefactlist.py:296
 #: _affilterview.py:290
 #: _afrequirementview.py:44
-#: test_afexporthtml.py:308
+#: afexporthtml.py:334
 msgid "Assigned"
 msgstr "Zugewiesen"
 
@@ -203,14 +203,14 @@ msgstr "Zugewiesen"
 #: _affilterview.py:279
 #: _afrequirementview.py:45
 #: _afrequirementview.py:155
-#: test_afexporthtml.py:312
+#: afexporthtml.py:338
 msgid "Rationale"
 msgstr "Erklärung"
 
 #: _afartefact.py:228
 #: _affilterview.py:279
 #: _afrequirementview.py:45
-#: test_afexporthtml.py:311
+#: afexporthtml.py:337
 msgid "Origin"
 msgstr "Herkunft"
 
@@ -224,7 +224,7 @@ msgstr "Zusammenfassung"
 #: _afartefact.py:358
 #: _affilterview.py:365
 #: _afusecaseview.py:43
-#: test_afexporthtml.py:366
+#: afexporthtml.py:392
 msgid "Use frequency"
 msgstr "Häufigkeit"
 
@@ -232,7 +232,7 @@ msgstr "Häufigkeit"
 #: _afartefactlist.py:338
 #: _affilterview.py:366
 #: _afusecaseview.py:43
-#: test_afexporthtml.py:368
+#: afexporthtml.py:394
 msgid "Stakeholders"
 msgstr "Interessengruppen"
 
@@ -240,36 +240,36 @@ msgstr "Interessengruppen"
 #: _afartefactlist.py:338
 #: _affilterview.py:367
 #: _afusecaseview.py:44
-#: test_afexporthtml.py:367
+#: afexporthtml.py:393
 msgid "Actors"
 msgstr "Akteure"
 
 #: _afartefact.py:359
 #: _affilterview.py:359
 #: _afusecaseview.py:44
-#: test_afexporthtml.py:369
+#: afexporthtml.py:395
 msgid "Prerequisites"
 msgstr "Vorbedingungen"
 
 #: _afartefact.py:360
 #: _affilterview.py:359
 #: _afusecaseview.py:44
-#: test_afexporthtml.py:370
+#: afexporthtml.py:396
 msgid "Main scenario"
 msgstr "Hauptszenario"
 
 #: _afartefact.py:360
 #: _affilterview.py:359
 #: _afusecaseview.py:44
-#: test_afexporthtml.py:371
+#: afexporthtml.py:397
 msgid "Alt scenario"
 msgstr "Alternativszenario"
 
 #: _afartefact.py:360
 #: _affilterview.py:359
 #: _afusecaseview.py:44
-#: test_afexporthtml.py:372
-#: test_afexporthtml.py:412
+#: afexporthtml.py:398
+#: afexporthtml.py:438
 msgid "Notes"
 msgstr "Anmerkungen"
 
@@ -279,7 +279,7 @@ msgstr "Anmerkungen"
 #: _aftestcaseview.py:41
 #: _trartefact.py:32
 #: _trtestcaseview.py:35
-#: test_afexporthtml.py:408
+#: afexporthtml.py:434
 msgid "Purpose"
 msgstr "Zweck"
 
@@ -288,7 +288,7 @@ msgstr "Zweck"
 #: _aftestcaseview.py:41
 #: _trartefact.py:33
 #: _trtestcaseview.py:35
-#: test_afexporthtml.py:409
+#: afexporthtml.py:435
 msgid "Prerequisite"
 msgstr "Vorbedingung"
 
@@ -297,7 +297,7 @@ msgstr "Vorbedingung"
 #: _aftestcaseview.py:41
 #: _trartefact.py:33
 #: _trtestcaseview.py:35
-#: test_afexporthtml.py:410
+#: afexporthtml.py:436
 msgid "Testdata"
 msgstr "Testdaten"
 
@@ -306,7 +306,7 @@ msgstr "Testdaten"
 #: _aftestcaseview.py:41
 #: _trartefact.py:33
 #: _trtestcaseview.py:35
-#: test_afexporthtml.py:411
+#: afexporthtml.py:437
 msgid "Steps"
 msgstr "Schritte"
 
@@ -319,20 +319,16 @@ msgstr "Hinweise && Fragen"
 #: _afartefact.py:496
 #: _afartefactlist.py:358
 #: _aftestsuiteview.py:70
-#: afexporthtml.py:139
-#: afexporthtml.py:216
-#: afexporthtml.py:240
-#: afexporthtml.py:507
+#: afexporthtml.py:165
+#: afexporthtml.py:166
 #: afresource.py:31
-#: test_afexporthtml.py:139
-#: test_afexporthtml.py:140
 msgid "Testcases"
 msgstr "Testfälle"
 
 #: _afartefact.py:496
 #: _aftestsuiteview.py:39
-#: test_afexporthtml.py:458
-#: test_afexporthtml.py:460
+#: afexporthtml.py:484
+#: afexporthtml.py:486
 msgid "Execution order ID's"
 msgstr "Ausführungsreihenfolge ID"
 
@@ -370,9 +366,9 @@ msgid "This list could not be edited here"
 msgstr "Diese Liste kann hier nicht bearbeitet werden."
 
 #: _afbasenotebook.py:76
-#: test_afexporthtml.py:196
-#: test_afexporthtml.py:197
-#: test_afexporthtml.py:516
+#: afexporthtml.py:222
+#: afexporthtml.py:223
+#: afexporthtml.py:542
 msgid "Changelog"
 msgstr "Änderungen"
 
@@ -499,320 +495,326 @@ msgstr "Selektiere zugehörige Artefakte automatisch"
 msgid "Filter"
 msgstr "Filter"
 
-#: _afmainframe.py:217
+#: _afmainframe.py:218
 msgid "New Product"
 msgstr "Neues Produkt"
 
-#: _afmainframe.py:217
-#: _afmainframe.py:227
-#: _afmainframe.py:229
-#: _afmainframe.py:231
-#: _afmainframe.py:233
-#: _afmainframe.py:235
-#: _afmainframe.py:237
+#: _afmainframe.py:218
+#: _afmainframe.py:228
+#: _afmainframe.py:230
+#: _afmainframe.py:232
+#: _afmainframe.py:234
+#: _afmainframe.py:236
+#: _afmainframe.py:238
+#: _afmainframe.py:240
 #: _trmainframe.py:103
 msgid "New"
 msgstr "Neu"
 
-#: _afmainframe.py:217
-#: _afmainframe.py:251
+#: _afmainframe.py:218
+#: _afmainframe.py:254
 msgid "Create new product"
 msgstr "Erstelle neues Produkt"
 
-#: _afmainframe.py:218
+#: _afmainframe.py:219
 msgid "Open Product"
 msgstr "Öffne Produkt"
 
-#: _afmainframe.py:218
-#: _afmainframe.py:252
+#: _afmainframe.py:219
+#: _afmainframe.py:255
 msgid "Open existing product"
 msgstr "Öffne exisitierendes Produkt"
 
-#: _afmainframe.py:218
+#: _afmainframe.py:219
 #: _trmainframe.py:104
 msgid "Open"
 msgstr "Öffnen"
 
-#: _afmainframe.py:219
+#: _afmainframe.py:220
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: _afmainframe.py:219
+#: _afmainframe.py:220
 msgid "Edit artefact"
 msgstr "Artefakt bearbeiten"
 
-#: _afmainframe.py:219
-#: _afmainframe.py:268
+#: _afmainframe.py:220
+#: _afmainframe.py:271
 msgid "Edit selected artefact"
 msgstr "Selektiertes Artefakt bearbeiten"
 
-#: _afmainframe.py:221
+#: _afmainframe.py:222
 msgid "Copy artefact"
 msgstr "Artefakt kopieren"
 
-#: _afmainframe.py:221
-#: _afmainframe.py:271
+#: _afmainframe.py:222
+#: _afmainframe.py:274
 msgid "Copy selected artefact to clipboard"
 msgstr "Kopiere selektiertes Artefakt in die Zwischenablage"
 
-#: _afmainframe.py:221
-#: _aftextctrl.py:74
+#: _afmainframe.py:222
+#: _aftextctrl.py:75
 msgid "Copy"
 msgstr "Kopieren"
 
-#: _afmainframe.py:223
+#: _afmainframe.py:224
 msgid "Paste artefact"
 msgstr "Artefakt einfügen"
 
-#: _afmainframe.py:223
-#: _afmainframe.py:274
+#: _afmainframe.py:224
+#: _afmainframe.py:277
 msgid "Paste artefact from clipboard"
 msgstr "Artefakt aus Zwischenablage einfügen"
 
-#: _afmainframe.py:223
-#: _aftextctrl.py:75
+#: _afmainframe.py:224
+#: _aftextctrl.py:76
 msgid "Paste"
 msgstr "Einfügen"
 
-#: _afmainframe.py:225
-#: _afmainframe.py:277
+#: _afmainframe.py:226
+#: _afmainframe.py:280
 msgid "Delete selected artefact"
 msgstr "Lösche selektiertes Artefakt"
 
-#: _afmainframe.py:225
-#: _aftextctrl.py:76
+#: _afmainframe.py:226
+#: _aftextctrl.py:77
 msgid "Delete"
 msgstr "Löschen"
 
-#: _afmainframe.py:225
+#: _afmainframe.py:226
 #: afeditor.py:567
 msgid "Delete artefact"
 msgstr "Lösche Artefakt"
 
-#: _afmainframe.py:227
+#: _afmainframe.py:228
 msgid "New feature"
 msgstr "Neues Feature"
 
-#: _afmainframe.py:227
-#: _afmainframe.py:282
+#: _afmainframe.py:228
+#: _afmainframe.py:285
 msgid "Create new feature"
 msgstr "Neues Feature erstellen"
 
-#: _afmainframe.py:229
+#: _afmainframe.py:230
 msgid "Create/attach new requirement"
 msgstr "Neue Anforderung erstellen/anhängen"
 
-#: _afmainframe.py:229
+#: _afmainframe.py:230
 msgid "New requirement"
 msgstr "Neue Anforderung"
 
-#: _afmainframe.py:231
+#: _afmainframe.py:232
 msgid "Create/attach new usecase"
 msgstr "Neues Anwendungsfall erstellen/anhängen"
 
-#: _afmainframe.py:231
+#: _afmainframe.py:232
 msgid "New usecase"
 msgstr "Neuer Anwendungsfall"
 
-#: _afmainframe.py:233
+#: _afmainframe.py:234
 msgid "Create/attach new testcase"
 msgstr "Neuen Testfall erstellen/anhängen"
 
-#: _afmainframe.py:233
+#: _afmainframe.py:234
 msgid "New testcase"
 msgstr "Neuer Testfall"
 
-#: _afmainframe.py:235
+#: _afmainframe.py:236
 msgid "New testsuite"
 msgstr "Neue Testsuite"
 
-#: _afmainframe.py:235
-#: _afmainframe.py:294
+#: _afmainframe.py:236
+#: _afmainframe.py:297
 msgid "Create new testsuite"
 msgstr "Neue Testsuite erstellen"
 
-#: _afmainframe.py:237
+#: _afmainframe.py:238
 msgid "New text section"
 msgstr "Neuer Textabschnitt"
 
-#: _afmainframe.py:237
-#: _afmainframe.py:297
+#: _afmainframe.py:238
+#: _afmainframe.py:300
 msgid "Create new text section"
 msgstr "Erstelle neuen Textabschnitt"
 
-#: _afmainframe.py:251
+#: _afmainframe.py:240
+msgid "New glossary entry"
+msgstr "Neuer Glossareintrag"
+
+#: _afmainframe.py:240
+#: _afmainframe.py:303
+msgid "Create new glossary entry"
+msgstr "Neuen Glossareintrag erstellen"
+
+#: _afmainframe.py:254
 msgid "&New product ...\tCtrl-N"
 msgstr "&Neues Product ...\tCtrl-N"
 
-#: _afmainframe.py:252
+#: _afmainframe.py:255
 msgid "&Open product ...\tCtrl-O"
 msgstr "&Öffne Produkt ...\tCtrl-O"
 
-#: _afmainframe.py:253
+#: _afmainframe.py:256
 msgid "Export product to HTML file"
 msgstr "Produkt in HTML-Datei exportieren"
 
-#: _afmainframe.py:253
+#: _afmainframe.py:256
 #: _trmainframe.py:118
 msgid "Export as HTML ..."
 msgstr "Exportiere als HTML ..."
 
-#: _afmainframe.py:254
+#: _afmainframe.py:257
 msgid "Export product to XML files"
 msgstr "Exportiere Produkt in XML-Datei"
 
-#: _afmainframe.py:254
+#: _afmainframe.py:257
 #: _trmainframe.py:119
 msgid "Export as XML ..."
 msgstr "Export als XML ..."
 
-#: _afmainframe.py:257
+#: _afmainframe.py:260
 msgid "Import ..."
 msgstr "Importiere ..."
 
-#: _afmainframe.py:257
+#: _afmainframe.py:260
 msgid "Import artefacts from AF database"
 msgstr "Importiere Artefakte aus AF Datenbank"
 
-#: _afmainframe.py:258
+#: _afmainframe.py:261
 #: _trmainframe.py:122
 msgid "E&xit\tAlt-X"
 msgstr "B&eenden\tAlt-X"
 
-#: _afmainframe.py:258
+#: _afmainframe.py:261
 #: _trmainframe.py:122
 msgid "Exit this application"
 msgstr "Anwendung beenden"
 
-#: _afmainframe.py:265
+#: _afmainframe.py:268
 #: _trmainframe.py:124
 msgid "&File"
 msgstr "&Datei"
 
-#: _afmainframe.py:268
+#: _afmainframe.py:271
 msgid "&Edit artefact ...\tCtrl-E"
 msgstr "Artefakt editieren ...\tCtrl-E"
 
-#: _afmainframe.py:271
+#: _afmainframe.py:274
 msgid "&Copy artefact\tCtrl-C"
 msgstr "Artefakt kopieren\tCtrl-C"
 
-#: _afmainframe.py:274
+#: _afmainframe.py:277
 msgid "&Paste artefact\tCtrl-V"
 msgstr "Artefakt einfügen\tCtrl-V"
 
-#: _afmainframe.py:277
+#: _afmainframe.py:280
 msgid "&Delete artefact ...\tDel"
 msgstr "Artefakt löschen ...\tDel"
 
-#: _afmainframe.py:279
+#: _afmainframe.py:282
 msgid "&Edit"
 msgstr "B&earbeiten"
 
-#: _afmainframe.py:282
+#: _afmainframe.py:285
 msgid "New &feature ..."
 msgstr "Neues &Feature ..."
 
-#: _afmainframe.py:285
+#: _afmainframe.py:288
 msgid "Create new requirement"
 msgstr "Neue Anforderung erstellen ..."
 
-#: _afmainframe.py:285
+#: _afmainframe.py:288
 msgid "New &requirement ..."
 msgstr "Neue &Anforderung ..."
 
-#: _afmainframe.py:288
+#: _afmainframe.py:291
 msgid "Create new usecase"
 msgstr "Neuen Anwendungsfall erstellen ..."
 
-#: _afmainframe.py:288
+#: _afmainframe.py:291
 msgid "New &usecase ..."
 msgstr "Ne&uer Anwendungsfall ..."
 
-#: _afmainframe.py:291
+#: _afmainframe.py:294
 msgid "Create new testcase"
 msgstr "Neuer &Testfall"
 
-#: _afmainframe.py:291
+#: _afmainframe.py:294
 msgid "New &testcase ..."
 msgstr "Neuer &Testfall ..."
 
-#: _afmainframe.py:294
+#: _afmainframe.py:297
 msgid "New test&suite ..."
 msgstr "Neue Test&suite ..."
 
-#: _afmainframe.py:297
+#: _afmainframe.py:300
 msgid "New text section ..."
 msgstr "Neuer Textabschnitt ..."
 
-#: _afmainframe.py:300
-msgid "Create new glossary entry"
-msgstr "Neuen Glossareintrag erstellen"
-
-#: _afmainframe.py:300
+#: _afmainframe.py:303
 msgid "New glossary entry ..."
 msgstr "Neuer Glossareintrag ..."
 
-#: _afmainframe.py:302
+#: _afmainframe.py:305
 msgid "&New"
 msgstr "&Neu"
 
-#: _afmainframe.py:305
+#: _afmainframe.py:308
 msgid "Database to archive ..."
 msgstr "Datenbank in Archiv ..."
 
-#: _afmainframe.py:305
+#: _afmainframe.py:308
 msgid "Dump current database to archive file"
 msgstr "Aktuelle Datenbank in Archivdatei schreiben"
 
-#: _afmainframe.py:307
+#: _afmainframe.py:310
 msgid "Archive to database ..."
 msgstr "Archiv  in Datenbank ..."
 
-#: _afmainframe.py:307
+#: _afmainframe.py:310
 msgid "Create database from archive file"
 msgstr "Datenbank aus Archivdatei erstellen"
 
-#: _afmainframe.py:309
+#: _afmainframe.py:312
 msgid "&Archive"
 msgstr "&Archiv"
 
-#: _afmainframe.py:312
+#: _afmainframe.py:315
 #: _trmainframe.py:136
 msgid "Language ..."
 msgstr "Sprache ..."
 
-#: _afmainframe.py:312
+#: _afmainframe.py:315
 #: _trmainframe.py:136
 msgid "Set language"
 msgstr "Sprache einstellen"
 
-#: _afmainframe.py:315
+#: _afmainframe.py:318
 #: _trmainframe.py:139
 msgid "&Settings"
 msgstr "Einstellungen"
 
-#: _afmainframe.py:318
+#: _afmainframe.py:321
 #: _trmainframe.py:142
 msgid "About ..."
 msgstr "Über ..."
 
-#: _afmainframe.py:318
+#: _afmainframe.py:321
 #: _trmainframe.py:142
 msgid "Info about this program"
 msgstr "Information über dieses Programm"
 
-#: _afmainframe.py:321
+#: _afmainframe.py:324
 #: _trmainframe.py:145
 msgid "&Help"
 msgstr "&Hilfe"
 
-#: _afmainframe.py:369
+#: _afmainframe.py:372
 #: _trmainframe.py:214
 msgid "Select language"
 msgstr "Sprache auswählen"
 
-#: _afmainframe.py:369
+#: _afmainframe.py:372
 #: _trmainframe.py:214
 msgid ""
 "Select program language\n"
@@ -821,12 +823,12 @@ msgstr ""
 "Programmsprache wählen\n"
 "(Wirksam erst nach Neustart.)"
 
-#: _afmainframe.py:370
+#: _afmainframe.py:373
 #: _trmainframe.py:215
 msgid "English"
 msgstr "Englisch"
 
-#: _afmainframe.py:370
+#: _afmainframe.py:373
 #: _trmainframe.py:215
 msgid "German"
 msgstr "Deutsch"
@@ -841,27 +843,27 @@ msgid "Requirement"
 msgstr "Anforderung"
 
 #: _afrequirementview.py:165
-#: test_afexporthtml.py:339
-#: test_afexporthtml.py:469
+#: afexporthtml.py:365
+#: afexporthtml.py:495
 msgid "Attached Testcases"
 msgstr "Zugeordnete Testfälle"
 
 #: _afrequirementview.py:176
-#: test_afexporthtml.py:330
+#: afexporthtml.py:356
 msgid "Attached Usecases"
 msgstr "Zugeordnete Anwendungsfälle"
 
 #: _afrequirementview.py:182
-#: test_afexporthtml.py:321
+#: afexporthtml.py:347
 msgid "Related Features"
 msgstr "Zugehörige Features"
 
 #: _afrequirementview.py:192
 #: _aftestcaseview.py:98
 #: _afusecaseview.py:133
-#: test_afexporthtml.py:277
-#: test_afexporthtml.py:381
-#: test_afexporthtml.py:421
+#: afexporthtml.py:303
+#: afexporthtml.py:407
+#: afexporthtml.py:447
 msgid "Related Requirements"
 msgstr "Zugehörige Anforderungen"
 
@@ -870,9 +872,8 @@ msgid "Edit text section order"
 msgstr "Reihenfolge Textabschnitte bearbeiten"
 
 #: _afsimplesectionleveldialog.py:35
-#: afexporthtml.py:509
-#: test_afexporthtml.py:76
-#: test_afexporthtml.py:77
+#: afexporthtml.py:102
+#: afexporthtml.py:103
 msgid "Text sections"
 msgstr "Textabschnitte"
 
@@ -885,7 +886,7 @@ msgid "Testcase"
 msgstr "Testfall"
 
 #: _aftestcaseview.py:101
-#: test_afexporthtml.py:430
+#: afexporthtml.py:456
 msgid "Related Testsuites"
 msgstr "Zugehörige Testsuiten"
 
@@ -901,59 +902,71 @@ msgstr "Einige Testfall-ID sind nicht in der Ausführungsreihenfolge"
 msgid "Some testcase ID's in execution order are not in this testsuite"
 msgstr "Einige Testfall-ID in der Ausführungsreihenfolge sind nicht in der Testsuite"
 
-#: _aftextctrl.py:70
+#: _aftextctrl.py:71
 msgid "Undo"
 msgstr "Rückgängig"
 
-#: _aftextctrl.py:71
+#: _aftextctrl.py:72
 msgid "Redo"
 msgstr "Wiederherstellen"
 
-#: _aftextctrl.py:73
+#: _aftextctrl.py:74
 msgid "Cut"
 msgstr "Ausschneiden"
 
-#: _aftextctrl.py:78
+#: _aftextctrl.py:79
 msgid "Select All"
 msgstr "Alles markieren"
 
-#: _aftextctrl.py:80
+#: _aftextctrl.py:81
 msgid "Bold"
 msgstr "Fett"
 
-#: _aftextctrl.py:81
+#: _aftextctrl.py:82
 msgid "Italic"
 msgstr "Kursiv"
 
-#: _aftextctrl.py:82
+#: _aftextctrl.py:83
 msgid "Fixed Width"
 msgstr "Feste Breite"
 
-#: _aftextctrl.py:83
+#: _aftextctrl.py:84
 msgid "Bullet List"
 msgstr "Punkteliste"
 
-#: _aftextctrl.py:84
+#: _aftextctrl.py:85
 msgid "Numbered List"
 msgstr "Nummerierte Liste"
 
-#: _aftextctrl.py:85
+#: _aftextctrl.py:86
+msgid "Table"
+msgstr "Tabelle"
+
+#: _aftextctrl.py:87
+msgid "Indent"
+msgstr "Einrücken"
+
+#: _aftextctrl.py:88
+msgid "Unindent"
+msgstr "Ausrücken"
+
+#: _aftextctrl.py:89
 msgid "Insert Image"
 msgstr "Bild einfügen"
 
-#: _aftextctrl.py:87
+#: _aftextctrl.py:91
 msgid "Plain Text"
 msgstr "Einfacher Text"
 
-#: _aftextctrl.py:88
+#: _aftextctrl.py:92
 msgid "HTML"
 msgstr "HTML"
 
-#: _aftextctrl.py:89
+#: _aftextctrl.py:93
 msgid "ReStructured Text"
 msgstr "ReStructured Text"
 
-#: _aftextctrl.py:247
+#: _aftextctrl.py:251
 msgid "Choose image file"
 msgstr "Bilddatei auswählen"
 
@@ -1326,166 +1339,91 @@ msgstr "Importiere aus Produkt-Datei"
 msgid "Error importing artefacts!"
 msgstr "Fehler beim Import der Artefakte!"
 
-#: afexporthtml.py:125
-#: afexporthtml.py:200
-#: test_afexporthtml.py:70
-#: test_afexporthtml.py:71
-msgid "Product information"
-msgstr "Produktinformation"
-
-#: afexporthtml.py:130
-#: afexporthtml.py:208
-#: test_afexporthtml.py:88
-#: test_afexporthtml.py:89
-msgid "Terms and Abbreviations"
-msgstr "Glossar"
-
-#: afexporthtml.py:133
-#: afexporthtml.py:210
-#: afexporthtml.py:234
-#: afexporthtml.py:501
-#: afresource.py:28
-#: test_afexporthtml.py:101
-#: test_afexporthtml.py:102
-msgid "Features"
-msgstr "Features"
-
-#: afexporthtml.py:136
-#: afexporthtml.py:213
-#: afexporthtml.py:236
-#: afexporthtml.py:503
-#: afresource.py:29
-#: test_afexporthtml.py:113
-#: test_afexporthtml.py:114
-msgid "Requirements"
-msgstr "Anforderungen"
-
-#: afexporthtml.py:142
-#: afexporthtml.py:219
-#: afresource.py:32
-#: test_afexporthtml.py:151
-#: test_afexporthtml.py:152
-msgid "Testsuites"
-msgstr "Testsuiten"
-
-#: afexporthtml.py:145
-#: afexporthtml.py:222
-#: test_afexporthtml.py:162
-#: test_afexporthtml.py:163
-msgid "Detected problems"
-msgstr "Erkannte Probleme"
-
-#: afexporthtml.py:148
-#: afexporthtml.py:232
-msgid "Artefact History"
-msgstr "Änderungsverlauf"
-
-#: afexporthtml.py:178
-#: trexporthtml.py:80
-msgid "Created from %s at %s"
-msgstr "Erstellt aus %s am %s"
-
-#: afexporthtml.py:198
-#: test_afexporthtml.py:64
+#: afexporthtml.py:90
 msgid "Table of Contents"
 msgstr "Inhaltsverzeichnis"
 
-#: afexporthtml.py:224
-#: afexporthtml.py:253
-#: test_afexporthtml.py:165
-msgid "Features without requirements"
-msgstr "Features ohne Anforderungen"
+#: afexporthtml.py:96
+#: afexporthtml.py:97
+msgid "Product information"
+msgstr "Produktinformation"
 
-#: afexporthtml.py:225
-#: afexporthtml.py:256
-#: test_afexporthtml.py:165
-msgid "Requirements without testcases"
-msgstr "Anforderungen ohne Testfälle"
+#: afexporthtml.py:114
+#: afexporthtml.py:115
+msgid "Terms and Abbreviations"
+msgstr "Glossar"
 
-#: afexporthtml.py:226
-#: afexporthtml.py:259
-#: test_afexporthtml.py:165
-msgid "Testcases not belonging to requirements"
-msgstr "Testfälle ohne Anforderungen"
+#: afexporthtml.py:127
+#: afexporthtml.py:128
+#: afresource.py:28
+msgid "Features"
+msgstr "Features"
 
-#: afexporthtml.py:227
-#: afexporthtml.py:262
-#: test_afexporthtml.py:165
-msgid "Testcases not belonging to testsuites"
-msgstr "Testfälle ohne Testsuite"
+#: afexporthtml.py:139
+#: afexporthtml.py:140
+#: afresource.py:29
+msgid "Requirements"
+msgstr "Anforderungen"
 
-#: afexporthtml.py:228
-#: afexporthtml.py:265
-#: test_afexporthtml.py:165
-msgid "Empty testsuites"
-msgstr "Leere Testsuiten"
-
-#: afexporthtml.py:229
-#: afexporthtml.py:268
-#: test_afexporthtml.py:165
-msgid "Usecases not belonging to requirements"
-msgstr "Anwendungsfälle ohne Anforderungen"
-
-#: afexporthtml.py:238
-#: afexporthtml.py:505
+#: afexporthtml.py:153
+#: afexporthtml.py:154
 #: afresource.py:30
-#: test_afexporthtml.py:127
-#: test_afexporthtml.py:128
 msgid "Usecases"
 msgstr "Anwendungsfälle"
 
-#: afexporthtml.py:251
-#: afexporthtml.py:303
-#: afexporthtml.py:336
-#: afexporthtml.py:367
-#: afexporthtml.py:380
-#: afexporthtml.py:437
-#: afexporthtml.py:450
-#: afexporthtml.py:476
-#: test_afexporthtml.py:186
-#: test_afexporthtml.py:272
-#: test_afexporthtml.py:316
-#: test_afexporthtml.py:325
-#: test_afexporthtml.py:334
-#: test_afexporthtml.py:376
-#: test_afexporthtml.py:416
-#: test_afexporthtml.py:425
-#: test_afexporthtml.py:458
-#: test_afexporthtml.py:464
-#: test_afexporthtml.py:494
+#: afexporthtml.py:177
+#: afexporthtml.py:178
+#: afresource.py:32
+msgid "Testsuites"
+msgstr "Testsuiten"
+
+#: afexporthtml.py:188
+#: afexporthtml.py:189
+msgid "Detected problems"
+msgstr "Erkannte Probleme"
+
+#: afexporthtml.py:191
+msgid "Empty testsuites"
+msgstr "Leere Testsuiten"
+
+#: afexporthtml.py:191
+msgid "Features without requirements"
+msgstr "Features ohne Anforderungen"
+
+#: afexporthtml.py:191
+msgid "Requirements without testcases"
+msgstr "Anforderungen ohne Testfälle"
+
+#: afexporthtml.py:191
+msgid "Testcases not belonging to requirements"
+msgstr "Testfälle ohne Anforderungen"
+
+#: afexporthtml.py:191
+msgid "Testcases not belonging to testsuites"
+msgstr "Testfälle ohne Testsuite"
+
+#: afexporthtml.py:191
+msgid "Usecases not belonging to requirements"
+msgstr "Anwendungsfälle ohne Anforderungen"
+
+#: afexporthtml.py:212
+#: afexporthtml.py:298
+#: afexporthtml.py:342
+#: afexporthtml.py:351
+#: afexporthtml.py:360
+#: afexporthtml.py:402
+#: afexporthtml.py:442
+#: afexporthtml.py:451
+#: afexporthtml.py:484
+#: afexporthtml.py:490
+#: afexporthtml.py:520
 #: trexporthtml.py:134
 msgid "None"
 msgstr "keine"
 
-#: afexporthtml.py:295
-#: afexporthtml.py:320
-#: afexporthtml.py:349
-#: afexporthtml.py:408
-#: afexporthtml.py:420
-msgid "History"
-msgstr "Änderungsverlauf"
-
-#: afexporthtml.py:326
-#: afexporthtml.py:358
-#: afexporthtml.py:427
-msgid "Related requirements"
-msgstr "Zugeordnete Anforderungen"
-
-#: afexporthtml.py:370
-msgid "Attached testcases"
-msgstr "Zugehörige Testfälle"
-
-#: afexporthtml.py:393
-msgid "No use cases"
-msgstr "Keine Anwendungsfälle"
-
-#: afexporthtml.py:440
-msgid "Related testsuites"
-msgstr "Zugeordnete Testsuiten"
-
-#: afexporthtml.py:466
-msgid "Included testcases"
-msgstr "Zugehörige Testfälle"
+#: afexporthtml.py:228
+msgid "Created from %s at %s by %s"
+msgstr "Erstellt aus %s am %s von %s"
 
 #: afinfo.py:30
 msgid "Editor for the Artefact Management System"
@@ -1805,10 +1743,6 @@ msgstr "GIF Dateien  (%(ext)s)|%(ext)s|"
 msgid "All files (%(ext)s)|%(ext)s|"
 msgstr "Alle Dateien (%(ext)s)|%(ext)s|"
 
-#: test_afexporthtml.py:202
-msgid "Created from %s at %s by %s"
-msgstr "Erstellt aus %s am %s von %s"
-
 #: testrunner.py:134
 msgid "Oops ..."
 msgstr "Oops ..."
@@ -1828,6 +1762,10 @@ msgstr "AFMS Testlauf Bericht"
 #: trexporthtml.py:60
 msgid "Test run information"
 msgstr "Information zum Testlauf"
+
+#: trexporthtml.py:80
+msgid "Created from %s at %s"
+msgstr "Erstellt aus %s am %s"
 
 #: trexporthtml.py:91
 msgid "Product title"
@@ -1869,6 +1807,20 @@ msgstr "Gesamtergebnis"
 msgid "Test Run Tool for the Artefact Management System"
 msgstr "Werkzeug zur Testausführung für das Artefakt Management System"
 
+#~ msgid "Artefact History"
+#~ msgstr "Änderungsverlauf"
+#~ msgid "History"
+#~ msgstr "Änderungsverlauf"
+#~ msgid "Related requirements"
+#~ msgstr "Zugeordnete Anforderungen"
+#~ msgid "Attached testcases"
+#~ msgstr "Zugehörige Testfälle"
+#~ msgid "No use cases"
+#~ msgstr "Keine Anwendungsfälle"
+#~ msgid "Related testsuites"
+#~ msgstr "Zugeordnete Testsuiten"
+#~ msgid "Included testcases"
+#~ msgstr "Zugehörige Testfälle"
 #~ msgid "JPEG files (*.jpg;*.jpeg)"
 #~ msgstr "JPEG Dateien"
 #~ msgid "PNG files (*.png)"

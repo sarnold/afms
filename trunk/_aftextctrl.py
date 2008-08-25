@@ -84,6 +84,8 @@ class afTextCtrl(wx.TextCtrl):
             menuitem(text=_('Bullet List'), handler=self.handleBulletList, enabler=self._CanFormat),
             menuitem(text=_('Numbered List'), handler=self.handleNumberedList, enabler=self._CanFormat),
             menuitem(text=_('Table'), handler=self.handleTable, enabler=self._CanFormat),
+            menuitem(text=_('Indent'), handler=self.handleIndent, enabler=self.CanCut),
+            menuitem(text=_('Unindent'), handler=self.handleUnindent, enabler=self.CanCut),
             menuitem(text=_('Insert Image')+'...', handler = self.handleInsertImage, enabler=self._CanInsertImage),
             None,
             menuitem(text=_('Plain Text'), handler=self.handlePlainText, enabler=self.true, kind=wx.ITEM_RADIO),
@@ -332,6 +334,26 @@ class afTextCtrl(wx.TextCtrl):
         (start, to) = self.GetSelection()
         text = self.GetStringSelection()
         self.Replace(start, to, formatTable(text, self.mode))
+        
+        
+    def handleIndent(self, evt):
+        (start, to) = self.GetSelection()
+        lines = self.GetStringSelection().splitlines()
+        lines = [' '*4+line for line in lines]
+        self.Replace(start, to, '\n'.join(lines))
+        
+
+    def handleUnindent(self, evt):
+        def doUnident(s):
+            if s.startswith(4*' '): 
+                return s[4:]
+            else:
+                return s
+            
+        (start, to) = self.GetSelection()
+        lines = self.GetStringSelection().splitlines()
+        lines = map(doUnident, lines)
+        self.Replace(start, to, '\n'.join(lines))
 
 
 def formatTable(text, mode=afTextCtrl.MODE_REST):
