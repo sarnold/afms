@@ -362,27 +362,29 @@ def formatTable(text, mode=afTextCtrl.MODE_REST):
         text = text.replace('\t'*i, '\t')
     lines = text.splitlines()
     tabsperline = lines[0].count('\t')
-    maxcolsize = 0
+    colsize = [0]*(tabsperline+1)
     for i in range(len(lines)):
         if lines[i].count('\t') != tabsperline: return text
         lines[i] = lines[i].split('\t')
-        maxcolsize = max(maxcolsize, max(map(len, lines[i])))
+        currentcolsize = map(len, lines[i])
+        colsize = [max(cs, ccs) for cs, ccs in zip(colsize,  currentcolsize)]
         
     if mode == afTextCtrl.MODE_HTML:
         text = '<table border="1">\n'
         for line in lines:
             text += '<tr>\n'
-            text +=  '\n'.join(['  <td>' + item.rjust(maxcolsize) + '</td>' for item in line])
+            text +=  '\n'.join(['  <td> ' + item + ' </td>' for item in line])
             text += '\n</tr>\n'
         text += '</table>\n'
     else:
         text = ''
-        sepline = '+-' + '-' * (maxcolsize+1)
-        sepline = sepline * (tabsperline+1) + '+\n'
+        sepline = ['-'*cs for cs in colsize]
+        sepline = '+-' + '-+-'.join(sepline) + '-+\n'
         for line in lines:
             text += sepline
-            text += '| ' + ' | '.join([item.rjust(maxcolsize) for item in line]) + ' |\n'
+            text += '| ' + ' | '.join([item.ljust(cs) for item, cs in zip(line, colsize)]) + ' |\n'
         text += sepline
+        
     return text
         
         
@@ -418,82 +420,100 @@ if __name__ == "__main__":
         inputs = ['1\t123\t12\n1\t2\t3', 
                   '1\t\t2\t\t3\n11111\t2222\t3\n1\t\t2\t\t3',
                   '\n',
-                  '\n\n']
+                  '\n\n',
+                  '1\t11111111\n2\t22222\n']
         
         restresults = ['''\
-+-----+-----+-----+
-|   1 | 123 |  12 |
-+-----+-----+-----+
-|   1 |   2 |   3 |
-+-----+-----+-----+
++---+-----+----+
+| 1 | 123 | 12 |
++---+-----+----+
+| 1 | 2   | 3  |
++---+-----+----+
 ''', '''\
-+-------+-------+-------+
-|     1 |     2 |     3 |
-+-------+-------+-------+
-| 11111 |  2222 |     3 |
-+-------+-------+-------+
-|     1 |     2 |     3 |
-+-------+-------+-------+
-''', '''\
-+--+
-|  |
-+--+
++-------+------+---+
+| 1     | 2    | 3 |
++-------+------+---+
+| 11111 | 2222 | 3 |
++-------+------+---+
+| 1     | 2    | 3 |
++-------+------+---+
 ''', '''\
 +--+
 |  |
 +--+
+''', '''\
++--+
 |  |
 +--+
+|  |
++--+
+''','''\
++---+----------+
+| 1 | 11111111 |
++---+----------+
+| 2 | 22222    |
++---+----------+
 ''']
         htmlresults = ['''\
-<table>
+<table border="1">
 <tr>
-  <td>  1</td>
-  <td>123</td>
-  <td> 12</td>
+  <td> 1 </td>
+  <td> 123 </td>
+  <td> 12 </td>
 </tr>
 <tr>
-  <td>  1</td>
-  <td>  2</td>
-  <td>  3</td>
-</tr>
-</table>
-''', '''\
-<table>
-<tr>
-  <td>    1</td>
-  <td>    2</td>
-  <td>    3</td>
-</tr>
-<tr>
-  <td>11111</td>
-  <td> 2222</td>
-  <td>    3</td>
-</tr>
-<tr>
-  <td>    1</td>
-  <td>    2</td>
-  <td>    3</td>
+  <td> 1 </td>
+  <td> 2 </td>
+  <td> 3 </td>
 </tr>
 </table>
 ''', '''\
-<table>
+<table border="1">
 <tr>
-  <td></td>
+  <td> 1 </td>
+  <td> 2 </td>
+  <td> 3 </td>
+</tr>
+<tr>
+  <td> 11111 </td>
+  <td> 2222 </td>
+  <td> 3 </td>
+</tr>
+<tr>
+  <td> 1 </td>
+  <td> 2 </td>
+  <td> 3 </td>
 </tr>
 </table>
 ''', '''\
-<table>
+<table border="1">
 <tr>
-  <td></td>
+  <td>  </td>
+</tr>
+</table>
+''', '''\
+<table border="1">
+<tr>
+  <td>  </td>
 </tr>
 <tr>
-  <td></td>
+  <td>  </td>
+</tr>
+</table>
+''','''\
+<table border="1">
+<tr>
+  <td> 1 </td>
+  <td> 11111111 </td>
+</tr>
+<tr>
+  <td> 2 </td>
+  <td> 22222 </td>
 </tr>
 </table>
 ''']
         
-        def testRest(self):
+        def testorderRest(self):
             for input, result in zip(TestFormatTable.inputs, TestFormatTable.restresults):
                 self.assertEqual(formatTable(input), result)
  

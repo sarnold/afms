@@ -248,6 +248,7 @@ class MainFrame(wx.Frame):
         menuBar = wx.MenuBar()
         # and a menu
         menu = wx.Menu()
+        
         # add an item to the menu, using \tKeyName automatically
         # creates an accelerator, the third param is some help text
         # that will show up in the statusbar
@@ -258,12 +259,18 @@ class MainFrame(wx.Frame):
         menu.Enable(103, False)
         menu.Enable(104, False)
         menu.Append(105, _('Import ...'), _('Import artefacts from AF database'))
+        menu.AppendSeparator()
         menu.Append(wx.ID_EXIT, _('E&xit\tAlt-X'), _('Exit this application'))
         menu.Enable(105, False)
 
+        # adding a file history to the menu
+        self.filehistory = wx.FileHistory()
+        self.filehistory.UseMenu(menu)
+        self.filehistory.Load(self.config)
+
         # bind the menu event to an event handler
         self.Bind(wx.EVT_MENU, self.OnClose, id=wx.ID_EXIT)
-
+        
         # and put the menu on the menubar
         menuBar.Append(menu, _('&File'))
 
@@ -324,7 +331,8 @@ class MainFrame(wx.Frame):
         menuBar.Append(menu, _('&Help'))
 
         self.SetMenuBar(menuBar)
-
+        
+        
     def OnSashDrag(self, event):
         if event.GetDragStatus() == wx.SASH_STATUS_OUT_OF_RANGE:
             return
@@ -356,6 +364,7 @@ class MainFrame(wx.Frame):
         self.config.WriteInt("sash_pos_y", self.bottomWindow.GetSize().height)
         self.config.WriteInt("sash_pos_x", self.leftWindow.GetSize().width)
         self.config.Write("language", afresource.GetLanguage())
+        self.filehistory.Save(self.config)
         self.Destroy()
 
 
