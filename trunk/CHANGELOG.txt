@@ -4,6 +4,8 @@ AFMS Release 0.x.x (2008xx-xx)
 
 New features
 ~~~~~~~~~~~~
+* List of recently opened files is now provided in File menu
+
 * Added table formating to popup menu of multiline text controls.
   This works for HTML and REST renderers
   
