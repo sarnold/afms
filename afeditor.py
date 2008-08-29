@@ -118,6 +118,7 @@ class MyApp(wx.App):
         self.mainframe = MainFrame(None, "AF Editor")
         self.SetTopWindow(self.mainframe)
         self.mainframe.Show(True)
+        
         self.wildcard = _(afresource.AF_WILDCARD)
         self.htmlwildcard = _(afresource.HTML_WILDCARD)
         self.dont_annoy_at_delete = False
@@ -188,6 +189,7 @@ class MyApp(wx.App):
         self.Bind(wx.EVT_MENU, self.OnExportHTML, id=103)
         self.Bind(wx.EVT_MENU, self.OnExportXML, id=104)
         self.Bind(wx.EVT_MENU, self.OnImport, id=105)
+        self.Bind(wx.EVT_MENU_RANGE, self.OnFileHistory, id=wx.ID_FILE1, id2=wx.ID_FILE9)
 
         self.Bind(wx.EVT_MENU, self.OnEditArtefact, id = 201)
         self.Bind(wx.EVT_MENU, self.OnDeleteArtefact, id = 202)
@@ -236,7 +238,7 @@ class MyApp(wx.App):
                 sys.exit(2)
 
         return True
-
+    
 
     def OnDatabaseToArchive(self, evt):
         defaultFile = os.path.splitext(self.model.getFilename())[0] + ".xml"
@@ -274,6 +276,7 @@ class MyApp(wx.App):
                 _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error converting archive'))
                 logging.error(str(sys.exc_info()))
             self.mainframe.SetCursor(wx.STANDARD_CURSOR)
+
 
     def OnSimpleSectionLevelChanged(self, evt):
         self.model.assignSimpleSectionLevels(evt.GetClientData())
@@ -391,6 +394,18 @@ class MyApp(wx.App):
         self.notebooktab[self.currentview] = evt.GetSelection()
 
 
+    def OnFileHistory(self, evt):
+        fileNum = evt.GetId() - wx.ID_FILE1
+        path = self.mainframe.filehistory.GetHistoryFile(fileNum)
+        try:
+            self.OpenProduct(path)
+            # add it back to the history so it will be moved up the list
+            self.mainframe.filehistory.AddFileToHistory(path)
+        except:
+            _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error opening product!'))
+            self.mainframe.filehistory.RemoveFileFromHistory(fileNum)
+            
+        
     def OnNewProduct(self, evt):
         """
         Event handler for menu item or toolbar item 'New Product'.
@@ -413,6 +428,7 @@ class MyApp(wx.App):
                 self.model.requestNewProduct(path)
                 self.InitView()
                 afconfig.basedir = os.path.dirname(self.model.getFilename())
+                self.mainframe.filehistory.AddFileToHistory(path)
             except:
                 _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error creating product'))
                 logging.error(str(sys.exc_info()))
@@ -438,6 +454,7 @@ class MyApp(wx.App):
         if  dlgResult == wx.ID_OK:
             try:
                 self.OpenProduct(path)
+                self.mainframe.filehistory.AddFileToHistory(path)
             except:
                 _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error opening product!'))
 

@@ -601,7 +601,10 @@ class afExportHTML():
         
     def _render(self, text):
         text = _afhtmlwindow.render(text)
-        text = '<?xml version="1.0" encoding="UTF-8" ?>' + text
+        text = '''<?xml version="1.0" encoding="UTF-8" ?>
+                <!DOCTYPE xhtml [
+                  <!ENTITY nbsp "&#160;">
+                ]>'''  + text
         dom = parseString(text.encode('UTF-8'))
         return dom.documentElement
         
