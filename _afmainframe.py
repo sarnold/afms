@@ -259,10 +259,13 @@ class MainFrame(wx.Frame):
         menu.Enable(103, False)
         menu.Enable(104, False)
         menu.Append(105, _('Import ...'), _('Import artefacts from AF database'))
+        menu.Enable(105, False)
+        menu.AppendSeparator()
+        menu.Append(106, _('Statistics ...'), _('Statistics of current AF database'))
+        menu.Enable(106, False)
         menu.AppendSeparator()
         menu.Append(wx.ID_EXIT, _('E&xit\tAlt-X'), _('Exit this application'))
-        menu.Enable(105, False)
-
+        
         # adding a file history to the menu
         self.filehistory = wx.FileHistory()
         self.filehistory.UseMenu(menu)
@@ -390,7 +393,7 @@ class MainFrame(wx.Frame):
         self.InitTree(artefactnames, number_of_deleted_artefacts)
         self.treeCtrl.SelectItem(self.treeCtrl.root)
         self.SetStatusText(path, 2)
-        for m, i in zip([0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3], [103, 104, 105, 201, 202, 203, 204, 301, 302, 303, 304, 305, 306, 307, 401]):
+        for m, i in zip([0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3], [103, 104, 105, 106, 201, 202, 203, 204, 301, 302, 303, 304, 305, 306, 307, 401]):
             self.GetMenuBar().GetMenu(m).Enable(i, True)
         for i in (12,13,14,15,16, 17, 18, 19, 20, 30, 31):
             self.GetToolBar().EnableTool(i, True)

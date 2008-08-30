@@ -4,6 +4,8 @@ AFMS Release 0.x.x (2008xx-xx)
 
 New features
 ~~~~~~~~~~~~
+* Simple artefact statistics available with menu item File/Statistics
+
 * List of recently opened files is now provided in File menu
 
 * Added table formating to popup menu of multiline text controls.
