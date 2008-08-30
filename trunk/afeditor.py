@@ -65,7 +65,7 @@ import afresource
 import _afclipboard
 from _afartefact import cChangelogEntry
 
-import _affilterview, _affilter, afdbtoarchive, afarchivetodb
+import _affilterview, _affilter, afdbtoarchive, afarchivetodb, _afstatisticsview
 
 #TODO: validator for features, similar to requirements validator is missing
 #TODO: enter key on Feature/Requirement/... in tree should expand the tree
@@ -189,6 +189,7 @@ class MyApp(wx.App):
         self.Bind(wx.EVT_MENU, self.OnExportHTML, id=103)
         self.Bind(wx.EVT_MENU, self.OnExportXML, id=104)
         self.Bind(wx.EVT_MENU, self.OnImport, id=105)
+        self.Bind(wx.EVT_MENU, self.OnViewStatistics, id=106)
         self.Bind(wx.EVT_MENU_RANGE, self.OnFileHistory, id=wx.ID_FILE1, id2=wx.ID_FILE9)
 
         self.Bind(wx.EVT_MENU, self.OnEditArtefact, id = 201)
@@ -278,6 +279,48 @@ class MyApp(wx.App):
             self.mainframe.SetCursor(wx.STANDARD_CURSOR)
 
 
+    def OnViewStatistics(self, evt):
+        statisticdata = []
+
+        funcs = [self.model.getIDofFeaturesWithoutRequirements, self.model.getIDofRequirementsWithoutTestcases,
+                 self.model.getIDofTestcasesWithoutRequirements, self.model.getIDofTestcasesWithoutTestsuites,
+                 self.model.getIDofTestsuitesWithoutTestcases, self.model.getIDofUsecasesWithoutRequirements]
+        keys = [_('Features without requirements'), _('Requirements without test cases'),
+                _('Test cases without requirements'), _('Test cases without test suites'),
+                _('Test suites without test cases'), _('Usecases without requirements')]        
+        for func, key in zip(funcs, keys): 
+            idlist = func()
+            if len(idlist) > 0:
+                imageindex = 1
+                value = '%d (%s)' % (len(idlist), ','.join([str(id) for id in idlist]))
+            else:
+                imageindex = 0
+                value = '0'
+            sd = _afstatisticsview.StatisticData(key, value, imageindex)
+            statisticdata.append(sd)
+        
+        funcs = [self.model.getSimpleSectionIDs, self.model.getGlossaryEntryIDs,         
+                 self.model.getFeatureIDs, self.model.getRequirementIDs, 
+                 self.model.getUsecaseIDs, self.model.getTestcaseIDs, 
+                 self.model.getTestsuiteIDs]
+        keys = [_('Text sections'), _('Glossary entries'),
+                _('Features'), _('Requirements'),
+                _('Use cases'), _('Test cases'), _('Test suites')]
+        for func, key in zip(funcs, keys): 
+            idlist = func()
+            if len(idlist) > 0:
+                imageindex = 0              
+            else:
+                imageindex = 1
+            value = str(len(idlist))
+            sd = _afstatisticsview.StatisticData(key, value, imageindex)
+            statisticdata.append(sd)
+                    
+        dlg = _afstatisticsview.StatisticsDialog(self.mainframe, -1)
+        dlg.InitContent(statisticdata)
+        dlg.ShowModal()
+        
+        
     def OnSimpleSectionLevelChanged(self, evt):
         self.model.assignSimpleSectionLevels(evt.GetClientData())
         self.InitView()
