@@ -45,8 +45,39 @@ import afresource, _afartefact
 from afresource import ENCODING
 import _afhtmlwindow 
 
+class afExportXMLBase():
+    def write(self, filename):
+        f = codecs.open(filename, encoding='UTF-8', mode="w", errors='strict')
+        self.xmldoc.writexml(f, indent='', addindent=' '*2, newl='\n', encoding=ENCODING)
+        f.close()
+        
+        
+    def _createTextElement(self, tagName, text, attribute={}):
+        node = self.xmldoc.createElement(tagName)
+        for name, value in attribute.iteritems():
+            node.setAttribute(name, value)
+        node.appendChild(self.xmldoc.createTextNode(text))
+        return node
+        
+        
+    def _createElement(self, elementname, attribute={}):
+        node = self.xmldoc.createElement(elementname)
+        for name, value in attribute.iteritems():
+            node.setAttribute(name, value)
+        return node
 
-class afExportHTML():
+
+    def _render(self, text, maskspecialchars=True, enclosingtag='div'):
+        text = _afhtmlwindow.render(text, maskspecialchars, enclosingtag)
+        text = '''<?xml version="1.0" encoding="UTF-8" ?>
+                <!DOCTYPE xhtml [
+                  <!ENTITY nbsp "&#160;">
+                ]>'''  + text
+        dom = parseString(text.encode('UTF-8'))
+        return dom.documentElement
+
+
+class afExportHTML(afExportXMLBase):
     def __init__(self, model):
         self.model = model
         self.title='AFMS Report'
@@ -346,6 +377,15 @@ class afExportHTML():
                 self.appendListItem(subnode, self.renderFeatureAnchor(feature, True))
         table.appendChild(self._createTableRow(_('Related Features'), subnode))
         
+        relatedrequirements = requirement.getRelatedRequirements()
+        if len(relatedrequirements) == 0:
+            subnode = self._createTextElement('span', _('None'))
+        else:
+            subnode = self._createElement('ul')
+            for rq in relatedrequirements:
+                self.appendListItem(subnode, self.renderRequirementAnchor(rq, True))
+        table.appendChild(self._createTableRow(_('Related Requirements'), subnode))
+
         relatedusecases = requirement.getRelatedUsecases()
         if len(relatedusecases) == 0:
             subnode = self._createTextElement('span', _('None'), {'class': 'alert'})
@@ -541,28 +581,7 @@ class afExportHTML():
         link = self._createElement('p', {'class': 'changeloglink'})
         hrefanchor = self._createTextElement('a', _('Changelog'), {'href': '#H%(keystr)s-%(ID)03d' % artefact})
         link.appendChild(hrefanchor)
-        return (node, link)
-    
-
-    def write(self, filename):
-        f = codecs.open(filename, encoding='UTF-8', mode="w", errors='strict')
-        self.xmldoc.writexml(f, indent='', addindent=' '*2, newl='\n', encoding=ENCODING)
-        f.close()
-        
-        
-    def _createTextElement(self, tagName, text, attribute={}):
-        node = self.xmldoc.createElement(tagName)
-        for name, value in attribute.iteritems():
-            node.setAttribute(name, value)
-        node.appendChild(self.xmldoc.createTextNode(text))
-        return node
-        
-        
-    def _createElement(self, elementname, attribute={}):
-        node = self.xmldoc.createElement(elementname)
-        for name, value in attribute.iteritems():
-            node.setAttribute(name, value)
-        return node
+        return (node, link)        
         
         
     def _createTableRow(self, left, right):
@@ -597,17 +616,7 @@ class afExportHTML():
             css = ''
         css += "\n@import '%s';\n" % self.cssfile
         return css
-        
-        
-    def _render(self, text):
-        text = _afhtmlwindow.render(text)
-        text = '''<?xml version="1.0" encoding="UTF-8" ?>
-                <!DOCTYPE xhtml [
-                  <!ENTITY nbsp "&#160;">
-                ]>'''  + text
-        dom = parseString(text.encode('UTF-8'))
-        return dom.documentElement
-        
+                
 
 def doExportHTML(path, model):
     export = afExportHTML(model)
