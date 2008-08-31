@@ -357,9 +357,8 @@ class afTextCtrl(wx.TextCtrl):
 
 
 def formatTable(text, mode=afTextCtrl.MODE_REST):
-    numtabs = text.count('\t')
-    for i in range(numtabs, 1, -1):
-        text = text.replace('\t'*i, '\t')
+    # Replace multiple tabs by a single tab
+    text = '\t'.join([part for part in text.split('\t') if len(part) > 0])
     lines = text.splitlines()
     tabsperline = lines[0].count('\t')
     colsize = [0]*(tabsperline+1)
