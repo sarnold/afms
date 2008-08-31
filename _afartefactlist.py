@@ -239,13 +239,23 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
 
 
     def toText(self, s):
+        """Make s prinable in one line"""
         s = s.strip()
-        if s.startswith((".. rest", ".. REST")):
+        if len(s) > 150:
+            s = s[:147] + '...'
+        if s.upper().startswith(".. REST"):
             s = s[7:]
-        elif s.startswith(("<html>", "<HTML>")):
+        elif s.upper().startswith("<HTML>"):
             s = s[6:]
-        s = s.strip().replace('\n', '|')
+        elif s.upper().startswith(".. HTML"):
+            s = s[7:]
+        s = s.strip()
+        # Replace multiple newlines by a single '|' char
+        s = '|'.join([part for part in s.split('\n') if len(part) > 0])
+        # Replace multiple tabs by a single blank char
+        s = ' '.join([part for part in s.split('\t') if len(part) > 0])
         return s
+
 
     def GetChangeDate(self, obj):
         try:
