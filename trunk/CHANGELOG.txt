@@ -21,6 +21,8 @@ Changes
   
 * HTML export now makes XHTML
 
+* XML export format changed
+
 * Improved display in list views for long strings with lots of tabs and newlines
 
 
