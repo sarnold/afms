@@ -29,7 +29,7 @@ import _afimages
 from _afproducttree import *
 import afinfo
 import afconfig
-import afresource
+import afresource, _afsettingsview
 
 
 class MainFrame(wx.Frame):
@@ -380,6 +380,8 @@ class MainFrame(wx.Frame):
 
 
     def OnChangeLanguage(self, evt):
+        _afsettingsview.EditSettings(self)
+        return
         dlg = wx.SingleChoiceDialog(
                 self, _('Select program language\n(This takes effect after restarting the program.)'), _('Select language'),
                 [_('English'), _('German')], wx.CHOICEDLG_STYLE)

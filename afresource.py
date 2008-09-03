@@ -82,6 +82,12 @@ HTML_WILDCARD =  _("HTML file (*.html)|*.html|"  \
 XML_WILDCARD = _("XML file (*.xml)|*.xml|"  \
                  "All files (*.*)|*.*")
 
+CSS_WILDCARD = _("Cascading Style Sheet (*.css)|*.css|"     \
+                 "All files (*.*)|*.*")
+
+XSL_WILDCARD = _("XSL Style Sheet (*.xsl)|*.xsl|"     \
+                 "All files (*.*)|*.*")
+
 TR_WILDCARD = _("TR Database (*.tr)|*.tr|"     \
                 "All files (*.*)|*.*")
                 
