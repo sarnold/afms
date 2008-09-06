@@ -21,7 +21,8 @@
 
 # $Id$
 
-import logging
+import logging, os.path
+import _afhelper
 
 ENCODING = 'utf-8'
 
@@ -105,3 +106,9 @@ def SetLanguage(lang):
 
 def GetLanguage():
     return _language
+
+def getDefaultCSSFile():
+    return os.path.join(_afhelper.module_path(), 'afmsreport.css')    
+
+def getDefaultXSLFile():
+    return ''

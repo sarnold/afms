@@ -46,7 +46,7 @@ from afexporthtml import afExportXMLBase
 
 
 class afExportXML(afExportXMLBase):
-    def __init__(self, model):
+    def __init__(self, model, stylesheet):
         self.model = model
         self.title='AFMS Report'
         self.encoding = 'UTF-8'
@@ -56,6 +56,9 @@ class afExportXML(afExportXMLBase):
         self.root = self.xmldoc.documentElement
         self.root.setAttribute('source', self.model.getFilename())
         self.root.setAttribute('creationdate', strftime(afresource.TIME_FORMAT, localtime()))
+        if len(stylesheet) > 0:
+            stylesheet = self.xmldoc.createProcessingInstruction('xml-stylesheet', 'type="text/xsl" href="%s"' % stylesheet)
+            self.xmldoc.insertBefore(stylesheet, self.root)
         
     
     def run(self):
@@ -221,8 +224,8 @@ class afExportXML(afExportXMLBase):
         return node
 
 
-def doExportHTML(path, model):
-    export = afExportXML(model)
+def doExportXML(path, model, stylesheet):
+    export = afExportXML(model, stylesheet)
     export.run()
     export.write(path)
 
@@ -234,22 +237,24 @@ if __name__=="__main__":
         print("Version unknown")
 
     def usage():
-        print("Usage:\n%s [-h|--help] [-V|--version] [-o <ofile>|--output=<ofile>] <ifile>\n"
-        "  -h, --help                      show help and exit\n"
-        "  -V, --version                   show version and exit\n"
-        "  -o <ofile>, --output=<ofile>    output to file <ofile>\n"
-        "  <ifile>                         database file"
+        print("Usage:\n%s [-h|--help] [-V|--version] [-s <xslfile>|--stylesheet=<xslfile>] [-o <ofile>|--output=<ofile>] <ifile>\n"
+        "  -h, --help                             show help and exit\n"
+        "  -V, --version                          show version and exit\n"
+        "  -s <cssfile>, --stylesheet=<cssfile>   include cascading stylesheet\n"
+        "  -o <ofile>, --output=<ofile>           output to file <ofile>\n"
+        "  <ifile>                                database file"
         % sys.argv[0])
 
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:V", ["help", "output=", "version"])
+        opts, args = getopt.getopt(sys.argv[1:], "ho:s:V", ["help", "output=", "stylesheet=", "version"])
     except getopt.GetoptError, err:
         # print help information and exit:
         print str(err) # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
     output = None
+    stylesheet = afresource.getDefaultXSLFile()
     for o, a in opts:
         if o in ("-V", "--version"):
             version()
@@ -259,6 +264,8 @@ if __name__=="__main__":
             sys.exit()
         elif o in ("-o", "--output"):
             output = a
+        elif o in ("-s", "--stylesheet"):
+            stylesheet = a
         else:
             assert False, "unhandled option"
 
@@ -281,4 +288,4 @@ if __name__=="__main__":
     if output is None:
         output =  os.path.splitext(args[0])[0] + ".html"
 
-    doExportHTML(output, model)
+    doExportXML(output, model, stylesheet)
