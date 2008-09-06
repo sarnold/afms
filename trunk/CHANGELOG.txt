@@ -4,9 +4,15 @@ AFMS Release 0.x.x (2008xx-xx)
 
 New features
 ~~~~~~~~~~~~
-* Simple artefact statistics available with menu item File/Statistics
+* Extended settings dialog: 
+  configurable stylesheets for XML and HTML export
+  and opening the default viewer after report creation
 
-* List of recently opened files is now provided in File menu
+* Drag and drop support: dropping a artefact file in the tree region opens the file
+
+* Statistics: simple artefact statistics available with menu item File/Statistics
+
+* Recent files: list of recently opened files is now provided in File menu
 
 * Added table formating to popup menu of multiline text controls.
   This works for HTML and REST renderers

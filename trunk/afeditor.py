@@ -34,7 +34,7 @@ and Testsuites. This module implements the controller part in the design.
 
 
 import os, sys, time
-import logging, gettext
+import logging, gettext, webbrowser
 import wx
 
 basepath = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -73,6 +73,18 @@ import _affilterview, _affilter, afdbtoarchive, afarchivetodb, _afstatisticsview
 
 _EDIT_MODE = False
 
+
+class FileDropTarget(wx.FileDropTarget):
+    def __init__(self, callback):
+        wx.FileDropTarget.__init__(self)
+        self.callback = callback
+
+
+    def OnDropFiles(self, x, y, filenames):
+        if len(filenames) > 1: return False
+        self.callback(filenames[0])
+
+
 class MyApp(wx.App):
     """
     wxWidgets main application class.
@@ -92,6 +104,10 @@ class MyApp(wx.App):
         sp = wx.StandardPaths.Get()
         documents_dir = wx.StandardPaths.GetDocumentsDir(sp)
         workdir = self.config.Read("workdir", documents_dir)
+        cssfile = self.config.Read('cssfile', afresource.getDefaultCSSFile())
+        self.config.Write('cssfile', cssfile)
+        xslfile = self.config.Read('xslfile', afresource.getDefaultXSLFile())
+        self.config.Write('xslfile', xslfile)
         if not os.path.exists(workdir):
              self.config.Write("workdir", documents_dir)
         wx.Config.Set(self.config)
@@ -116,6 +132,8 @@ class MyApp(wx.App):
             pass
 
         self.mainframe = MainFrame(None, "AF Editor")
+        dt = FileDropTarget(self._OpenProduct)
+        self.mainframe.leftWindow.SetDropTarget(dt)
         self.SetTopWindow(self.mainframe)
         self.mainframe.Show(True)
         
@@ -495,12 +513,16 @@ class MyApp(wx.App):
             path = dlg.GetPath()
         dlg.Destroy()
         if  dlgResult == wx.ID_OK:
-            try:
-                self.OpenProduct(path)
-                self.mainframe.filehistory.AddFileToHistory(path)
-            except:
-                _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error opening product!'))
+            self._OpenProduct(path)
 
+
+    def _OpenProduct(self, path):
+        try:
+            self.OpenProduct(path)
+            self.mainframe.filehistory.AddFileToHistory(path)
+        except:
+            _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error opening product!'))
+        
 
     def OpenProduct(self, path):
         """
@@ -672,7 +694,11 @@ class MyApp(wx.App):
         dlg.Destroy()
         if  dlgResult == wx.ID_OK:
             try:
-                afexporthtml.doExportHTML(path, self.model)
+                stylesheet = self.config.Read('cssfile', afresource.getDefaultCSSFile())
+                afexporthtml.doExportHTML(path, self.model, stylesheet)
+                openhtmlreport = self.config.ReadBool('autoopenhtmlreport', False)
+                if openhtmlreport:
+                    webbrowser.open(url=path, new=2)
             except:
                 _afhelper.ExceptionMessageBox(sys.exc_info(), 'Error exporting to HTML!')
 
@@ -695,10 +721,14 @@ class MyApp(wx.App):
             path = dlg.GetPath()
         dlg.Destroy()
         if  dlgResult == wx.ID_OK:
-            #try:
-                afexportxml.afExportXML(path, self.model)
-            #except:
-             #   _afhelper.ExceptionMessageBox(sys.exc_info(), 'Error exporting to XML!')
+            try:
+                stylesheet = self.config.Read('xslfile', afresource.getDefaultXSLFile())
+                afexportxml.doExportXML(path, self.model, stylesheet)
+                openxmlreport = self.config.ReadBool('autoopenxmlreport', False)
+                if openxmlreport:
+                    webbrowser.open(url=path, new=2)
+            except:
+                _afhelper.ExceptionMessageBox(sys.exc_info(), 'Error exporting to XML!')
 
 
     def GetParentAndItemID(self):

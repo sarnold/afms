@@ -78,12 +78,11 @@ class afExportXMLBase():
 
 
 class afExportHTML(afExportXMLBase):
-    def __init__(self, model):
+    def __init__(self, model, cssfile):
         self.model = model
         self.title='AFMS Report'
         self.encoding = 'UTF-8'
-        self.cssfile = 'afmsreport.css'
-        
+        self.cssfile = cssfile
         self.impl = getDOMImplementation()
         doctype = self.getDocType()
         self.xmldoc = self.impl.createDocument(None, "html", doctype)
@@ -603,9 +602,8 @@ class afExportHTML(afExportXMLBase):
         
         
     def getCSSFile(self):
-        p = os.path.join(os.path.dirname(__file__), self.cssfile)
-        if os.path.exists(p):
-            fp = codecs.open(p, encoding='utf-8', errors = 'ignore')
+        if os.path.exists(self.cssfile):
+            fp = codecs.open(self.cssfile, encoding='utf-8', errors = 'ignore')
             css = ''
             for line in fp:
                 if line.startswith('/* start */'): break
@@ -614,12 +612,11 @@ class afExportHTML(afExportXMLBase):
             fp.close()
         else:
             css = ''
-        css += "\n@import '%s';\n" % self.cssfile
         return css
                 
 
-def doExportHTML(path, model):
-    export = afExportHTML(model)
+def doExportHTML(path, model, cssfile):
+    export = afExportHTML(model, cssfile)
     export.run()
     export.write(path)
     
@@ -631,23 +628,25 @@ if __name__=="__main__":
         print("Version unknown")
 
     def usage():
-        print("Usage:\n%s [-h|--help] [-V|--version] [-o <ofile>|--output=<ofile>] <ifile>\n"
-        "  -h, --help                      show help and exit\n"
-        "  -V, --version                   show version and exit\n"
-        "  -o <ofile>, --output=<ofile>    output to file <ofile>\n"
-        "  -l <lang>, --language=<lang>    select output language (de|en)"
-        "  <ifile>                         database file"
+        print("Usage:\n%s [-h|--help] [-V|--version] [-s <cssfile>|--stylesheet=<cssfile>] [-o <ofile>|--output=<ofile>] <ifile>\n"
+        "  -h, --help                            show help and exit\n"
+        "  -V, --version                          show version and exit\n"
+        "  -o <ofile>, --output=<ofile>           output to file <ofile>\n"
+        "  -s <cssfile>, --stylesheet=<cssfile>   include cascading stylesheet\n"
+        "  -l <lang>, --language=<lang>           select output language (de|en)\n"
+        "  <ifile>                                database file"
         % sys.argv[0])
 
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:l:V", ["help", "output=", "language", "version"])
+        opts, args = getopt.getopt(sys.argv[1:], "hs:o:l:V", ["help", "stylesheet=", "output=", "language=", "version"])
     except getopt.GetoptError, err:
         # print help information and exit:
         print str(err) # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
     output = None
+    stylesheet = afresource.getDefaultCSSFile()
     language = 'en'
     for o, a in opts:
         if o in ("-V", "--version"):
@@ -660,6 +659,8 @@ if __name__=="__main__":
             output = a
         elif o in ("-l", "--language"):
             language = a
+        elif o in ("-s", "--stylesheet"):
+            stylesheet = a
         else:
             assert False, "unhandled option"
 
@@ -690,4 +691,4 @@ if __name__=="__main__":
     if output is None:
         output =  os.path.splitext(args[0])[0] + ".html"
 
-    doExportHTML(output, model)
+    doExportHTML(output, model, stylesheet)

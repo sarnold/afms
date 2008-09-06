@@ -322,7 +322,7 @@ class MainFrame(wx.Frame):
         menuBar.Append(menu, _('&Archive'))
 
         menu = wx.Menu()
-        menu.Append(501, _('Language ...'), _('Set language'))
+        menu.Append(501, _('General ...'), _('General settings'))
         self.Bind(wx.EVT_MENU, self.OnChangeLanguage, id = 501)
         menu.Enable(501, True)
         menuBar.Append(menu, _('&Settings'))
