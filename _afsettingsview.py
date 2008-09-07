@@ -24,70 +24,7 @@
 import wx
 from afresource import CSS_WILDCARD, XSL_WILDCARD
 import afresource
-
-
-class SimpleFileBrowser(wx.Panel):
-    def __init__(self, parent, id=-1, labelText='File name', 
-            buttonText = '...', buttonStyle = wx.BU_EXACTFIT,
-            fileDialogTitle = 'Choose file', fileDialogStyle = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
-            defaultDir = '.', defaultFile = '', fileWildcard='*.*', callbackFunc = None):
-        self.fileDialogTitle = fileDialogTitle
-        self.fileDialogStyle = fileDialogStyle
-        self.defaultDir = defaultDir
-        self.defaultFile = defaultFile
-        self.fileWildcard = fileWildcard
-        self.callbackFunc = callbackFunc
-        wx.Panel.__init__(self, parent, id)
-        
-        self.edit  = wx.TextCtrl(self, -1)
-        self.button = wx.Button(self, -1, buttonText, style=buttonStyle)
-        sizer = wx.BoxSizer(wx.HORIZONTAL)
-        if labelText is not None:
-            self.label = wx.StaticText(self, -1, labelText)
-            sizer.Add(self.label, 0, wx.RIGHT | wx.ALIGN_CENTER, 10)
-        sizer.Add(self.edit, 1, wx.EXPAND)
-        sizer.Add(self.button, 0, wx.LEFT, 10)
-        self.SetSizer(sizer)
-        self.Layout()
-        self.Bind(wx.EVT_BUTTON, self.OnButtonClick, self.button)
-        self.edit.Bind(wx.EVT_KILL_FOCUS, self.OnText, self.edit)
-        
-    def AlignWith(self, sfb):
-        if not isinstance(sfb, SimpleFileBrowser): raise TypeError
-        self._SameSize(self.label, sfb.label)
-        self._SameSize(self.button, sfb.button)
-    
-    def _SameSize(self, widget1, widget2):
-        size1 = widget1.GetSize()
-        size2 = widget1.GetSize()
-        size1[0] = size2[0] = max(size1[0], size2[0])
-        widget1.SetMinSize(size1)
-        widget2.SetMinSize(size2)
-        
-    def OnButtonClick(self, evt):
-        dlg = wx.FileDialog(
-            self, message = self.fileDialogTitle,
-            defaultDir = self.defaultDir,
-            defaultFile = self.defaultFile,
-            wildcard = self.fileWildcard,
-            style = self.fileDialogStyle)
-        dlgResult = dlg.ShowModal()
-        if  dlgResult == wx.ID_OK:
-            path = dlg.GetPath()
-            self.edit.SetValue(path)
-            self.OnText(None)
-        dlg.Destroy()
-        
-    def OnText(self, evt):
-        if self.callbackFunc is not None: 
-            text = self.edit.GetValue()
-            self.callbackFunc(text)
-        
-    def GetValue(self):
-        return self.edit.GetValue()
-        
-    def SetValue(self, value):
-        self.edit.SetValue(value)
+from _afhelper import SimpleFileBrowser
 
 
 class SettingsDialog(wx.Dialog):

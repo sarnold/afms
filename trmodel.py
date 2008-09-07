@@ -6,8 +6,8 @@
 # This file is part of AFMS.
 #
 # AFMS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published 
-# by the Free Software Foundation, either version 2 of the License, 
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 2 of the License,
 # or (at your option) any later version.
 #
 # AFMS is distributed in the hope that it will be useful,
@@ -58,7 +58,7 @@ class trModel():
             self.currentdir = os.getcwd()
         self.testrunfilename = None
         self.connection = None
-        
+
 
     def getFilename(self):
         return self.testrunfilename
@@ -80,7 +80,7 @@ class trModel():
         model.requestOpenProduct(afdatabase)
         product_info = model.getProductInformation()
         testsuite = model.getTestsuite(testsuite_id)
-        
+
         self.currentdir = os.path.dirname(path)
         self.testrunfilename = path
         if self.currentdir != '':
@@ -101,22 +101,22 @@ class trModel():
         c.execute("insert into testrun values ('testsuite_description', ?);", (testsuite['description'],))
         c.execute("insert into testrun values ('testsuite_execorder', ?);", (testsuite['execorder'],))
         c.execute("insert into testrun values ('dbversion', ?);", (_DBVERSION,))
-        
+
         c.execute("create table testcases " \
             "(ID integer primary key, title text, purpose text, prerequisite text,"
             " testdata text, steps text, notes text, version text, "
-            " testresult integer, testremark text, action text, timestamp text);")
-        sqlstr = "insert into testcases values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            " testresult integer, testremark text, action text, timestamp text, scripturl text);")
+        sqlstr = "insert into testcases values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         for shorttestcase in testsuite.getRelatedTestcases():
             basetestcase = model.getTestcase(shorttestcase['ID'])
             testcase = _trartefact.cTestcase()
             testcase.importBaseTestcase(basetestcase)
             plaintestcase = [testcase[key] for key in testcase.keys()]
             c.execute(sqlstr, plaintestcase)
-            
+
         self.connection.commit()
-        
-        
+
+
     def OpenTestrun(self, path):
         """
         Request to open an existing test run database
@@ -140,7 +140,7 @@ class trModel():
         """
         Get list with all testcases from database
         @rtype:  object list
-        @return: list with testcase object just with some basedata 
+        @return: list with testcase object just with some basedata
         """
         query_string = 'select id, testresult, title from testcases'
         testcases = []
@@ -148,8 +148,8 @@ class trModel():
             testcase = _trartefact.cTestcase(ID=data[0], testresult=data[1], title=data[2])
             testcases.append(testcase)
         return testcases
-    
-    
+
+
     def getStatusSummary(self):
         """Number of (total, pending, failed, skipped) test cases """
         query_string = 'select testresult from testcases'
@@ -161,16 +161,16 @@ class trModel():
         query_string = 'select testresult from testcases where testresult = %s' % afresource.SKIPPED
         skipped = len(self.getData(query_string))
         return (total, pending, failed, skipped)
-        
-        
+
+
     def getTestcase(self, tc_id):
         query_string = "select id, title, purpose, prerequisite, testdata, steps, " \
-                       "notes, version, testresult, testremark, action, timestamp  " \
+                       "scripturl, notes, version, testresult, testremark, action, timestamp  " \
                        "from testcases where id==%s" % tc_id
         d = self.getData(query_string)[0]
         return _trartefact.cTestcase(ID=d[0], title=d[1], purpose=d[2], prerequisite=d[3],
-            testdata=d[4], steps=d[5], notes=d[6], version=d[7],
-            testresult=d[8], testremark=d[9], action=d[10], timestamp = d[11])
+            testdata=d[4], steps=d[5], scripturl=d[6], notes=d[7], version=d[8],
+            testresult=d[9], testremark=d[10], action=d[11], timestamp = d[12])
 
 
     def getData(self, query_string):
@@ -193,8 +193,8 @@ class trModel():
         c = self.connection.cursor()
         c.execute(query_string, plaintestresult)
         self.connection.commit()
-        
-        
+
+
     def getInfo(self):
         keys = ('product_title', 'creation_date', 'description', 'tester', 'afdatabase',
                 'testsuite_id', 'testsuite_title', 'testsuite_description', 'testsuite_execorder')
@@ -213,8 +213,8 @@ class trModel():
         timestamp = time.strftime(afresource.TIME_FORMAT)
         c.execute("update testcases set 'testresult'=?, 'testremark'=?, 'timestamp'=? where testresult==?", (afresource.SKIPPED, reason, timestamp, afresource.PENDING))
         self.connection.commit()
-        
-        
+
+
     def getTestcaseIDs(self, testresult = afresource.FAILED):
         query_string = "select ID from testcases where testresult=%d" % testresult
         return self.getData(query_string)

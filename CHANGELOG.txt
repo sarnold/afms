@@ -4,6 +4,8 @@ AFMS Release 0.x.x (2008xx-xx)
 
 New features
 ~~~~~~~~~~~~
+* Testcase extension: a new text field for a URL to a test script has been added
+
 * Extended settings dialog: 
   configurable stylesheets for XML and HTML export
   and opening the default viewer after report creation
@@ -30,6 +32,12 @@ Changes
 * XML export format changed
 
 * Improved display in list views for long strings with lots of tabs and newlines
+
+* "Version" field replaced by "Key" field: for features, requirements and testcases the field "Version" has been renamed
+  to "Key". When editing such an artefact the value of the key field could be selected from a drop down list.
+  Rationale: some users requested a kind of grouping for artefacts. This could be done by giving same keys to artefacts belonging
+  to the same group.
+  Note: in the databes the version field is used to hold the key information.
 
 
 

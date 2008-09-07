@@ -231,7 +231,6 @@ class TestRunnerApp(wx.App):
             else:
                 if os.path.exists(filename):
                     code = wx.MessageBox('File %s already exists.\nOkay to overwrite?' % filename, "Save test run", wx.YES_NO  | wx.ICON_WARNING)
-                    print code
                     if code != wx.YES:
                         evt.Veto()
                         page.SetFocus()
@@ -318,7 +317,7 @@ class TestRunnerApp(wx.App):
         dlg.Destroy()
         if  dlgResult == wx.ID_OK:
             try:
-                trexporthtml.trExportHTML(path, self.model)
+                trexporthtml.doExportHTML(path, self.model, afresource.getDefaultCSSFile())
             except:
                 _afhelper.ExceptionMessageBox(sys.exc_info(), 'Error exporting to HTML!')
 
@@ -337,7 +336,7 @@ class TestRunnerApp(wx.App):
         dlg.Destroy()
         if  dlgResult == wx.ID_OK:
             try:
-                trexportxml.trExportXML(path, self.model)
+                trexportxml.doExportXML(path, self.model, afresource.getDefaultXSLFile())
             except:
                 _afhelper.ExceptionMessageBox(sys.exc_info(), 'Error exporting to XML!')
 

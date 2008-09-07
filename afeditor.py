@@ -945,6 +945,7 @@ class MyApp(wx.App):
         @return: same as L{EditArtefact}
         """
         feature.validator =  self.validateArtefact
+        afconfig.VERSION_NAME = self.model.requestVersionList('FEATURES')
         return self.EditArtefact(_("Edit feature"), afFeatureNotebook, self.model.saveFeature, feature)
 
 
@@ -958,6 +959,7 @@ class MyApp(wx.App):
         """
         logging.debug("afeditor.EditRequirement()")
         afconfig.ASSIGNED_NAME = self.model.requestAssignedList()
+        afconfig.VERSION_NAME = self.model.requestVersionList('REQUIREMENTS')
         requirement.validator = self.validateArtefact
         return self.EditArtefact(_("Edit requirement"), afRequirementNotebook, self.model.saveRequirement, requirement)
 
@@ -994,6 +996,7 @@ class MyApp(wx.App):
         @rtype:  nested tuple
         @return: same as L{EditArtefact}
         """
+        afconfig.VERSION_NAME = self.model.requestVersionList('TESTCASES')
         return self.EditArtefact(_("Edit testcase"), afTestcaseNotebook, self.model.saveTestcase, testcase)
 
 

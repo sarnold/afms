@@ -30,21 +30,10 @@ if __name__=="__main__":
     gettext.install(DOMAIN, LOCALEDIR, unicode=True)
 
 import wx
-import afresource, afconfig       
+import afresource, afconfig
+from _afhelper import getRelFolder, getRelPath
 
-def getRelFolder(reffolder, folder):
-    commonprefix = os.path.commonprefix([reffolder, folder])
-    if commonprefix != '':
-        folder = folder[len(commonprefix):]
-        reffolder = reffolder[len(commonprefix):]
-        n = len(reffolder.split(os.sep))
-        relfolder = os.sep.join(['..'] * n)
-        folder =  os.path.join(relfolder, folder)
-        if folder.startswith(os.sep):
-            folder = folder.lstrip(os.sep)
-    return folder
 
-    
 class afTextCtrl(wx.TextCtrl):
     (MODE_PLAIN, MODE_HTML, MODE_REST) = (0, 1, 2)
     REST_TAG = '.. REST\n\n'
@@ -260,9 +249,7 @@ class afTextCtrl(wx.TextCtrl):
         if  dlgResult != wx.ID_OK: return
             
         # try to compute relative path
-        reffolder = afconfig.basedir
-        folder = os.path.dirname(path)
-        path = os.path.join(getRelFolder(reffolder, folder), os.path.basename(path))
+        getRelPath(path)
         
         if self.mode == afTextCtrl.MODE_HTML:
             self.WriteText('<p><img src="%s" /></p>' % path)
@@ -389,31 +376,6 @@ def formatTable(text, mode=afTextCtrl.MODE_REST):
         
 if __name__ == "__main__":
     import unittest
-
-    class TestRelFolder(unittest.TestCase):
-        def setUp(self):
-            pass
-            
-        def tofolder(self, f):
-            return f.replace('/', os.sep)
-            
-        def test1(self):
-            reffolder = self.tofolder('/a/b/c')
-            folder = self.tofolder('/a/b/d')
-            relfolder = getRelFolder(reffolder, folder)
-            self.assertEqual(relfolder, self.tofolder('../d'))
-
-        def test2(self):
-            reffolder = self.tofolder('/a/b/c')
-            folder = self.tofolder('/a/b/c/d')
-            relfolder = getRelFolder(reffolder, folder)
-            self.assertEqual(relfolder, self.tofolder('d'))
-
-        def test3(self):
-            reffolder = self.tofolder('c:\\a\\b\\c')
-            folder = self.tofolder('d:\\a\\b\\c')
-            relfolder = getRelFolder(reffolder, folder)
-            self.assertEqual(relfolder, folder)
 
     class TestFormatTable(unittest.TestCase):
         inputs = ['1\t123\t12\n1\t2\t3', 

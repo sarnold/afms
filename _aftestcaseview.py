@@ -29,7 +29,10 @@ from _afvalidators import NotEmptyValidator
 import _afbasenotebook
 import afconfig
 from _afartefact import cTestcase
+from _afhelper import SimpleFileBrowser, getRelFolder, getRelPath
 
+def _relpath(path):
+    getRelFolder(path)
 
 class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
     def __init__(self, parent, id = -1, viewonly = True):
@@ -38,7 +41,7 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
         self.SetOwnBackgroundColour(color)
         panel = wx.Panel(self, -1)
         panel.SetOwnBackgroundColour(color)
-        labels = [_('Title'), _('ID'), _('Version'), _('Purpose'), _('Prerequisite'), _('Testdata'), _('Steps'), _('Notes && Questions')]
+        labels = [_('Title'), _('ID'), _('Version'), _('Purpose'), _('Prerequisite'), _('Testdata'), _('Steps'), _('Script'), _('Notes && Questions')]
         statictext = []
         for label in labels:
             st = wx.StaticText(panel, -1, label+':')
@@ -48,6 +51,7 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
             self.title_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
             self.id_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
             self.version_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
+            self.scripturl_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
             self.purpose_edit = afHtmlWindow(panel, -1)
             self.prerequisite_edit = afHtmlWindow(panel, -1)
             self.testdata_edit =afHtmlWindow(panel, -1)
@@ -56,7 +60,9 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
         else:
             self.title_edit = wx.TextCtrl(panel, -1, "", validator = NotEmptyValidator())
             self.id_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
-            self.version_edit = wx.TextCtrl(panel, -1, "")
+            self.version_edit = wx.ComboBox(panel, -1, choices = afconfig.VERSION_NAME, style=wx.CB_DROPDOWN)
+            self.scripturl_edit = SimpleFileBrowser(panel, labelText=None, fileWildcard=_(afresource.ALL_WILDCARD),
+                                                    fileDialogTitle=_("Choose script"), callbackFunc=self.__setRelPath)
             self.purpose_edit = afTextCtrl(panel)
             self.prerequisite_edit = afTextCtrl(panel)
             self.testdata_edit = afTextCtrl(panel)
@@ -71,18 +77,27 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
         self.id_edit.Enable(False)
 
         edit = [self.title_edit, self.id_edit, self.version_edit, self.purpose_edit,
-            self.prerequisite_edit, self.testdata_edit, self.steps_edit, self.notes_edit]
+            self.prerequisite_edit, self.testdata_edit, self.steps_edit, self.scripturl_edit, self.notes_edit]
 
         sizer = wx.FlexGridSizer(8, 2, 10, 10)
+        sizer.Add(statictext[0], 0, wx.EXPAND | wx.ALIGN_BOTTOM)
+        sizer.Add(edit[0], 0, wx.EXPAND | wx.ALIGN_LEFT)
 
-        for i in range(len(labels)):
+        hsizer = wx.BoxSizer(wx.HORIZONTAL)
+        hsizer.Add(self.id_edit, 0)
+        hsizer.Add(statictext[2], 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 20)
+        hsizer.Add(self.version_edit, 1, wx.LEFT | wx.EXPAND, 5)
+        sizer.Add(statictext[1], 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL)
+        sizer.Add(hsizer, 0, wx.EXPAND | wx.ALIGN_LEFT)
+
+        for i in range(3, len(labels)):
             sizer.Add(statictext[i], 0, wx.EXPAND | wx.ALIGN_BOTTOM)
             sizer.Add(edit[i], 0, wx.EXPAND | wx.ALIGN_LEFT)
 
-        sizer.AddGrowableRow(3, 1)
+        sizer.AddGrowableRow(2, 1)
+        sizer.AddGrowableRow(3, 2)
         sizer.AddGrowableRow(4, 2)
-        sizer.AddGrowableRow(5, 2)
-        sizer.AddGrowableRow(6, 3)
+        sizer.AddGrowableRow(5, 3)
         sizer.AddGrowableRow(7, 1)
         sizer.AddGrowableCol(1)
         sizer.SetFlexibleDirection(wx.BOTH)
@@ -112,6 +127,7 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
         self.steps_edit.SetValue(testcase['steps'])
         self.notes_edit.SetValue(testcase['notes'])
         self.version_edit.SetValue(testcase['version'])
+        self.scripturl_edit.SetValue(testcase['scripturl'])
 
         self.requirementlist.InitContent(testcase.getRelatedRequirements())
         self.testsuitelist.InitContent(testcase.getRelatedTestsuites())
@@ -132,6 +148,11 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
                              testdata=self.testdata_edit.GetValue(),
                              steps=self.steps_edit.GetValue(),
                              notes=self.notes_edit.GetValue(),
-                             version=self.version_edit.GetValue())
+                             version=self.version_edit.GetValue(),
+                             scripturl = self.scripturl_edit.GetValue())
         testcase.setChangelog(self.GetChangelogContent())
         return testcase
+
+
+    def __setRelPath(self, path):
+        self.scripturl_edit.SetValue(getRelPath(path))

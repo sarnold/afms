@@ -155,7 +155,7 @@ class cChangelogEntry():
 #----------------------------------------------------------------------
 
 class cFeature(cArtefact):
-    def __init__(self, ID=-1, title='', priority=0, status=0, version='1.0',
+    def __init__(self, ID=-1, title='', priority=0, status=0, version='',
                  risk=0, description=''):
         cArtefact.__init__(self)
         self._labels = [_('ID'), _('Title'), _('Priority'), _('Status'), _('Version'), _('Risk'), _('Description')]
@@ -218,7 +218,7 @@ class cFeature(cArtefact):
 #----------------------------------------------------------------------
 
 class cRequirement(cArtefact):
-    def __init__(self, ID=-1, title='', priority=0, status=0, version='1.0',
+    def __init__(self, ID=-1, title='', priority=0, status=0, version='',
                  complexity=0, assigned='', effort=0, category=0, origin='',
                  rationale='', description=''):
         cArtefact.__init__(self)
@@ -418,23 +418,24 @@ class cUsecase(cArtefact):
 #----------------------------------------------------------------------
 
 class cTestcase(cArtefact):
-    def __init__(self, ID=-1, title='', purpose='', prerequisite='', testdata='', steps='', notes='', version='1.0'):
+    def __init__(self, ID=-1, title='', purpose='', prerequisite='', testdata='', steps='', notes='', version='', scripturl=''):
         cArtefact.__init__(self)
         self._supportschangelog = True
         self._labels = [_('ID'), _('Title'), _('Purpose'),
                   _('Prerequisite'), _('Testdata'), _('Steps'),
-                  _('Notes && Questions'), _('Version')]
+                  _('Notes && Questions'), _('Version'), 'Script URL']
         self._keys = ['ID', 'title', 'purpose', 'prerequisite', 'testdata', 'steps',
-                'notes', 'version']
+                'notes', 'version', 'scripturl']
         self._basedata = {
-            'ID'           : ID,
+            'ID'           :  ID,
             'title'        :  title,
             'purpose'      :  purpose,
             'prerequisite' :  prerequisite,
             'testdata'     :  testdata,
             'steps'        :  steps,
             'notes'        :  notes,
-            'version'      : version }
+            'version'      :  version,
+            'scripturl'    :  scripturl }
         self.relatedRequirements = []
         self.relatedTestsuites = []
 

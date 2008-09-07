@@ -430,8 +430,8 @@ class afTestcaseFilterView(afBaseFilterView):
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         self.vbox.Add(hbox, 1)
 
-        self.AddTextFieldWidget(hbox, [_("Title"), _("Purpose"), _("Prerequisite"), _("Testdata"), _("Steps"), _("Notes & Questions")],
-            ['title', 'purpose', 'prerequisite', 'testdata', 'steps', 'notes'])
+        self.AddTextFieldWidget(hbox, [_("Title"), _("Purpose"), _("Prerequisite"), _("Testdata"), _("Steps"), _('Script URL'), _("Notes & Questions")],
+            ['title', 'purpose', 'prerequisite', 'testdata', 'steps', 'scripturl', 'notes'])
 
         style = wx.LB_EXTENDED|wx.LB_HSCROLL|wx.LB_NEEDED_SB
         self.AddVersionWidget(hbox, style)

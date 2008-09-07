@@ -29,9 +29,8 @@ Export database to html output
 @version: $Rev$
 """
 
-import os
+import os, sys, getopt, gettext
 if __name__=="__main__":
-    import sys, gettext
     basepath = os.path.abspath(os.path.dirname(sys.argv[0]))
     LOCALEDIR = os.path.join(basepath, 'locale')
     DOMAIN = "afms"
@@ -43,23 +42,23 @@ import afmodel
 import afconfig
 import afresource, _afartefact
 from afresource import ENCODING
-import _afhtmlwindow 
+import _afhtmlwindow
 
 class afExportXMLBase():
     def write(self, filename):
         f = codecs.open(filename, encoding='UTF-8', mode="w", errors='strict')
         self.xmldoc.writexml(f, indent='', addindent=' '*2, newl='\n', encoding=ENCODING)
         f.close()
-        
-        
+
+
     def _createTextElement(self, tagName, text, attribute={}):
         node = self.xmldoc.createElement(tagName)
         for name, value in attribute.iteritems():
             node.setAttribute(name, value)
         node.appendChild(self.xmldoc.createTextNode(text))
         return node
-        
-        
+
+
     def _createElement(self, elementname, attribute={}):
         node = self.xmldoc.createElement(elementname)
         for name, value in attribute.iteritems():
@@ -78,9 +77,9 @@ class afExportXMLBase():
 
 
 class afExportHTML(afExportXMLBase):
-    def __init__(self, model, cssfile):
+    def __init__(self, model, cssfile, title='AFMS Report'):
         self.model = model
-        self.title='AFMS Report'
+        self.title = title
         self.encoding = 'UTF-8'
         self.cssfile = cssfile
         self.impl = getDOMImplementation()
@@ -92,14 +91,14 @@ class afExportHTML(afExportXMLBase):
         self.root.appendChild(self.getHead())
         self.body = self.xmldoc.createElement('body')
         self.root.appendChild(self.body)
-                
-        
+
+
     def getDocType(self):
-        return self.impl.createDocumentType('html', '-//W3C//DTD XHTML 1.0 Strict//EN', 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd')        
-        
-        
+        return self.impl.createDocumentType('html', '-//W3C//DTD XHTML 1.0 Strict//EN', 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd')
+
+
     def getHead(self):
-        head = self.xmldoc.createElement('head')  
+        head = self.xmldoc.createElement('head')
         node = self.xmldoc.createElement('meta')
         node.setAttribute('content', "text/xhtml; charset=%s" % self.encoding)
         node.setAttribute('http-equiv', "content-type")
@@ -107,27 +106,27 @@ class afExportHTML(afExportXMLBase):
         node = self.xmldoc.createElement('title')
         node.appendChild(self.xmldoc.createTextNode(self.title))
         head.appendChild(node)
-        
+
         node = self.xmldoc.createElement('style')
         node.setAttribute('type', "text/css")
         node.appendChild(self.xmldoc.createTextNode(self.getCSSFile()))
         head.appendChild(node)
         return head
-        
-        
+
+
     def run(self):
         self.toc = self._createElement('div', {'class': 'tableofcontent'})
         self.toc.appendChild(self._createTextElement('h1', _('Table of Contents')))
         self.body.appendChild(self.toc)
-        
+
         self.changelog = self._createElement('div', {'class': 'changelog'})
-        
+
         # --- Product information ---
         self.toc.appendChild(self._createHeadline('h2', _('Product information'), {'href': '#productinformation'}))
         self.body.appendChild(self._createHeadline('h1', _('Product information'), {'name': 'productinformation'}))
         node = self.renderProductInformation()
         self.body.appendChild(node)
-        
+
         # --- Text sections ---
         self.toc.appendChild(self._createHeadline('h2', _('Text sections'), {'href': '#textsections'}))
         self.body.appendChild(self._createHeadline('h1', _('Text sections'), {'name': 'textsections'}))
@@ -139,7 +138,7 @@ class afExportHTML(afExportXMLBase):
             self.body.appendChild(node)
             self.appendListItem(listnode, tocnode)
             self.changelog.appendChild(changelognode)
-            
+
         # --- Glossary ---
         self.toc.appendChild(self._createHeadline('h2', _('Terms and Abbreviations'), {'href': '#glossary'}))
         self.body.appendChild(self._createHeadline('h1', _('Terms and Abbreviations'), {'name': 'glossary'}))
@@ -152,7 +151,7 @@ class afExportHTML(afExportXMLBase):
             (termnode, descnode) = self.renderGlossaryEntry(id)
             listnode.appendChild(termnode)
             listnode.appendChild(descnode)
-        
+
         # --- Features ---
         self.toc.appendChild(self._createHeadline('h2', _('Features'), {'href': '#features'}))
         self.body.appendChild(self._createHeadline('h1', _('Features'), {'name': 'features'}))
@@ -164,7 +163,7 @@ class afExportHTML(afExportXMLBase):
             self.body.appendChild(node)
             self.appendListItem(listnode, tocnode)
             self.changelog.appendChild(changelognode)
-        
+
         # --- Requirements ---
         self.toc.appendChild(self._createHeadline('h2', _('Requirements'), {'href': '#requirements'}))
         self.body.appendChild(self._createHeadline('h1', _('Requirements'), {'name': 'requirements'}))
@@ -178,7 +177,7 @@ class afExportHTML(afExportXMLBase):
             self.body.appendChild(node)
             self.appendListItem(listnode, tocnode)
             self.changelog.appendChild(changelognode)
-            
+
         # --- Usecases ---
         self.toc.appendChild(self._createHeadline('h2', _('Usecases'), {'href': '#usecases'}))
         self.body.appendChild(self._createHeadline('h1', _('Usecases'), {'name': 'usecases'}))
@@ -202,7 +201,7 @@ class afExportHTML(afExportXMLBase):
             self.body.appendChild(node)
             self.appendListItem(listnode, tocnode)
             self.changelog.appendChild(changelognode)
-            
+
         # --- Testsuites ---
         self.toc.appendChild(self._createHeadline('h2', _('Testsuites'), {'href': '#testsuites'}))
         self.body.appendChild(self._createHeadline('h1', _('Testsuites'), {'name': 'testsuites'}))
@@ -212,7 +211,7 @@ class afExportHTML(afExportXMLBase):
         for id in idlist:
             (node, tocnode) = self.renderTestsuite(id)
             self.body.appendChild(node)
-            self.appendListItem(listnode, tocnode)     
+            self.appendListItem(listnode, tocnode)
 
         # -- Problem reports ---
         self.toc.appendChild(self._createHeadline('h2', _('Detected problems'), {'href': '#problems'}))
@@ -232,7 +231,7 @@ class afExportHTML(afExportXMLBase):
             subnode = self._createElement('li')
             subnode.appendChild(self._createTextElement('a', label, {'href': '#' + href}))
             tocnode.appendChild(subnode)
-            
+
             node = self._createElement('h2')
             node.appendChild(self._createTextElement('a', label, {'name': href}))
             self.body.appendChild(node)
@@ -247,12 +246,12 @@ class afExportHTML(afExportXMLBase):
                     self.appendListItem(subnode, renderFunc(getAFFunc(id), True))
             self.body.appendChild(subnode)
         self.toc.appendChild(tocnode)
-        
+
         # --- Changelog ---
         self.toc.appendChild(self._createHeadline('h2', _('Changelog'), {'href': '#changelog'}))
         self.body.appendChild(self._createHeadline('h1', _('Changelog'), {'name': 'changelog'}))
         self.body.appendChild(self.changelog)
-        
+
         # --- Footer ---
         self.body.appendChild(self._createElement('hr'))
         footer = _('Created from %s at %s by %s') % (self.model.getFilename(), strftime(afresource.TIME_FORMAT, localtime()), afconfig.CURRENT_USER)
@@ -269,8 +268,8 @@ class afExportHTML(afExportXMLBase):
         listitemnode = self._createElement('li')
         listitemnode.appendChild(itemnode)
         listnode.appendChild(listitemnode)
-        
-        
+
+
     def renderGlossaryEntry(self, id):
         glossaryentry = self.model.getGlossaryEntry(id)
         termnode = self._createElement('dt')
@@ -283,16 +282,16 @@ class afExportHTML(afExportXMLBase):
         subnode.setAttribute('class', 'glossarydescription')
         descnode.appendChild(subnode)
         return (termnode, descnode)
-        
-        
+
+
     def renderProductInformation(self):
         productinfo = self.model.getProductInformation()
         node = self._createElement('div', {'class': 'productinfo'})
         node.appendChild(self._createTextElement('div', productinfo['title'], {'class': 'producttitle'}))
         node.appendChild(self._render(productinfo['description']))
         return node
-        
-        
+
+
     def renderSimpleSection(self, ID):
         simplesection = self.model.getSimpleSection(ID)
         node = self._createElement('div', {'class': 'simplesection'})
@@ -304,8 +303,8 @@ class afExportHTML(afExportXMLBase):
         (changelognode, changeloglink) = self.renderChangelist('SS', simplesection)
         node.appendChild(changeloglink)
         return (node, tocnode, changelognode)
-        
-        
+
+
     def renderFeature(self, ID):
         feature = self.model.getFeature(ID)
         basedata = feature.getPrintableDataDict()
@@ -313,16 +312,16 @@ class afExportHTML(afExportXMLBase):
         subnode = self._createElement('h2')
         subnode.appendChild(self.renderFeatureAnchor(feature, False))
         node.appendChild(subnode)
-        
+
         table = self._createElement('table', {'class': 'aftable'})
         node.appendChild(table)
-        
+
         table.appendChild(self._createTableRow(_('Description'), self._render(basedata['description'])))
         table.appendChild(self._createTableRow(_('Priority'),    basedata['priority']))
         table.appendChild(self._createTableRow(_('Status'),      basedata['status']))
         table.appendChild(self._createTableRow(_('Version'),     basedata['version']))
         table.appendChild(self._createTableRow(_('Risk'),        basedata['risk']))
-        
+
         relatedrequirements = feature.getRelatedRequirements()
         if len(relatedrequirements) == 0:
             subnode = self._createTextElement('div', _('None'), {'class': 'alert'})
@@ -331,12 +330,12 @@ class afExportHTML(afExportXMLBase):
             for requirement in relatedrequirements:
                 self.appendListItem(subnode, self.renderRequirementAnchor(requirement, True))
         table.appendChild(self._createTableRow(_('Related Requirements'), subnode))
-            
+
         tocnode = self.renderFeatureAnchor(feature, True)
         (changelognode, changeloglink) = self.renderChangelist('FT', feature)
         node.appendChild(changeloglink)
         return (node, tocnode, changelognode)
-        
+
 
     def renderFeatureAnchor(self, feature, href):
         if href:
@@ -353,7 +352,7 @@ class afExportHTML(afExportXMLBase):
         subnode = self._createElement('h2')
         subnode.appendChild(self.renderRequirementAnchor(requirement, False))
         node.appendChild(subnode)
-        
+
         table = self._createElement('table', {'class': 'aftable'})
         node.appendChild(table)
         table.appendChild(self._createTableRow(_('Description'), self._render(basedata['description'])))
@@ -366,7 +365,7 @@ class afExportHTML(afExportXMLBase):
         table.appendChild(self._createTableRow(_('Category'),    basedata['category']))
         table.appendChild(self._createTableRow(_('Origin'),      self._render(basedata['origin'])))
         table.appendChild(self._createTableRow(_('Rationale'),   self._render(basedata['rationale'])))
-        
+
         relatedfeatures = requirement.getRelatedFeatures()
         if len(relatedfeatures) == 0:
             subnode = self._createTextElement('span', _('None'), {'class': 'alert'})
@@ -375,7 +374,7 @@ class afExportHTML(afExportXMLBase):
             for feature in relatedfeatures:
                 self.appendListItem(subnode, self.renderFeatureAnchor(feature, True))
         table.appendChild(self._createTableRow(_('Related Features'), subnode))
-        
+
         relatedrequirements = requirement.getRelatedRequirements()
         if len(relatedrequirements) == 0:
             subnode = self._createTextElement('span', _('None'))
@@ -407,15 +406,15 @@ class afExportHTML(afExportXMLBase):
         (changelognode, changeloglink) = self.renderChangelist('REQ', requirement)
         node.appendChild(changeloglink)
         return (node, tocnode, changelognode)
-        
-        
+
+
     def renderRequirementAnchor(self, requirement, href):
         if href:
             attribute = {'href': '#REQ-%(ID)03d' % requirement}
         else:
             attribute = {'name': 'REQ-%(ID)03d' % requirement}
         return self._createTextElement('a', 'REQ-%(ID)03d: %(title)s' % requirement, attribute)
-        
+
 
     def renderUsecase(self, ID):
         usecase = self.model.getUsecase(ID)
@@ -424,7 +423,7 @@ class afExportHTML(afExportXMLBase):
         subnode = self._createElement('h2')
         subnode.appendChild(self.renderUsecaseAnchor(usecase, False))
         node.appendChild(subnode)
-        
+
         table = self._createElement('table', {'class': 'aftable'})
         node.appendChild(table)
         table.appendChild(self._createTableRow(_('Priority'),      basedata['priority']))
@@ -435,7 +434,7 @@ class afExportHTML(afExportXMLBase):
         table.appendChild(self._createTableRow(_('Main scenario'), self._render(basedata['mainscenario'])))
         table.appendChild(self._createTableRow(_('Alt scenario'),  self._render(basedata['altscenario'])))
         table.appendChild(self._createTableRow(_('Notes'),         self._render(basedata['notes'])))
-        
+
         relatedrequirements = usecase.getRelatedRequirements()
         if len(relatedrequirements) == 0:
             subnode = self._createTextElement('span', _('None'), {'class': 'alert'})
@@ -444,13 +443,13 @@ class afExportHTML(afExportXMLBase):
             for requirement in relatedrequirements:
                 self.appendListItem(subnode, self.renderRequirementAnchor(requirement, True))
         table.appendChild(self._createTableRow(_('Related Requirements'), subnode))
-            
+
         tocnode = self.renderUsecaseAnchor(usecase, True)
         (changelognode, changeloglink) = self.renderChangelist('UC', usecase)
         node.appendChild(changeloglink)
         return (node, tocnode, changelognode)
-        
-        
+
+
     def renderUsecaseAnchor(self, usecase, href):
         if href:
             attribute = {'href': '#UC-%(ID)03d' % usecase}
@@ -458,7 +457,7 @@ class afExportHTML(afExportXMLBase):
             attribute = {'name': 'UC-%(ID)03d' % usecase}
         return self._createTextElement('a', 'UC-%(ID)03d: %(title)s' % usecase, attribute)
 
-        
+
     def renderTestcase(self, ID):
         testcase = self.model.getTestcase(ID)
         basedata = testcase.getPrintableDataDict()
@@ -466,7 +465,7 @@ class afExportHTML(afExportXMLBase):
         subnode = self._createElement('h2')
         subnode.appendChild(self.renderTestcaseAnchor(testcase, False))
         node.appendChild(subnode)
-        
+
         table = self._createElement('table', {'class': 'aftable'})
         node.appendChild(table)
         table.appendChild(self._createTableRow(_('Version'),      basedata['version']))
@@ -474,8 +473,9 @@ class afExportHTML(afExportXMLBase):
         table.appendChild(self._createTableRow(_('Prerequisite'), self._render(basedata['prerequisite'])))
         table.appendChild(self._createTableRow(_('Testdata'),     self._render(basedata['testdata'])))
         table.appendChild(self._createTableRow(_('Steps'),        self._render(basedata['steps'])))
+        table.appendChild(self._createTableRow(_('Script URL'),   basedata['scripturl']))
         table.appendChild(self._createTableRow(_('Notes'),        self._render(basedata['notes'])))
-        
+
         relatedrequirements = testcase.getRelatedRequirements()
         if len(relatedrequirements) == 0:
             subnode = self._createTextElement('span', _('None'), {'class': 'alert'})
@@ -484,7 +484,7 @@ class afExportHTML(afExportXMLBase):
             for requirement in relatedrequirements:
                 self.appendListItem(subnode, self.renderRequirementAnchor(requirement, True))
         table.appendChild(self._createTableRow(_('Related Requirements'), subnode))
-                        
+
         relatedtestsuites = testcase.getRelatedTestsuites()
         if len(relatedtestsuites) == 0:
             subnode = self._createTextElement('span', _('None'), {'class': 'alert'})
@@ -499,7 +499,7 @@ class afExportHTML(afExportXMLBase):
         node.appendChild(changeloglink)
         return (node, tocnode, changelognode)
 
-        
+
     def renderTestcaseAnchor(self, testcase, href):
         if href:
             attribute = {'href': '#TC-%(ID)03d' % testcase}
@@ -515,7 +515,7 @@ class afExportHTML(afExportXMLBase):
         subnode = self._createElement('h2')
         subnode.appendChild(self.renderTestsuiteAnchor(testsuite, False))
         node.appendChild(subnode)
-        
+
         table = self._createElement('table', {'class': 'aftable'})
         node.appendChild(table)
         table.appendChild(self._createTableRow(_('Description'),     self._render(basedata['description'])))
@@ -523,7 +523,7 @@ class afExportHTML(afExportXMLBase):
             table.appendChild(self._createTableRow(_("Execution order ID's"), self._createTextElement('span', _('None'))))
         else:
             table.appendChild(self._createTableRow(_("Execution order ID's"), basedata['execorder']))
-        
+
         relatedtestcases = testsuite.getRelatedTestcases()
         if len(relatedtestcases) == 0:
             subnode = self._createTextElement('span', _('None'), {'class': 'alert'})
@@ -535,22 +535,22 @@ class afExportHTML(afExportXMLBase):
 
         tocnode = self.renderTestsuiteAnchor(testsuite, True)
         return (node, tocnode)
-        
-        
+
+
     def renderTestsuiteAnchor(self, testsuite, href):
         if href:
             attribute = {'href': '#TS-%(ID)03d' % testsuite}
         else:
             attribute = {'name': 'TS-%(ID)03d' % testsuite}
         return self._createTextElement('a', 'TS-%(ID)03d: %(title)s' % testsuite, attribute)
-        
-    
+
+
     def renderChangelist(self, anchorstr, artefact):
         artefact['keystr'] = anchorstr
         node = self._createElement('div')
         headline = self._createElement('h3')
         nameanchor = self._createElement('a', {'name': 'H%s-%03d' % (anchorstr, artefact['ID'])})
-        hrefanchor = self._createTextElement('a', '%(keystr)s-%(ID)03d: %(title)s' % artefact, {'href': '#%(keystr)s-%(ID)03d' % artefact})     
+        hrefanchor = self._createTextElement('a', '%(keystr)s-%(ID)03d: %(title)s' % artefact, {'href': '#%(keystr)s-%(ID)03d' % artefact})
         nameanchor.appendChild(hrefanchor)
         headline.appendChild(nameanchor)
         node.appendChild(headline)
@@ -576,31 +576,31 @@ class afExportHTML(afExportXMLBase):
                 subnode.setAttribute('class', 'history')
                 td.appendChild(subnode)
                 tr.appendChild(td)
-                
+
         link = self._createElement('p', {'class': 'changeloglink'})
         hrefanchor = self._createTextElement('a', _('Changelog'), {'href': '#H%(keystr)s-%(ID)03d' % artefact})
         link.appendChild(hrefanchor)
-        return (node, link)        
-        
-        
+        return (node, link)
+
+
     def _createTableRow(self, left, right):
         attribute = {'class': 'aftable'}
         tr = self._createElement('tr', attribute)
         if type(left) in [type(''), type(u'')]:
-            th = self._createTextElement('th', left, attribute) 
+            th = self._createTextElement('th', left, attribute)
         else:
             th = self._createElement('th', attribute)
             th.appendChild(left)
         if type(right) in [type(''), type(u'')]:
-            td = self._createTextElement('td', right, attribute) 
+            td = self._createTextElement('td', right, attribute)
         else:
             td = self._createElement('td', attribute)
             td.appendChild(right)
         tr.appendChild(th)
         tr.appendChild(td)
         return tr
-        
-        
+
+
     def getCSSFile(self):
         if os.path.exists(self.cssfile):
             fp = codecs.open(self.cssfile, encoding='utf-8', errors = 'ignore')
@@ -613,82 +613,95 @@ class afExportHTML(afExportXMLBase):
         else:
             css = ''
         return css
-                
+
 
 def doExportHTML(path, model, cssfile):
     export = afExportHTML(model, cssfile)
     export.run()
     export.write(path)
-    
-    
-if __name__=="__main__":
-    import os, sys, getopt
 
-    def version():
+
+class CommandLineProcessor():
+    def __init__(self, stylesheet):
+        self.stylesheet = stylesheet
+        self.output = None
+        self.language = 'en'
+        
+
+    def version(self):
         print("Version unknown")
 
-    def usage():
+    
+    def usage(self):
         print("Usage:\n%s [-h|--help] [-V|--version] [-s <cssfile>|--stylesheet=<cssfile>] [-o <ofile>|--output=<ofile>] <ifile>\n"
         "  -h, --help                            show help and exit\n"
-        "  -V, --version                          show version and exit\n"
-        "  -o <ofile>, --output=<ofile>           output to file <ofile>\n"
-        "  -s <cssfile>, --stylesheet=<cssfile>   include cascading stylesheet\n"
-        "  -l <lang>, --language=<lang>           select output language (de|en)\n"
-        "  <ifile>                                database file"
-        % sys.argv[0])
+        "  -V, --version                         show version and exit\n"
+        "  -o <ofile>, --output=<ofile>          output to file <ofile>\n"
+        "  -s <cssfile>, --stylesheet=<cssfile>  include cascading stylesheet\n"
+        "  -l <lang>, --language=<lang>          select output language (de|en)\n"
+        "  <ifile>                               database file"
+        % os.path.basename(sys.argv[0]))
 
 
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hs:o:l:V", ["help", "stylesheet=", "output=", "language=", "version"])
-    except getopt.GetoptError, err:
-        # print help information and exit:
-        print str(err) # will print something like "option -a not recognized"
-        usage()
-        sys.exit(2)
-    output = None
-    stylesheet = afresource.getDefaultCSSFile()
-    language = 'en'
-    for o, a in opts:
-        if o in ("-V", "--version"):
-            version()
-            sys.exit()
-        elif o in ("-h", "--help"):
-            usage()
-            sys.exit()
-        elif o in ("-o", "--output"):
-            output = a
-        elif o in ("-l", "--language"):
-            language = a
-        elif o in ("-s", "--stylesheet"):
-            stylesheet = a
-        else:
-            assert False, "unhandled option"
+    def parseOpts(self):
+        try:
+            opts, args = getopt.getopt(sys.argv[1:], "hs:o:l:V", ["help", "stylesheet=", "output=", "language=", "version"])
+        except getopt.GetoptError, err:
+            # print help information and exit:
+            print str(err) # will print something like "option -a not recognized"
+            self.usage()
+            sys.exit(2)
+        for o, a in opts:
+            if o in ("-V", "--version"):
+                self.version()
+                sys.exit()
+            elif o in ("-h", "--help"):
+                self.usage()
+                sys.exit()
+            elif o in ("-o", "--output"):
+                self.output = a
+            elif o in ("-l", "--language"):
+                self.language = a
+            elif o in ("-s", "--stylesheet"):
+                self.stylesheet = a
+            else:
+                assert False, "unhandled option"
 
-    if len(args) != 1:
-        usage()
-        sys.exit(1)
+        if len(args) != 1:
+            self.usage()
+            sys.exit(1)
 
-    try:
-        t = gettext.translation(DOMAIN, LOCALEDIR, languages=[language])
-        t.install(unicode=True)
-    except IOError:
-        print('Unsupported language: %s' % language)
-        sys.exit(1)
+        try:
+            t = gettext.translation(DOMAIN, LOCALEDIR, languages=[self.language])
+            t.install(unicode=True)
+        except IOError:
+            print('Unsupported language: %s' % self.language)
+            sys.exit(1)
+            
+        if self.output is None:
+            self.output =  os.path.splitext(args[0])[0] + ".html"
+            
+        self.databasename = args[0]
 
-    logging.basicConfig(level=afconfig.loglevel, format=afconfig.logformat)
-    logging.disable(afconfig.loglevel)
 
-    model = afmodel.afModel(controller = None)
-    try:
-        cwd = os.getcwd()
-        model.requestOpenProduct(args[0])
-        os.chdir(cwd)
-    except:
-        print("Error opening database file %s" % args[0])
-        print(sys.exc_info())
-        sys.exit(1)
+    def run(self):
+        logging.basicConfig(level=afconfig.loglevel, format=afconfig.logformat)
+        logging.disable(afconfig.loglevel)
 
-    if output is None:
-        output =  os.path.splitext(args[0])[0] + ".html"
+        model = afmodel.afModel(controller = None)
+        try:
+            cwd = os.getcwd()
+            model.requestOpenProduct(self.databasename)
+            os.chdir(cwd)
+        except:
+            print("Error opening database file %s" % self.databasename)
+            print(sys.exc_info())
+            sys.exit(1)
 
-    doExportHTML(output, model, stylesheet)
+        doExportHTML(self.output, model, self.stylesheet)
+
+
+if __name__=="__main__":
+    clp = CommandLineProcessor(afresource.getDefaultCSSFile())
+    clp.parseOpts()
+    clp.run()
