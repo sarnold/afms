@@ -23,124 +23,146 @@
 # $Id$
 
 """
-Export database to html output
+Export testrunner database to html output
 
 @author: Achim Koehler
 @version: $Rev$
 """
 
-import codecs
+import os
+import codecs, logging
+from xml.dom.minidom import getDOMImplementation, XMLNS_NAMESPACE, parseString, parse
 from time import localtime, gmtime, strftime
-import trmodel
-import trconfig
-import _afdocutils
-import afresource
+
+if __name__=="__main__":
+    import sys, gettext, os, getopt
+    basepath = os.path.abspath(os.path.dirname(sys.argv[0]))
+    LOCALEDIR = os.path.join(basepath, 'locale')
+    DOMAIN = "afms"
+    gettext.install(DOMAIN, LOCALEDIR, unicode=True)
+
+import afexporthtml
+if __name__=="__main__":
+    afexporthtml.DOMAIN = DOMAIN
+    afexporthtml.LOCALEDIR = LOCALEDIR
+
+import afmodel, trmodel
+import afconfig
+import afresource, _afartefact
 from afresource import ENCODING
-from afexporthtml import HTMLFOOTER, htmlentities, specialchars, formatField, __
-
-HTMLHEADER = \
-"""
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
-<html>
-<head>
-<meta http-equiv="content-type" content="text/html; charset=%s">
-<title>%s</title>
-<link href="afmsreport.css" rel="stylesheet" type="text/css">
-</head>
-<body>
-""" % (ENCODING, _('AFMS Test Run Report'))
-
-class trExportHTML():
-    def __init__(self, outfilename, model):
-        self.model = model
-        self.of = codecs.open(outfilename, encoding=ENCODING, mode="w", errors='strict')
-        self.writeHTMLHeader()
-        self.writeTOC()
-
-        self.of.write('<h1><a name="testruninfo">%s</a></h1>' % __(_('Test run information')))
-        self.writeTestrunInfo()
-        self.writeSummary()
-
-        self.writeTestcases()
-
-        self.writeHTMLFooter()
-        self.of.close()
+import _afhtmlwindow
 
 
-    def formatField(self, fstr):
-        return formatField(fstr)
+
+class trExportHTML(afexporthtml.afExportHTML):
+    def __init__(self, model, cssfile, title=_('AFMS Test Report')):
+        afexporthtml.afExportHTML.__init__(self, model, cssfile, title)
 
 
-    def writeHTMLHeader(self):
-        self.of.write(HTMLHEADER)
+    def run(self):
+        self.body.appendChild(self._createHeadline('h1', _('Test run information'), {'name': 'testruninfo'}))
+        self.body.appendChild(self.renderTestrunInfo())
+        self.body.appendChild(self.renderSummary())
+        self.body.appendChild(self.renderTestcases())
 
 
-    def writeHTMLFooter(self):
-        self.of.write('<hr />')
-        footer = _("Created from %s at %s") % (self.model.getFilename(), strftime(afresource.TIME_FORMAT, localtime()))
-        self.of.write('<p class="footer">%s</p>' % footer)
-        self.of.write(HTMLFOOTER)
-
-
-    def writeTOC(self):
-        pass
-
-
-    def writeTestrunInfo(self):
+    def renderTestrunInfo(self):
         infos = self.model.getInfo()
         labels = (_("Product title"), _("Creation date"), _("Description"), _("Tester"), _("AF Database"),
                   _("Test suite ID"), _("Test suite title"), _("Test suite description"), _("Test case order"))
-        self.of.write('<table>')
+        node = self._createElement('div', {'class': 'testruninfo'})
+        table = self._createElement('table', {'class': 'aftable'})
+        node.appendChild(table)
         for label, info in zip(labels, infos):
-            self.of.write('<tr>')
-            self.of.write('<th>%s</th>' % __(label))
-            self.of.write('<td>%s</td>' % self.formatField(info))
-            self.of.write('</tr>')
-        self.of.write('</table>')
+            table.appendChild(self._createTableRow(label, self._render(info)))
+        return node
 
 
-    def writeSummary(self):
+    def renderSummary(self):
         status = self.model.getStatusSummary()
         (total, pending, failed, skipped) = status
         status = list(status)
         passed = total - pending - failed - skipped
         status.append(passed)
-
         labels = (_('Number of test cases'), _('Pending test cases'), _('Failed test cases'), _('Skipped test cases'), _('Passed test cases'))
-        if failed == 0:
+        hrefs  = ('', '#pendingtestcases', '#failedtestcases', '#skippedtestcases', '#passedtestcases')
+        if pending != 0:
+            c = "pending"
+            msg = _(afresource.TEST_STATUS_NAME[afresource.PENDING])
+        elif failed == 0:
             c = "pass"
             msg = _(afresource.TEST_STATUS_NAME[afresource.PASSED])
         else:
             c = "fail"
             msg = _(afresource.TEST_STATUS_NAME[afresource.FAILED])
-        self.of.write('<p class="%s">%s: %s</p>' % (c,_("Overall result"), msg))
-        self.of.write('<table>')
-        for label, s in zip(labels, status):
-            self.of.write('<tr>')
-            self.of.write('<th>%s</th>' % __(label))
-            self.of.write('<td>%d</td>' % s)
-            self.of.write('</tr>')
-        self.of.write('</table>')
+        node = self._createElement('div', {'class': 'testrunsummary'})
+        msg = '%s: %s' % (_("Overall result"), msg)
+        subnode = self._createTextElement('p', msg, {'class' : c})
+        node.appendChild(subnode)
+        table = self._createElement('table', {'class': 'aftable'})
+        node.appendChild(table)
+        for label, href, s in zip(labels, hrefs, status):
+            if href != '':
+                subnode = self._createTextElement('a', label, {'href' : href})
+            else:
+                subnode = label
+            table.appendChild(self._createTableRow(subnode, str(s)))
+        return node
 
 
-    def writeTestcases(self):
+    def renderTestcases(self):
         headings = (_('Failed test cases'), _('Skipped test cases'), _('Pending test cases'), _('Passed test cases'))
+        hrefs  = ('failedtestcases', 'skippedtestcases', 'pendingtestcases', 'passedtestcases')
         flags = (afresource.FAILED, afresource.SKIPPED, afresource.PENDING, afresource.PASSED)
-
-        for heading, flag in zip(headings, flags):
-            self.of.write('<h1>%s</h1>' % __(heading))
+        node = self._createElement('div')
+        for heading, flag, href in zip(headings, flags, hrefs):
+            node.appendChild(self._createHeadline('h1', heading, {'name': href}))
             id_list = self.model.getTestcaseIDs(flag)
             if len(id_list) <= 0:
-                self.of.write('<p>%s</p>' % _('None'))
+                node.appendChild(self._createTextElement('p', _('None')))
                 continue
             for tc_id in id_list:
                 testcase = self.model.getTestcase(tc_id)
-                basedata = testcase.getPrintableDataDict(self.formatField)
-                self.of.write("<h2>TC-%(ID)03d: %(title)s</h2>\n" % basedata)
-                self.of.write('<table>\n')
+                basedata = testcase.getPrintableDataDict()
+                node.appendChild(self._createTextElement('h2', 'TC-%(ID)03d: %(title)s' % basedata))
+                table = self._createElement('table', {'class': 'aftable'})
+                node.appendChild(table)
                 for label, key in zip(testcase.labels()[2:], testcase.keys()[2:]):
-                    self.of.write('<tr>\n')
-                    self.of.write('<th>%s</th>\n' % label)
-                    self.of.write('<td>%s</td>\n' % basedata[key])
-                    self.of.write('</tr>\n')
-                self.of.write('</table>\n')
+                    table.appendChild(self._createTableRow(label,      basedata[key]))
+        return node
+
+
+def doExportHTML(path, model, cssfile):
+    export = trExportHTML(model, cssfile)
+    export.run()
+    export.write(path)
+
+
+class CommandLineProcessor(afexporthtml.CommandLineProcessor):
+    def run(self):
+        logging.basicConfig(level=afconfig.loglevel, format=afconfig.logformat)
+        logging.disable(afconfig.loglevel)
+
+        model = trmodel.trModel()
+        try:
+            cwd = os.getcwd()
+            model.OpenTestrun(self.databasename)
+            os.chdir(cwd)
+        except:
+            print("Error opening database file %s" % self.databasename)
+            print(sys.exc_info())
+            sys.exit(1)
+
+        doExportHTML(self.output, model, self.stylesheet)
+
+
+if __name__=="__main__":
+    clp = CommandLineProcessor(afresource.getDefaultCSSFile())
+    clp.parseOpts()
+    clp.run()
+
+
+
+
+
+

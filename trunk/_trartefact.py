@@ -26,15 +26,16 @@ import afresource
 
 class cTestcase(_afartefact.cTestcase):
     def __init__(self, ID=-1, title='', purpose='', prerequisite='', testdata='',
-                 steps='', notes='', version='1.0',
+                 steps='', scripturl='', notes='', version='1.0',
                  testresult=afresource.PENDING, testremark='', action='', timestamp=''):
         _afartefact.cArtefact.__init__(self)
         self._labels = [_('ID'), _('Title'), _('Purpose'),
                   _('Prerequisite'), _('Testdata'), _('Steps'),
-                  _('Notes && Questions'), _('Version'), _('Result'), _('Remark'),
-                  _('Action'), _('Time stamp')]
+                  _('Notes && Questions'), _('Key'), _('Result'), _('Remark'),
+                  _('Action'), _('Time stamp'), _('Script URL')]
         self._keys = ['ID', 'title', 'purpose', 'prerequisite', 'testdata', 'steps',
-                'notes', 'version', 'testresult', 'testremark', 'action', 'timestamp']
+                      'notes', 'version', 'testresult', 'testremark', 'action',
+                      'timestamp', 'scripturl']
         self._basedata = {
             'ID'           : ID,
             'title'        : title,
@@ -42,6 +43,7 @@ class cTestcase(_afartefact.cTestcase):
             'prerequisite' : prerequisite,
             'testdata'     : testdata,
             'steps'        : steps,
+            'scripturl'    : scripturl,
             'notes'        : notes,
             'version'      : version,
             'testresult'   : testresult,
@@ -56,6 +58,7 @@ class cTestcase(_afartefact.cTestcase):
         self._basedata['prerequisite'] = basetestcase['prerequisite']
         self._basedata['testdata'] = basetestcase['testdata']
         self._basedata['steps'] = basetestcase['steps']
+        self._basedata['scripturl'] = basetestcase['scripturl']
         self._basedata['notes'] = basetestcase['notes']
         self._basedata['version'] = basetestcase['version']
 

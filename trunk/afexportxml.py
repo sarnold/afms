@@ -29,7 +29,7 @@ Export database to xml output
 @version: $Rev$
 """
 
-import os
+import os, sys, getopt
 if __name__=="__main__":
     import sys, gettext
     basepath = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -46,11 +46,11 @@ from afexporthtml import afExportXMLBase
 
 
 class afExportXML(afExportXMLBase):
-    def __init__(self, model, stylesheet):
+    def __init__(self, model, stylesheet, title='AFMS Report'):
         self.model = model
-        self.title='AFMS Report'
+        self.title = title
         self.encoding = 'UTF-8'
-        
+
         self.impl = getDOMImplementation()
         self.xmldoc = self.impl.createDocument(None, "artefacts", None)
         self.root = self.xmldoc.documentElement
@@ -59,19 +59,19 @@ class afExportXML(afExportXMLBase):
         if len(stylesheet) > 0:
             stylesheet = self.xmldoc.createProcessingInstruction('xml-stylesheet', 'type="text/xsl" href="%s"' % stylesheet)
             self.xmldoc.insertBefore(stylesheet, self.root)
-        
-    
+
+
     def run(self):
         # --- Product information ---
         node = self.renderProductInformation()
         self.root.appendChild(node)
-        
+
         # --- Text sections ---
         idlist = self.model.getSimpleSectionIDs()
         for id in idlist:
             node = self.renderSimpleSection(id)
             self.root.appendChild(node)
-            
+
         # --- Glossary ---
         cursor = self.model.connection.cursor()
         # SQL query for demonstration purposes only
@@ -118,7 +118,7 @@ class afExportXML(afExportXMLBase):
         node.appendChild(self._render(productinfo['description'], enclosingtag='description'))
         return node
 
-    
+
     def renderSimpleSection(self, ID):
         simplesection = self.model.getSimpleSection(ID)
         node = self._createElement('simplesection', {'ID' : str(ID)})
@@ -127,22 +127,22 @@ class afExportXML(afExportXMLBase):
         changelognode = self.renderChangelist(simplesection)
         node.appendChild(changelognode)
         return node
-    
-    
+
+
     def renderGlossaryEntry(self, ID):
         glossaryentry = self.model.getGlossaryEntry(ID)
         node = self._createElement('glossaryentry', {'ID' : str(ID)})
         node.appendChild(self._createTextElement('title', glossaryentry['title']))
         node.appendChild(self._render(glossaryentry['description'], enclosingtag='description'))
         return node
-        
+
 
     def renderFeature(self, ID):
         feature = self.model.getFeature(ID)
         basedata = feature.getPrintableDataDict()
         node = self._createElement('feature', {'ID' : str(ID)})
         for key in ('priority', 'status', 'version', 'risk'):
-            node.appendChild(self._createTextElement(key, basedata[key]))        
+            node.appendChild(self._createTextElement(key, basedata[key]))
         node.appendChild(self._render(basedata['description'], enclosingtag='description'))
         node.appendChild(self.renderRelatedArtefacts('relatedrequirements', feature.getRelatedRequirements()))
         node.appendChild(self.renderChangelist(feature))
@@ -163,15 +163,15 @@ class afExportXML(afExportXMLBase):
         node.appendChild(self.renderRelatedArtefacts('relatedtestcases', requirement.getRelatedTestcases()))
         node.appendChild(self.renderChangelist(requirement))
         return node
-    
-    
+
+
     def renderTestcase(self, ID):
         testcase = self.model.getTestcase(ID)
         basedata = testcase.getPrintableDataDict()
         node = self._createElement('testcase', {'ID': str(ID)})
         node.appendChild(self._createTextElement('title',    basedata['title']))
         node.appendChild(self._createTextElement('version',    basedata['version']))
-        for key in ('purpose', 'prerequisite', 'testdata', 'steps', 'notes'):
+        for key in ('purpose', 'prerequisite', 'testdata', 'steps', 'scripturl', 'notes'):
             node.appendChild(self._render(basedata[key], enclosingtag=key))
         node.appendChild(self.renderRelatedArtefacts('relatedrequirements', testcase.getRelatedRequirements()))
         node.appendChild(self.renderRelatedArtefacts('relatedtestsuites', testcase.getRelatedTestsuites()))
@@ -183,22 +183,22 @@ class afExportXML(afExportXMLBase):
         usecase = self.model.getUsecase(ID)
         basedata = usecase.getPrintableDataDict()
         node = self._createElement('usecase', {'ID': str(ID)})
-        for key in ('title', 'priority', 'usefrequency', 'actors', 'stakeholders'): 
+        for key in ('title', 'priority', 'usefrequency', 'actors', 'stakeholders'):
             node.appendChild(self._createTextElement(key, basedata[key]))
         for key in ('prerequisites', 'mainscenario', 'altscenario', 'notes'):
             node.appendChild(self._render(basedata[key], enclosingtag=key))
         node.appendChild(self.renderRelatedArtefacts('relatedrequirements', usecase.getRelatedRequirements()))
         node.appendChild(self.renderChangelist(usecase))
         return node
-    
-    
+
+
     def renderTestsuite(self, ID):
         testsuite = self.model.getTestsuite(ID)
         basedata = testsuite.getPrintableDataDict()
         node = self._createElement('testsuite', {'ID': str(ID)})
         for key in ('title', 'execorder', 'nbroftestcase'):
             node.appendChild(self._createTextElement(key, basedata[key]))
-        node.appendChild(self._render(basedata['description'], enclosingtag='description'))  
+        node.appendChild(self._render(basedata['description'], enclosingtag='description'))
         node.appendChild(self.renderRelatedArtefacts('relatedtestcases', testsuite.getRelatedTestcases()))
         return node
 
@@ -230,62 +230,77 @@ def doExportXML(path, model, stylesheet):
     export.write(path)
 
 
-if __name__=="__main__":
-    import os, sys, getopt
+class CommandLineProcessor():
+    def __init__(self, stylesheet):
+        self.stylesheet = stylesheet
+        self.output = None
 
-    def version():
+
+    def version(self):
         print("Version unknown")
+        
 
-    def usage():
+    def usage(selg):
         print("Usage:\n%s [-h|--help] [-V|--version] [-s <xslfile>|--stylesheet=<xslfile>] [-o <ofile>|--output=<ofile>] <ifile>\n"
         "  -h, --help                             show help and exit\n"
         "  -V, --version                          show version and exit\n"
-        "  -s <cssfile>, --stylesheet=<cssfile>   include cascading stylesheet\n"
+        "  -s <xslfile>, --stylesheet=<xslfile>   include xsl stylesheet\n"
         "  -o <ofile>, --output=<ofile>           output to file <ofile>\n"
         "  <ifile>                                database file"
-        % sys.argv[0])
+        % os.path.basename(sys.argv[0]))
 
 
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:s:V", ["help", "output=", "stylesheet=", "version"])
-    except getopt.GetoptError, err:
-        # print help information and exit:
-        print str(err) # will print something like "option -a not recognized"
-        usage()
-        sys.exit(2)
-    output = None
-    stylesheet = afresource.getDefaultXSLFile()
-    for o, a in opts:
-        if o in ("-V", "--version"):
-            version()
-            sys.exit()
-        elif o in ("-h", "--help"):
-            usage()
-            sys.exit()
-        elif o in ("-o", "--output"):
-            output = a
-        elif o in ("-s", "--stylesheet"):
-            stylesheet = a
-        else:
-            assert False, "unhandled option"
+    def parseOpts(self):
+        try:
+            opts, args = getopt.getopt(sys.argv[1:], "ho:s:V", ["help", "output=", "stylesheet=", "version"])
+        except getopt.GetoptError, err:
+            # print help information and exit:
+            print str(err) # will print something like "option -a not recognized"
+            self.usage()
+            sys.exit(2)
+        for o, a in opts:
+            if o in ("-V", "--version"):
+                self.version()
+                sys.exit()
+            elif o in ("-h", "--help"):
+                self.usage()
+                sys.exit()
+            elif o in ("-o", "--output"):
+                self.output = a
+            elif o in ("-s", "--stylesheet"):
+                self.stylesheet = a
+            else:
+                assert False, "unhandled option"
 
-    if len(args) != 1:
-        usage()
-        sys.exit(1)
+        if len(args) != 1:
+            self.usage()
+            sys.exit(1)
+            
+        if self.output is None:
+            self.output =  os.path.splitext(args[0])[0] + ".xml"
+            
+        self.databasename = args[0]
+        
+        
+    def run(self):
+        logging.basicConfig(level=afconfig.loglevel, format=afconfig.logformat)
+        logging.disable(afconfig.loglevel)
 
-    logging.basicConfig(level=afconfig.loglevel, format=afconfig.logformat)
-    logging.disable(afconfig.loglevel)
+        model = afmodel.afModel(controller = None)
+        try:
+            cwd = os.getcwd()
+            model.requestOpenProduct(self.databasename)
+            os.chdir(cwd)
+        except:
+            print("Error opening database file %s" % self.databasename)
+            sys.exit(1)
 
-    model = afmodel.afModel(controller = None)
-    try:
-        cwd = os.getcwd()
-        model.requestOpenProduct(args[0])
-        os.chdir(cwd)
-    except:
-        print("Error opening database file %s" % args[0])
-        sys.exit(1)
 
-    if output is None:
-        output =  os.path.splitext(args[0])[0] + ".html"
+        doExportXML(self.output, model, self.stylesheet)
 
-    doExportXML(output, model, stylesheet)
+
+if __name__=="__main__":
+    clp = CommandLineProcessor(afresource.getDefaultXSLFile())
+    clp.parseOpts()
+    clp.run()
+

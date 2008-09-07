@@ -327,7 +327,7 @@ class afRequirementList(afArtefactList):
 class afTestcaseList(afArtefactList):
     """Widget for displaying testcase lists"""
     def __init__(self, parent, ID = -1, checkstyle=False):
-        self.column_titles = [_('ID'), _('Title'), _('Version'), _('Date'), _('User'), _('Purpose')]
+        self.column_titles = [_('ID'), _('Title'), _('Version'), _('Date'), _('User'), _('Script URL'), _('Purpose')]
         self.key = "TESTCASES"
         afArtefactList.__init__(self, parent, self.column_titles, ID, checkstyle=checkstyle)
 
@@ -338,6 +338,7 @@ class afTestcaseList(afArtefactList):
                 tcobj['version'],
                 self.GetChangeDate(tcobj),
                 self.GetChangeUser(tcobj),
+                self.toText(tcobj['scripturl']),
                 self.toText(tcobj['purpose']))
 
 #-------------------------------------------------------------------------

@@ -33,6 +33,7 @@ CURRENT_USER = getpass.getuser()
 ASSIGNED_NAME = []
 ACTOR_NAME = []
 STAKEHOLDER_NAME = []
+VERSION_NAME = []
 
 
 

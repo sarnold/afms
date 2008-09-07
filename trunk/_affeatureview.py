@@ -63,7 +63,7 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
         else:
             self.title_edit = wx.TextCtrl(panel, -1, "", validator = NotEmptyValidator())
             self.id_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
-            self.version_edit = wx.TextCtrl(panel, -1, "")
+            self.version_edit = wx.ComboBox(panel, -1, choices = afconfig.VERSION_NAME, style=wx.CB_DROPDOWN)
             self.priority_edit = wx.ComboBox(panel, -1, choices = [_(i) for i in afresource.PRIORITY_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.status_edit = wx.ComboBox(panel, -1, choices = [_(i) for i in afresource.STATUS_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.risk_edit = wx.ComboBox(panel, -1, choices = [_(i) for i in afresource.RISK_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)

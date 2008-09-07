@@ -83,6 +83,8 @@ HTML_WILDCARD =  _("HTML file (*.html)|*.html|"  \
 XML_WILDCARD = _("XML file (*.xml)|*.xml|"  \
                  "All files (*.*)|*.*")
 
+ALL_WILDCARD = _("All files (*.*)|*.*")
+
 CSS_WILDCARD = _("Cascading Style Sheet (*.css)|*.css|"     \
                  "All files (*.*)|*.*")
 

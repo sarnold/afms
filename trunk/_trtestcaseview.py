@@ -27,16 +27,26 @@ Maybe it is a good idea to do some refactoring some day to prevent code duplicat
 """
 
 import wx
+import wx.lib.hyperlink as hl
 from _afhtmlwindow import *
 
 
 class trTestcasePanel():
-    def __init__(self, parent):
-        labels = [_("Title"),  _("ID"),  _("Version"),  _("Purpose"),  _("Prerequisite"),  _("Testdata"),  _("Steps"),  _("Notes &&\nQuestions")]
+    def __init__(self, parent, viewonly=True):
+        labels = [_("Title"),  _("ID"),  _("Version"),  _("Purpose"),  _("Prerequisite"),  _("Testdata"),  _("Steps"),
+                  _('Script URL'), _("Notes &&\nQuestions")]
         statictext = []
         for label in labels:
             st = wx.StaticText(parent, -1, label + ':')
             statictext.append(st)
+
+        self.viewonly = viewonly
+        if viewonly == False:
+            self.scriptlink = hl.HyperLinkCtrl(parent, wx.ID_ANY, labels[7], URL="")
+            self.scriptlink.SetToolTip(wx.ToolTip('Run script'))
+            self.scriptlink.AutoBrowse(False)
+            statictext[7].Destroy()
+            statictext[7] = self.scriptlink
 
         self.title_edit = wx.TextCtrl(parent, -1, "", style = wx.TE_READONLY)
         self.id_edit = wx.TextCtrl(parent, -1, "", style = wx.TE_READONLY)
@@ -45,23 +55,32 @@ class trTestcasePanel():
         self.prerequisite_edit = afHtmlWindow(parent, -1, enablescriptexec=True)
         self.testdata_edit =afHtmlWindow(parent, -1, enablescriptexec=True)
         self.steps_edit = afHtmlWindow(parent, -1, enablescriptexec=True)
+        self.scripturl_edit = wx.TextCtrl(parent, -1, "", style = wx.TE_READONLY)
         self.notes_edit = afHtmlWindow(parent, -1, enablescriptexec=True)
 
         self.id_edit.Enable(False)
 
         edit = [self.title_edit, self.id_edit, self.version_edit, self.purpose_edit,
-            self.prerequisite_edit, self.testdata_edit, self.steps_edit, self.notes_edit]
+            self.prerequisite_edit, self.testdata_edit, self.steps_edit, self.scripturl_edit, self.notes_edit]
 
         sizer = wx.FlexGridSizer(8, 2, 10, 10)
+        sizer.Add(statictext[0], 0, wx.EXPAND | wx.ALIGN_BOTTOM)
+        sizer.Add(edit[0], 0, wx.EXPAND | wx.ALIGN_LEFT)
+        hsizer = wx.BoxSizer(wx.HORIZONTAL)
+        hsizer.Add(self.id_edit, 0)
+        hsizer.Add(statictext[2], 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 20)
+        hsizer.Add(self.version_edit, 1, wx.LEFT | wx.EXPAND, 5)
+        sizer.Add(statictext[1], 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL)
+        sizer.Add(hsizer, 0, wx.EXPAND | wx.ALIGN_LEFT)
 
-        for i in range(len(labels)):
+        for i in range(3, len(labels)):
             sizer.Add(statictext[i], 0, wx.EXPAND | wx.ALIGN_BOTTOM)
             sizer.Add(edit[i], 0, wx.EXPAND | wx.ALIGN_LEFT)
 
-        sizer.AddGrowableRow(3, 1)
-        sizer.AddGrowableRow(4, 2)
+        sizer.AddGrowableRow(2, 2)
+        sizer.AddGrowableRow(3, 2)
+        sizer.AddGrowableRow(4, 1)
         sizer.AddGrowableRow(5, 2)
-        sizer.AddGrowableRow(6, 3)
         sizer.AddGrowableRow(7, 1)
         sizer.AddGrowableCol(1)
         sizer.SetFlexibleDirection(wx.BOTH)
@@ -81,5 +100,15 @@ class trTestcasePanel():
         self.prerequisite_edit.SetValue(testcase['prerequisite'])
         self.testdata_edit.SetValue(testcase['testdata'])
         self.steps_edit.SetValue(testcase['steps'])
+        if self.viewonly==False:
+            if len(testcase['scripturl']) > 0:
+                self.scriptlink.SetURL(testcase['scripturl'])
+            else:
+                self.scriptlink.Disable()
+        self.scripturl_edit.SetValue(testcase['scripturl'])
         self.notes_edit.SetValue(testcase['notes'])
 
+
+    def OnRunScript(self, evt):
+        print '_trtestcaseview.OnRunScript'
+        evt.Skip()

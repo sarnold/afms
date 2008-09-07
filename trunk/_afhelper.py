@@ -22,6 +22,12 @@
 # $Id$
 
 import os, sys
+if __name__=="__main__":
+    import sys, gettext
+    basepath = os.path.abspath(os.path.dirname(sys.argv[0]))
+    LOCALEDIR = os.path.join(basepath, 'locale')
+    DOMAIN = "afms"
+    gettext.install(DOMAIN, LOCALEDIR, unicode=True)
 import wx
 from _afchangelogentryview import *
 
@@ -110,68 +116,6 @@ def ChangelogEntryMessageBox(title):
     return (dlgresult, cle)
 
 
-class SimpleFileBrowser(wx.Panel):
-    def __init__(self, parent, id=-1, labelText='File name',
-            buttonText = '...', buttonStyle = wx.BU_EXACTFIT,
-            fileDialogTitle = 'Choose file', fileDialogStyle = wx.OPEN,
-            defaultDir = '.', defaultFile = '', fileWildcard='*.*', callbackFunc = None):
-        self.fileDialogTitle = fileDialogTitle
-        self.fileDialogStyle = fileDialogStyle
-        self.defaultDir = defaultDir
-        self.defaultFile = defaultFile
-        self.fileWildcard = fileWildcard
-        self.callbackFunc = callbackFunc
-        wx.Panel.__init__(self, parent, id)
-        self.label = wx.StaticText(self, -1, labelText)
-        self.edit  = wx.TextCtrl(self, -1)
-        self.button = wx.Button(self, -1, buttonText, style=buttonStyle)
-        sizer = wx.BoxSizer(wx.HORIZONTAL)
-        sizer.Add(self.label, 0, wx.RIGHT | wx.ALIGN_CENTER, 10)
-        sizer.Add(self.edit, 1, wx.EXPAND)
-        sizer.Add(self.button, 0, wx.LEFT, 10)
-        self.SetSizer(sizer)
-        self.Layout()
-        self.Bind(wx.EVT_BUTTON, self.OnButtonClick, self.button)
-        self.edit.Bind(wx.EVT_KILL_FOCUS, self.OnText, self.edit)
-
-    def AlignWith(self, sfb):
-        if not isinstance(sfb, SimpleFileBrowser): raise TypeError
-        self._SameSize(self.label, sfb.label)
-        self._SameSize(self.button, sfb.button)
-
-    def _SameSize(self, widget1, widget2):
-        size1 = widget1.GetSize()
-        size2 = widget1.GetSize()
-        size1[0] = size2[0] = max(size1[0], size2[0])
-        widget1.SetMinSize(size1)
-        widget2.SetMinSize(size2)
-
-    def OnButtonClick(self, evt):
-        dlg = wx.FileDialog(
-            self, message = self.fileDialogTitle,
-            defaultDir = self.defaultDir,
-            defaultFile = self.defaultFile,
-            wildcard = self.fileWildcard,
-            style = self.fileDialogStyle)
-        dlgResult = dlg.ShowModal()
-        if  dlgResult == wx.ID_OK:
-            path = dlg.GetPath()
-            self.edit.SetValue(path)
-            self.OnText(None)
-        dlg.Destroy()
-
-    def OnText(self, evt):
-        if self.callbackFunc is not None:
-            text = self.edit.GetValue()
-            self.callbackFunc(text)
-
-    def GetValue(self):
-        return self.edit.GetValue()
-
-    def SetValue(self, value):
-        self.edit.SetValue(value)
-
-
 class ArchiveToDBDialog(wx.Dialog):
     def __init__(self, parent, id=-1):
         wx.Dialog.__init__(self, parent, id, title=_('Convert archive to database'))
@@ -252,3 +196,136 @@ def module_path():
         return os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding( )))
 
     return os.path.dirname(unicode(__file__, sys.getfilesystemencoding( )))
+
+
+def getRelFolder(reffolder, folder):
+    if reffolder == folder:
+        return ''
+    commonprefix = os.path.commonprefix([reffolder, folder])
+    if commonprefix != '':
+        folder = folder[len(commonprefix):]
+        reffolder = reffolder[len(commonprefix):]
+        if reffolder.startswith(os.sep):
+            reffolder = reffolder.lstrip(os.sep)
+        n = len(reffolder.split(os.sep))
+        relfolder = os.sep.join(['..'] * n)
+        folder =  os.path.join(relfolder, folder)
+        if folder.startswith(os.sep):
+            folder = folder.lstrip(os.sep)
+    return folder
+
+
+def getRelPath(path):
+    # try to compute relative path
+    reffolder = afconfig.basedir
+    folder = os.path.dirname(path)
+    path = os.path.join(getRelFolder(reffolder, folder), os.path.basename(path))
+    return path
+
+
+class SimpleFileBrowser(wx.Panel):
+    def __init__(self, parent, id=-1, labelText='File name', 
+            buttonText = '...', buttonStyle = wx.BU_EXACTFIT,
+            fileDialogTitle = 'Choose file', fileDialogStyle = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
+            defaultDir = '.', defaultFile = '', fileWildcard='*.*', callbackFunc = None):
+        self.fileDialogTitle = fileDialogTitle
+        self.fileDialogStyle = fileDialogStyle
+        self.defaultDir = defaultDir
+        self.defaultFile = defaultFile
+        self.fileWildcard = fileWildcard
+        self.callbackFunc = callbackFunc
+        wx.Panel.__init__(self, parent, id)
+        
+        self.edit  = wx.TextCtrl(self, -1)
+        self.button = wx.Button(self, -1, buttonText, style=buttonStyle)
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        if labelText is not None:
+            self.label = wx.StaticText(self, -1, labelText)
+            sizer.Add(self.label, 0, wx.RIGHT | wx.ALIGN_CENTER, 10)
+        sizer.Add(self.edit, 1, wx.EXPAND)
+        sizer.Add(self.button, 0, wx.LEFT, 10)
+        self.SetSizer(sizer)
+        self.Layout()
+        self.Bind(wx.EVT_BUTTON, self.OnButtonClick, self.button)
+        self.edit.Bind(wx.EVT_KILL_FOCUS, self.OnText, self.edit)
+        
+    def AlignWith(self, sfb):
+        if not isinstance(sfb, SimpleFileBrowser): raise TypeError
+        self._SameSize(self.label, sfb.label)
+        self._SameSize(self.button, sfb.button)
+    
+    def _SameSize(self, widget1, widget2):
+        size1 = widget1.GetSize()
+        size2 = widget1.GetSize()
+        size1[0] = size2[0] = max(size1[0], size2[0])
+        widget1.SetMinSize(size1)
+        widget2.SetMinSize(size2)
+        
+    def OnButtonClick(self, evt):
+        dlg = wx.FileDialog(
+            self, message = self.fileDialogTitle,
+            defaultDir = self.defaultDir,
+            defaultFile = self.defaultFile,
+            wildcard = self.fileWildcard,
+            style = self.fileDialogStyle)
+        dlgResult = dlg.ShowModal()
+        if  dlgResult == wx.ID_OK:
+            path = dlg.GetPath()
+            self.edit.SetValue(path)
+            self.OnText(None)
+        dlg.Destroy()
+        
+    def OnText(self, evt):
+        if self.callbackFunc is not None: 
+            text = self.edit.GetValue()
+            self.callbackFunc(text)
+        
+    def GetValue(self):
+        return self.edit.GetValue()
+        
+    def SetValue(self, value):
+        self.edit.SetValue(value)
+
+
+if __name__ == "__main__":
+    import unittest
+
+    class TestRelFolder(unittest.TestCase):
+        def setUp(self):
+            pass
+            
+        def tofolder(self, f):
+            return f.replace('/', os.sep)
+            
+        def test1(self):
+            reffolder = self.tofolder('/a/b/c')
+            folder = self.tofolder('/a/b/d')
+            relfolder = getRelFolder(reffolder, folder)
+            self.assertEqual(relfolder, self.tofolder('../d'))
+
+        def test2(self):
+            reffolder = self.tofolder('/a/b/c')
+            folder = self.tofolder('/a/b/c/d')
+            relfolder = getRelFolder(reffolder, folder)
+            self.assertEqual(relfolder, self.tofolder('d'))
+
+        def test3(self):
+            reffolder = self.tofolder('c:\\a\\b\\c')
+            folder = self.tofolder('d:\\a\\b\\c')
+            relfolder = getRelFolder(reffolder, folder)
+            self.assertEqual(relfolder, folder)
+            
+        def test4(self):
+            reffolder = self.tofolder('/a/b/c')
+            folder = self.tofolder('/a/b/c')
+            relfolder = getRelFolder(reffolder, folder)
+            self.assertEqual(relfolder, '')
+            
+        def test5(self):
+            reffolder = self.tofolder('/a/b/c')
+            folder = self.tofolder('/a/b')
+            relfolder = getRelFolder(reffolder, folder)
+            self.assertEqual(relfolder, self.tofolder('../'))
+
+
+    unittest.main()

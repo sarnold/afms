@@ -111,6 +111,16 @@ class afModel(object):
         self.connection.commit()
 
 
+    def _updateto_1_3(self, c):
+        logging.debug("afmodel._updateto_1_3()")
+        # save new version
+        c.execute("update product set value=? where property=='dbversion';", ('1.3',))
+        # commands to update from 1.2 to 1.3
+        c.execute("alter table testcases add scripturl text;")
+        c.execute("update testcases set scripturl='';")
+        self.connection.commit()
+
+
     def requestNewProduct(self, path):
         """
         Request to create a new product
@@ -154,6 +164,7 @@ class afModel(object):
         c.execute('create temporary table lastchanges (afid integer, aftype integer, changetype integer, date text, user text, description text)')
         self._updateto_1_1(c)
         self._updateto_1_2(c)
+        self._updateto_1_3(c)
         ##self.InsertTestData()
         self.connection.commit()
 
@@ -185,6 +196,7 @@ class afModel(object):
         self.connection.commit()
         c.execute('select value from product where property="dbversion";')
         self.version = float(c.fetchone()[0])
+        logging.debug("database version = %s" % self.version)
         self.connection.commit()
 
         if autoupdate == False: return
@@ -195,6 +207,9 @@ class afModel(object):
         if self.version < 1.2:
             self._updateto_1_2(c)
             self.version = 1.2
+        if self.version < 1.3:
+            self._updateto_1_3(c)
+            self.version = 1.3
 
     #---------------------------------------------------------------------
 
@@ -275,12 +290,12 @@ class afModel(object):
                                        description=basedata[11])
 
         select_string = 'select tc_id from requirement_testcase_relation where rq_id=%d and delcnt==0' % ID
-        query_string = 'select all id, title, version, purpose from testcases where id in (%s);' % select_string
+        query_string = 'select all id, title, version, scripturl, purpose from testcases where id in (%s);' % select_string
         c.execute(query_string)
         relatedtestcaselist = self.getData(query_string)
         requirement.setRelatedTestcases(self._TestcaseListFromPlainList(relatedtestcaselist))
 
-        query_string = 'select all id, title, version, purpose from testcases where id not in (%s) and delcnt==0;' % select_string
+        query_string = 'select all id, title, version, scripturl, purpose from testcases where id not in (%s) and delcnt==0;' % select_string
         c.execute(query_string)
         unrelatedtestcaselist = self.getData(query_string)
         requirement.setUnrelatedTestcases(self._TestcaseListFromPlainList(unrelatedtestcaselist))
@@ -352,12 +367,12 @@ class afModel(object):
         if ID < 0:
             testcase = cTestcase()
         else:
-            query_string = 'select ID, title, purpose, prerequisite, testdata , steps , notes, version from testcases where ID = %d;' % ID
+            query_string = 'select ID, title, purpose, prerequisite, testdata , steps , notes, version, scripturl from testcases where ID = %d;' % ID
             c.execute(query_string)
             basedata = c.fetchone()
             testcase = cTestcase(ID=basedata[0], title=basedata[1], purpose=basedata[2],
                                  prerequisite=basedata[3], testdata=basedata[4],
-                                 steps=basedata[5], notes=basedata[6], version=basedata[7] )
+                                 steps=basedata[5], notes=basedata[6], version=basedata[7], scripturl=basedata[8])
 
         select_string = 'select rq_id from requirement_testcase_relation where tc_id=%d and delcnt==0' % ID
         query_string = 'select ID, title, priority, status, complexity,' \
@@ -446,11 +461,11 @@ class afModel(object):
                                    description=basedata[2], execorder=basedata[3])
 
         select_string = 'select tc_id from testsuite_testcase_relation where ts_id=%d and delcnt==0' % ID
-        query_string = 'select all id, title, version, purpose from testcases where id in (%s);' % select_string
+        query_string = 'select all id, title, version, scripturl, purpose from testcases where id in (%s);' % select_string
         includedtestcaselist = self.getData(query_string)
         testsuite.setRelatedTestcases(self._TestcaseListFromPlainList(includedtestcaselist))
 
-        query_string = 'select all id, title, version, purpose from testcases where id not in (%s) and delcnt==0;' % select_string
+        query_string = 'select all id, title, version, scripturl, purpose from testcases where id not in (%s) and delcnt==0;' % select_string
         excludedtestcaselist = self.getData(query_string)
         testsuite.setUnrelatedTestcases(self._TestcaseListFromPlainList(excludedtestcaselist))
         return testsuite
@@ -647,7 +662,7 @@ class afModel(object):
         else:
             where_string = 'delcnt==0'
 
-        query_string = 'select id, title, version, purpose from testcases where %s %s;'
+        query_string = 'select id, title, version, scripturl, purpose from testcases where %s %s;'
         c = self.connection.cursor()
         if affilter is not None and affilter.isApplied():
             (clause, params) = affilter.GetSQLWhereClause('and')
@@ -669,7 +684,8 @@ class afModel(object):
             tcobj['ID'] = tc[0]
             tcobj['title'] = tc[1]
             tcobj['version'] = tc[2]
-            tcobj['purpose'] = tc[3]
+            tcobj['scripturl'] = tc[3]
+            tcobj['purpose'] = tc[4]
             tcobj.setChangelist(self.getChangelist(_TYPEID_TESTCASE, tcobj['ID']))
             tclist.append(tcobj)
         return tclist
@@ -900,15 +916,14 @@ class afModel(object):
         logging.debug("afmodel.saveTestcase()")
         plaintestcase = [testcase['ID'], testcase['title'], testcase['purpose'],
                          testcase['prerequisite'], testcase['testdata'],
-                         testcase['steps'], testcase['notes'], testcase['version']]
-        plaintestcase.append(0) # append delcnt
+                         testcase['steps'], testcase['notes'], testcase['version'], 0, testcase['scripturl']]
 
         sqlstr = []
-        sqlstr.append("insert into testcases values (NULL, ?, ?, ?, ?, ?, ?, ?, ?)")
+        sqlstr.append("insert into testcases values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
         sqlstr.append("select max(ID) from testcases")
         sqlstr.append("update testcases set "\
             "'title'=?, 'purpose'=?, 'prerequisite'=?, 'testdata'=?,"\
-            "'steps'=?, 'notes'=?, 'version'=?, 'delcnt'=? where ID=?")
+            "'steps'=?, 'notes'=?, 'version'=?, 'delcnt'=?, 'scripturl'=? where ID=?")
         (basedata, new_artefact) = self.saveArtefact(plaintestcase, sqlstr)
         tc_id = basedata[0]
 
@@ -1704,32 +1719,32 @@ class afModel(object):
     def getIDofFeaturesWithoutRequirements(self):
         query_string = 'select ID from features where delcnt==0 and ID not in (select distinct ft_id from feature_requirement_relation where delcnt==0)'
         return [data[0] for data in self.getData(query_string)];
-        
-        
+
+
     def getIDofRequirementsWithoutTestcases(self):
         query_string = 'select ID from requirements where delcnt==0 and ID not in (select distinct rq_id from requirement_testcase_relation where delcnt==0)'
         return [data[0] for data in self.getData(query_string)];
-        
-        
+
+
     def getIDofTestcasesWithoutRequirements(self):
         query_string = 'select ID from testcases where delcnt==0 and ID not in (select distinct tc_id from requirement_testcase_relation where delcnt==0)'
         return [data[0] for data in self.getData(query_string)];
-        
-    
+
+
     def getIDofTestcasesWithoutTestsuites(self):
         query_string = 'select ID from testcases where delcnt==0 and ID not in (select distinct tc_id from testsuite_testcase_relation where delcnt==0)'
         return [data[0] for data in self.getData(query_string)];
-        
-        
+
+
     def getIDofTestsuitesWithoutTestcases(self):
         query_string = 'select ID from testsuites where delcnt==0 and ID not in (select distinct ts_id from testsuite_testcase_relation where delcnt==0)'
         return [data[0] for data in self.getData(query_string)];
-        
-        
+
+
     def getIDofUsecasesWithoutRequirements(self):
         query_string = 'select ID from usecases where delcnt==0 and ID not in (select distinct uc_id from requirement_usecase_relation where delcnt==0)'
         return [data[0] for data in self.getData(query_string)];
-        
+
     #---------------------------------------------------------------------
 
     def InsertTestData(self):
@@ -1815,7 +1830,8 @@ pleasures to secure other greater pleasures, or else he endures
             steps = "Steps %d\n%s" % (i, dummytext)
             notes = "Notes %d\n%s" % (i, dummytext)
             version = random.randint(1,10)
-            c.execute("insert into testcases values (NULL, ?, ?, ?, ?, ?, ?, ?, ?)", (title, purpose, prerequisite, testdata, steps, notes, version, 0) )
+            scripturl = 'scripturl %d' % i
+            c.execute("insert into testcases values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (title, purpose, prerequisite, testdata, steps, notes, version, 0, scripturl) )
 
         c.execute("insert into feature_requirement_relation values (2, 3, 0);")
         c.execute("insert into feature_requirement_relation values (2, 4, 0);")

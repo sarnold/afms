@@ -20,7 +20,13 @@ along with AFMS.  If not, see <http://www.gnu.org/licenses/>.
 /* $Id$ */
 /* start */
 
-      
+#logo {
+    background-image: url(logo.png);
+    width: 100px;
+    height: 100px;
+    background-repeat:no-repeat;
+}
+
 * {
  font-family: Verdana, Helvetica, Arial, sans-serif;
 }
