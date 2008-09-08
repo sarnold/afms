@@ -136,9 +136,9 @@ class trModel():
         self.connection = sqlite3.connect(self.testrunfilename)
 
 
-    def getTestcaseList(self):
+    def getTestcaseOverviewList(self):
         """
-        Get list with all testcases from database
+        Get list with ID, testresult and title from all testcases from database
         @rtype:  object list
         @return: list with testcase object just with some basedata
         """
@@ -146,6 +146,21 @@ class trModel():
         testcases = []
         for data in self.getData(query_string):
             testcase = _trartefact.cTestcase(ID=data[0], testresult=data[1], title=data[2])
+            testcases.append(testcase)
+        return testcases
+
+
+    def getTestcaseScriptedList(self):
+        """
+        Get list of all non executed testcases having a script
+        @rtype:  object list
+        @return: list with testcase object just with some basedata
+        """
+        query_string = "select id, title, version, purpose, scripturl from testcases where testresult==3 and length(scripturl)>0;"
+        testcases = []
+        for data in self.getData(query_string):
+            testcase = _trartefact.cTestcase(ID=data[0], title=data[1], version=data[2],
+                purpose=data[3], scripturl=data[4])
             testcases.append(testcase)
         return testcases
 

@@ -27,6 +27,26 @@ import wx.lib.hyperlink as hl
 from _trtestresultview import *
 from _trtestcaseview import *
 
+
+def execScript(scripturl, dryrun=False, drycode=-1, drymessage='Dry run'):
+    if dryrun:
+        return (drycode, drymessage)
+    scripturl = os.path.join(os.getcwd(), scripturl)
+    cwd = os.path.dirname(scripturl)
+    stdout = subprocess.PIPE
+    stderr = subprocess.PIPE
+    try:
+        process = subprocess.Popen(scripturl, cwd=cwd, stdout=stdout, stderr=stderr)
+        returncode = process.wait()
+        message = _('Script returns code %d\nScript stdout:\n%s\nScript stderr:\n%s' %
+            (returncode, ''.join(process.stdout.readlines()), ''.join(process.stderr.readlines())))
+    except OSError:
+        message = traceback.format_exc()
+        message += '\nscripturl=%s\ncwd=%s' % (scripturl, cwd)
+        returncode = -1
+    return (returncode, message)
+
+
 class ExecTestrunDialog(wx.Dialog):
     def __init__(self, parent, ID, title):
         style = wx.CAPTION | wx.SYSTEM_MENU | wx.CLOSE_BOX | \
@@ -68,24 +88,11 @@ class ExecTestrunDialog(wx.Dialog):
 
 
     def OnRunScript(self, evt):
-        scripturl = os.path.join(os.getcwd(), self.testcaseview.scripturl_edit.GetValue())
-        cwd = os.path.dirname(scripturl)
-        stdout = subprocess.PIPE
-        stderr = subprocess.PIPE
-        try:
-            process = subprocess.Popen(scripturl, cwd=cwd, stdout=stdout, stderr=stderr)
-            returncode = process.wait()
-            message = _('Script returns code %d\nScript stdout:\n%s\nScript stderr:\n%s' %
-                (returncode, ''.join(process.stdout.readlines()), ''.join(process.stderr.readlines())))
-            self.testresultview.remark_edit.SetValue(message)
-            if returncode != 0:
-                self.testresultview.result_edit.SetSelection(0)
-            else:
-                self.testresultview.result_edit.SetSelection(1)
-        except OSError:
-            message = traceback.format_exc()
-            message += '\nscripturl=%s\ncwd=%s' % (scripturl, cwd)
-            self.testresultview.remark_edit.SetValue(message)
+        (returncode, message) = execScript(self.testcaseview.scripturl_edit.GetValue())
+        self.testresultview.remark_edit.SetValue(message)
+        if returncode != 0:
             self.testresultview.result_edit.SetSelection(0)
+        else:
+            self.testresultview.result_edit.SetSelection(1)
 
 

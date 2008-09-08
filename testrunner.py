@@ -29,7 +29,7 @@ Test runner main application
 @version: $Rev$
 """
 
-import os, sys, logging
+import os, sys, logging, time
 import gettext
 import wx
 
@@ -42,6 +42,7 @@ import trconfig
 from _trmainframe import *
 from _trnewtestrunwiz import *
 from _trexectestrundlg import *
+import _trbatchrundlg
 from _trinfotestrundlg import *
 from _trcanceldlg import *
 import trmodel
@@ -96,6 +97,7 @@ class TestRunnerApp(wx.App):
         self.Bind(wx.EVT_MENU, self.OnRunTestcase, id=201)
         self.Bind(wx.EVT_MENU, self.OnShowTestrunInfo, id=202)
         self.Bind(wx.EVT_MENU, self.OnCancelTestrun, id=203)
+        self.Bind(wx.EVT_MENU, self.OnRunScripted, id=204)
         self.Bind(wx.EVT_MENU, self.OnExportHTML, id=103)
         self.Bind(wx.EVT_MENU, self.OnExportXML, id=104)
 
@@ -178,9 +180,10 @@ class TestRunnerApp(wx.App):
         """Actions to be performed when a test run is opened"""
         self.model.OpenTestrun(path)
         self.mainframe.SetStatusInfo(self.model.getStatusSummary(), path)
-        self.mainframe.InitView(self.model.getTestcaseList())
+        self.mainframe.InitView(self.model.getTestcaseOverviewList())
         self.mainframe.GetMenuBar().Enable(202, True)
         self.mainframe.GetMenuBar().Enable(203, True)
+        self.mainframe.GetMenuBar().Enable(204, True)
         self.mainframe.GetMenuBar().Enable(103, True)
         self.mainframe.GetMenuBar().Enable(104, True)
 
@@ -299,7 +302,7 @@ class TestRunnerApp(wx.App):
         if dlg.ShowModal() == wx.ID_OK:
             self.model.cancelTestrun(dlg.GetValue())
             self.mainframe.SetStatusInfo(self.model.getStatusSummary())
-            self.mainframe.InitView(self.model.getTestcaseList())
+            self.mainframe.InitView(self.model.getTestcaseOverviewList())
         dlg.Destroy()
 
 
@@ -339,6 +342,33 @@ class TestRunnerApp(wx.App):
                 trexportxml.doExportXML(path, self.model, afresource.getDefaultXSLFile())
             except:
                 _afhelper.ExceptionMessageBox(sys.exc_info(), 'Error exporting to XML!')
+
+
+    def OnRunScripted(self, evt):
+        dlg = _trbatchrundlg.BatchTestrunDialog(self.mainframe, wx.ID_ANY, _('Select testcases to run'))
+        testcaselist = self.model.getTestcaseScriptedList()
+        if len(testcaselist) <= 0:
+            wx.MessageBox(_('No testcases with scripts found.'), _('Error'), wx.OK | wx.ICON_HAND)
+            return
+        dlg.testcaselist.InitCheckableContent([], testcaselist)
+        result = dlg.ShowModal()
+        if result != wx.ID_OK: return
+        # Get ID of all checked items
+        idlist = dlg.testcaselist.GetItemIDByCheckState()[0]
+        for id in idlist:
+            testcase = self.model.getTestcase(id)
+            logging.debug('execScript(%s)' % testcase['scripturl'])
+            (returncode, message) = execScript(testcase['scripturl'], dryrun=False)
+            testcase['testremark'] = message
+            testcase['timestamp'] = time.strftime(afresource.TIME_FORMAT)
+            if returncode == 0:
+                testcase['testresult'] = 1
+            else:
+                testcase['testresult'] = 0
+                testcase['action'] = _('None (batch run)')
+            self.model.saveTestresult(testcase)
+        self.mainframe.testcaselist.InitContent(self.model.getTestcaseOverviewList())
+        self.mainframe.SetStatusInfo(self.model.getStatusSummary())
 
 
 def main():
