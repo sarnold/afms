@@ -124,8 +124,10 @@ class MainFrame(wx.Frame):
         menuBar.Append(menu, _("&File"))
 
         menu = wx.Menu()
-        menu.Append(201, _("Run ...\tCtrl-R"), _("Run test case"))
+        menu.Append(201, _("Run selected ...\tCtrl-R"), _("Run selected test case"))
         menu.Enable(201, False)
+        menu.Append(204, _("Run all scripted ..."), _("Run all test case having a script"))
+        menu.Enable(204, False)
         menu.Append(202, _("About current test run..."), _("Info about the current test run"))
         menu.Enable(202, False)
         menu.Append(203, _("Cancel current test run..."), _("Cancel the current test run"))
@@ -236,6 +238,7 @@ class TestcaseListCtrl(wx.ListCtrl, listmix.ListCtrlAutoWidthMixin):
 
 
 class TestcaseListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
+    "List with ID, status and titel of all testcases"
     def __init__(self, parent):
         wx.Panel.__init__(self, parent, -1, style=wx.WANTS_CHARS)
 
@@ -328,6 +331,5 @@ class TestcaseListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
         self.list.SetColumnWidth(0, self.list.GetColumnWidth(0)+10)
         self.list.SetColumnWidth(1, wx.LIST_AUTOSIZE)
         self.list.SetColumnWidth(2, wx.LIST_AUTOSIZE)
-
 
 
