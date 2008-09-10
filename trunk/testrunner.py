@@ -51,6 +51,17 @@ import trexporthtml, trexportxml
 import afresource
 
 
+class FileDropTarget(wx.FileDropTarget):
+    def __init__(self, callback):
+        wx.FileDropTarget.__init__(self)
+        self.callback = callback
+
+
+    def OnDropFiles(self, x, y, filenames):
+        if len(filenames) > 1: return False
+        self.callback(filenames[0])
+
+
 class TestRunnerApp(wx.App):
     """
     wxWidgets main application class.
@@ -63,6 +74,11 @@ class TestRunnerApp(wx.App):
         workdir = self.config.Read("workdir", wx.StandardPaths.GetDocumentsDir(sp))
         if not os.path.exists(workdir):
              self.config.Write("workdir", wx.StandardPaths.GetDocumentsDir(sp))
+        cssfile = self.config.Read('cssfile', afresource.getDefaultTrCSSFile())
+        self.config.Write('cssfile', cssfile)
+        xslfile = self.config.Read('xslfile', afresource.getDefaultTrXSLFile())
+        self.config.Write('xslfile', xslfile)
+
         wx.Config.Set(self.config)
 
         self.model = trmodel.trModel()
@@ -85,6 +101,9 @@ class TestRunnerApp(wx.App):
             pass
 
         self.mainframe = MainFrame(None, "AF Test Runner")
+        dt = FileDropTarget(self.OpenTestrun)
+        self.mainframe.leftWindow.SetDropTarget(dt)
+
         self.SetTopWindow(self.mainframe)
         self.mainframe.Show(True)
 
@@ -100,6 +119,7 @@ class TestRunnerApp(wx.App):
         self.Bind(wx.EVT_MENU, self.OnRunScripted, id=204)
         self.Bind(wx.EVT_MENU, self.OnExportHTML, id=103)
         self.Bind(wx.EVT_MENU, self.OnExportXML, id=104)
+        self.Bind(wx.EVT_MENU_RANGE, self.OnFileHistory, id=wx.ID_FILE1, id2=wx.ID_FILE9)
 
         self.Bind(wiz.EVT_WIZARD_PAGE_CHANGING, self.OnWizPageChanging)
         self.Bind(wiz.EVT_WIZARD_PAGE_CHANGED, self.OnWizPageChanged)
@@ -170,22 +190,35 @@ class TestRunnerApp(wx.App):
             path = dlg.GetPath()
         dlg.Destroy()
         if  dlgResult == wx.ID_OK:
-            try:
-                self.OpenTestrun(path)
-            except:
-                _afhelper.ExceptionMessageBox(sys.exc_info(), 'Error opening test run!')
+            self.OpenTestrun(path)
 
 
     def OpenTestrun(self, path):
         """Actions to be performed when a test run is opened"""
-        self.model.OpenTestrun(path)
-        self.mainframe.SetStatusInfo(self.model.getStatusSummary(), path)
-        self.mainframe.InitView(self.model.getTestcaseOverviewList())
-        self.mainframe.GetMenuBar().Enable(202, True)
-        self.mainframe.GetMenuBar().Enable(203, True)
-        self.mainframe.GetMenuBar().Enable(204, True)
-        self.mainframe.GetMenuBar().Enable(103, True)
-        self.mainframe.GetMenuBar().Enable(104, True)
+        try:
+            self.model.OpenTestrun(path)
+            self.mainframe.filehistory.AddFileToHistory(path)
+            self.mainframe.SetStatusInfo(self.model.getStatusSummary(), path)
+            self.mainframe.InitView(self.model.getTestcaseOverviewList())
+            self.mainframe.GetMenuBar().Enable(202, True)
+            self.mainframe.GetMenuBar().Enable(203, True)
+            self.mainframe.GetMenuBar().Enable(204, True)
+            self.mainframe.GetMenuBar().Enable(103, True)
+            self.mainframe.GetMenuBar().Enable(104, True)
+        except:
+            _afhelper.ExceptionMessageBox(sys.exc_info(), 'Error opening test run!')
+
+
+    def OnFileHistory(self, evt):
+        fileNum = evt.GetId() - wx.ID_FILE1
+        path = self.mainframe.filehistory.GetHistoryFile(fileNum)
+        try:
+            self.OpenTestrun(path)
+            # add it back to the history so it will be moved up the list
+            self.mainframe.filehistory.AddFileToHistory(path)
+        except:
+            _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error opening product!'))
+            self.mainframe.filehistory.RemoveFileFromHistory(fileNum)
 
 
     def OnShowTestrunInfo(self, evt):
@@ -320,7 +353,11 @@ class TestRunnerApp(wx.App):
         dlg.Destroy()
         if  dlgResult == wx.ID_OK:
             try:
-                trexporthtml.doExportHTML(path, self.model, afresource.getDefaultCSSFile())
+                stylesheet = self.config.Read('cssfile', afresource.getDefaultTrCSSFile())
+                trexporthtml.doExportHTML(path, self.model, stylesheet)
+                openhtmlreport = self.config.ReadBool('autoopenhtmlreport', False)
+                if openhtmlreport:
+                    webbrowser.open(url=path, new=2)
             except:
                 _afhelper.ExceptionMessageBox(sys.exc_info(), 'Error exporting to HTML!')
 
@@ -339,7 +376,11 @@ class TestRunnerApp(wx.App):
         dlg.Destroy()
         if  dlgResult == wx.ID_OK:
             try:
-                trexportxml.doExportXML(path, self.model, afresource.getDefaultXSLFile())
+                stylesheet = self.config.Read('xslfile', afresource.getDefaultTrXSLFile())
+                trexportxml.doExportXML(path, self.model, stylesheet)
+                openxmlreport = self.config.ReadBool('autoopenxmlreport', False)
+                if openxmlreport:
+                    webbrowser.open(url=path, new=2)
             except:
                 _afhelper.ExceptionMessageBox(sys.exc_info(), 'Error exporting to XML!')
 

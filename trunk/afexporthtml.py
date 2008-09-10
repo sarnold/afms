@@ -130,88 +130,99 @@ class afExportHTML(afExportXMLBase):
         # --- Text sections ---
         self.toc.appendChild(self._createHeadline('h2', _('Text sections'), {'href': '#textsections'}))
         self.body.appendChild(self._createHeadline('h1', _('Text sections'), {'name': 'textsections'}))
-        listnode = self._createElement('ul')
-        self.toc.appendChild(listnode)
         idlist = self.model.getSimpleSectionIDs()
-        for id in idlist:
-            (node, tocnode, changelognode) = self.renderSimpleSection(id)
-            self.body.appendChild(node)
-            self.appendListItem(listnode, tocnode)
-            self.changelog.appendChild(changelognode)
+        if len(idlist) > 0:
+            listnode = self._createElement('ul')
+            self.toc.appendChild(listnode)            
+            for id in idlist:
+                (node, tocnode, changelognode) = self.renderSimpleSection(id)
+                self.body.appendChild(node)
+                self.appendListItem(listnode, tocnode)
+                self.changelog.appendChild(changelognode)
 
         # --- Glossary ---
         self.toc.appendChild(self._createHeadline('h2', _('Terms and Abbreviations'), {'href': '#glossary'}))
         self.body.appendChild(self._createHeadline('h1', _('Terms and Abbreviations'), {'name': 'glossary'}))
-        listnode = self._createElement('dl', {'class': 'glossary'})
-        self.body.appendChild(listnode)
         cursor = self.model.connection.cursor()
         # SQL query for demonstration purposes only
         cursor.execute('select ID from glossary where delcnt==0 order by title;')
-        for id in [item[0] for item in cursor.fetchall()]:
-            (termnode, descnode) = self.renderGlossaryEntry(id)
-            listnode.appendChild(termnode)
-            listnode.appendChild(descnode)
+        idlist = [item[0] for item in cursor.fetchall()]
+        if len(idlist) > 0:
+            listnode = self._createElement('dl', {'class': 'glossary'})
+            self.body.appendChild(listnode)
+            for id in idlist:
+                (termnode, descnode) = self.renderGlossaryEntry(id)
+                listnode.appendChild(termnode)
+                listnode.appendChild(descnode)
 
         # --- Features ---
         self.toc.appendChild(self._createHeadline('h2', _('Features'), {'href': '#features'}))
         self.body.appendChild(self._createHeadline('h1', _('Features'), {'name': 'features'}))
-        listnode = self._createElement('ul')
-        self.toc.appendChild(listnode)
         idlist = self.model.getFeatureIDs()
-        for id in idlist:
-            (node, tocnode, changelognode) = self.renderFeature(id)
-            self.body.appendChild(node)
-            self.appendListItem(listnode, tocnode)
-            self.changelog.appendChild(changelognode)
+        if len(idlist) > 0:                    
+            listnode = self._createElement('ul')
+            self.toc.appendChild(listnode)
+            for id in idlist:
+                (node, tocnode, changelognode) = self.renderFeature(id)
+                self.body.appendChild(node)
+                self.appendListItem(listnode, tocnode)
+                self.changelog.appendChild(changelognode)
 
         # --- Requirements ---
         self.toc.appendChild(self._createHeadline('h2', _('Requirements'), {'href': '#requirements'}))
         self.body.appendChild(self._createHeadline('h1', _('Requirements'), {'name': 'requirements'}))
-        listnode = self._createElement('ul')
-        self.toc.appendChild(listnode)
         cursor = self.model.connection.cursor()
         # SQL query for demonstration purposes only
         cursor.execute('select ID from requirements where delcnt==0 order by ID;')
-        for id in [item[0] for item in cursor.fetchall()]:
-            (node, tocnode, changelognode) = self.renderRequirement(id)
-            self.body.appendChild(node)
-            self.appendListItem(listnode, tocnode)
-            self.changelog.appendChild(changelognode)
+        idlist = [item[0] for item in cursor.fetchall()]
+        if len(idlist) > 0:            
+            listnode = self._createElement('ul')
+            self.toc.appendChild(listnode)        
+            for id in idlist:
+                (node, tocnode, changelognode) = self.renderRequirement(id)
+                self.body.appendChild(node)
+                self.appendListItem(listnode, tocnode)
+                self.changelog.appendChild(changelognode)
 
         # --- Usecases ---
         self.toc.appendChild(self._createHeadline('h2', _('Usecases'), {'href': '#usecases'}))
         self.body.appendChild(self._createHeadline('h1', _('Usecases'), {'name': 'usecases'}))
-        listnode = self._createElement('ul')
-        self.toc.appendChild(listnode)
         idlist = self.model.getUsecaseIDs()
-        for id in idlist:
-            (node, tocnode, changelognode) = self.renderUsecase(id)
-            self.body.appendChild(node)
-            self.appendListItem(listnode, tocnode)
-            self.changelog.appendChild(changelognode)
+        if len(idlist) > 0:
+            listnode = self._createElement('ul')
+            self.toc.appendChild(listnode)        
+            for id in idlist:
+                (node, tocnode, changelognode) = self.renderUsecase(id)
+                self.body.appendChild(node)
+                self.appendListItem(listnode, tocnode)
+                self.changelog.appendChild(changelognode)
 
         # --- Testcases ---
+        print self.toc
         self.toc.appendChild(self._createHeadline('h2', _('Testcases'), {'href': '#testcases'}))
         self.body.appendChild(self._createHeadline('h1', _('Testcases'), {'name': 'testcases'}))
-        listnode = self._createElement('ul')
-        self.toc.appendChild(listnode)
         idlist = self.model.getTestcaseIDs()
-        for id in idlist:
-            (node, tocnode, changelognode) = self.renderTestcase(id)
-            self.body.appendChild(node)
-            self.appendListItem(listnode, tocnode)
-            self.changelog.appendChild(changelognode)
+        if len(idlist) > 0:
+            listnode = self._createElement('ul')
+            self.toc.appendChild(listnode)
+            for id in idlist:
+                (node, tocnode, changelognode) = self.renderTestcase(id)
+                self.body.appendChild(node)
+                self.appendListItem(listnode, tocnode)
+                self.changelog.appendChild(changelognode)
 
         # --- Testsuites ---
+        print self.toc
         self.toc.appendChild(self._createHeadline('h2', _('Testsuites'), {'href': '#testsuites'}))
         self.body.appendChild(self._createHeadline('h1', _('Testsuites'), {'name': 'testsuites'}))
-        listnode = self._createElement('ul')
-        self.toc.appendChild(listnode)
         idlist = self.model.getTestsuiteIDs()
-        for id in idlist:
-            (node, tocnode) = self.renderTestsuite(id)
-            self.body.appendChild(node)
-            self.appendListItem(listnode, tocnode)
+        if len(idlist) > 0:
+            listnode = self._createElement('ul')
+            self.toc.appendChild(listnode)
+            for id in idlist:
+                (node, tocnode) = self.renderTestsuite(id)
+                self.body.appendChild(node)
+                self.appendListItem(listnode, tocnode)
 
         # -- Problem reports ---
         self.toc.appendChild(self._createHeadline('h2', _('Detected problems'), {'href': '#problems'}))
@@ -605,8 +616,6 @@ class afExportHTML(afExportXMLBase):
         if os.path.exists(self.cssfile):
             fp = codecs.open(self.cssfile, encoding='utf-8', errors = 'ignore')
             css = ''
-            for line in fp:
-                if line.startswith('/* start */'): break
             for line in fp:
                 css += line
             fp.close()

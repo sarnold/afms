@@ -25,7 +25,7 @@ import os, sys;
 import wx;
 from wx.lib.wordwrap import wordwrap
 import  wx.lib.mixins.listctrl  as  listmix
-import _afimages
+import _afimages, _afsettingsview
 import trconfig, trinfo
 from _trtestcaseview import *
 from _trtestresultview import *
@@ -121,6 +121,12 @@ class MainFrame(wx.Frame):
         menu.Enable(104, False)
         menu.Append(wx.ID_EXIT, _("E&xit\tAlt-X"), _("Exit this application"))
         self.Bind(wx.EVT_MENU, self.OnClose, id=wx.ID_EXIT)
+
+        # adding a file history to the menu
+        self.filehistory = wx.FileHistory()
+        self.filehistory.UseMenu(menu)
+        self.filehistory.Load(self.config)
+
         menuBar.Append(menu, _("&File"))
 
         menu = wx.Menu()
@@ -135,8 +141,8 @@ class MainFrame(wx.Frame):
         menuBar.Append(menu, _("&Test"))
 
         menu = wx.Menu()
-        menu.Append(301, _('Language ...'), _('Set language'))
-        self.Bind(wx.EVT_MENU, self.OnChangeLanguage, id = 301)
+        menu.Append(301, _('General ...'), _('General settings'))
+        self.Bind(wx.EVT_MENU, self.OnSettings, id = 301)
         menu.Enable(301, True)
         menuBar.Append(menu, _('&Settings'))
 
@@ -208,16 +214,12 @@ class MainFrame(wx.Frame):
         self.config.WriteInt("window_pos_x", self.GetPosition().x)
         self.config.WriteInt("window_pos_y", self.GetPosition().y)
         self.config.Write("language", afresource.GetLanguage())
+        self.filehistory.Save(self.config)
         self.Destroy()
 
 
-    def OnChangeLanguage(self, evt):
-        dlg = wx.SingleChoiceDialog(
-                self, _('Select program language\n(This takes effect after restarting the program.)'), _('Select language'),
-                [_('English'), _('German')], wx.CHOICEDLG_STYLE)
-        if dlg.ShowModal() == wx.ID_OK:
-            afresource.SetLanguage(['en', 'de'][dlg.GetSelection()])
-        dlg.Destroy()
+    def OnSettings(self, evt):
+        _afsettingsview.EditSettings(self)
 
 
     def InitView(self, testcase_list):

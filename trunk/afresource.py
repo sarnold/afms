@@ -93,7 +93,7 @@ XSL_WILDCARD = _("XSL Style Sheet (*.xsl)|*.xsl|"     \
 
 TR_WILDCARD = _("TR Database (*.tr)|*.tr|"     \
                 "All files (*.*)|*.*")
-                
+
 IMG_WILDCARD = _('All image files (%(ext)s)|%(ext)s|') % {'ext' : '*.png;*.jpg;*.jpeg;*.gif'} +\
                _('JPEG files (%(ext)s)|%(ext)s|') % {'ext' : '*.jpg;*.jpeg'} +\
                _('PNG files (%(ext)s)|%(ext)s|') % {'ext' : '*.png'} +\
@@ -110,7 +110,13 @@ def GetLanguage():
     return _language
 
 def getDefaultCSSFile():
-    return os.path.join(_afhelper.module_path(), 'afmsreport.css')    
+    return os.path.join(_afhelper.module_path(), 'afmsreport.css')
 
 def getDefaultXSLFile():
+    return ''
+
+def getDefaultTrCSSFile():
+    return os.path.join(_afhelper.module_path(), 'afmsreport.css')
+
+def getDefaultTrXSLFile():
     return ''
