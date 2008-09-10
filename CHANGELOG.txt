@@ -5,16 +5,21 @@ AFMS Release 0.x.x (2008xx-xx)
 New features
 ~~~~~~~~~~~~
 * Testcase extension: a new text field for a URL to a test script has been added
+  In testrunner this script could be executed from within the GUI. Test result is set
+  according to the return code of the script. Also in testrunner all or some scripts may
+  be executed in batch mode. 
 
 * Extended settings dialog: 
   configurable stylesheets for XML and HTML export
   and opening the default viewer after report creation
 
-* Drag and drop support: dropping a artefact file in the tree region opens the file
+* Drag and drop support for afeditor and testrunner: 
+  dropping a artefact file in the tree region opens the file
 
 * Statistics: simple artefact statistics available with menu item File/Statistics
 
-* Recent files: list of recently opened files is now provided in File menu
+* Recent files (afeditor and testrunner): 
+  list of recently opened files is now provided in File menu
 
 * Added table formating to popup menu of multiline text controls.
   This works for HTML and REST renderers

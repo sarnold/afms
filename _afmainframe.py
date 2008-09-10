@@ -248,7 +248,7 @@ class MainFrame(wx.Frame):
         menuBar = wx.MenuBar()
         # and a menu
         menu = wx.Menu()
-        
+
         # add an item to the menu, using \tKeyName automatically
         # creates an accelerator, the third param is some help text
         # that will show up in the statusbar
@@ -265,7 +265,7 @@ class MainFrame(wx.Frame):
         menu.Enable(106, False)
         menu.AppendSeparator()
         menu.Append(wx.ID_EXIT, _('E&xit\tAlt-X'), _('Exit this application'))
-        
+
         # adding a file history to the menu
         self.filehistory = wx.FileHistory()
         self.filehistory.UseMenu(menu)
@@ -273,7 +273,7 @@ class MainFrame(wx.Frame):
 
         # bind the menu event to an event handler
         self.Bind(wx.EVT_MENU, self.OnClose, id=wx.ID_EXIT)
-        
+
         # and put the menu on the menubar
         menuBar.Append(menu, _('&File'))
 
@@ -313,7 +313,7 @@ class MainFrame(wx.Frame):
         menu.Append(307, _('New glossary entry ...'), _('Create new glossary entry'))
         menu.Enable(307, False)
         menuBar.Append(menu, _('&New'))
-        
+
         menu = wx.Menu()
         menu.Append(401, _('Database to archive ...'), _('Dump current database to archive file'))
         menu.Enable(401, False)
@@ -323,7 +323,7 @@ class MainFrame(wx.Frame):
 
         menu = wx.Menu()
         menu.Append(501, _('General ...'), _('General settings'))
-        self.Bind(wx.EVT_MENU, self.OnChangeLanguage, id = 501)
+        self.Bind(wx.EVT_MENU, self.Settings, id = 501)
         menu.Enable(501, True)
         menuBar.Append(menu, _('&Settings'))
 
@@ -334,8 +334,8 @@ class MainFrame(wx.Frame):
         menuBar.Append(menu, _('&Help'))
 
         self.SetMenuBar(menuBar)
-        
-        
+
+
     def OnSashDrag(self, event):
         if event.GetDragStatus() == wx.SASH_STATUS_OUT_OF_RANGE:
             return
@@ -379,15 +379,8 @@ class MainFrame(wx.Frame):
         wx.AboutBox(info)
 
 
-    def OnChangeLanguage(self, evt):
+    def OnSettings(self, evt):
         _afsettingsview.EditSettings(self)
-        return
-        dlg = wx.SingleChoiceDialog(
-                self, _('Select program language\n(This takes effect after restarting the program.)'), _('Select language'),
-                [_('English'), _('German')], wx.CHOICEDLG_STYLE)
-        if dlg.ShowModal() == wx.ID_OK:
-            afresource.SetLanguage(['en', 'de'][dlg.GetSelection()])
-        dlg.Destroy()
 
 
     def InitView(self, path, artefactnames, number_of_deleted_artefacts):
