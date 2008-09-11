@@ -234,3 +234,9 @@ class trModel():
         query_string = "select ID from testcases where testresult=%d" % testresult
         return self.getData(query_string)
 
+
+    def getTestsuiteExecOrder(self):
+        c = self.connection.cursor()
+        query_string = "select value from testrun where property='testsuite_execorder'"
+        c.execute(query_string)
+        return c.fetchone()[0]

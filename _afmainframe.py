@@ -323,7 +323,7 @@ class MainFrame(wx.Frame):
 
         menu = wx.Menu()
         menu.Append(501, _('General ...'), _('General settings'))
-        self.Bind(wx.EVT_MENU, self.Settings, id = 501)
+        self.Bind(wx.EVT_MENU, self.OnSettings, id = 501)
         menu.Enable(501, True)
         menuBar.Append(menu, _('&Settings'))
 

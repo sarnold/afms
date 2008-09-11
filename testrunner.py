@@ -164,12 +164,14 @@ class TestRunnerApp(wx.App):
         @type  evt: wx.CommandEvent
         @param evt: event data
         """
-        self.wizard = NewTestrunWizard(self.mainframe)
+        config = {'lastafdir': self.config.Read('lastafdir', '.')}
+        self.wizard = NewTestrunWizard(self.mainframe, config)
         if not self.wizard.ShowModal(): return
         (afdatabase, ts_id, description, path) =  self.wizard.GetValue()
         self.wizard = None
         self.model.requestNewTestrun(path, afdatabase, ts_id, description)
         self.OpenTestrun(path)
+        self.config.Write('lastafdir', os.path.dirname(afdatabase))
 
 
     def OnOpenTestrun(self, evt):
@@ -396,9 +398,17 @@ class TestRunnerApp(wx.App):
         if result != wx.ID_OK: return
         # Get ID of all checked items
         idlist = dlg.testcaselist.GetItemIDByCheckState()[0]
+        execorder = self.model.getTestsuiteExecOrder()
+        if len(execorder) > 0:
+            execorder = map(int, execorder.split(','))
+            if len(execorder) == len(idlist):
+                idlist = execorder
+            else:
+                answer = wx.MessageBox(_('Execution order will be ignored!\nProceed anyway?'), _('Warning'), wx.YES_NO |wx.ICON_QUESTION )
+                if answer != wx.YES: return
         for id in idlist:
             testcase = self.model.getTestcase(id)
-            logging.debug('execScript(%s)' % testcase['scripturl'])
+            logging.debug('ID=%d, execScript(%s)' % (id, testcase['scripturl']))
             (returncode, message) = execScript(testcase['scripturl'], dryrun=False)
             testcase['testremark'] = message
             testcase['timestamp'] = time.strftime(afresource.TIME_FORMAT)

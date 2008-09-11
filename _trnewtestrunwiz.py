@@ -28,12 +28,13 @@ from afresource import AF_WILDCARD, TR_WILDCARD
 
 
 class NewTestrunWizard():
-    def __init__(self, parent, config = None):
+    def __init__(self, parent, config):
         self.parent = parent
+        self.config = config
 
     def ShowModal(self):
         wizard = wiz.Wizard(self.parent, -1, _("Create new test run"))
-        page1 = SelectProductDatabasePage(wizard, _("Step 1/4: Select product database"))
+        page1 = SelectProductDatabasePage(wizard, _("Step 1/4: Select product database"), self.config['lastafdir'])
         page2 = SelectTestsuitePage(wizard, _("Step 2/4: Select test suite"))
         page3 = EnterTestrunInfo(wizard, _("Step 3/4: Enter test description"))
         page4 = SelectOutputFilePage(wizard, _("Step 4/4: Select test run output file"))
@@ -98,12 +99,12 @@ class SelectFilePage(myWizardPage):
 
 
 class SelectProductDatabasePage(SelectFilePage):
-    def __init__(self, parent, title):
+    def __init__(self, parent, title, startDirectory):
         SelectFilePage.__init__(self, parent, title,
                 {   "labelText"      : _("Database file")+':',
                     "toolTip"        : "",
                     "dialogTitle"    : _("Open Database"),
-                    "startDirectory" : ".",
+                    "startDirectory" : startDirectory,
                     "initialValue"   : "",
                     "fileMask"       : AF_WILDCARD,
                     "fileMode"       : wx.FD_OPEN | wx.FD_FILE_MUST_EXIST

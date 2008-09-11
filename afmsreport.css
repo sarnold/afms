@@ -18,28 +18,28 @@ along with AFMS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /* $Id$ */
-/* start */
 
-#logo {
-    background-image: url(logo.png);
-    width: 100px;
-    height: 100px;
-    background-repeat:no-repeat;
-}
 
-* {
+body, th, td, input, select {
  font-family: Verdana, Helvetica, Arial, sans-serif;
 }
 
-
-table, table.docutils, td, th {
-	border-style:solid;
-	vertical-align:top;
-    text-align:left;
-    border-color:#888888;
-    border-width:thin;
+table.aftable {
+	border-style:none; 
 }
 
+td.aftable, th.aftable {
+	border-style: none;
+	vertical-align: top;
+	background-color: #CCCCCC;
+	width: 80%;
+}
+
+th.aftable {
+	background-color: #FFFF66;
+	text-align:right;
+	width: 20%;	
+}
 
 table.history, th.history, td.history { 
 	border-style:solid; 
@@ -50,23 +50,11 @@ table.history, th.history, td.history {
 	text-align:left;
 }
 
-table.aftable {
-	border-style:none;
-}
-
-td.aftable, th.aftable, tr.aftable {
-	border-style:none;
-    border-width: thin;
-	vertical-align:top;
-	background-color: #CCCCCC;
-	width: 80%;
-}
-
-th.aftable {
-	background-color: #FFFF66;
-	text-align:right;
-	width: 20%;	
-}
+table, table.docutils, tr, th, td { 
+    border-style:solid; 
+    border-width:thin;
+    width:auto;
+    }
 
 h1, h2 {
 	background-image: none;
@@ -93,86 +81,54 @@ h4 {
  background: #AAAAFF;
 }
 
-
-div.requirement div.feature {
+div.requirement, div.feature, div.usecase, div.testsuite, div.testcase {
 	margin-left : 30px;
-	background-color: #E5E5E5;
+	background-color: #F0F0F0;
 }
 
-div.usecases {
-	margin-left : 30px;
-}
-
-div.producttitle
-{
+div.producttitle {
 	font-weight:bold;
 	margin-bottom:1em;
 }
 
-div.productdescription
-{
+div.productdescription {
 }
 
-ul {
-	margin-top : 0;
-	margin-bottom : 0;
-}
-
-p.footer
-{
+p.footer {
 	font-style : italic;
 	font-size : small;
 }
 
-dt
-{
+dt {
 	font-weight:bold;
 }
 
-dd
-{
+dd {
 	margin-bottom:1em;
 }
 
 table.navi {
-vertical-align: middle;
-border-spacing: 10pt 0pt;
+	vertical-align: middle;
+	border-spacing: 10pt 0pt;
 }
 
-table.navi td {
-background-color: #AAAAAA;
-padding: 0pt 10pt 0pt 5pt;
+table.navi {
+	background-color: #AAAAAA;
+	padding: 0pt 10pt 0pt 5pt;
 }
 
-.alert {
+p.alert {
 	background-color: #EE0000;
-	padding-right:1em;
-	padding-left:1em;
 }
 
-#bodycol h3, #bodycol h4 { border: 0; }
+#bodycol h3, #bodycol h4 { 
+	border: 0; 
+}
 
 p.fail {
     background-color: #EE0000;
 }
 
-.pass {
+p.pass {
     background-color: #00EE00;
-}
-
-.glossaryid {
-	font-size: x-small;
-	margin-bottom: 0;
-}
-
-span.glossarytitle {
-	background-color: #FFFF66;
-}
-
-div.glossarydescription {
-	background-color: #CCCCCC;
-}
-
-p.glossarytitle {
-	margin-top: 0;
 }
