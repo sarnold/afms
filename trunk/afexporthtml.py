@@ -198,7 +198,6 @@ class afExportHTML(afExportXMLBase):
                 self.changelog.appendChild(changelognode)
 
         # --- Testcases ---
-        print self.toc
         self.toc.appendChild(self._createHeadline('h2', _('Testcases'), {'href': '#testcases'}))
         self.body.appendChild(self._createHeadline('h1', _('Testcases'), {'name': 'testcases'}))
         idlist = self.model.getTestcaseIDs()
@@ -212,7 +211,6 @@ class afExportHTML(afExportXMLBase):
                 self.changelog.appendChild(changelognode)
 
         # --- Testsuites ---
-        print self.toc
         self.toc.appendChild(self._createHeadline('h2', _('Testsuites'), {'href': '#testsuites'}))
         self.body.appendChild(self._createHeadline('h1', _('Testsuites'), {'name': 'testsuites'}))
         idlist = self.model.getTestsuiteIDs()

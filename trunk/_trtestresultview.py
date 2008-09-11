@@ -83,7 +83,7 @@ class trTestresultPanel():
                 self.result_edit.Append(_(item))
             self.result_edit.SetSelection(0)
 
-        self.action_edit.SetValue(str(testcase['action']))
+        self.action_edit.SetValue(unicode(testcase['action']))
         self.remark_edit.SetValue(testcase['testremark'])
         self.timestamp_edit.SetValue(testcase['timestamp'])
 
