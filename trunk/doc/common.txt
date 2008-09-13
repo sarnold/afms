@@ -12,12 +12,28 @@
 .. _`Open Source Requirements Management System`: http://sourceforge.net/projects/osrmt
 .. _`Ready-to-use Software Engineering Templates`: http://readyset.tigris.org/
 
+.. |new_product_btn| image:: images/24-tab-add.png
+.. |open_product_btn| image:: images/24-tab-open.png
 .. |new_feature_btn| image:: images/f_new.png
 .. |new_requirement_btn| image:: images/rq_new.png
 .. |new_usecase_btn| image:: images/uc_new.png
 .. |new_testcase_btn| image:: images/tc_new.png
 .. |new_testsuite_btn| image:: images/ts_new.png
 .. |new_textsection_btn| image:: images/s_new.png
+.. |new_glossaryentry_btn| image:: images/ge_new.png
+.. |edit_artefact_btn| image:: images/24-tag-pencil.png
+.. |copy_artefact_btn| image:: images/24-tag-manager.png
+.. |paste_artefact_btn| image:: images/24-tag-add.png
+.. |delete_artefact_btn| image:: images/24-tag-remove.png
+
+.. |file_menu| image::  images/screenshot_filemenu.png
+.. |edit_menu| image::  images/screenshot_editmenu.png
+.. |new_menu| image::  images/screenshot_newmenu.png
+.. |settings_menu| image::  images/screenshow_settingsmenu.png
+.. |archive_menu| image::  images/screenshow_archivemenu.png
+.. |help_menu| image::  images/screenshow_helpmenu.png
+
+
 
 .. |del_af_btn| image:: images/24-tag-remove.png
 .. |author| unicode:: Achim U+00A0 K U+00F6 hler
@@ -25,6 +41,12 @@
 .. footer:: *Last update* |date|
 .. |date| date:: %Y-%m-%d, %H:%M CET
 
+.. |afeditor| replace:: *afeditor*
+
+
 .. meta::
    :description: Artefact Management System (AFMS) Short Manual
    :keywords: Management, Features, Requirements, Use cases, Test cases, Test suites
+
+
+

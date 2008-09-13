@@ -115,6 +115,9 @@ class afExportHTML(afExportXMLBase):
 
 
     def run(self):
+        node = self._createElement('div', {'id': 'header'})
+        node.appendChild(self._createElement('span'))
+        self.body.appendChild(node)
         self.toc = self._createElement('div', {'class': 'tableofcontent'})
         self.toc.appendChild(self._createTextElement('h1', _('Table of Contents')))
         self.body.appendChild(self.toc)

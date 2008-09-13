@@ -99,6 +99,16 @@ p.footer {
 	font-size : small;
 }
 
+p.glossaryid {
+    color: #AAAAAA; 
+    font-size:small;
+    margin-bottom:0;
+}
+
+p.glossarytitle {
+    margin-top:0;
+}
+
 dt {
 	font-weight:bold;
 }

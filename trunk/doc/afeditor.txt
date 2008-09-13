@@ -34,16 +34,59 @@ AFMS: Short Manual for afeditor
 
 ----
 
-Overview screenshot
--------------------
+Overview
+--------
+
+|afeditor| is the editor to create, edit and manage artefacts related to a software product.
+|afeditor| supports the following kinds of artefacts:
+
+* Features
+* Requirements
+* Testcases
+* Usecases 
+* Testsuites
+
+In addition to these artefacts |afeditor| supports plain text sections and a glossary.
+
+Here is a screenshot of the afeditor main window.
 
 .. image:: images/screenshot_overview.png
+
+The top left panel contains a tree view of all artefacts. 
+If you select an artefact node like *Features* or *Requirements* in the tree view 
+an overview list of these artefacts is shown in the top right panel.
+If you select a specific artefact in the tree view the details of this artefact are shown 
+in top right panel.
+
+The lower panel contains the filter panel. Depending on the kind of artefact selected in the 
+tree view the filter panel changes according to the artefact kind.
+Pressing the "Apply" button in the filter panel hides all artefacts in the tree view 
+and the corresponding artefact list views which are not passing the filter.
+Pressing the "Reset" button turns off filtering.
+The filter view may be collapsed or expanded with the "Filter" button.
+The fields "FT", "RQ" and so on on the bottom right side are indicating which filters
+are active. For example if the testcases are filtered the indicator "TC" turns on green. 
+
+Actions in the |afeditor| are performed by selecting `menu items`_, pressing `toolbar buttons`_
+or using some `shortcut keys`_.
+
+
+Starting |afeditor|
+-------------------
+You may start |afeditor| from the command line calling "afeditor.py". For Microsoft Windows, 
+if you don't like the console, you may run |afeditor| by double clicking the file 
+``afeditor.pyw`` in the explorer window. If you have downloaded the Win32 binary release simply
+execute ``afeditor.exe``.
+
+When running from command line you may enter several command line options. Type::
+
+    afeditor --help
+
+to see the available options.
 
 
 Create a new product
 --------------------
-You may start *afeditor* from the shell calling "afeditor.py". For Microsoft Windows, 
-you may run "afeditor.pyw" if you don't like the console.
 
 After starting the program you can create a new "software product". 
 From the file menu select "New Product" and select enter the database file name 
@@ -310,6 +353,9 @@ Creating an archive and converting an archive to a database
 may also be done using the standalone scripts 
 *afarchivetodb.py* and *afdbtoarchive.py*.
 
+
+.. _`shortcut keys`:
+
 Keyboard shortcuts
 ------------------
 
@@ -328,6 +374,43 @@ Shift-Ctrl-A  uncheck all items in a list
 Space         Toggles the check state of the selected list item
 Ctrl-Space    Toggles the check state of all list items
 ============  ======================================================
+
+
+.. _'toolbar buttons`:
+
+Toolbar buttons
+---------------
+
+=======================     ======================================================
+Button                      Purpose
+=======================     ======================================================
+|new_product_btn|           Crate new product
+|open_product_btn|          Open existing product
+|new_feature_btn| 	        Create new features
+|new_requirement_btn| 	    Create/attach new requirement
+|new_usecase_btn| 	 	    Create/attach new usecase
+|new_testcase_btn| 	 	    Create/attach new testcase
+|new_testsuite_btn| 	 	Create new testsuite
+|new_textsection_btn| 	 	Create new text section
+|new_glossaryentry_btn| 	Create new glossary entry
+|edit_artefact_btn| 	    Edit selected artefact
+|copy_artefact_btn| 	    Copy selected artefact to clipboard
+|paste_artefact_btn| 	    Paste artefact from clipboard
+|delete_artefact_btn| 	    Delete selected artefact
+=======================     ======================================================
+
+
+
+.. _'menu items`:
+
+Menu items
+----------
+
+=========== =========== =========== =============== =============== ===========
+File        Edit        New         Archive         Settings        Help    
+=========== =========== =========== =============== =============== ===========
+|file_menu| |edit_menu| |new_menu|  |archive_menu|  |settings_menu| |help_menu|    
+=========== =========== =========== =============== =============== ===========
 
 
 
