@@ -50,7 +50,9 @@ In addition to these artefacts |afeditor| supports plain text sections and a glo
 
 Here is a screenshot of the afeditor main window.
 
-.. image:: images/screenshot_overview.png
+    |screenshot_overview|
+    
+.. |screenshot_overview| image:: images/screenshot_overview.png
 
 The top left panel contains a tree view of all artefacts. 
 If you select an artefact node like *Features* or *Requirements* in the tree view 
@@ -85,84 +87,179 @@ When running from command line you may enter several command line options. Type:
 to see the available options.
 
 
-Create a new product
---------------------
+Create a new product database
+-----------------------------
 
-After starting the program you can create a new "software product". 
-From the file menu select "New Product" and select enter the database file name 
-for the product in the subsequent dialog.
+To create a new database for a "software product" select the menu command  "New Product"
+from the file menu and enter the database file name for the product in the subsequent dialog.
+Default suffix for an artefact dabase is ``.af``.
 
-Afterwards you should edit the product properties by selecting the "Product" item in 
-the tree view. Enter a product title and a more or less detailed description and save 
-your changes.
+Alternative to the menu command you can use the shortcut key Ctrl-N or press the toolbar 
+button |new_product_btn|.
 
+After creating the database you should edit the product properties. Double click the "Product" item in 
+the tree view to open the "Edit product" dialog. Enter a product title and a more or less detailed 
+description of the product.
 In the product description input field you may use either plain text, `HTML markup`_
 or  `reStructuredText markup`_.
+
+Finally press the "Save" button to save your changes to the database.
+
+
+Open an existing product database
+----------------------------------
+
+An existing product database can be opened with the menu command "Open product" from the file menu,
+the shortcut key Ctrl-O or the toolbar button |open_product_btn|.
+You can als drag a database file and drop it in the tree view panel to get it opened.
 
 
 Add features to the product
 ---------------------------
-Now you can start collecting the features of the software product. Select the 
-"New feature" item from the "New" menu or press the corresponding button |new_feature_btn| 
-in the toolbar.
 
-In the appearing dialog you have to enter the title of the feature and you may enter the description
-of the feature. Again, for the description, you may use plain text, `HTML markup`_
-or  `reStructuredText markup`_.
+Features are a kind of top level artefacts. Features describe the properties and attributes
+of the software product at a rather general level. You also might call it goals of the software product 
+if you don't like the term feature.
 
-Beside title and description the following attributes of a feature could be defined:
+Features will be broken down to a set of requirements which are needed to implement the entire feature.
 
-Priority
-    Essential | Expected | Desired | Optional.
+To create a new features select the "New feature" item from the "New" menu or press the corresponding 
+button |new_feature_btn| in the toolbar.
+
+In the appearing dialog you have to enter i.e. the title and the description of the feature.
+Here are all data fields of a feature [#readyset]_:
+
+    +--------------+--------------------------------------------------------------------------------------------+
+    | Field        | Values                                                                                     |
+    +--------------+--------------------------------------------------------------------------------------------+
+    | Title        | Title or name of the feature.                                                              |
+    +--------------+--------------------------------------------------------------------------------------------+
+    | Description  | Description of the feature                                                                 |
+    +--------------+--------------------------------------------------------------------------------------------+
+    | Priority     | Essential:                                                                                 |
+    |              |    The system could not or would never be used without this feature. It                    |
+    |              |    would be much harder to test, document, or package the product without this feature.    |
+    |              | Expected                                                                                   |
+    |              |    Key stakeholders strongly desire and expect this feature. It may have been promised     |
+    |              |    to them in a certain release. It's absence would substantially reduce the success of    |
+    |              |    the project.                                                                            |
+    |              | Desired                                                                                    |
+    |              |    Stakeholders desire this feature. It's absence would reduce the success of the project. |
+    |              | Optional                                                                                   |
+    |              |    This feature would be nice to have. Adding it could have some advantage, but delaying   |
+    |              |    it would not have a big effect on the success of the project                            |
+    +--------------+--------------------------------------------------------------------------------------------+ 
+    | Risk         | Dangerous:                                                                                 |
+    |              |   Implementing this feature successfully would require overcoming risk factors             |
+    |              |   that are more than three or unknown in number. It should be broken down into parts,      |
+    |              |   better specified, or risk factors should be eliminated prior to implementation.          |
+    |              | 3-Risks:                                                                                   |
+    |              |    Implementing this feature would require three risk factors to be overcome. Any          |
+    |              |    single release should contain at most a few such high-risk features, and contingency    |
+    |              |    plans should be considered. You should be able to list the risks.                       |
+    |              | 2-Risks:                                                                                   |
+    |              |    Implementing this feature would require two risk factors to be overcome. This is normal |
+    |              |    for challenging features. You should be able to list the risks.                         |
+    |              | 1-Risk:                                                                                    | 
+    |              |    Implementing this feature as specified would require one risk factor to be overcome.    |
+    |              |    This is normal for many features. You should be able to describe the risk.              |
+    |              | Safe:                                                                                      |
+    |              |    Implementing this feature as specified is just a matter of time and effort,             |
+    |              |    there is no real risk of failure.                                                       |
+    +--------------+--------------------------------------------------------------------------------------------+
+    | Status       | Submitted, Approved, Completed                                                             |
+    +--------------+--------------------------------------------------------------------------------------------+
+    | Key          | Any string.                                                                                |
+    |              |   A User definable key                                                                     |
+    +--------------+--------------------------------------------------------------------------------------------+
 
 
-Status
-    Submitted | Approved | Completed
+Again, for the description, you may use plain text, `HTML markup`_ or  `reStructuredText markup`_.
 
-Risk
-    Dangerous | 3-Risk | 2-Risk | 1-Risk | Safe
+Along with the basic data of a feature a list of related requirements and a changelog is provided. 
+Select the tab "Attached requirements" to see which requirements are attached to the current feature.
+You may check or uncheck requirements in the list to attach or detach them from the feature.
 
-Version
-    A version identifier
+  |screenshot_editfeature_attachedreqs|
+  
+.. |screenshot_editfeature_attachedreqs| image:: images/screenshot_editfeature_attachedreqs.png
 
-After saving a unique ID is assigned to the feature.
+.. _`feature history`:
 
-Along with the feature basic data a changelog is provided. Select the changelog tab 
-and enter a change description. This description is mandatory once the status of the 
-feature is "submitted". If the status is "completed" you are not allowed to change a feature. 
+To support a artefact history you may select the changelog tab and enter a change description. 
+This description is mandatory once the status of the feature is "submitted". 
+If the status is "completed" you are not allowed to change a feature.
+When you only view (not edit) a single feature the changelog panel shows a complete list of all 
+changelog entries for the artefact.
 
-After you have entered a couple of features try to select the "Feature" item in the tree view
-in the left panel. You will see a list with all your features in the right panel. The list can
+After pressing the "Save" button in the dialog the feature is saved in the dabases and a unique ID is 
+assigned to the feature.
+
+To get an overview about all features select the "Feature" item in the tree view
+in the left panel. You will see a list with all features in the right panel. The list can
 be sorted by clicking into the column header.
 
+Additionally you can use a filter_ to filter out all items you are currently not interested to see.
+The filter applies to the tree view and to the list view.
 
 
-Add requirements and relate them to features
+Add requirements and link them to features
 --------------------------------------------
+
 Adding requirements to the product works the same way as adding features.
 Select "New requirement" from the "New" menu or press the toolbar button |new_requirement_btn|.
-In the subsequent dialog you may enter title, description, priority, status and version of the requirement.
-Furthermore the following attributes are available:
+In the subsequent dialog with several tabs you may enter all the data for the requirement [#readyset]_:
 
-Complexity
-    Low | Medium | High
+    +-------------+--------------------------------------------------------------------------------------------------+
+    | Title       | Title or name of the requirement                                                                 |
+    +-------------+--------------------------------------------------------------------------------------------------+
+    | Description | Description of the requirement                                                                   |
+    +-------------+--------------------------------------------------------------------------------------------------+
+    | Priority    | Essential:                                                                                       |
+    |             |   The system could not or would never be used without this feature. It                           |
+    |             |   would be much harder to test, document, or package the product without this feature.           |
+    |             | Expected:                                                                                        |
+    |             |   Key stakeholders strongly desire and expect this feature. It may have been promised            |
+    |             |   to them in a certain release. It's absence would substantially reduce the success of           |
+    |             |   the project.                                                                                   |
+    |             | Desired:                                                                                         |
+    |             |   Stakeholders desire this feature. It's absence would reduce the success of the project.        |
+    |             | Optional:                                                                                        |
+    |             |   This feature would be nice to have. Adding it could have some advantage, but delaying          |
+    |             |   it would not have a big effect on the success of the project                                   |
+    +-------------+--------------------------------------------------------------------------------------------------+
+    | Complexity  | Low, Medium, High                                                                                |
+    +-------------+--------------------------------------------------------------------------------------------------+
+    | Effort      | Months:                                                                                          |
+    |             |   A very large requirement that is too big to estimate and should be broken in to smaller,       |
+    |             |   better-defined requirements.                                                                   |
+    |             | Weeks:                                                                                           |
+    |             |   A large requirment that will take 40 to 160 hours to add.                                      |
+    |             | Days:                                                                                            |
+    |             |   An average or easy requirement would take less than 40 hours to add.                           |
+    |             | Hours:                                                                                           |
+    |             |   A very easy requirement that would take less than 8 hours to add                               |
+    |             |                                                                                                  |
+    |             | Note that "adding" a requirement means doing all of it's design, implementation, technical       |
+    |             | documentation, user documentation, and testing. Even the easiest requirement takes hours to add. |
+    +-------------+--------------------------------------------------------------------------------------------------+
+    | Category    | Functional, Reliability, Up-time, Safety, Security, Performance, Scalability, Maintainability,   |
+    |             | Upgradability, Supportability, Operability, Business life-cycle, System hardware,                |
+    |             | System software, API, Data import/export, Other                                                  |
+    +-------------+--------------------------------------------------------------------------------------------------+
+    | Status      | Submitted, Approved, Completed                                                                   |
+    +-------------+--------------------------------------------------------------------------------------------------+
+    | Assigned    | To whom the requirement is assigned to                                                           |
+    +-------------+--------------------------------------------------------------------------------------------------+
+    | Key         | A user definable key string                                                                      |
+    +-------------+--------------------------------------------------------------------------------------------------+
+    | Origin      | From where or from whom the requirement comes from                                               |
+    +-------------+--------------------------------------------------------------------------------------------------+
+    | Rationale   | The rationale behind the requirement                                                             |
+    +-------------+--------------------------------------------------------------------------------------------------+
 
-Effort
-    Months | Weeks | Days | Hours
 
-
-Assigned
-    The name of whom the requirement is assigned to
-
-Category
-    Functional | Reliability | Up-time | Safety |
-    Security | Performance | Scalability | Maintainability |
-    Upgradability | Supportability | Operability |
-    Business life-cycle | System hardware | System software |
-    API | Data import/export | Other
-
-In the "Rationale" tab of the dialog you could enter the origin and the rationale of the requirement.
-The tabs "Attached Testcases" and "Attached Usecase" shows a list with all test cases and use cases.
+The tabs "Attached Testcases" and "Attached Usecases" shows a list with all test cases and use cases.
 You may select test cases and use cases belonging to the current requirement.
 
 The tab "Related features" shows a list with the features to which the requirement belongs to.
@@ -173,78 +270,86 @@ Another way to attach a new requirement to a feature is to select the feature in
 the "New Requirement" menu command. The new requirement becomes automatically attached to the selected 
 feature.
 
+The requirement history works the same way as the `feature history`_, see above.
 
-Add use cases and test cases and relate them to requirements
+
+
+Add use cases and link them to requirements
 ------------------------------------------------------------
-Select "New use case" or "New test case" from the "New" menu to create a use case or a test case.
-Of course you also can use the corresponding toolbar buttons |new_usecase_btn| or |new_testcase_btn|.
 
-Use cases have the following attributes:
+Select "New use case" from the "New" menu to create a use case.
+Of course you also can use the corresponding toolbar button |new_usecase_btn|.
 
-Summary
-    A brief description of the use case
+Use cases have the following data fields [#readyset]_:
 
-ID
-    After saving a unique ID is assigned to the use case.
+    +----------------------+---------------------------------------------------------------------------------+
+    | Summary              | A brief description of the use case                                             |
+    +----------------------+---------------------------------------------------------------------------------+
+    | Priority             | Essential, Expected, Desired, Optional.                                         |
+    +----------------------+---------------------------------------------------------------------------------+
+    | Use frequency        | Always, Often, Sometimes, Rarely, Once                                          |
+    +----------------------+---------------------------------------------------------------------------------+
+    | Stakeholders         | Stakeholders for the use case. You may enter stakeholders or select previously  |
+    |                      | entered stakeholders from a list.                                               |
+    +----------------------+---------------------------------------------------------------------------------+
+    | Actors               | Actors for the use case. You may enter actors or select previously              |
+    |                      | entered actors from a list.                                                     |
+    +----------------------+---------------------------------------------------------------------------------+
+    | Prerequisites        | Prerequisites for the use case                                                  |
+    +----------------------+---------------------------------------------------------------------------------+
+    | Main Scenario        | Main scenario of the use case                                                   |
+    +----------------------+---------------------------------------------------------------------------------+
+    | Alternative Scenario | Alternative scenarios to the main scenario                                      |
+    +----------------------+---------------------------------------------------------------------------------+
+    | Notes                | Notes and hints                                                                 |
+    +----------------------+---------------------------------------------------------------------------------+
 
-Priority
-    Essential | Expected | Desired | Optional.
+The tab "Related requirements" shows the requirements to which the usecase belongs to.
+To edit this list, you have to edit each requirement, select the "Attached usecases" tab and check each
+usecase to be attached to the requirement.
 
-Use frequency
-    Always | Often | Sometimes | Rarely | Once
-    
-Stakeholders
-    Stakeholders for the use case. You may enter stakeholders or select previously 
-    entered stakeholders from a list.
-    
-Actors
-    Actors for the use case. You may enter actors or select previously 
-    entered actors from a list.
-    
-Prerequisites
-    Prerequisites for the use case
+You also can attach a new usecase to a requirement if you select the requirement in the tree view and issue
+the "New Usecase" menu command. The new usecase becomes automatically attached to the selected 
+requirement.
 
-Main Scenario
-    Main scenario of the use case
-    
-Alternative Scenario
-    Alternative scenarios to the main scenario
-    
-Notes
-    Notes and hints
-    
+The usecase history works the same way as the `feature history`_, see above.
 
-Test cases have the following attributes:
 
-Title
-    A brief description of the test case
+Add test cases and link them to requirements
+------------------------------------------------------------
 
-ID
-    After saving a unique ID is assigned to the test case
+Select "New test case" or press the button |new_testcase_btn| to create a test case.
 
-Version
-    A version identifier
-    
-Purpose
-    Purpose of the test case
-    
-Prerequisite
-    Prerequisite for the test case
-    
-Testdata:
-    Testdate to be used in the test case
-    
-Steps
-    Steps to perform the test case
-    
-Notes and Questions
-    Notes, hints and questions 
-    
+Test cases have the following data fields [#readyset]_:
 
-If you have selected a requirement when issuing the command "New use case" or "New test case"
-the new artefact will be attached to the selected requirement.
-Another way to do this is to edit the requirement and check the required test cases or use cases 
-in the list shown in the tabs "Attached Testcases" or "Attached Usecases".
+    +------------------------+---------------------------------------+
+    | Title                  | A brief description of the test case  |
+    +------------------------+---------------------------------------+
+    | Key                    | A user definable key string           |
+    +------------------------+---------------------------------------+
+    | Purpose                | Purpose of the test case              |
+    +------------------------+---------------------------------------+
+    | Prerequisite           | Prerequisite for the test case        |
+    +------------------------+---------------------------------------+
+    | Testdata               | Testdate to be used in the test case  |
+    +------------------------+---------------------------------------+
+    | Steps                  | Steps to perform the test case        |
+    +------------------------+---------------------------------------+
+    | Script                 | URL or filename to a script           |
+    |                        | implementing the testcase             |
+    +------------------------+---------------------------------------+
+    | Notes and Questions    | Notes, hints and questions            |
+    +------------------------+---------------------------------------+
+
+Similar to usecases the tab "Related requirements" shows the requirements to which the testcase belongs to.
+To edit this list, you have to edit each requirement, select the "Attached testcases" tab and check each
+testcase to be attached to the requirement.
+
+You also can attach a new testcase to a requirement if you select the requirement in the tree view and issue
+the "New Testcase" menu command. The new testcase becomes automatically attached to the selected 
+requirement.
+
+The testcase history works the same way as the `feature history`_, see above.
 
 
 Create test suites and attach test cases
@@ -311,6 +416,7 @@ On top of the dialog there is a checkbox "Select related artefacts automatically
 and you check for example a requiremt to be imported, then all test cases and use cases related 
 to that requirement are checked too.
 
+.. _`filter`:
 
 Using filters to show only specific artefacts
 ---------------------------------------------
@@ -416,3 +522,7 @@ File        Edit        New         Archive         Settings        Help
 
 
 .. include:: common.txt
+
+------
+
+.. [#readyset]  Some of the attribute descriptions are taken from the `Ready-to-use Software Engineering Templates`_
