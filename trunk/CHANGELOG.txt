@@ -26,6 +26,8 @@ New features
   
 * Added Indent/Unindent command to popup menu of multiline text controls.  
 
+* Added a menu item Help/Feedback with links to bug tracker, feature request tracker and so on.
+
 
 Changes
 ~~~~~~~
