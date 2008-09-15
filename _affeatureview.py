@@ -29,7 +29,7 @@ from _afvalidators import NotEmptyValidator, ArtefactHookValidator
 import afconfig
 import _afbasenotebook
 import afresource
-from _afartefact import cFeature, cRequirement
+from _afartefact import cFeature, cRequirement, cUsecase
 
 class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
     def __init__(self, parent, id = -1, viewonly = True):
@@ -115,6 +115,17 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
         self.AddPage(panel, _("Attached Requirements"))
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnListItemActivated)
 
+        #-----------------------------------------------------------------
+        # Related usecases panel
+
+        panel = wx.Panel(self, -1)
+        self.usecaselist = afUsecaseList(panel, -1, checkstyle=not self.viewonly)
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        sizer.Add(self.usecaselist, 1, wx.ALL| wx.EXPAND, 6)
+        panel.SetSizer(sizer)
+        self.AddPage(panel, _("Attached Usecases"))
+        self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnListItemActivated)
+
         self.AddChangelogPanel()
 
 
@@ -137,6 +148,7 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
             self.risk_edit.SetSelection(feature['risk'])
 
         self.requirementlist.InitCheckableContent(feature.getUnrelatedRequirements(), feature.getRelatedRequirements(), self.viewonly)
+        self.usecaselist.InitCheckableContent(feature.getUnrelatedUsecases(), feature.getRelatedUsecases(), self.viewonly)
 
         if self.viewonly:
             self.changelist.InitContent(feature.getChangelist())
@@ -164,6 +176,12 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
             rq = cRequirement(ID=rq_id)
             related_requirements.append(rq)
         feature.setRelatedRequirements(related_requirements)
+
+        related_usecases = []
+        for uc_id in self.usecaselist.GetItemIDByCheckState()[0]:
+            uc = cUsecase(ID=uc_id)
+            related_usecases.append(uc)
+        feature.setRelatedUsecases(related_usecases)
 
         feature.setChangelog(self.GetChangelogContent())
 

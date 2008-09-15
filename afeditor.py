@@ -136,7 +136,7 @@ class MyApp(wx.App):
         self.mainframe.leftWindow.SetDropTarget(dt)
         self.SetTopWindow(self.mainframe)
         self.mainframe.Show(True)
-        
+
         self.wildcard = _(afresource.AF_WILDCARD)
         self.htmlwildcard = _(afresource.HTML_WILDCARD)
         self.dont_annoy_at_delete = False
@@ -257,7 +257,7 @@ class MyApp(wx.App):
                 sys.exit(2)
 
         return True
-    
+
 
     def OnDatabaseToArchive(self, evt):
         defaultFile = os.path.splitext(self.model.getFilename())[0] + ".xml"
@@ -302,11 +302,11 @@ class MyApp(wx.App):
 
         funcs = [self.model.getIDofFeaturesWithoutRequirements, self.model.getIDofRequirementsWithoutTestcases,
                  self.model.getIDofTestcasesWithoutRequirements, self.model.getIDofTestcasesWithoutTestsuites,
-                 self.model.getIDofTestsuitesWithoutTestcases, self.model.getIDofUsecasesWithoutRequirements]
+                 self.model.getIDofTestsuitesWithoutTestcases, self.model.getIDofUsecasesWithoutArtefacts]
         keys = [_('Features without requirements'), _('Requirements without test cases'),
                 _('Test cases without requirements'), _('Test cases without test suites'),
-                _('Test suites without test cases'), _('Usecases without requirements')]        
-        for func, key in zip(funcs, keys): 
+                _('Test suites without test cases'), _('Usecases without features or requirements')]
+        for func, key in zip(funcs, keys):
             idlist = func()
             if len(idlist) > 0:
                 imageindex = 1
@@ -316,29 +316,29 @@ class MyApp(wx.App):
                 value = '0'
             sd = _afstatisticsview.StatisticData(key, value, imageindex)
             statisticdata.append(sd)
-        
-        funcs = [self.model.getSimpleSectionIDs, self.model.getGlossaryEntryIDs,         
-                 self.model.getFeatureIDs, self.model.getRequirementIDs, 
-                 self.model.getUsecaseIDs, self.model.getTestcaseIDs, 
+
+        funcs = [self.model.getSimpleSectionIDs, self.model.getGlossaryEntryIDs,
+                 self.model.getFeatureIDs, self.model.getRequirementIDs,
+                 self.model.getUsecaseIDs, self.model.getTestcaseIDs,
                  self.model.getTestsuiteIDs]
         keys = [_('Text sections'), _('Glossary entries'),
                 _('Features'), _('Requirements'),
                 _('Use cases'), _('Test cases'), _('Test suites')]
-        for func, key in zip(funcs, keys): 
+        for func, key in zip(funcs, keys):
             idlist = func()
             if len(idlist) > 0:
-                imageindex = 0              
+                imageindex = 0
             else:
                 imageindex = 1
             value = str(len(idlist))
             sd = _afstatisticsview.StatisticData(key, value, imageindex)
             statisticdata.append(sd)
-                    
+
         dlg = _afstatisticsview.StatisticsDialog(self.mainframe, -1)
         dlg.InitContent(statisticdata)
         dlg.ShowModal()
-        
-        
+
+
     def OnSimpleSectionLevelChanged(self, evt):
         self.model.assignSimpleSectionLevels(evt.GetClientData())
         self.InitView()
@@ -465,8 +465,8 @@ class MyApp(wx.App):
         except:
             _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error opening product!'))
             self.mainframe.filehistory.RemoveFileFromHistory(fileNum)
-            
-        
+
+
     def OnNewProduct(self, evt):
         """
         Event handler for menu item or toolbar item 'New Product'.
@@ -522,7 +522,7 @@ class MyApp(wx.App):
             self.mainframe.filehistory.AddFileToHistory(path)
         except:
             _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error opening product!'))
-        
+
 
     def OpenProduct(self, path):
         """

@@ -4,8 +4,8 @@ Copyright 2008 Achim Köhler
 This file is part of AFMS.
 
 AFMS is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published 
-by the Free Software Foundation, either version 2 of the License, 
+it under the terms of the GNU General Public License as published
+by the Free Software Foundation, either version 2 of the License,
 or (at your option) any later version.
 
 AFMS is distributed in the hope that it will be useful,
@@ -25,7 +25,7 @@ body, th, td, input, select {
 }
 
 table.aftable {
-	border-style:none; 
+	border-style:none;
 }
 
 td.aftable, th.aftable {
@@ -38,20 +38,20 @@ td.aftable, th.aftable {
 th.aftable {
 	background-color: #FFFF66;
 	text-align:right;
-	width: 20%;	
+	width: 20%;
 }
 
-table.history, th.history, td.history { 
-	border-style:solid; 
+table.history, th.history, td.history {
+	border-style:solid;
 	border-width:thin;
 	border-color:#AAAAAA;
-	background-color: #CCCCCC; 
+	background-color: #CCCCCC;
 	width:auto;
 	text-align:left;
 }
 
-table, table.docutils, tr, th, td { 
-    border-style:solid; 
+table, table.docutils, tr, th, td {
+    border-style:solid;
     border-width:thin;
     width:auto;
     }
@@ -100,7 +100,7 @@ p.footer {
 }
 
 p.glossaryid {
-    color: #AAAAAA; 
+    color: #AAAAAA;
     font-size:small;
     margin-bottom:0;
 }
@@ -131,8 +131,8 @@ p.alert {
 	background-color: #EE0000;
 }
 
-#bodycol h3, #bodycol h4 { 
-	border: 0; 
+#bodycol h3, #bodycol h4 {
+	border: 0;
 }
 
 p.fail {
@@ -141,4 +141,8 @@ p.fail {
 
 p.pass {
     background-color: #00EE00;
+}
+
+.alert {
+    background-color: #EE0000;
 }

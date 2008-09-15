@@ -127,12 +127,10 @@ class afUsecaseNotebook(_afbasenotebook.afBaseNotebook):
         panel1.Layout()
         self.AddPage(panel1, _("Usecase"))
 
-        #-----------------------------------------------------------------
-
+        # Related features panel; this relation could not be edited from here
+        self.featurelist = self.AddRelatedArtefactPanel(afFeatureList, _("Related Features"))
         # Related requirements panel; this relation could not be edited from here
         self.requirementlist = self.AddRelatedArtefactPanel(afRequirementList, _("Related Requirements"))
-
-        #-----------------------------------------------------------------
 
         self.AddChangelogPanel()
 
@@ -154,6 +152,7 @@ class afUsecaseNotebook(_afbasenotebook.afBaseNotebook):
         self.notes_edit.SetValue(usecase['notes'])
 
         self.requirementlist.InitContent(usecase.getRelatedRequirements())
+        self.featurelist.InitContent(usecase.getRelatedFeatures())
 
         if self.viewonly:
            self.changelist.InitContent(usecase.getChangelist())

@@ -48,6 +48,8 @@ class AFXML2DB(object):
         tablenodes = self.dom.getElementsByTagName('table')
         for tablenode in tablenodes:
             self._createTable(tablenode)
+        connection.commit()
+
 
     def _createTable(self, tablenode):
         tablename = tablenode.getElementsByTagName('name')[0].childNodes[0].data.strip()

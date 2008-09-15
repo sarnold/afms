@@ -136,7 +136,7 @@ class afExportHTML(afExportXMLBase):
         idlist = self.model.getSimpleSectionIDs()
         if len(idlist) > 0:
             listnode = self._createElement('ul')
-            self.toc.appendChild(listnode)            
+            self.toc.appendChild(listnode)
             for id in idlist:
                 (node, tocnode, changelognode) = self.renderSimpleSection(id)
                 self.body.appendChild(node)
@@ -162,7 +162,7 @@ class afExportHTML(afExportXMLBase):
         self.toc.appendChild(self._createHeadline('h2', _('Features'), {'href': '#features'}))
         self.body.appendChild(self._createHeadline('h1', _('Features'), {'name': 'features'}))
         idlist = self.model.getFeatureIDs()
-        if len(idlist) > 0:                    
+        if len(idlist) > 0:
             listnode = self._createElement('ul')
             self.toc.appendChild(listnode)
             for id in idlist:
@@ -178,9 +178,9 @@ class afExportHTML(afExportXMLBase):
         # SQL query for demonstration purposes only
         cursor.execute('select ID from requirements where delcnt==0 order by ID;')
         idlist = [item[0] for item in cursor.fetchall()]
-        if len(idlist) > 0:            
+        if len(idlist) > 0:
             listnode = self._createElement('ul')
-            self.toc.appendChild(listnode)        
+            self.toc.appendChild(listnode)
             for id in idlist:
                 (node, tocnode, changelognode) = self.renderRequirement(id)
                 self.body.appendChild(node)
@@ -193,7 +193,7 @@ class afExportHTML(afExportXMLBase):
         idlist = self.model.getUsecaseIDs()
         if len(idlist) > 0:
             listnode = self._createElement('ul')
-            self.toc.appendChild(listnode)        
+            self.toc.appendChild(listnode)
             for id in idlist:
                 (node, tocnode, changelognode) = self.renderUsecase(id)
                 self.body.appendChild(node)
@@ -229,10 +229,10 @@ class afExportHTML(afExportXMLBase):
         self.toc.appendChild(self._createHeadline('h2', _('Detected problems'), {'href': '#problems'}))
         self.body.appendChild(self._createHeadline('h1', _('Detected problems'), {'name': 'problems'}))
         hrefs  = ("lonelyfeatures","untestedrequirements", "lonelytestcases","unexecutedtestcases","emptytestsuites","lonelyusecases")
-        labels = (_('Features without requirements'), _('Requirements without testcases'), _('Testcases not belonging to requirements'), _('Testcases not belonging to testsuites'), _('Empty testsuites'), _('Usecases not belonging to requirements'))
+        labels = (_('Features without requirements'), _('Requirements without testcases'), _('Testcases not belonging to requirements'), _('Testcases not belonging to testsuites'), _('Empty testsuites'), _('Usecases not belonging to features or requirements'))
         getIDFuncs = (self.model.getIDofFeaturesWithoutRequirements, self.model.getIDofRequirementsWithoutTestcases,
                      self.model.getIDofTestcasesWithoutRequirements, self.model.getIDofTestcasesWithoutTestsuites,
-                     self.model.getIDofTestsuitesWithoutTestcases, self.model.getIDofUsecasesWithoutRequirements)
+                     self.model.getIDofTestsuitesWithoutTestcases, self.model.getIDofUsecasesWithoutArtefacts)
         getAFFuncs = (self.model.getFeature, self.model.getRequirement, self.model.getTestcase,
                      self.model.getTestcase, self.model.getTestsuite, self.model.getUsecase)
         renderFuncs = (self.renderFeatureAnchor, self.renderRequirementAnchor, self.renderTestcaseAnchor,
@@ -343,6 +343,15 @@ class afExportHTML(afExportXMLBase):
                 self.appendListItem(subnode, self.renderRequirementAnchor(requirement, True))
         table.appendChild(self._createTableRow(_('Related Requirements'), subnode))
 
+        relatedusecases = feature.getRelatedUsecases()
+        if len(relatedusecases) == 0:
+            subnode = self._createTextElement('div', _('None'), {'class': 'alert'})
+        else:
+            subnode = self._createElement('ul')
+            for usecase in relatedusecases:
+                self.appendListItem(subnode, self.renderUsecaseAnchor(usecase, True))
+        table.appendChild(self._createTableRow(_('Related Usecases'), subnode))
+
         tocnode = self.renderFeatureAnchor(feature, True)
         (changelognode, changeloglink) = self.renderChangelist('FT', feature)
         node.appendChild(changeloglink)
@@ -448,13 +457,32 @@ class afExportHTML(afExportXMLBase):
         table.appendChild(self._createTableRow(_('Notes'),         self._render(basedata['notes'])))
 
         relatedrequirements = usecase.getRelatedRequirements()
+        relatedfeatures = usecase.getRelatedFeatures()
+
         if len(relatedrequirements) == 0:
-            subnode = self._createTextElement('span', _('None'), {'class': 'alert'})
+            if len(relatedfeatures) == 0:
+                attrib = {'class': 'alert'}
+            else:
+                attrib = {}
+            subnode = self._createTextElement('span', _('None'), attrib)
         else:
             subnode = self._createElement('ul')
             for requirement in relatedrequirements:
                 self.appendListItem(subnode, self.renderRequirementAnchor(requirement, True))
         table.appendChild(self._createTableRow(_('Related Requirements'), subnode))
+
+        relatedfeatures = usecase.getRelatedFeatures()
+        if len(relatedfeatures) == 0:
+            if len(relatedrequirements) == 0:
+                attrib = {'class': 'alert'}
+            else:
+                attrib = {}
+            subnode = self._createTextElement('span', _('None'), attrib)
+        else:
+            subnode = self._createElement('ul')
+            for feature in relatedfeatures:
+                self.appendListItem(subnode, self.renderFeatureAnchor(feature, True))
+        table.appendChild(self._createTableRow(_('Related Features'), subnode))
 
         tocnode = self.renderUsecaseAnchor(usecase, True)
         (changelognode, changeloglink) = self.renderChangelist('UC', usecase)
@@ -636,12 +664,12 @@ class CommandLineProcessor():
         self.stylesheet = stylesheet
         self.output = None
         self.language = 'en'
-        
+
 
     def version(self):
         print("Version unknown")
 
-    
+
     def usage(self):
         print("Usage:\n%s [-h|--help] [-V|--version] [-s <cssfile>|--stylesheet=<cssfile>] [-o <ofile>|--output=<ofile>] <ifile>\n"
         "  -h, --help                            show help and exit\n"
@@ -687,10 +715,10 @@ class CommandLineProcessor():
         except IOError:
             print('Unsupported language: %s' % self.language)
             sys.exit(1)
-            
+
         if self.output is None:
             self.output =  os.path.splitext(args[0])[0] + ".html"
-            
+
         self.databasename = args[0]
 
 

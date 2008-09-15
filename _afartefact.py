@@ -171,11 +171,15 @@ class cFeature(cArtefact):
             'description'   : description }
         self._relatedRequirements = []
         self._unrelatedRequirements = []
+        self._relatedUsecases = []
+        self._unrelatedUsecases = []
 
 
     def clearRelations(self):
         self._relatedRequirements = []
         self._unrelatedRequirements = []
+        self._relatedUsecases = []
+        self._unrelatedUsecases = []
 
 
     def setRelatedRequirements(self, requirements):
@@ -192,6 +196,22 @@ class cFeature(cArtefact):
 
     def getUnrelatedRequirements(self):
         return self._unrelatedRequirements
+
+
+    def setRelatedUsecases(self, usecases):
+        self._relatedUsecases = usecases
+
+
+    def getRelatedUsecases(self):
+        return self._relatedUsecases
+
+
+    def setUnrelatedUsecases(self, usecases):
+        self._unrelatedUsecases = usecases
+
+
+    def getUnrelatedUsecases(self):
+        return self._unrelatedUsecases
 
 
     def getPrintableDataDict(self, formatter=None):
@@ -373,10 +393,12 @@ class cUsecase(cArtefact):
             'altscenario'   : altscenario,
             'notes'         : notes }
         self.relatedRequirements = []
+        self.relatedFeatures = []
 
 
     def clearRelations(self):
         self.relatedRequirements = []
+        self.relatedFeatures = []
 
 
     def setRelatedRequirements(self, requirements):
@@ -385,6 +407,14 @@ class cUsecase(cArtefact):
 
     def getRelatedRequirements(self):
         return self.relatedRequirements
+
+
+    def setRelatedFeatures(self, features):
+        self.relatedFeatures = features
+
+
+    def getRelatedFeatures(self):
+        return self.relatedFeatures
 
 
     def getPrintableDataDict(self, formatter=None):
