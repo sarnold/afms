@@ -47,6 +47,11 @@ Changes
   Note: in the databes the version field is used to hold the key information.
 
 
+Bug fixes
+~~~~~~~~~  
+* Conversion from XML archive file to database with afarchivetodb.py now works properly.
+  Added a final commit statement to avoid an empty usecase table in the database.
+  
 
 ===============================
 AFMS Release 0.4.0 (2008-08-10)

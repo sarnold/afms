@@ -68,6 +68,9 @@ class afImporter():
             related_requirements_ids = [item['ID'] for item in feature.getRelatedRequirements()]
             logging.debug("_afimporter.OnListItemChecked(): auto checking requirements %s" % str(related_requirements_ids))
             self.dlg.CheckArtefacts('REQUIREMENTS', related_requirements_ids)
+            related_usecases_ids = [item['ID'] for item in feature.getRelatedUsecases()]
+            logging.debug("_afimporter.OnListItemChecked(): auto checking usecases %s" % str(related_usecases_ids))
+            self.dlg.CheckArtefacts('USECASES', related_usecases_ids)
 
         elif listkind == 'REQUIREMENTS':
             requirement = self.model.getRequirement(ID)
@@ -120,6 +123,10 @@ class afImporter():
             for rq_id, new_rq_id in zip(rqlist, new_rqlist):
                 if rq_id in related_requirement_ids:
                     self.basemodel.addFeatureRequirementRelation(new_ft_id, new_rq_id)
+            related_usecase_ids = self.model.getUsecaseIDsRelatedToFeature(ft_id)
+            for uc_id, new_uc_id in zip(uclist, new_uclist):
+                if uc_id in related_usecase_ids:
+                    self.basemodel.addFeatureUsecaseRelation(new_ft_id, new_uc_id)
 
         for rq_id, new_rq_id in zip(rqlist, new_rqlist):
             related_testcase_ids = self.model.getTestcaseIDsRelatedToRequirement(rq_id)

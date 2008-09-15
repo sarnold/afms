@@ -121,6 +121,15 @@ class afModel(object):
         self.connection.commit()
 
 
+    def _updateto_1_4(self, c):
+        logging.debug("afmodel._updateto_1_4()")
+        # save new version
+        c.execute("update product set value=? where property=='dbversion';", ('1.4',))
+        # commands to update from 1.3 to 1.4
+        c.execute("create table feature_usecase_relation (ft_id integer, uc_id integer, delcnt integer default 0);")
+        self.connection.commit()
+
+
     def requestNewProduct(self, path):
         """
         Request to create a new product
@@ -165,6 +174,7 @@ class afModel(object):
         self._updateto_1_1(c)
         self._updateto_1_2(c)
         self._updateto_1_3(c)
+        self._updateto_1_4(c)
         ##self.InsertTestData()
         self.connection.commit()
 
@@ -210,7 +220,9 @@ class afModel(object):
         if self.version < 1.3:
             self._updateto_1_3(c)
             self.version = 1.3
-
+        if self.version < 1.4:
+            self.version = 1.4
+            self._updateto_1_4(c)
     #---------------------------------------------------------------------
 
     def getProductInformation(self):
@@ -260,6 +272,15 @@ class afModel(object):
             'assigned, effort, category, version, description from requirements where id not in (%s) and delcnt==0;' % select_string
         unrelated_requirements_list = self.getData(query_string)
         feature.setUnrelatedRequirements(self._RequirementListFromPlainList(unrelated_requirements_list))
+
+        select_string = 'select uc_id from feature_usecase_relation where ft_id=%d and delcnt==0' % ID
+        query_string = 'select ID, title, priority, usefrequency, actors, stakeholders from usecases where id in (%s);' % select_string
+        related_usecase_list = self.getData(query_string)
+        feature.setRelatedUsecases(self._UsecaseListFromPlainList(related_usecase_list))
+
+        query_string = 'select ID, title, priority, usefrequency, actors, stakeholders from usecases where id not in (%s) and delcnt==0;' % select_string
+        unrelated_usecase_list = self.getData(query_string)
+        feature.setUnrelatedUsecases(self._UsecaseListFromPlainList(unrelated_usecase_list))
 
         feature.setChangelist(self.getChangelist(_TYPEID_FEATURE, ID))
         return feature
@@ -423,8 +444,14 @@ class afModel(object):
             'assigned, effort, category, version, description from requirements where id in (%s);' % select_string
         c.execute(query_string)
         related_requirements = self.getData(query_string)
-
         usecase.setRelatedRequirements(self._RequirementListFromPlainList(related_requirements))
+
+        select_string = 'select ft_id from feature_usecase_relation where uc_id=%d and delcnt==0' % ID
+        query_string = 'select all ID, title, priority, status, version, risk, description from features where ID in (%s);' % select_string
+        c.execute(query_string)
+        related_features = self.getData(query_string)
+        usecase.setRelatedFeatures(self._FeatureListFromPlainList(related_features))
+
         usecase.setChangelist(self.getChangelist(_TYPEID_USECASE, ID))
         return usecase
 
@@ -839,6 +866,10 @@ class afModel(object):
         for rq in feature.getRelatedRequirements():
             c.execute("insert into feature_requirement_relation values (?,?,?)", (ft_id, rq['ID'], 0))
 
+        c.execute("delete from feature_usecase_relation where ft_id=?", (ft_id,))
+        for uc in feature.getRelatedUsecases():
+            c.execute("insert into feature_usecase_relation values (?,?,?)", (ft_id, uc['ID'], 0))
+
         changelog = feature.getChangelog()
         changelog['changetype'] = [_CHANGEID_EDIT, _CHANGEID_NEW][bool(new_artefact)]
         self.saveChangelog(_TYPEID_FEATURE, ft_id, changelog, False)
@@ -1137,6 +1168,12 @@ class afModel(object):
             new_delcnt = max(0, row[2] + incr) # prevent delcnt < 0
             c.execute("update feature_requirement_relation set delcnt=? where ft_id=? and rq_id=?", (new_delcnt, row[0], row[1]))
 
+        c.execute("select all ft_id, uc_id, delcnt from feature_usecase_relation where ft_id=?", (item_id,))
+        rows = c.fetchall()
+        for row in rows:
+            new_delcnt = max(0, row[2] + incr) # prevent delcnt < 0
+            c.execute("update feature_usecase_relation set delcnt=? where ft_id=? and uc_id=?", (new_delcnt, row[0], row[1]))
+
         if changelogentry is None:
             changelogentry = cChangelogEntry(user=self.controller.getUsername(),
                                   description='',
@@ -1290,6 +1327,12 @@ class afModel(object):
             new_delcnt = max(0, row[2] + incr) # prevent delcnt < 0
             c.execute("update requirement_usecase_relation set delcnt=? where rq_id=? and uc_id=?", (new_delcnt, row[0], row[1]))
 
+        c.execute("select all ft_id, uc_id, delcnt from feature_usecase_relation where uc_id=?", (item_id,))
+        rows = c.fetchall()
+        for row in rows:
+            new_delcnt = max(0, row[2] + incr) # prevent delcnt < 0
+            c.execute("update feature_usecase_relation set delcnt=? where ft_id=? and uc_id=?", (new_delcnt, row[0], row[1]))
+
         if changelogentry is None:
             changelogentry = cChangelogEntry(user=self.controller.getUsername(),
                                   description='',
@@ -1370,6 +1413,17 @@ class afModel(object):
         self._AddRelation(("requirement_usecase_relation", "rq_id", "uc_id"), rq_id, uc_id)
 
 
+    def addFeatureUsecaseRelation(self, ft_id, uc_id):
+        """
+        Add a new relation to the feature_usecase_relation table
+        @param ft_id: Feature ID
+        @type  ft_id: integer
+        @param uc_id: Usecase ID
+        @type  uc_id: integer
+        """
+        self._AddRelation(("feature_usecase_relation", "ft_id", "uc_id"), ft_id, uc_id)
+
+
     def addRequirementTestcaseRelation(self, rq_id, tc_id):
         """
         Add a new relation to the requirement_testcase_relation table
@@ -1406,6 +1460,11 @@ class afModel(object):
     def getFeatureRequirementRelations(self):
         """Get feature_requirement_relation table"""
         return self._getRelations("feature_requirement_relation", "ft_id", "rq_id")
+
+
+    def getFeatureUsecaseRelations(self):
+        """Get feature_usecase_relation table"""
+        return self._getRelations("feature_usecase_relation", "ft_id", "uc_id")
 
 
     def getTestsuiteTestcaseRelations(self):
@@ -1447,6 +1506,11 @@ class afModel(object):
 
     def getUsecaseIDsRelatedToRequirement(self, rq_id):
         query_string = 'select uc_id from requirement_usecase_relation where rq_id=%d and delcnt==0' % rq_id
+        return [data[0] for data in self.getData(query_string)];
+
+
+    def getUsecaseIDsRelatedToFeature(self, ft_id):
+        query_string = 'select uc_id from feature_usecase_relation where ft_id=%d and delcnt==0' % ft_id
         return [data[0] for data in self.getData(query_string)];
 
 
@@ -1741,8 +1805,8 @@ class afModel(object):
         return [data[0] for data in self.getData(query_string)];
 
 
-    def getIDofUsecasesWithoutRequirements(self):
-        query_string = 'select ID from usecases where delcnt==0 and ID not in (select distinct uc_id from requirement_usecase_relation where delcnt==0)'
+    def getIDofUsecasesWithoutArtefacts(self):
+        query_string = 'select ID from usecases where delcnt==0 and ID not in (select distinct uc_id from requirement_usecase_relation where delcnt==0) and ID not in (select distinct uc_id from feature_usecase_relation where delcnt==0)'
         return [data[0] for data in self.getData(query_string)];
 
     #---------------------------------------------------------------------
@@ -1800,6 +1864,7 @@ pleasures to secure other greater pleasures, or else he endures
             n_testsuites = 5
             n_testcases = 10
             n_usecases = 10
+            dummytext = 'Sample text'
 
         c = self.connection.cursor()
         c.execute("""insert into product values ('title', 'Sample product');""")

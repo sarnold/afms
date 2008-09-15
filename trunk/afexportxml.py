@@ -145,6 +145,7 @@ class afExportXML(afExportXMLBase):
             node.appendChild(self._createTextElement(key, basedata[key]))
         node.appendChild(self._render(basedata['description'], enclosingtag='description'))
         node.appendChild(self.renderRelatedArtefacts('relatedrequirements', feature.getRelatedRequirements()))
+        node.appendChild(self.renderRelatedArtefacts('relatedusecases', feature.getRelatedUsecases()))
         node.appendChild(self.renderChangelist(feature))
         return node
 
@@ -187,6 +188,7 @@ class afExportXML(afExportXMLBase):
             node.appendChild(self._createTextElement(key, basedata[key]))
         for key in ('prerequisites', 'mainscenario', 'altscenario', 'notes'):
             node.appendChild(self._render(basedata[key], enclosingtag=key))
+        node.appendChild(self.renderRelatedArtefacts('relatedfeatures', usecase.getRelatedFeatures()))
         node.appendChild(self.renderRelatedArtefacts('relatedrequirements', usecase.getRelatedRequirements()))
         node.appendChild(self.renderChangelist(usecase))
         return node
@@ -238,7 +240,7 @@ class CommandLineProcessor():
 
     def version(self):
         print("Version unknown")
-        
+
 
     def usage(selg):
         print("Usage:\n%s [-h|--help] [-V|--version] [-s <xslfile>|--stylesheet=<xslfile>] [-o <ofile>|--output=<ofile>] <ifile>\n"
@@ -275,13 +277,13 @@ class CommandLineProcessor():
         if len(args) != 1:
             self.usage()
             sys.exit(1)
-            
+
         if self.output is None:
             self.output =  os.path.splitext(args[0])[0] + ".xml"
-            
+
         self.databasename = args[0]
-        
-        
+
+
     def run(self):
         logging.basicConfig(level=afconfig.loglevel, format=afconfig.logformat)
         logging.disable(afconfig.loglevel)
