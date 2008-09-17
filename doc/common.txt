@@ -42,7 +42,7 @@
 .. |date| date:: %Y-%m-%d, %H:%M CET
 
 .. |afeditor| replace:: *afeditor*
-
+.. |testrunner| replace:: *testrunner*
 
 .. meta::
    :description: Artefact Management System (AFMS) Short Manual
