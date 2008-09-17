@@ -274,7 +274,7 @@ The requirement history works the same way as the `feature history`_, see above.
 
 
 
-Add use cases and link them to requirements
+Add use cases and link them to requirements or features
 ------------------------------------------------------------
 
 Select "New use case" from the "New" menu to create a use case.
@@ -311,6 +311,8 @@ usecase to be attached to the requirement.
 You also can attach a new usecase to a requirement if you select the requirement in the tree view and issue
 the "New Usecase" menu command. The new usecase becomes automatically attached to the selected 
 requirement.
+
+Usacases may be linked to features too. This is done the same way as for requirements.
 
 The usecase history works the same way as the `feature history`_, see above.
 
@@ -354,35 +356,84 @@ The testcase history works the same way as the `feature history`_, see above.
 
 Create test suites and attach test cases
 ----------------------------------------
-Test suites are simply collections of test cases. Attributes of a test suite are Title, ID, Description,
-execution order of test cases and of course a list of test cases.
-When creating a new test suite with either menu command "New testsuite" or toolbar button 
-|new_testsuite_btn| a list with all test  cases is shown. You may check any test case that should be 
-in the test suite.
+Test suites are simply collections of test cases. Here are the data fields of a test suite:
 
-Test suites are important for the testrunner_ program, because *testrunner* allows 'execution'
-of all test cases in a test suite.
+    +-----------------+----------------------------------------------------------------------------+
+    | Title           | Title or name of the testsuite                                             |
+    +-----------------+----------------------------------------------------------------------------+
+    | Description     | Description of the testsuite                                               |
+    +-----------------+----------------------------------------------------------------------------+
+    | Execution order | Comma seperated list with ID's of all testcases in testsuite defining      |
+    |                 | the order in which testcases should be executed.                           |
+    |                 | If no order is required this field may be empty.                           |
+    +-----------------+----------------------------------------------------------------------------+
+    | Testcase list   | Testcases belonging to the testsuite                                       |
+    +-----------------+----------------------------------------------------------------------------+
+    
+
+When creating a new test suite with either menu command "New testsuite" or toolbar button 
+|new_testsuite_btn| a list with all currently defined testcases is shown. You may check any testcase 
+that should be in the testsuite.
+
+A testsuite is the basic input for the testrunner_ program, because |testrunner| allows 'execution'
+of all testcases in a testsuite.
 
 
 Adding text sections and glossary entries
 -----------------------------------------
+
 Adding text sections and glossary entries works quite the same as for other artefacts.
 
 For new text sections select "New text section" from the "New menu" or press the corresponding 
-toolbar button |new_textsection_btn|. As a special feature of text sections you can edit the order of 
+toolbar button |new_textsection_btn|. A text section has the data fields
+
+    +-----------------+----------------------------------------------------------------------------+
+    | Title           | Title or header of the text section                                        |
+    +-----------------+----------------------------------------------------------------------------+
+    | Content         | Content of the text section                                                |
+    +-----------------+----------------------------------------------------------------------------+
+    | Level           | Position of text section within all text sections                          |
+    +-----------------+----------------------------------------------------------------------------+
+
+
+As a special feature of text sections you can edit the order (level) of 
 text sections. Select the "Text sections" icon in the tree view and press the button "Edit order"
 below the list of text sections. An editor will pop up where you can shuffle around the sections.
 
-Adding glossary entries could be done by selecting "New glossary entry" from the "New" menu.
-A toolbar button is not available. Instead of that there is a "Add" button shown at the end 
-of the glossary list if you highlight "Glossary" in the tree view.
+Adding glossary entries could be done by selecting "New glossary entry" from the "New" menu or with
+the button |new_glossaryentry_btn| from the toolbar.
+A glossary entry has the fields 
+
+    +-----------------+----------------------------------------------------------------------------+
+    | Term            | Term or abbreviation to explain                                            |
+    +-----------------+----------------------------------------------------------------------------+
+    | Description     | Description of the term or abbreviation                                    |
+    +-----------------+----------------------------------------------------------------------------+
 
 
 Deleting artefacts
 ------------------
-You may delete any artefact using the toolbar button |del_af_btn|, the menu command "Delete artefact"
+
+You may delete a selected artefact using the toolbar button |del_af_btn|, the menu command "Delete artefact"
 from the "Edit" menu or simply with the Del key. Actually the artefact is not deleted but goes
 to the trash. An artefact could be restored by double clicking it in the corresponding view of the trash.
+
+  |screenshot_trash|
+  
+.. |screenshot_trash| image:: images/screenshot_trash.png
+
+Deleting and restoring artefacts has to be confirmed. If this becomes annoying you may switch off 
+the confirmation dialog for the rest of the current session:
+
+  |screenshot_confirm_delete|
+  
+.. |screenshot_confirm_delete| image:: images/screenshot_confirm_delete.png
+
+Before the artefact goes to the trash or is restored from the trash you may enter a changelog message:
+
+  |screenshot_enter_changelog|
+  
+.. |screenshot_enter_changelog| image:: images/screenshot_enter_changelog.png
 
 Intentionally there is now way to empty the trash, so no artefact could get lost.
 
