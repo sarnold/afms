@@ -34,7 +34,7 @@ Artefact Management System AFMS
 :Revision: $Rev$
 :Release:
 :Copyright: |author|, 2008
-:Homepage: http://sourceforge.net/projects/afms/
+:Download: http://sourceforge.net/projects/afms/
 
 ----
 
@@ -56,7 +56,7 @@ listed above the afeditor_ supports simple text sections and a glossary.
 The afeditor_ allows to export artefacts in either HTML or XML format.
 
 The program testrunner_ is used to manually "execute" test cases organized in a test suite
-and to log the test results.
+and to log the test results. Automatic execution is supported when scripts are used in test cases.
 
 The AFMS programs are implemented in Python_ using wxPython_ for the graphical user interfaces.
 Furthermore the `docutils package <http://docutils.sourceforge.net/>`_ is required.

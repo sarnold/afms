@@ -40,7 +40,11 @@ setup(
     console = [{'script': 'afexporthtml.py', 'icon_resources': [(1, "icons/applications-system.ico")]}, 
                {'script': 'afexportxml.py',  'icon_resources': [(1, "icons/applications-system.ico")]}, 
                {'script': 'trexporthtml.py', 'icon_resources': [(1, "icons/applications-system.ico")]}, 
-               {'script': 'trexportxml.py',  'icon_resources': [(1, "icons/applications-system.ico")]}],
+               {'script': 'trexportxml.py',  'icon_resources': [(1, "icons/applications-system.ico")]},
+               {'script': 'afarchivetodb.py','icon_resources': [(1, "icons/applications-system.ico")]},
+               {'script': 'afdbtoarchive.py','icon_resources': [(1, "icons/applications-system.ico")]},
+               
+               ],
     data_files = data_files,
     options = {
         "py2exe":{
