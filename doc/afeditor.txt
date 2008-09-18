@@ -111,7 +111,8 @@ Open an existing product database
 
 An existing product database can be opened with the menu command "Open product" from the file menu,
 the shortcut key Ctrl-O or the toolbar button |open_product_btn|.
-You can als drag a database file and drop it in the tree view panel to get it opened.
+You can als drag a database file and drop it in the tree view panel to get it opened. 
+A list with recently opened files is available to the "File" menu.
 
 
 Add features to the product
@@ -372,8 +373,8 @@ Test suites are simply collections of test cases. Here are the data fields of a 
     
 
 When creating a new test suite with either menu command "New testsuite" or toolbar button 
-|new_testsuite_btn| a list with all currently defined testcases is shown. You may check any testcase 
-that should be in the testsuite.
+|new_testsuite_btn| or editing an existing testsuite a list with all currently defined testcases 
+is shown. You may check any testcase that should be in the testsuite. 
 
 A testsuite is the basic input for the testrunner_ program, because |testrunner| allows 'execution'
 of all testcases in a testsuite.
@@ -399,6 +400,11 @@ toolbar button |new_textsection_btn|. A text section has the data fields
 As a special feature of text sections you can edit the order (level) of 
 text sections. Select the "Text sections" icon in the tree view and press the button "Edit order"
 below the list of text sections. An editor will pop up where you can shuffle around the sections.
+The level defines the position of the text sections items in the tree view and in 
+`the HTML report`__.
+
+__ export_
+
 
 Adding glossary entries could be done by selecting "New glossary entry" from the "New" menu or with
 the button |new_glossaryentry_btn| from the toolbar.
@@ -438,34 +444,56 @@ Before the artefact goes to the trash or is restored from the trash you may ente
 Intentionally there is now way to empty the trash, so no artefact could get lost.
 
 
-Export artefacts in HTML or XML format
+.. _export:
+
+Export artefacts to HTML or XML format
 --------------------------------------
+
 You can export all artefacts of a product into a HTML or XML report file.
-XML reports only contains the artefacts. HTML reports contains some additional problem analysis:
+XML reports only contains the artefacts and the relations between artefacts. 
+
+HTML reports contains some additional problem analysis:
 
 * Features with no requirements attached
 * Requirements with no test cases attached
-* Use cases without related requirements
+* Use cases without related features or requirements
 * Test cases without related requirements
 * Test cases not in a test suite 
 * Test suites without test cases
 
+For HTML reports you may configure a cascading stylesheet to be included in the report
+in the dialog opened by the menu item "Settings/General". There you also can select to 
+open the report after creation in the default browser.
+
+In the same dialog you may configure a XSL stylesheet to be included in the XML report.
+And again you also can select to open the report after creation in the default viewer.
+
 To create the report use the menu commands "Export as HTML" or "Export as XML" from the "File" menu.
 
 Report creation could also be done using the standalone scripts
-*afexporthtml.py* and *afexportxml.py*.
+*afexporthtml.py* and *afexportxml.py*. In the Win32 binary release these scripts are available 
+as exexutables *afexporthtml.exe* and *afexportxml.exe*. Call them from the command line
+with the ``--help`` flag to see how to call the scripts.
+
+.. hint:: The HTML report creates pure XHTML. So if you use HML markup in the multiline text fields
+          you have to use XHTML too. Otherwise you have to expect error messages from your browser.
 
 
 Import artefacts from another database
 --------------------------------------
 Importing artefacts is quite easy. After issuing the command "Import" from the "File" menu you can select 
-the database file with the artefacts to import. After this a dialog with one tab for each kind of arefact 
+the database file with the artefacts to import. After this a dialog with one tab for each kind of artefact 
 is shown. Each tab contains a list with corresponding artefacts and you can check the artefacts to be 
 imported.
 
+  |screenshot_import|
+  
+.. |screenshot_import| image:: images/screenshot_import.png
+
 On top of the dialog there is a checkbox "Select related artefacts automatically". If it is checked
-and you check for example a requiremt to be imported, then all test cases and use cases related 
-to that requirement are checked too.
+and you check for example a requirement to be imported, then all test cases and use cases related 
+to that requirement are checked and subsequently imported too.
+
 
 .. _`filter`:
 
@@ -475,17 +503,18 @@ Pressing the botton "Filter" in the bottom panel expands or collapses the filter
 
 .. image:: images/screenshot_filterpanel.png
 
-Filters are specific for each artefact. The image above shows the filter window for use cases.
+Filters are specific for each kind of artefact. The image above shows the filter window for use cases.
 There are 3 types of filter settings:
 
 * Filter those artefacts where text fields fulfills a certain condition. In the example above only 
-  those use cases are shown where the text fileds 'Main scenario' or 'Alt scenario' contains 
+  those use cases are shown where the text fields 'Main scenario' or 'Alt scenario' contains 
   the string 'Save'. Other available conditions are for example "doesn't contain the word" or 
   "matches the regexp" (regular expression).
 * Filter those artefacts having the selected properties, i.e. where 'Priority' is "Essential' or 'Expected'.
 * Filter artefacts changed within a certain time intervall by a certain user.
 
 After changing the filter settings the button 'Apply' makes the filter to come into effect.
+Only artefacts passing the filter are shown in the tree view and the list views.
 The button 'Reset' clears all the the filter fields and switches filtering off.
 
 
@@ -508,7 +537,20 @@ Of course archives could be used to import and export from and to various other 
 
 Creating an archive and converting an archive to a database 
 may also be done using the standalone scripts 
-*afarchivetodb.py* and *afdbtoarchive.py*.
+*afarchivetodb.py* and *afdbtoarchive.py*. For the Win32 release the corresponding 
+executables are available.
+
+
+Statistics for the current artefact database
+---------------------------------------------
+
+
+Settings for |afeditor|
+-----------------------
+
+
+Topics in the help menu
+-----------------------
 
 
 .. _`shortcut keys`:

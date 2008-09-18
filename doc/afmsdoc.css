@@ -110,3 +110,14 @@ DIV.nav
    border-bottom    : 1px solid #84B0C7;
 }
 
+p.admonition-title {
+	font-weight   : bold;
+	margin-bottom : 0;
+}
+
+DIV.hint p.last {
+	font-style    : oblique ;
+	padding-left  : 20px;
+	margin-top    : 0;
+}
+
