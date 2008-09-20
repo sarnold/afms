@@ -88,7 +88,7 @@ class trModel():
         logging.debug("trmodel.requestNewTestrun(%s, ...)" % path)
         if os.path.exists(self.testrunfilename):
             os.remove(self.testrunfilename)
-        self.connection = sqlite3.connect(self.testrunfilename)
+        self.connection = sqlite3.connect(self.testrunfilename.encode('utf-8'))
         c = self.connection.cursor()
         c.execute('''create table testrun (property text, value text);''')
         c.execute("insert into testrun values ('product_title', ?);", (product_info["title"],))
@@ -133,7 +133,7 @@ class trModel():
         self.testrunfilename = path
         os.chdir(self.currentdir)
         logging.debug("trmodel.requestOpenProduct(%s)" % path)
-        self.connection = sqlite3.connect(self.testrunfilename)
+        self.connection = sqlite3.connect(self.testrunfilename.encode('utf-8'))
 
 
     def getTestcaseOverviewList(self):

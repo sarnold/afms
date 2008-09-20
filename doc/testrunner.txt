@@ -34,29 +34,83 @@ AFMS: Short Manual for testrunner
 
 ----
 
-Overview screenshot
--------------------
+Overview
+--------
+
+|testrunner| is a tool to run testcases in a testsuite created with |afeditor|.
+Testcases are run either by performing the test steps manually or by executing a test script.
+If a testcase has a script you may execute the script in |testrunner|. Output of the script
+is captured and the test result is set to "fail" if the return value of the script is 
+not 0.
+Additionally |testrunner| is able to execute the scripts of all testcases having one in a 
+single run. Again, the output of each script is captured and the test result is set according to 
+the return value of the script.
+
+Here is a screenshot of the |testrunner| main window.
+
 .. image:: images/screenshot_tr_overview.png
+
+The left panel gives an overwiew about testcases and the execution status.
+In the mid panel the data of the selected testcase is shown. The right panel
+contains the result or status of the selected testcase.
+
+Starting |testrunner|
+---------------------
+
+You may start |testrunner| from the command line calling "testrunner.py". For Microsoft Windows, 
+if you don't like the console, you may run |testrunner| by double clicking the file 
+``testrunner.pyw`` in the explorer window. If you have downloaded the Win32 binary release simply
+execute ``testrunner.exe``.
+
+When running from command line you may enter several command line options. Type::
+
+    testrunner --help
+
+to see the available options.
 
 
 Create a new test run
 ---------------------
-You may start *testrunner* from the shell calling "testrunner.py". For Microsoft Windows, 
-you may run "testrunner.pyw" if you don't like the console.
 
-Select "New test run" from the "File" menu to create a new test run. 
+Select "New test run" from the "File" menu, press "Ctrl-N" or press the button
+|new_product_btn| in the toolbar to create a new test run. 
 A wizard will guide you through the four required steps:
 
 #. Select the database with the artefacts of the software product
-#. Select the test suite which should be run
+#. Select the test suite containing the testcases
 #. Enter description of the test run (i.e. release information) and the name of the tester
 #. Enter the filename to save the test run to
+
+After that a database file is created containing a **copy** of the testsuite and the testcases,
+the product information from the artefact database and the description of the test run.
+Testcases may now be executed and the test results will be stored in the database.
 
 
 Execute test cases
 ------------------
+
 To 'execute' a test case you simply have to activate the test case in the list 
-i.e. with a double click. A dialog opens where you can enter the test result.
+i.e. with a double click. A dialog opens with testcase data (read only) and inputs for 
+the test result.
+
+  |screenshot_testrunner_execdialog|
+  
+You have to select the test result, either "FAIL", "PASS' or "SKIP".
+For a failed test you must enter a action, that means what has been done 
+in reponse to the failure. A bug ID or bug report URL may be entered here for example.
+Any additional information can be saved in the "Remark" field. A time stamp of the test execution
+is captured automatically.
+
+If the testcase has a script you can execute it by clicking the label "Script URL".
+The output of the script is written to the "Remark" field. If the script returns the value 0 the
+test result is set to "PASS", otherwise it is is set to "FAIL".
+The dialog does not close after script execution, so you may edit all fields as required.
+
+.. |screenshot_testrunner_execdialog| image:: images/screenshot_testrunner_execdialog.png
+
+
+Execute scripts of all testcases having a script
+-------------------------------------------------
 
 
 Pausing a test run
@@ -69,7 +123,7 @@ Abort test run
 --------------
 Choose the menu item "Cancel current test run" from the "Test" menu.
 After entering the reason for cancelation all pending test cases will be marked as skipped.
-and the remark field will show the ´reason for cancelation.
+and the remark field will show the reason for cancelation.
 
 
 Query information about a test run

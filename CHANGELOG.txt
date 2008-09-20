@@ -28,6 +28,9 @@ New features
 
 * Added a menu item Help/Feedback with links to bug tracker, feature request tracker and so on.
 
+* In error messages dialogs due to Python exceptions the complete tracelog is shown. This will allow 
+  better support.
+
 
 Changes
 ~~~~~~~
@@ -51,6 +54,9 @@ Bug fixes
 ~~~~~~~~~  
 * Conversion from XML archive file to database with afarchivetodb.py now works properly.
   Added a final commit statement to avoid an empty usecase table in the database.
+  
+* Databases with a filename containing non ascii characters (e.g. german umlaut) may now be created 
+  and opened without an error message.
   
 
 ===============================

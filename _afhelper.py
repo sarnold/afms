@@ -21,7 +21,7 @@
 
 # $Id$
 
-import os, sys
+import os, sys, traceback
 if __name__=="__main__":
     import sys, gettext
     basepath = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -32,12 +32,43 @@ import wx
 from _afchangelogentryview import *
 
 
+class ExceptionViewDialog(wx.Dialog):
+    def __init__(self, parent, title, briefmsg, detailedmsg):
+        wx.Dialog.__init__(self, parent, id=-1, title=title, style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER )
+        st = wx.StaticText(self, label=briefmsg)
+        font = st.GetFont()
+        font.SetWeight(wx.FONTWEIGHT_BOLD)
+        st.SetFont(font)
+        tb = wx.TextCtrl(self, -1, detailedmsg, style=wx.TE_MULTILINE | wx.TE_READONLY );
+        bmp = wx.ArtProvider.GetBitmap(wx.ART_ERROR)
+        sb = wx.StaticBitmap(self, -1, bmp)
+        
+        hsizer = wx.BoxSizer(wx.HORIZONTAL)
+        hsizer.Add(sb, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL , 5)
+        hsizer.Add(st, 1, wx.ALL | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL , 5)
+        
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(hsizer, 0, wx.ALL, 5)
+        sizer.Add(tb, 1, wx.ALL|wx.EXPAND, 5)
+        
+        btnsizer = wx.StdDialogButtonSizer()
+        btn = wx.Button(self, wx.ID_OK)
+        btnsizer.AddButton(btn)
+        btnsizer.Realize()
+        sizer.Add(btnsizer, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+
+        self.SetSizer(sizer)
+
+
 def ExceptionMessageBox(exceptiondata, title="Exception"):
     """exceptiondata is tuple (exc_type, exc_value, exc_traceback) as returned from
     sys.exc_info()
     """
-    wx.MessageBox("Type: %s\nValue: %s" % exceptiondata[0:2], title, wx.OK|wx.ICON_ERROR)
-
+    brief = ''.join(traceback.format_exception_only(exceptiondata[0], exceptiondata[1]))
+    details = ''.join(traceback.format_exception(exceptiondata[0], exceptiondata[1], exceptiondata[2]))
+    dlg = ExceptionViewDialog(None, title, brief, details)
+    dlg.ShowModal()
+    
 
 class DontAnnoyYesNoDialog(wx.Dialog):
     def __init__(self, message, title=""):

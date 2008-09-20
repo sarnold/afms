@@ -117,7 +117,8 @@ p.admonition-title {
 
 DIV.hint p.last {
 	font-style    : oblique ;
-	padding-left  : 20px;
+	padding-left  : 60px;
 	margin-top    : 0;
+    background-image:url(graphics/note.png); 
+    background-repeat:no-repeat;
 }
-

@@ -48,7 +48,7 @@ Overview
 
 In addition to these artefacts |afeditor| supports plain text sections and a glossary.
 
-Here is a screenshot of the afeditor main window.
+Here is a screenshot of the |afeditor| main window.
 
     |screenshot_overview|
     
@@ -71,10 +71,12 @@ are active. For example if the testcases are filtered the indicator "TC" turns o
 
 Actions in the |afeditor| are performed by selecting `menu items`_, pressing `toolbar buttons`_
 or using some `shortcut keys`_.
+To edit an existing artefact either activate it in the tree view or in the list view (i.e. double click the artefact).
 
 
 Starting |afeditor|
 -------------------
+
 You may start |afeditor| from the command line calling "afeditor.py". For Microsoft Windows, 
 if you don't like the console, you may run |afeditor| by double clicking the file 
 ``afeditor.pyw`` in the explorer window. If you have downloaded the Win32 binary release simply
@@ -344,6 +346,9 @@ Test cases have the following data fields [#readyset]_:
     | Notes and Questions    | Notes, hints and questions            |
     +------------------------+---------------------------------------+
 
+.. hint:: It is recommended to enter a script file name relative to the path of the database.
+          This allows to relocate your stuff more easier.
+
 Similar to usecases the tab "Related requirements" shows the requirements to which the testcase belongs to.
 To edit this list, you have to edit each requirement, select the "Attached testcases" tab and check each
 testcase to be attached to the requirement.
@@ -544,13 +549,51 @@ executables are available.
 Statistics for the current artefact database
 ---------------------------------------------
 
+Select "Statistics" from the "File" menu to bring up the statistics for the current database.
+
+  |screenshot_statistics|
+  
+The dialog shows the number and ID's of
+
+    * features not linked to requirements
+    * requirements having no testcases
+    * testcases not belonging to requirements
+    * testcases not belonging to a testsuite
+    * empty testsuites
+    
+Additionally the count of each artefact kind is shown.
+
+
+.. |screenshot_statistics| image:: images/screenshot_statistics.png
+
 
 Settings for |afeditor|
 -----------------------
 
+From the "Settings/General" menu you may open the settings dialog.
+
+  |screenshot_settings|
+
+.. |screenshot_settings| image:: images/screenshot_settings.png
+
 
 Topics in the help menu
 -----------------------
+
+In the help menu you can open the "About" dialog and the "Feedack" dialog.
+The "About" dialog gives informations about the programm, license issues and 
+developers of the program.
+
+The "Feedback" dialog gives some hints about how to report bugs or how to 
+request for new features. When clicking the links in the message window 
+the URL's will be opended in your default browser.
+
+  |screenshot_about|  |screenshot_feedback|
+
+.. |screenshot_about| image:: images/screenshot_about.png
+.. |screenshot_feedback| image:: images/screenshot_feedback.png
+    :align: top
+
 
 
 .. _`shortcut keys`:
