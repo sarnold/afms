@@ -143,7 +143,7 @@ class afModel(object):
         logging.debug("afmodel.(%s)" % path)
         if os.path.exists(self.productfilename):
             os.remove(self.productfilename)
-        self.connection = sqlite3.connect(self.productfilename)
+        self.connection = sqlite3.connect(self.productfilename.encode('utf-8'))
         self._InitFunctions()
         c = self.connection.cursor()
         c.execute('''create table product (property text, value text);''')
@@ -196,8 +196,8 @@ class afModel(object):
 
         self.productfilename = path
         os.chdir(self.currentdir)
-        logging.debug("afmodel.requestOpenProduct(%s)" % path)
-        self.connection = sqlite3.connect(self.productfilename)
+        logging.debug("afmodel.requestOpenProduct(%s)" % self.productfilename)
+        self.connection = sqlite3.connect(self.productfilename.encode('utf-8'))
         self._InitFunctions()
         c = self.connection.cursor()
         c.execute('create temporary table lastchanges (afid integer, aftype integer, changetype integer, date text, user text, description text)')
