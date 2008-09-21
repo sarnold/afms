@@ -56,12 +56,12 @@ class trExportXML(afexportxml.afExportXML):
 
 
     def renderTestrunInfo(self):
-        infos = self.model.getInfo()
-        labels = ("product_title", "creation_date", "description", "tester", "af_database",
-                  "testsuite_id", "testsuite_title", "testsuite_description", "testcase_order")
+        info = self.model.getInfo()
         node = self._createElement('testruninfo')
-        for label, info in zip(labels, infos):
-            node.appendChild(self._createTextElement(label, info))
+        for key in ("product_title", "description", "testsuite_description"):
+            node.appendChild(self._render(info[key], enclosingtag=key))
+        for key in ("creation_date", "tester", "afdatabase", "testsuite_id", "testsuite_title", "testsuite_execorder"):
+            node.appendChild(self._createTextElement(key, info[key]))
         return node
 
 
@@ -92,10 +92,13 @@ class trExportXML(afexportxml.afExportXML):
             for tc_id in id_list:
                 testcase = self.model.getTestcase(tc_id)
                 basedata = testcase.getPrintableDataDict()
-                tcnode = self._createElement('testcase')
+                tcnode = self._createElement('testcase', {'ID': str(tc_id)})
                 subnode.appendChild(tcnode)
-                for key in testcase.keys():
-                    tcnode.appendChild(self._createTextElement(key, str(basedata[key])))
+                for key in ('action', 'testremark'):
+                    tcnode.appendChild(self._render(basedata[key], enclosingtag=key))    
+                for key in ('testresult','timestamp'):
+                    tcnode.appendChild(self._createTextElement(key, basedata[key]))
+                self._renderTestcaseBasedata(tcnode, basedata)
         return node
 
 

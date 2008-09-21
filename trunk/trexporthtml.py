@@ -67,14 +67,15 @@ class trExportHTML(afexporthtml.afExportHTML):
 
 
     def renderTestrunInfo(self):
-        infos = self.model.getInfo()
+        info = self.model.getInfo()
         labels = (_("Product title"), _("Creation date"), _("Description"), _("Tester"), _("AF Database"),
                   _("Test suite ID"), _("Test suite title"), _("Test suite description"), _("Test case order"))
+        keys = ("product_title", "creation_date", "description", "tester", "afdatabase", "testsuite_id", "testsuite_title", "testsuite_description", "testsuite_execorder")        
         node = self._createElement('div', {'class': 'testruninfo'})
         table = self._createElement('table', {'class': 'aftable'})
         node.appendChild(table)
-        for label, info in zip(labels, infos):
-            table.appendChild(self._createTableRow(label, self._render(info)))
+        for label, key in zip(labels, keys):
+            table.appendChild(self._createTableRow(label, self._render(info[key])))
         return node
 
 
@@ -127,8 +128,11 @@ class trExportHTML(afexporthtml.afExportHTML):
                 node.appendChild(self._createTextElement('h2', 'TC-%(ID)03d: %(title)s' % basedata))
                 table = self._createElement('table', {'class': 'aftable'})
                 node.appendChild(table)
-                for label, key in zip(testcase.labels()[2:], testcase.keys()[2:]):
-                    table.appendChild(self._createTableRow(label,      basedata[key]))
+                table.appendChild(self._createTableRow(_('Result'),      basedata['testresult']))
+                table.appendChild(self._createTableRow(_('Action'),      self._render(basedata['action'])))
+                table.appendChild(self._createTableRow(_('Remark'),      self._render(basedata['testremark'])))
+                table.appendChild(self._createTableRow(_('Time stamp'),  basedata['timestamp']))
+                self._renderTestcaseBasedata(table, basedata)
         return node
 
 
