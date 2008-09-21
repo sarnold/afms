@@ -24,6 +24,7 @@
 import time
 import wx
 from _afhtmlwindow import *
+from _aftextctrl import *
 import trconfig
 import afresource
 
@@ -45,10 +46,8 @@ class trTestresultPanel():
         else:
             self.result_edit = wx.ComboBox(parent, value="", choices=[], style=wx.CB_DROPDOWN | wx.CB_READONLY)
             self.timestamp_edit = wx.TextCtrl(parent, -1, "", style = wx.TE_READONLY)
-            self.action_edit = wx.TextCtrl(parent, -1, "", style = wx.TE_MULTILINE,
-                validator = TestresultValidator(self.result_edit.GetSelection, afresource.FAILED, _("Test failed.\nEnter action!")))
-            self.remark_edit = wx.TextCtrl(parent, -1, "", style = wx.TE_MULTILINE,
-                validator = TestresultValidator(self.result_edit.GetSelection, afresource.SKIPPED, _("Test skipped.\nEnter remark!")))
+            self.action_edit = afTextCtrl(parent, -1, validator = TestresultValidator(self.result_edit.GetSelection, afresource.FAILED, _("Test failed.\nEnter action!")))
+            self.remark_edit = afTextCtrl(parent, -1, validator = TestresultValidator(self.result_edit.GetSelection, afresource.SKIPPED, _("Test skipped.\nEnter remark!")))
             self.timer = wx.Timer(parent)
             self.timer.Start(1000)
             parent.Bind(wx.EVT_TIMER, self.OnTimer)

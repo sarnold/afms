@@ -16,6 +16,9 @@
           <a href="testrunner.html"><span>testrunner</span></a>
           </li>
           <li>
+          <a href="markup.html"><span>Text markup</span></a>
+          </li>          
+          <li>
           <a href="acknowledgement.html"><span>Acknowledgement</span></a>
           </li>
           <li>
