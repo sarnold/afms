@@ -508,13 +508,7 @@ class afExportHTML(afExportXMLBase):
 
         table = self._createElement('table', {'class': 'aftable'})
         node.appendChild(table)
-        table.appendChild(self._createTableRow(_('Version'),      basedata['version']))
-        table.appendChild(self._createTableRow(_('Purpose'),      self._render(basedata['purpose'])))
-        table.appendChild(self._createTableRow(_('Prerequisite'), self._render(basedata['prerequisite'])))
-        table.appendChild(self._createTableRow(_('Testdata'),     self._render(basedata['testdata'])))
-        table.appendChild(self._createTableRow(_('Steps'),        self._render(basedata['steps'])))
-        table.appendChild(self._createTableRow(_('Script URL'),   basedata['scripturl']))
-        table.appendChild(self._createTableRow(_('Notes'),        self._render(basedata['notes'])))
+        self._renderTestcaseBasedata(table, basedata)
 
         relatedrequirements = testcase.getRelatedRequirements()
         if len(relatedrequirements) == 0:
@@ -546,7 +540,17 @@ class afExportHTML(afExportXMLBase):
         else:
             attribute = {'name': 'TC-%(ID)03d' % testcase}
         return self._createTextElement('a', 'TC-%(ID)03d: %(title)s' % testcase, attribute)
-
+    
+    
+    def _renderTestcaseBasedata(self, table, basedata):
+        table.appendChild(self._createTableRow(_('Version'),      basedata['version']))
+        table.appendChild(self._createTableRow(_('Purpose'),      self._render(basedata['purpose'])))
+        table.appendChild(self._createTableRow(_('Prerequisite'), self._render(basedata['prerequisite'])))
+        table.appendChild(self._createTableRow(_('Testdata'),     self._render(basedata['testdata'])))
+        table.appendChild(self._createTableRow(_('Steps'),        self._render(basedata['steps'])))
+        table.appendChild(self._createTableRow(_('Script URL'),   basedata['scripturl']))
+        table.appendChild(self._createTableRow(_('Notes'),        self._render(basedata['notes'])))
+        
 
     def renderTestsuite(self, ID):
         testsuite = self.model.getTestsuite(ID)

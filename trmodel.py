@@ -213,12 +213,12 @@ class trModel():
     def getInfo(self):
         keys = ('product_title', 'creation_date', 'description', 'tester', 'afdatabase',
                 'testsuite_id', 'testsuite_title', 'testsuite_description', 'testsuite_execorder')
-        retval = []
+        retval = {}
         c = self.connection.cursor()
         for key in keys:
             query_string = "select value from testrun where property='%s'" % key
             c.execute(query_string)
-            retval.append(c.fetchone()[0])
+            retval[key] = c.fetchone()[0]
         return retval
 
 
@@ -232,7 +232,7 @@ class trModel():
 
     def getTestcaseIDs(self, testresult = afresource.FAILED):
         query_string = "select ID from testcases where testresult=%d" % testresult
-        return self.getData(query_string)
+        return [id[0] for id in self.getData(query_string)]
 
 
     def getTestsuiteExecOrder(self):

@@ -4,10 +4,10 @@ AFMS Release 0.x.x (2008xx-xx)
 
 New features
 ~~~~~~~~~~~~
-* Testcase extension: a new text field for a URL to a test script has been added
-  In testrunner this script could be executed from within the GUI. Test result is set
-  according to the return code of the script. Also in testrunner all or some scripts may
-  be executed in batch mode. 
+* Testcase extension: a new text field for a URL to a test script has been 
+  added. In testrunner this script could be executed from within the GUI. 
+  Test result is set according to the return code of the script. Also in 
+  testrunner all or some scripts may be executed in batch mode. 
 
 * Extended settings dialog: 
   configurable stylesheets for XML and HTML export
@@ -16,7 +16,8 @@ New features
 * Drag and drop support for afeditor and testrunner: 
   dropping a artefact file in the tree region opens the file
 
-* Statistics: simple artefact statistics available with menu item File/Statistics
+* Statistics: simple artefact statistics available with menu item 
+  File/Statistics
 
 * Recent files (afeditor and testrunner): 
   list of recently opened files is now provided in File menu
@@ -26,10 +27,11 @@ New features
   
 * Added Indent/Unindent command to popup menu of multiline text controls.  
 
-* Added a menu item Help/Feedback with links to bug tracker, feature request tracker and so on.
+* Added a menu item Help/Feedback with links to bug tracker, feature request 
+  tracker and so on.
 
-* In error messages dialogs due to Python exceptions the complete tracelog is shown. This will allow 
-  better support.
+* In error messages dialogs due to Python exceptions the complete tracelog is 
+  shown. This will allow better support.
 
 
 Changes
@@ -43,20 +45,26 @@ Changes
 
 * Improved display in list views for long strings with lots of tabs and newlines
 
-* "Version" field replaced by "Key" field: for features, requirements and testcases the field "Version" has been renamed
-  to "Key". When editing such an artefact the value of the key field could be selected from a drop down list.
-  Rationale: some users requested a kind of grouping for artefacts. This could be done by giving same keys to artefacts belonging
-  to the same group.
+* "Version" field replaced by "Key" field: for features, requirements and 
+  testcases the field "Version" has been renamed to "Key". When editing such 
+  an artefact the value of the key field could be selected from a drop down 
+  list.
+  Rationale: some users requested a kind of grouping for artefacts. This could 
+  be done by giving same keys to artefacts belonging to the same group.
   Note: in the databes the version field is used to hold the key information.
+
+* More documentation
 
 
 Bug fixes
 ~~~~~~~~~  
-* Conversion from XML archive file to database with afarchivetodb.py now works properly.
+* Conversion from XML archive file to database with afarchivetodb.py now works
+  properly.
   Added a final commit statement to avoid an empty usecase table in the database.
   
-* Databases with a filename containing non ascii characters (e.g. german umlaut) may now be created 
-  and opened without an error message.
+* Databases with a filename containing non ascii characters (e.g. german 
+  umlaut) may now be created and opened without an error message
+  (see http://bugs.python.org/issue2127 for details).
   
 
 ===============================

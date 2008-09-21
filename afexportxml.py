@@ -170,14 +170,19 @@ class afExportXML(afExportXMLBase):
         testcase = self.model.getTestcase(ID)
         basedata = testcase.getPrintableDataDict()
         node = self._createElement('testcase', {'ID': str(ID)})
-        node.appendChild(self._createTextElement('title',    basedata['title']))
-        node.appendChild(self._createTextElement('version',    basedata['version']))
-        for key in ('purpose', 'prerequisite', 'testdata', 'steps', 'scripturl', 'notes'):
-            node.appendChild(self._render(basedata[key], enclosingtag=key))
+        self._renderTestcaseBasedata(node, basedata)
         node.appendChild(self.renderRelatedArtefacts('relatedrequirements', testcase.getRelatedRequirements()))
         node.appendChild(self.renderRelatedArtefacts('relatedtestsuites', testcase.getRelatedTestsuites()))
         node.appendChild(self.renderChangelist(testcase))
         return node
+        
+        
+    def _renderTestcaseBasedata(self, node, basedata):
+        node.appendChild(self._createTextElement('title',    basedata['title']))
+        node.appendChild(self._createTextElement('version',    basedata['version']))
+        for key in ('purpose', 'prerequisite', 'testdata', 'steps', 'scripturl', 'notes'):
+            node.appendChild(self._render(basedata[key], enclosingtag=key))
+
 
 
     def renderUsecase(self, ID):
