@@ -29,7 +29,8 @@ import _afimages, _afsettingsview
 import trconfig, trinfo
 from _trtestcaseview import *
 from _trtestresultview import *
-import afresource
+import afresource, _afhelper
+
 
 class MainFrame(wx.Frame):
     """
@@ -150,6 +151,9 @@ class MainFrame(wx.Frame):
         menu.Append(901, _("About ..."), _("Info about this program"))
         self.Bind(wx.EVT_MENU, self.OnAbout, id = 901)
         menu.Enable(901, True)
+        menu.Append(902, _('Feedback ...'), _('How to give feedback about this program'))
+        self.Bind(wx.EVT_MENU, self.OnFeedback, id = 902)
+        menu.Enable(902, True)        
         menuBar.Append(menu, _("&Help"))
 
         self.SetMenuBar(menuBar)
@@ -201,6 +205,10 @@ class MainFrame(wx.Frame):
         info.Description = wordwrap(info.Description, 350, wx.ClientDC(self))
         info.License = wordwrap(info.Licence, 500, wx.ClientDC(self))
         wx.AboutBox(info)
+        
+    
+    def OnFeedback(self, evt):
+        _afhelper.ShowFeedbackDialog(self)
 
 
     def OnClose(self, evt):

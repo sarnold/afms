@@ -25,6 +25,7 @@
 .. |copy_artefact_btn| image:: images/24-tag-manager.png
 .. |paste_artefact_btn| image:: images/24-tag-add.png
 .. |delete_artefact_btn| image:: images/24-tag-remove.png
+.. |run_testcase_btn| image:: images/24-arrow-next.png
 
 .. |file_menu| image::  images/screenshot_filemenu.png
 .. |edit_menu| image::  images/screenshot_editmenu.png
@@ -32,8 +33,6 @@
 .. |settings_menu| image::  images/screenshow_settingsmenu.png
 .. |archive_menu| image::  images/screenshow_archivemenu.png
 .. |help_menu| image::  images/screenshow_helpmenu.png
-
-
 
 .. |del_af_btn| image:: images/24-tag-remove.png
 .. |author| unicode:: Achim U+00A0 K U+00F6 hler
