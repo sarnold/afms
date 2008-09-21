@@ -16,6 +16,9 @@
           <a href="testrunner.html"><span>testrunner</span></a>
           </li>
           <li>
+          <a href="markup.html"><span>Text markup</span></a>
+          </li>
+          <li>
           <a href="acknowledgement.html"><span>Acknowledgement</span></a>
           </li>
           <li>
@@ -99,7 +102,7 @@ button |run_testcase_btn| in the toolbar.
 A dialog opens with testcase data (read only) and inputs for 
 the test result.
 
-  |screenshot_testrunner_execdialog|
+  |screenshot_testrunner_execscriptdialog|
   
 You have to select the test result, either "FAIL", "PASS' or "SKIP".
 For a failed test you must enter a action, that means what has been done 
@@ -113,6 +116,7 @@ test result is set to "PASS", otherwise it is is set to "FAIL".
 The dialog does not close after script execution, so you may edit all fields as required.
 
 .. |screenshot_testrunner_execdialog| image:: images/screenshot_testrunner_execdialog.png
+.. |screenshot_testrunner_execscriptdialog| image:: images/screenshot_testrunner_execscriptdialog.png
 
 
 Batch execution of scripts 
@@ -123,6 +127,10 @@ testcases having a script. You can select which testcases to run and which testc
 to run. Pressing the "Run selected" button in the dialog runs all scripts and records 
 each script output and return value. In the action field of each executed testcase the message 
 "None (automated run)" is logged.
+
+  |screenshot_testrunner_batchdialog|
+
+.. |screenshot_testrunner_batchdialog| image:: images/screenshot_testrunner_batchdialog.png
 
 
 Pausing a test run

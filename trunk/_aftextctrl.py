@@ -39,9 +39,9 @@ class afTextCtrl(wx.TextCtrl):
     REST_TAG = '.. REST\n\n'
     HTML_TAG = '.. HTML\n\n'
     
-    def __init__(self, parent, ID=-1):
+    def __init__(self, parent, ID=-1, validator=None):
         style = wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB|wx.TE_RICH2
-        wx.TextCtrl.__init__(self, parent, ID, style=style)
+        wx.TextCtrl.__init__(self, parent, ID, style=style, validator=validator)
         font = self.GetFont()
         font.SetFamily(wx.FONTFAMILY_TELETYPE )
         self.SetFont(font)
