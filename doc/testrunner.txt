@@ -83,14 +83,20 @@ A wizard will guide you through the four required steps:
 
 After that a database file is created containing a **copy** of the testsuite and the testcases,
 the product information from the artefact database and the description of the test run.
+To view these informations later you can select the menu item "About current test run" from the 
+"Test" menu. 
+
 Testcases may now be executed and the test results will be stored in the database.
 
 
 Execute test cases
 ------------------
 
-To 'execute' a test case you simply have to activate the test case in the list 
-i.e. with a double click. A dialog opens with testcase data (read only) and inputs for 
+To 'execute' a test case you simply have to activate the pending test case in the list 
+i.e. with a double click. 
+Alternatively you can select the menu item "Run selected" from the "Test" menu or press the 
+button |run_testcase_btn| in the toolbar. 
+A dialog opens with testcase data (read only) and inputs for 
 the test result.
 
   |screenshot_testrunner_execdialog|
@@ -109,18 +115,26 @@ The dialog does not close after script execution, so you may edit all fields as 
 .. |screenshot_testrunner_execdialog| image:: images/screenshot_testrunner_execdialog.png
 
 
-Execute scripts of all testcases having a script
--------------------------------------------------
+Batch execution of scripts 
+--------------------------
+
+Selecting menu item "Run all scripted" from the "Test" menu opens a list dialog with all 
+testcases having a script. You can select which testcases to run and which testcases not 
+to run. Pressing the "Run selected" button in the dialog runs all scripts and records 
+each script output and return value. In the action field of each executed testcase the message 
+"None (automated run)" is logged.
 
 
 Pausing a test run
 ------------------
-All test results are saved immediately. Thus you can quit the application anytime and resume
-test execution later.
+
+All test results are saved immediately to the database. Thus you can quit the application 
+anytime and resume test execution later.
 
 
 Abort test run
 --------------
+
 Choose the menu item "Cancel current test run" from the "Test" menu.
 After entering the reason for cancelation all pending test cases will be marked as skipped.
 and the remark field will show the reason for cancelation.
@@ -128,23 +142,20 @@ and the remark field will show the reason for cancelation.
 
 Query information about a test run
 ----------------------------------
+
 Select menu item "About current test run" from the "Test" menu. This will give information about 
-the prduct, the test suite and the test run.
+the product, the test suite and the test run.
 
 
 Export test run as HTML or XML
 ------------------------------
+
 Select "Export as HTML" or "Export as XML" from the "File" menu.
-A test report will be saved in the selected format. For HTML output the cascading style sheet
-afmsreport.css will be used,
+A test report will be saved in the selected format. Style sheets for the reports 
+may be specified in the "Settings" dialog which is called from the menu item "Settings/General"
 
-
-Special features
-----------------
-If you are using `HTML Markup`_ in one of the attributes of a test case (i.e. in the 'Steps'
-field) you may enter a link like ``script://sample.sh``. 
-When clicking this link testrunner tries to execute the specified script in a shell.
-
+.. hint:: The HTML report creates pure XHTML. So if you use HML markup in the multiline text fields
+          you have to use XHTML too. Otherwise you have to expect error messages from your browser.
 
 
 

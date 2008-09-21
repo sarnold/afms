@@ -29,7 +29,7 @@ import _afimages
 from _afproducttree import *
 import afinfo
 import afconfig
-import afresource, _afsettingsview, _afhtmlwindow
+import afresource, _afsettingsview, _afhtmlwindow, _afhelper
 
 
 class MainFrame(wx.Frame):
@@ -383,21 +383,7 @@ class MainFrame(wx.Frame):
         
     
     def OnFeedback(self, evt):
-        dlg = wx.Dialog(self, -1, _('How to give feedback'), style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER )
-        size = dlg.GetSize()
-        dlg.SetMinSize(size)
-        size = (int(size[0]*1.5), int(size[1]*1.5))
-        dlg.SetSize(size)
-        info = wx.AboutDialogInfo()
-        info = afinfo.getInfo(info)
-        htmlwin = _afhtmlwindow.afHtmlWindow(dlg, -1)
-        htmlwin.SetPage(info.feedback)
-        sizer = dlg.CreateStdDialogButtonSizer(wx.OK)
-        vsizer = wx.BoxSizer(wx.VERTICAL)
-        vsizer.Add(htmlwin, 1, wx.EXPAND | wx.ALL, 5)
-        vsizer.Add(sizer, 0, wx.EXPAND | wx.ALL, 5)
-        dlg.SetSizer(vsizer)
-        dlg.ShowModal()
+        _afhelper.ShowFeedbackDialog(self)
 
 
     def OnSettings(self, evt):
