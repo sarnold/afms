@@ -45,7 +45,7 @@ class AFDB2XML(object):
         self.root = self.xmldoc.documentElement
         
     def run(self):
-        connection = sqlite3.connect(self.database_filename)
+        connection = sqlite3.connect(self.database_filename.encode('utf-8'))
         self.cursor = connection.cursor()
         # See http://www.sqlite.org/faq.html#q7 for details
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' and name not like 'sqlite%' ORDER BY name;")

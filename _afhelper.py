@@ -376,6 +376,12 @@ if __name__ == "__main__":
             folder = self.tofolder('/a/b')
             relfolder = getRelFolder(reffolder, folder)
             self.assertEqual(relfolder, self.tofolder('../'))
+            
+        def test6(self):
+            file = 'C:\\work\\projects\\afms\\sample\\image\\xxx.PNG'
+            reffolder = 'C:\\work\\projects\\afms\\sample'
+            afconfig.basedir = reffolder
+            self.assertEqual(getRelPath(file), 'image\\xxx.PNG')
 
 
     unittest.main()

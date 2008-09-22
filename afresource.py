@@ -98,7 +98,7 @@ IMG_WILDCARD = _('All image files (%(ext)s)|%(ext)s|') % {'ext' : '*.png;*.jpg;*
                _('JPEG files (%(ext)s)|%(ext)s|') % {'ext' : '*.jpg;*.jpeg'} +\
                _('PNG files (%(ext)s)|%(ext)s|') % {'ext' : '*.png'} +\
                _('GIF files (%(ext)s)|%(ext)s|') % {'ext' : '*.gif'} +\
-               _('All files (%(ext)s)|%(ext)s|') % {'ext' : '*.*'}
+               _('All files (%(ext)s)|%(ext)s') % {'ext' : '*.*'}
 
 _language = 'en'
 

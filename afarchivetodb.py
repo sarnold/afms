@@ -43,7 +43,7 @@ class AFXML2DB(object):
         self.dom = parse(self.xml_filename)
         if os.path.exists(self.database_filename):
             os.remove(self.database_filename)
-        connection = sqlite3.connect(self.database_filename)
+        connection = sqlite3.connect(self.database_filename.encode('utf-8'))
         self.cursor = connection.cursor()
         tablenodes = self.dom.getElementsByTagName('table')
         for tablenode in tablenodes:
