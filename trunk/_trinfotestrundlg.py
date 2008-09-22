@@ -41,19 +41,19 @@ class InfoTestrunDialog(wx.Dialog):
             statictext.append(st)
 
         edit = []
-        edit.append(wx.TextCtrl(self, -1, info[0], style = wx.TE_READONLY))
-        edit.append(wx.TextCtrl(self, -1, info[1], style = wx.TE_READONLY))
+        edit.append(wx.TextCtrl(self, -1, info['product_title'], style = wx.TE_READONLY))
+        edit.append(wx.TextCtrl(self, -1, info['creation_date'], style = wx.TE_READONLY))
         w = afHtmlWindow(self, -1)
-        w.SetValue(info[2])
+        w.SetValue(info['description'])
         edit.append(w)
-        edit.append(wx.TextCtrl(self, -1, info[3], style = wx.TE_READONLY))
-        edit.append(wx.TextCtrl(self, -1, info[4], style = wx.TE_READONLY))
-        edit.append(wx.TextCtrl(self, -1, info[5], style = wx.TE_READONLY))
-        edit.append(wx.TextCtrl(self, -1, info[6], style = wx.TE_READONLY))
+        edit.append(wx.TextCtrl(self, -1, info['tester'], style = wx.TE_READONLY))
+        edit.append(wx.TextCtrl(self, -1, info['afdatabase'], style = wx.TE_READONLY))
+        edit.append(wx.TextCtrl(self, -1, info['testsuite_id'], style = wx.TE_READONLY))
+        edit.append(wx.TextCtrl(self, -1, info['testsuite_title'], style = wx.TE_READONLY))
         w = afHtmlWindow(self, -1)
-        w.SetValue(info[7])
+        w.SetValue(info['testsuite_description'])
         edit.append(w)
-        edit.append(wx.TextCtrl(self, -1, info[8], style = wx.TE_READONLY))
+        edit.append(wx.TextCtrl(self, -1, info['testsuite_execorder'], style = wx.TE_READONLY))
 
         s = edit[0].GetSize()
         s[0] += 300

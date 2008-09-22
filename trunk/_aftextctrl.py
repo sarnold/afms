@@ -39,7 +39,7 @@ class afTextCtrl(wx.TextCtrl):
     REST_TAG = '.. REST\n\n'
     HTML_TAG = '.. HTML\n\n'
     
-    def __init__(self, parent, ID=-1, validator=None):
+    def __init__(self, parent, ID=-1, validator=wx.DefaultValidator):
         style = wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB|wx.TE_RICH2
         wx.TextCtrl.__init__(self, parent, ID, style=style, validator=validator)
         font = self.GetFont()
@@ -249,7 +249,7 @@ class afTextCtrl(wx.TextCtrl):
         if  dlgResult != wx.ID_OK: return
             
         # try to compute relative path
-        getRelPath(path)
+        path = getRelPath(path)
         
         if self.mode == afTextCtrl.MODE_HTML:
             self.WriteText('<p><img src="%s" /></p>' % path)
