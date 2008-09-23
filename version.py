@@ -21,4 +21,4 @@
 
 # $Id$
 
-VERSION = "0.x.0"
+VERSION = "0.5.0"
