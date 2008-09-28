@@ -40,7 +40,7 @@ class afChangelogEntryView(wx.Panel):
         else:
             sizer = wx.FlexGridSizer(3, 2, 10, 10)
             self.changelog_edit = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB)
-            self.changedate_edit = wx.TextCtrl(self, -1, "", style = wx.TE_READONLY)
+            self.changedate_edit = wx.TextCtrl(self, -1, time.strftime(afresource.TIME_FORMAT), style = wx.TE_READONLY)
             #TODO: think about where the user name should come from
             self.changeuser_edit = wx.TextCtrl(self, -1, afconfig.CURRENT_USER, style = wx.TE_READONLY)
             self.timer = wx.Timer(self)

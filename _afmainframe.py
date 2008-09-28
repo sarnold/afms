@@ -129,7 +129,7 @@ class MainFrame(wx.Frame):
         h = 30
         filterfootwin = wx.SashLayoutWindow(
                 parent, -1, wx.DefaultPosition, (200, h),
-                wx.NO_BORDER|wx.SW_3D
+                wx.NO_BORDER|wx.SW_3D, name='filterfootwin'
                 )
         filterfootwin.SetDefaultSize((1000, h))
         filterfootwin.SetMaximumSizeY(h)
@@ -161,7 +161,7 @@ class MainFrame(wx.Frame):
         h = 200
         bottomwin = wx.SashLayoutWindow(
                 parent, -1, wx.DefaultPosition, (parent.GetClientSize()[0], h),
-                wx.NO_BORDER|wx.SW_3D
+                wx.NO_BORDER|wx.SW_3D, name='bottomwin'
                 )
         bottomwin.SetMaximumSizeY(200)
         bottomwin.SetMinimumSizeY(h)
@@ -173,7 +173,7 @@ class MainFrame(wx.Frame):
         # A window to the left of the client window
         leftwin =  wx.SashLayoutWindow(
                 parent, -1, wx.DefaultPosition, (200, 30),
-                wx.NO_BORDER|wx.SW_3D
+                wx.NO_BORDER|wx.SW_3D, name='leftwin'
                 )
         leftwin.SetDefaultSize((self.config.ReadInt("sash_pos_x", 250), 1000))
         leftwin.SetMaximumSizeX(250)
@@ -189,7 +189,7 @@ class MainFrame(wx.Frame):
         winids.append(bottomwin.GetId())
 
         # will occupy the space not used by the Layout Algorithm
-        self.rightWindow = wx.Panel(parent, -1, style=wx.SUNKEN_BORDER)
+        self.rightWindow = wx.Panel(parent, -1, style=wx.SUNKEN_BORDER, name='rightWindow')
 
         self.Bind(wx.EVT_SASH_DRAGGED_RANGE, self.OnSashDrag, id=min(winids), id2=max(winids))
         self.Bind(wx.EVT_SIZE, self.OnSize)
