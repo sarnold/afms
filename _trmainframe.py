@@ -39,8 +39,12 @@ class MainFrame(wx.Frame):
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, -1, title)
         self.config = wx.Config.Get()
-        self.SetSize((self.config.ReadInt("window_size_x", 800), self.config.ReadInt("window_size_y", 600)))
-        self.SetPosition((self.config.ReadInt("window_pos_x", -1), self.config.ReadInt("window_pos_y", -1)))
+        window_size_x = max(self.config.ReadInt("window_size_x", 800), 800)
+        window_size_y = max(self.config.ReadInt("window_size_y", 600), 600)
+        window_pos_x = max(self.config.ReadInt("window_pos_x", -1), -1)
+        window_pos_y = max(self.config.ReadInt("window_pos_y", -1), -1)
+        self.SetSize((window_size_x, window_size_y))
+        self.SetPosition((window_pos_x, window_pos_y))
         self.SetMinSize((800,600))
 
         self.SetupStatusBar()

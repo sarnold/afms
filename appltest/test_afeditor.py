@@ -1,7 +1,8 @@
-# -*- coding: latin-1  -*-
+#!/usr/bin/python
+# -*- coding: utf-8  -*-
 
 # -------------------------------------------------------------------
-# Copyright 2008 Achim Köhler
+# Copyright 2008 Achim KÃ¶hler
 #
 # This file is part of AFMS.
 #
@@ -21,4 +22,13 @@
 
 # $Id$
 
-VERSION = "0.5.x"
+
+import unittest
+import test_afeditor_createartefacts, test_afeditor_verifyartefacts
+
+suite1 = test_afeditor_createartefacts.getSuite()
+suite2 = test_afeditor_verifyartefacts.getSuite()
+suite  = unittest.TestSuite([suite1, suite2])
+
+unittest.TextTestRunner(verbosity=2).run(suite)
+
