@@ -814,6 +814,8 @@ class MyApp(wx.App):
         uc_id = result[2]['ID']
         if (parent_id == "REQUIREMENTS"):
             self.model.addRequirementUsecaseRelation(item_id, uc_id)
+        elif (parent_id == "FEATURES"):
+            self.model.addFeatureUsecaseRelation(item_id, uc_id)
 
 
     def OnNewTestsuite(self, evt):

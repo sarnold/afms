@@ -22,26 +22,35 @@
 
 # $Id$
 
-import os.path, sys, time
+import os, os.path, sys, time, gettext
 import unittest, subunittest
 from pywinauto import application
 import afmstest
 from afmstest import afEditorTestHelper
+
+LOCALEDIR = os.path.join('..', 'locale')
+DOMAIN = "afms"
+gettext.install(DOMAIN, LOCALEDIR, unicode=True)
+t = gettext.translation(DOMAIN, LOCALEDIR, languages=['en'])
+t.install(unicode=True)
+sys.path.append('..')
+
+import afresource, afconfig
 
 
 class TestCreatedArtefacts(subunittest.TestCase):
             
     def test_0010_NumberOfArtefacts(self):
         """Check number of artefacts in database"""
-        self.assertEqual(helper.treeview.ItemCount(), 48)
+        self.assertEqual(helper.treeview.ItemCount(), 63)
     
         
     def test_0020_TextSectionList(self):
         """Inspect text sections list"""
         helper.treeview.Select((0,0))
-        nitems = helper.afeditor.leftwinListView.ItemCount()
+        nitems = helper.afeditorwin.leftwinListView.ItemCount()
         self.assertEqual(nitems, 5)
-        helper.afeditor.leftwinListView.Select(0)
+        helper.afeditorwin.leftwinListView.Select(0)
         coltypes = [{'type':int, 'key':'id'}, {'type':int, 'key':'level'}, {'type':unicode, 'key':'title'}]
         for actual, ref, cnt in zip(helper.readArtefactList(coltypes), helper.getTextSection(), helper.count(1)):
             self.assertEqual(actual['id'], cnt)
@@ -52,15 +61,39 @@ class TestCreatedArtefacts(subunittest.TestCase):
     def test_0030_GlossaryEntryList(self):
         """Inspect glossary entry list"""
         helper.treeview.Select((0,1))
-        nitems = helper.afeditor.leftwinListView.ItemCount()
+        nitems = helper.afeditorwin.leftwinListView.ItemCount()
         self.assertEqual(nitems, 5)
-        helper.afeditor.leftwinListView.Select(0)
+        helper.afeditorwin.leftwinListView.Select(0)
         coltypes = [{'type':int, 'key':'id'}, {'type':unicode, 'key':'term'}, {'type':unicode, 'key':'description'}]
         for actual, ref, id in zip(helper.readArtefactList(coltypes), helper.getGlossaryEntry(), helper.count(1)):
             self.assertEqual(actual['term'], ref['term'])
             # ignore ..REST\n\n at beginning and \n at end of ref string
             self.assertNotEqual(ref['description'].find(actual['description']), -1)
             self.assertEqual(actual['id'], id)
+            
+            
+    def test_0040_FeatureList(self):
+        "Inspect feature list"
+        helper.treeview.Select((0,2))
+        nitems = helper.afeditorwin.leftwinListView.ItemCount()
+        self.assertEqual(nitems, 5)
+        helper.afeditorwin.leftwinListView.Select(0)
+        coltypes = [{'type':int, 'key':'id'}, {'type':unicode, 'key':'title'}, {'type':unicode, 'key':'priority'},
+                    {'type':unicode, 'key':'status'}, {'type':unicode, 'key':'key'},
+                    {'type':unicode, 'key':'risk'}, {'type':unicode, 'key':'date'},
+                    {'type':unicode, 'key':'user'}, {'type':unicode, 'key':'description'}]
+        for actual, ref, id in zip(helper.readArtefactList(coltypes), helper.getFeature(), helper.count(1)):
+            self.assertEqual(actual['id'], id)
+            self.assertEqual(actual['title'], ref['title'])
+            self.assertEqual(actual['priority'], afresource.PRIORITY_NAME[ref['priority']])
+            self.assertEqual(actual['status'], afresource.STATUS_NAME[ref['status']])
+            self.assertEqual(actual['key'], ref['key'])
+            self.assertEqual(actual['risk'], afresource.RISK_NAME[ref['risk']])
+            self.assertEqual(type(time.strptime(actual['date'], afresource.TIME_FORMAT)), type(time.gmtime()))
+            self.assertEqual(actual['user'], afconfig.CURRENT_USER)
+            # ignore ..REST\n\n at beginning and \n at end of ref string
+            self.assertNotEqual(ref['description'].find(actual['description']), -1)
+
 
 
     def test_9999_tearDown(self):

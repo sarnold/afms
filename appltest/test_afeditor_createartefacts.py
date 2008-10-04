@@ -31,16 +31,46 @@ from afmstest import afEditorTestHelper
 
 class TestArtefactCreation(subunittest.TestCase):
 
-    def test_0000_ArtefactCreation(self):
-        """Creating artifacts"""
+    def test_0000_NumberOfArtefactsAtStart(self):
+        """Number of artefacts at start"""
         self.assertEqual(helper.treeview.ItemCount(), 16)
+        
+    def test_0010_EditProduct(self):
+        """Edit product"""
         helper.editProduct('Product title', '.. REST\n\nProduct description\n')
+        
+    def test_0020_AddTextSections(self):
+        "Add text sections"
         helper.addTextSections(5)
+        
+    def test_0030_AddGlossaryEntries(self):
+        "Add glossary entries"        
         helper.addGlossaryEntries(4)
+        
+    def test_0040_AddFeatures(self):
+        "Add features"        
         helper.addFeatures()
+        
+    def test_0050_AddRequirements(self):
+        "Add requirements"                
         helper.addRequirements()
-        self.assertEqual(helper.treeview.ItemCount(), 16+32)
-    
+        
+    def test_0060_AddUsecases(self):
+        "Add usecases"        
+        helper.addUsecases()
+        
+    def test_0070_AddTestcases(self):
+        "Add testcases"        
+        helper.addTestcases()
+        
+    def test_0080_AddTestsuites(self):
+        "Add testsuites"        
+        helper.addTestsuites()
+        
+    def test_0090_NumberOfArtefactsAtEnd(self):
+        """Number of artefacts at end"""        
+        self.assertEqual(helper.treeview.ItemCount(), 16+32+5+10)
+
     def test_9999_tearDown(self):
         """No messages on stdout and stderr"""
         helper.exitApp()
@@ -55,7 +85,7 @@ class TestSuite(subunittest.TestSuite):
             os.mkdir(afmstest.testdbdir)
         if os.path.exists(afmstest.testdbfile): 
             os.remove(afmstest.testdbfile)
-        helper = afEditorTestHelper(afmstest.EXECUTABLE, delay=0.01)
+        helper = afEditorTestHelper(afmstest.EXECUTABLE, delay=0.1)
         helper.newProduct(afmstest.testdbfile)
 
 
