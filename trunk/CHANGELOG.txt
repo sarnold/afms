@@ -1,4 +1,15 @@
 ===============================
+AFMS Release 0.5.x (2008-xx-xx)
+===============================
+
+Bug fixes
+~~~~~~~~~  
+* when a feature is selected (in tree or list) and the command
+  'New usecase' is issued, the new usecase now becomes attached 
+  to the selected feature. 
+
+
+===============================
 AFMS Release 0.5.0 (2008-09-23)
 ===============================
 
