@@ -67,10 +67,10 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
             self.effort_edit = wx.TextCtrl(panel1, -1, "", style = wx.TE_READONLY)
             self.category_edit = wx.TextCtrl(panel1, -1, "", style = wx.TE_READONLY)
             self.description_edit = afHtmlWindow(panel1, -1)
-            self.origin_edit = afHtmlWindow(panel2, -1)
+            self.origin_edit = afHtmlWindow(panel2, -1, name='origin_edit')
             (w, h) = self.origin_edit.GetSize()
             self.origin_edit.SetMinSize((w, 3*h))
-            self.rationale_edit = afHtmlWindow(panel2, -1)
+            self.rationale_edit = afHtmlWindow(panel2, -1, name='rationale_edit')
         else:
             self.title_edit = wx.TextCtrl(panel1, -1, "", validator = NotEmptyValidator())
             self.id_edit = wx.TextCtrl(panel1, -1, "", style = wx.TE_READONLY)

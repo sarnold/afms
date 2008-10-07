@@ -52,9 +52,9 @@ class afSimpleSectionNotebook(_afbasenotebook.afBaseNotebook):
             self.content_edit = afTextCtrl(panel)
             self.Bind(wx.EVT_TEXT_ENTER, self.EvtTextEnter, self.content_edit)
 
-        self.id_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
+        self.id_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY, name='id_edit')
         self.id_edit.Enable(False)
-        self.level_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
+        self.level_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY, name='level_edit')
         self.level_edit.Enable(False)
 
         edit = [self.title_edit, self.id_edit, self.level_edit, self.content_edit]

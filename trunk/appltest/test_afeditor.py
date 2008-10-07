@@ -24,11 +24,13 @@
 
 
 import unittest
-import test_afeditor_createartefacts, test_afeditor_verifyartefacts
+import test_afeditor_createartefacts, test_afeditor_verifyartefactlists, test_afeditor_verifyartefactcontents
 
-suite1 = test_afeditor_createartefacts.getSuite()
-suite2 = test_afeditor_verifyartefacts.getSuite()
-suite  = unittest.TestSuite([suite1, suite2])
+suitelist = []
+#suitelist.append(test_afeditor_createartefacts.getSuite())
+#suitelist.append(test_afeditor_verifyartefactlists.getSuite())
+suitelist.append(test_afeditor_verifyartefactcontents.getSuite())
+suite  = unittest.TestSuite(suitelist)
 
 unittest.TextTestRunner(verbosity=2).run(suite)
 

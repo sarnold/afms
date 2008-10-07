@@ -5,7 +5,7 @@ import time
 import subprocess, os.path, sys
 
 import pywinauto
-from pywinauto import application
+from pywinauto import application, clipboard
 from pywinauto.controls.win32_controls import EditWrapper
 from pywinauto.timings import Timings
 import pywinauto.timings as timing
@@ -87,8 +87,11 @@ class afEditorTestHelper(afTestHelper):
     
     def getTextSection(self, n=5):
         for i in range(n):
-            yield({'title'   : u'Section title %03d (ÄÖÜäöüß)' % i,
-                   'content' : u'.. REST\n\nContent of text section %03d (ÄÖÜäöüß)\n' % i})
+            yield({'title'    : u'Section title %03d (ÄÖÜäöüß)' % i,
+                   'content'  : u'.. REST\n\nContent of text section %03d (ÄÖÜäöüß)\n' % i,
+                   'r_content': u'\nContent of text section %03d (ÄÖÜäöüß) ' % i,
+                   'level'    : i+1,
+                   'id'       : i+1 })
         
         
     def addTextSections(self, n = 5):
@@ -108,8 +111,9 @@ class afEditorTestHelper(afTestHelper):
     
     def getGlossaryEntry(self, n=5):
         for i in range(n):
-            yield({'term'        : u'Glossary term %03d (ÄÖÜäöüß)' % i,
-                   'description' : u'.. REST\n\nDescription of glossary term %03d (ÄÖÜäöüß)\n' % i})
+            yield({'term'          : u'Glossary term %03d (ÄÖÜäöüß)' % i,
+                   'description'   : u'.. REST\n\nDescription of glossary term %03d (ÄÖÜäöüß)\n' % i,
+                   'r_description' : u'\nDescription of glossary term %03d (ÄÖÜäöüß) ' % i})
 
         
     def addGlossaryEntries(self, n = 5):
@@ -136,12 +140,13 @@ class afEditorTestHelper(afTestHelper):
         status   = (2, 1, 0, 2, 1)
         risk     = (4, 3, 2, 1, 0)
         for i in range(len(priority)):
-            yield({'title'       : u'Feature title %03d (ÄÖÜäöüß)' % i, 
-                   'description' : u'.. REST\n\nDescription of feature %03d (ÄÖÜäöüß)\n' % i, 
-                   'key'         : u'Key of feature %03d (ÄÖÜäöüß)' % i, 
-                   'priority'    : priority[i], 
-                   'status'      : status[i],
-                   'risk'        : risk[i]})
+            yield({'title'         : u'Feature title %03d (ÄÖÜäöüß)' % i, 
+                   'description'   : u'.. REST\n\nDescription of feature %03d (ÄÖÜäöüß)\n' % i,
+                   'r_description' : u'\nDescription of feature %03d (ÄÖÜäöüß) ' % i,
+                   'key'           : u'Key of feature %03d (ÄÖÜäöüß)' % i, 
+                   'priority'      : priority[i], 
+                   'status'        : status[i],
+                   'risk'          : risk[i]})
         
         
     def addFeatures(self):
@@ -178,22 +183,24 @@ class afEditorTestHelper(afTestHelper):
         category   = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
         for i in range(len(category)):
             data = {
-                'title'       : u'Requirement title %03d (ÄÖÜäöüß)' % i,
-                'description' : u'.. HTML\n\nDescription of requirement %03d (ÄÖÜäöüß)\n' % i,
-                'key'         : u'Key of requirement %03d (ÄÖÜäöüß)' % i, 
-                'priority'    : priority[i],
-                'status'      : status[i],
-                'complexity'  : complexity[i],
-                'assigned'    : u'Assignee %03d (ÄÖÜäöüß)' % i,
-                'effort'      : effort[i],
-                'category'    : category[i],
-                'origin'      : u'Requirement origin %03d (ÄÖÜäöüß)' % i,
-                'rationale'   : u'.. HTML\n\nRequirement rationale <b>%03d (ÄÖÜäöüß)</b>\n' % i,
-                'priority'    : priority[i],
-                'status'      : status[i],
-                'complexity'  : complexity[i],
-                'effort'      : effort[i],
-                'category'    : category[i]}
+                'title'         : u'Requirement title %03d (ÄÖÜäöüß)' % i,
+                'description'   : u'.. HTML\n\nDescription of requirement %03d (ÄÖÜäöüß)\n' % i,
+                'r_description' : u'Description of requirement %03d (ÄÖÜäöüß)' % i,
+                'key'           : u'Key of requirement %03d (ÄÖÜäöüß)' % i, 
+                'priority'      : priority[i],
+                'status'        : status[i],
+                'complexity'    : complexity[i],
+                'assigned'      : u'Assignee %03d (ÄÖÜäöüß)' % i,
+                'effort'        : effort[i],
+                'category'      : category[i],
+                'origin'        : u'Requirement origin %03d (ÄÖÜäöüß)' % i,
+                'rationale'     : u'.. HTML\n\nRequirement rationale <b>%03d (ÄÖÜäöüß)</b>\n' % i,
+                'r_rationale'   : u'Requirement rationale %03d (ÄÖÜäöüß)' % i,
+                'priority'      : priority[i],
+                'status'        : status[i],
+                'complexity'    : complexity[i],
+                'effort'        : effort[i],
+                'category'      : category[i]}
             yield(data)
         
     
@@ -344,7 +351,8 @@ class afEditorTestHelper(afTestHelper):
             data = {'title'        : u"Testsuite title %03d (ÄÖÜäöüß)" % i, 
                     'description'  : u"Testsuite description %03d (ÄÖÜäöüß)" %i,
                     'execorder'    : execorder[i],
-                    'testcasepos'  : testcasepos[i]}
+                    'testcasepos'  : testcasepos[i],
+                    'nbrtestcases' : len(testcasepos[i])}
             yield(data)
     
     
@@ -379,6 +387,11 @@ class afEditorTestHelper(afTestHelper):
             yield(item)
             
             
+    def getHTMLWindowContent(self, htmlwindow):
+        htmlwindow.TypeKeys('^A^C')
+        return clipboard.GetData()
+
+        
     def count(self, start=0, incr=1):
         cnt = start-incr
         while(True):
