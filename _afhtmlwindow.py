@@ -57,11 +57,12 @@ def render(text, maskspecialchars=True, enclosingtag='div'):
     
 
 class afHtmlWindow(html.HtmlWindow):
-    def __init__(self, parent, id, size=wx.DefaultSize, enablescriptexec=False):
+    def __init__(self, parent, id, size=wx.DefaultSize, enablescriptexec=False, name='htmlWindow'):
         self.watchdog = 0
         self.script_execution_enabled = enablescriptexec
         html.HtmlWindow.__init__(self, parent, id, size=size,
-            style=wx.NO_FULL_REPAINT_ON_RESIZE | wx.BORDER_STATIC)
+            style=wx.NO_FULL_REPAINT_ON_RESIZE | wx.BORDER_STATIC, name=name)
+        self.Bind(wx.EVT_CHAR, self.OnKeyChar)
         if "gtk2" in wx.PlatformInfo:
             self.SetStandardFonts()
 
@@ -73,6 +74,19 @@ class afHtmlWindow(html.HtmlWindow):
             #FIXME: consider other platforms
             pass
 
+    def OnKeyChar(self, event):
+        """
+        A key is pressed 
+        Ctrl-A        selects all 
+        """
+        keycode = event.GetKeyCode()
+        modifiers = event.GetModifiers()
+        if (keycode == 1) and (modifiers & wx.MOD_CONTROL != 0):
+            # Ctrl-A is pressed
+            self.SelectAll()
+        else:
+            event.Skip()
+        
     def _MakeLocalURL(self, url):
         logging.debug("_afhtmlwindows._MakeLocalURL(%s)" % url)
         lst = urlparse.urlsplit(url)

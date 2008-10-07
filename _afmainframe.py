@@ -193,7 +193,7 @@ class MainFrame(wx.Frame):
         winids.append(bottomwin.GetId())
 
         # will occupy the space not used by the Layout Algorithm
-        self.rightWindow = wx.Panel(parent, -1, style=wx.SUNKEN_BORDER, name='rightWindow')
+        self.rightWindow = wx.Panel(parent, -1, style=wx.SUNKEN_BORDER, name='rightPanel')
 
         self.Bind(wx.EVT_SASH_DRAGGED_RANGE, self.OnSashDrag, id=min(winids), id2=max(winids))
         self.Bind(wx.EVT_SIZE, self.OnSize)
