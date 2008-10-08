@@ -39,7 +39,8 @@ import afresource, afconfig
 
 
 class TestCreatedArtefactLists(subunittest.TestCase):
-            
+    """ Test list view of all created artefacts"""
+    
     def test_0010_NumberOfArtefacts(self):
         """Check number of artefacts in database"""
         self.assertEqual(helper.treeview.ItemCount(), 63)

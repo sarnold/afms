@@ -22,13 +22,18 @@
 
 # $Id$
 
+"""
+Main test script for afeditor testing
+
+Collect test suites from several test scripts and run contained testcases.
+"""
 
 import unittest
 import test_afeditor_createartefacts, test_afeditor_verifyartefactlists, test_afeditor_verifyartefactcontents
 
 suitelist = []
 #suitelist.append(test_afeditor_createartefacts.getSuite())
-#suitelist.append(test_afeditor_verifyartefactlists.getSuite())
+suitelist.append(test_afeditor_verifyartefactlists.getSuite())
 suitelist.append(test_afeditor_verifyartefactcontents.getSuite())
 suite  = unittest.TestSuite(suitelist)
 

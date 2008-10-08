@@ -61,7 +61,7 @@ class afUsecaseNotebook(_afbasenotebook.afBaseNotebook):
             self.usefreq_edit = wx.TextCtrl(panel1, -1, "", style = wx.TE_READONLY)
             self.actors_edit = wx.TextCtrl(panel1, -1, "", style = wx.TE_READONLY)
             self.stakeholders_edit = wx.TextCtrl(panel1, -1, "", style = wx.TE_READONLY)
-            self.prerequisite_edit = afHtmlWindow(panel1, -1, name='prerequisite')
+            self.prerequisite_edit = afHtmlWindow(panel1, -1, name='prerequisites')
             self.mainscenario_edit = afHtmlWindow(panel1, -1, name='mainscenario')
             self.altscenario_edit = afHtmlWindow(panel1, -1, name='altscenario')
             self.notes_edit = afHtmlWindow(panel1, -1, name='notes')
