@@ -39,7 +39,8 @@ import afresource, afconfig
 
 
 class TestCreatedArtefactContents(subunittest.TestCase):
-            
+    """Test details of all created artefacts"""
+    
     def test_0010_NumberOfArtefacts(self):
         """Check number of artefacts in database"""
         self.assertEqual(helper.treeview.ItemCount(), 63)
@@ -126,12 +127,75 @@ class TestCreatedArtefactContents(subunittest.TestCase):
             self.assertEqual(origin, af['origin'])
             self.assertEqual(rationale, af['r_rationale'])
 
-            
-    
-    
+
     def test_0070_UsecaseContents(self):
         """Inspect usecase contents"""
-        pass
+        for af, i in  zip(helper.getUsecase(), helper.count(0)):
+            helper.treeview.Select((0,4,i))
+            summary = helper.afeditorwin['Summary:Edit'].TextBlock()
+            id = int(helper.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
+            priority = helper.afeditorwin['Priority:Edit'].TextBlock()
+            usefrequency = helper.afeditorwin['Use frequency:Edit'].TextBlock()
+            actors = helper.afeditorwin['Actors:Edit'].TextBlock()
+            stakeholders = helper.afeditorwin['Stakeholders:Edit'].TextBlock()            
+            prerequisites = helper.getHTMLWindowContent(helper.afeditorwin['prerequisites'])
+            mainscenario = helper.getHTMLWindowContent(helper.afeditorwin['mainscenario'])
+            altscenario = helper.getHTMLWindowContent(helper.afeditorwin['altscenario'])
+            notes = helper.getHTMLWindowContent(helper.afeditorwin['notes'])
+            self.assertEqual(af['summary'], summary)
+            self.assertEqual(i+1, id)
+            self.assertEqual(priority, afresource.PRIORITY_NAME[af['priority']])
+            self.assertEqual(usefrequency, afresource.USEFREQUENCY_NAME[af['usefrequency']])
+            self.assertEqual(actors, af['actors'])
+            self.assertEqual(stakeholders, af['stakeholders'])
+            self.assertEqual(prerequisites, af['r_prerequisites'])
+            self.assertEqual(mainscenario, af['r_mainscenario'])
+            self.assertEqual(altscenario, af['r_altscenario'])
+            self.assertEqual(notes, af['r_notes'])
+
+
+    def test_0080_TestcaseContents(self):
+        """Inspect testcase contents"""
+        for af, i in  zip(helper.getTestcase(), helper.count(0)):
+            helper.treeview.Select((0,5,i))
+            title = helper.afeditorwin['Title:Edit'].TextBlock()
+            id = int(helper.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
+            key = helper.afeditorwin['Key:Edit'].TextBlock()
+            script = helper.afeditorwin['Script:Edit'].TextBlock()
+            purpose = helper.getHTMLWindowContent(helper.afeditorwin['purpose'])
+            prerequisite = helper.getHTMLWindowContent(helper.afeditorwin['prerequisite'])
+            testdata = helper.getHTMLWindowContent(helper.afeditorwin['testdata'])
+            steps = helper.getHTMLWindowContent(helper.afeditorwin['steps'])
+            notes = helper.getHTMLWindowContent(helper.afeditorwin['notes'])
+            self.assertEqual(title, af['title'])
+            self.assertEqual(id, i+1)
+            self.assertEqual(key, af['key'])
+            self.assertEqual(script, af['script'])
+            self.assertEqual(purpose, af['r_purpose'])
+            self.assertEqual(prerequisite, af['r_prerequisite'])
+            self.assertEqual(testdata, af['r_testdata'])
+            self.assertEqual(steps, af['r_steps'])
+            self.assertEqual(notes, af['r_notes'])
+
+
+    def test_0090_TestsuiteContents(self):
+        """Inspect testsuite contents"""
+        for af, i in  zip(helper.getTestsuite(), helper.count(0)):
+            helper.treeview.Select((0,6,i))
+            title = helper.afeditorwin['Title:Edit'].TextBlock()
+            id = int(helper.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
+            execorder = helper.afeditorwin["Execution order ID's:Edit"].TextBlock()
+            description = helper.getHTMLWindowContent(helper.afeditorwin['htmlWindow'])
+            testcaseids = []
+            coltypes = [{'type':int, 'key':'id'}, ]
+            for testcaseid in helper.readArtefactList(coltypes, helper.afeditorwin['Testcases:ListView']):
+                testcaseids.append(testcaseid['id'])
+            testcaseids = tuple(testcaseids)
+            self.assertEqual(af['title'], title)
+            self.assertEqual(i+1, id)
+            self.assertEqual(execorder, af['execorder'])
+            self.assertEqual(description, af['r_description'])
+            self.assertEqual(testcaseids, af['testcaseids'])
 
 
     def test_9999_tearDown(self):
@@ -145,6 +209,7 @@ class TestSuite(subunittest.TestSuite):
     def setUpSuite(self):
         global helper
         helper = afEditorTestHelper(afmstest.EXECUTABLE, delay=0.01)
+        helper.setTiming('slow')
         helper.openProduct(afmstest.testdbfile)
 
 

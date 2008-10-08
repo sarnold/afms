@@ -19,7 +19,8 @@ testdbfile = os.path.join(os.getcwd(), TESTDIR, TESTFILE)
 
 
 class afTestHelper(object):
-    
+    """Base helper class for testing afms applications"""    
+
     def execApplication(self, applicationpath):
         stdout = subprocess.PIPE
         stderr = subprocess.PIPE
@@ -28,6 +29,7 @@ class afTestHelper(object):
     
     
 class afEditorTestHelper(afTestHelper):
+    """Helper class for testing afeditor application"""
 
     def __init__(self, applicationpath, delay=1.0):
         self.process = self.execApplication(applicationpath)
@@ -74,6 +76,15 @@ class afEditorTestHelper(afTestHelper):
         Timings.after_editsetedittext_wait = 0
         Timings.after_editselect_wait = 0
         Timings.Slow()
+        
+        
+    def setTiming(self, speed):
+        if speed.lower() == 'slow':
+            Timings.Slow()
+        elif speed.lower() == 'fast':
+            Timings.Fast()
+        else:
+            Timings.Defaults()
 
 
     def addTextSection(self, **kwargs):
@@ -253,15 +264,19 @@ class afEditorTestHelper(afTestHelper):
         priority     = (3, 2, 1, 0, 3)
         usefrequency = (0, 1, 2, 3, 4)
         for i in range(len(usefrequency)):
-            data = {'summary'       : u"Usecase summary %03d (ÄÖÜäöüß)" % i, 
-                    'priority'      : priority[i],
-                    'usefrequency'  : usefrequency[i],
-                    'actors'        : u"Usecase actor %03d (ÄÖÜäöüß)" %i,
-                    'stakeholders'  : u"Usecase stakeholders %03d (ÄÖÜäöüß)" %i,
-                    'prerequisites' : u"Usecase prerequisites %03d (ÄÖÜäöüß)" %i,
-                    'mainscenario'  : u"Usecase mainscenario %03d (ÄÖÜäöüß)" %i,
-                    'altscenario'   : u"Usecase altscenario %03d (ÄÖÜäöüß)" %i,
-                    'notes'         : u"Usecase notes %03d (ÄÖÜäöüß)" %i } 
+            data = {'summary'         : u"Usecase summary %03d (ÄÖÜäöüß)" % i, 
+                    'priority'        : priority[i],
+                    'usefrequency'    : usefrequency[i],
+                    'actors'          : u"Usecase actor %03d (ÄÖÜäöüß)" %i,
+                    'stakeholders'    : u"Usecase stakeholders %03d (ÄÖÜäöüß)" %i,
+                    'prerequisites'   : u"Usecase prerequisites %03d (ÄÖÜäöüß)" %i,
+                    'mainscenario'    : u"Usecase mainscenario %03d (ÄÖÜäöüß)" %i,
+                    'altscenario'     : u"Usecase altscenario %03d (ÄÖÜäöüß)" %i,
+                    'notes'           : u"Usecase notes %03d (ÄÖÜäöüß)" %i,
+                    'r_prerequisites' : u"\nUsecase prerequisites %03d (ÄÖÜäöüß)" %i,
+                    'r_mainscenario'  : u"\nUsecase mainscenario %03d (ÄÖÜäöüß)" %i,
+                    'r_altscenario'   : u"\nUsecase altscenario %03d (ÄÖÜäöüß)" %i,
+                    'r_notes'         : u"\nUsecase notes %03d (ÄÖÜäöüß)" %i} 
             yield(data)
     
     
@@ -303,14 +318,19 @@ class afEditorTestHelper(afTestHelper):
     
     def getTestcase(self):
         for i in range(6):
-            data = {'title'        : u"Testcase title %03d (ÄÖÜäöüß)" % i, 
-                    'key'          : u"Testcase key %03d (ÄÖÜäöüß)" %i,
-                    'purpose'      : u"Testcase purpose %03d (ÄÖÜäöüß)" %i,
-                    'prerequisite' : u"Testcase prerequisite %03d (ÄÖÜäöüß)" %i,
-                    'testdata'     : u"Testcase testdata %03d (ÄÖÜäöüß)" %i,
-                    'steps'        : u"Testcase steps %03d (ÄÖÜäöüß)" %i,
-                    'script'       : u"samplescript.cmd %03d" %i,
-                    'notes'        : u"Testcase notes %03d (ÄÖÜäöüß)" %i } 
+            data = {'title'          : u"Testcase title %03d (ÄÖÜäöüß)" % i, 
+                    'key'            : u"Testcase key %03d (ÄÖÜäöüß)" %i,
+                    'purpose'        : u"Testcase purpose %03d (ÄÖÜäöüß)" %i,
+                    'prerequisite'   : u"Testcase prerequisite %03d (ÄÖÜäöüß)" %i,
+                    'testdata'       : u"Testcase testdata %03d (ÄÖÜäöüß)" %i,
+                    'steps'          : u"Testcase steps %03d (ÄÖÜäöüß)" %i,
+                    'script'         : u"samplescript.cmd %03d" %i,
+                    'notes'          : u"Testcase notes %03d (ÄÖÜäöüß)" %i, 
+                    'r_purpose'      : u"\nTestcase purpose %03d (ÄÖÜäöüß)" %i,
+                    'r_prerequisite' : u"\nTestcase prerequisite %03d (ÄÖÜäöüß)" %i,
+                    'r_testdata'     : u"\nTestcase testdata %03d (ÄÖÜäöüß)" %i,
+                    'r_steps'        : u"\nTestcase steps %03d (ÄÖÜäöüß)" %i,
+                    'r_notes'        : u"\nTestcase notes %03d (ÄÖÜäöüß)" %i } 
             yield(data)
 
 
@@ -345,14 +365,17 @@ class afEditorTestHelper(afTestHelper):
         
     
     def getTestsuite(self):
+        testcaseids =  ((1,2,3), (4,5), (1,2,3,5), ())
         testcasepos = ((0,1,2), (3,4), (0,1,2,4), ())
         execorder =   ('3,2,1', '', '1,3,2,5', '')
         for i in range(len(testcasepos)):
-            data = {'title'        : u"Testsuite title %03d (ÄÖÜäöüß)" % i, 
-                    'description'  : u"Testsuite description %03d (ÄÖÜäöüß)" %i,
-                    'execorder'    : execorder[i],
-                    'testcasepos'  : testcasepos[i],
-                    'nbrtestcases' : len(testcasepos[i])}
+            data = {'title'         : u"Testsuite title %03d (ÄÖÜäöüß)" % i, 
+                    'description'   : u"Testsuite description %03d (ÄÖÜäöüß)" %i,
+                    'r_description' : u"\nTestsuite description %03d (ÄÖÜäöüß)" %i,
+                    'execorder'     : execorder[i],
+                    'testcasepos'   : testcasepos[i],
+                    'testcaseids'   : testcaseids[i],
+                    'nbrtestcases'  : len(testcasepos[i])}
             yield(data)
     
     
@@ -377,12 +400,14 @@ class afEditorTestHelper(afTestHelper):
         dlg[u'Ö&ffnenButton'].CloseClick()
         
         
-    def readArtefactList(self, coltypes):
-        nrows = self.afeditorwin.leftwinListView.ItemCount()
+    def readArtefactList(self, coltypes, listview=None):
+        if listview == None:
+            listview = self.afeditorwin.leftwinListView
+        nrows = listview.ItemCount()
         for r in range(nrows):
             item = {}
             for c, coltype in zip(range(len(coltypes)), coltypes):
-                data = self.afeditorwin.leftwinListView.GetItem(r,c)['text']
+                data = listview.GetItem(r,c)['text']
                 item[coltype['key']] =  coltype['type'](data)
             yield(item)
             
