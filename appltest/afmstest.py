@@ -150,6 +150,8 @@ class afEditorTestHelper(afTestHelper):
         priority = (0, 1, 2, 3, 0)
         status   = (2, 1, 0, 2, 1)
         risk     = (4, 3, 2, 1, 0)
+        related_requirements = ((5,), (), (2,3), (), ())
+        related_usecases     = ((), (2,), (), (), (4,)) 
         for i in range(len(priority)):
             yield({'title'         : u'Feature title %03d (ÄÖÜäöüß)' % i, 
                    'description'   : u'.. REST\n\nDescription of feature %03d (ÄÖÜäöüß)\n' % i,
@@ -157,7 +159,9 @@ class afEditorTestHelper(afTestHelper):
                    'key'           : u'Key of feature %03d (ÄÖÜäöüß)' % i, 
                    'priority'      : priority[i], 
                    'status'        : status[i],
-                   'risk'          : risk[i]})
+                   'risk'          : risk[i],
+                   'related_requirements' : related_requirements[i],
+                   'related_usecases'     :  related_usecases[i]})
         
         
     def addFeatures(self):
@@ -192,6 +196,10 @@ class afEditorTestHelper(afTestHelper):
         complexity = (1, 2, 0, 1, 2, 0, 1, 2, 0, 1,  2,  0,  1,  2,  0,  1,  2)
         effort     = (3, 2, 1, 0, 3, 2, 1, 0, 3, 2,  1,  0,  3,  2,  1,  0,  3)
         category   = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+        related_requirements = ((), (),   (),    (), (),   (), (), (), (), (),   (), (), (), (), (), (), ())
+        related_features     = ((), (3,), (3,),  (), (1,), (), (), (), (), (),   (), (), (), (), (), (), ())
+        related_usecases     = ((), (3,), (),    (), (),   (), (), (), (), (5,), (), (), (), (), (), (), ())
+        related_testcases    = ((2,), (), (3,4), (), (),   (), (), (), (), (),   (), (), (), (), (), (), (5,))
         for i in range(len(category)):
             data = {
                 'title'         : u'Requirement title %03d (ÄÖÜäöüß)' % i,
@@ -211,19 +219,18 @@ class afEditorTestHelper(afTestHelper):
                 'status'        : status[i],
                 'complexity'    : complexity[i],
                 'effort'        : effort[i],
-                'category'      : category[i]}
+                'category'      : category[i],
+                'related_features'     : related_features[i],
+                'related_requirements' : related_requirements[i],
+                'related_usecases'     : related_usecases[i],
+                'related_testcases'    : related_testcases[i]}
             yield(data)
-        
-    
-    def getRequirementParentFeaturePos(self):
-        featurepos = (-1, 2, 2, -1, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
-        for pos in featurepos:
-            yield(pos)
-            
+                    
         
     def addRequirements(self):
-        for r, fpos in zip(self.getRequirement(), self.getRequirementParentFeaturePos()):
-            if fpos in range(5):
+        for r in self.getRequirement():
+            if len(r['related_features']) != 0:
+                fpos = r['related_features'][0]-1
                 # select feature in treeview at fpos
                 i = (0, 2, fpos)
             else:
@@ -263,6 +270,8 @@ class afEditorTestHelper(afTestHelper):
     def getUsecase(self):
         priority     = (3, 2, 1, 0, 3)
         usefrequency = (0, 1, 2, 3, 4)
+        related_requirements = ((), (),   (2,), (),   (10,))
+        related_features     = ((), (2,), (),   (5,), ())
         for i in range(len(usefrequency)):
             data = {'summary'         : u"Usecase summary %03d (ÄÖÜäöüß)" % i, 
                     'priority'        : priority[i],
@@ -276,20 +285,23 @@ class afEditorTestHelper(afTestHelper):
                     'r_prerequisites' : u"\nUsecase prerequisites %03d (ÄÖÜäöüß)" %i,
                     'r_mainscenario'  : u"\nUsecase mainscenario %03d (ÄÖÜäöüß)" %i,
                     'r_altscenario'   : u"\nUsecase altscenario %03d (ÄÖÜäöüß)" %i,
-                    'r_notes'         : u"\nUsecase notes %03d (ÄÖÜäöüß)" %i} 
+                    'r_notes'         : u"\nUsecase notes %03d (ÄÖÜäöüß)" %i,
+                    'related_features'     : related_features[i],
+                    'related_requirements' : related_requirements[i]} 
             yield(data)
-    
-    
-    def getUsecaseParentPos(self):
-        featurepos     = (-1,  1, -1,  4, -1)
-        requirementpos = (-1, -1,  1, -1,  9)
-        for fpos, rpos in zip(featurepos, requirementpos):
-            yield((fpos, rpos))
-            
+                
 
     def addUsecases(self):
         self.treeview.Select((0, 4))
-        for uc, (fpos, rpos) in zip(self.getUsecase(), self.getUsecaseParentPos()):
+        for uc in self.getUsecase():
+            if len(uc['related_features']) == 0:
+                fpos = -1
+            else:
+                fpos = uc['related_features'][0]-1
+            if len(uc['related_requirements']) == 0:
+                rpos = -1
+            else:
+                rpos = uc['related_requirements'][0]-1
             if fpos < 0 and rpos < 0:
                 self.treeview.Select((0,))
             elif fpos > 0:
@@ -317,6 +329,8 @@ class afEditorTestHelper(afTestHelper):
         
     
     def getTestcase(self):
+        related_requirements = ((),    (1,),  (3,),  (3, ), (17,), ())
+        related_testsuites   = ((1,3), (1,3), (1,3), (2,),  (2,3), ())
         for i in range(6):
             data = {'title'          : u"Testcase title %03d (ÄÖÜäöüß)" % i, 
                     'key'            : u"Testcase key %03d (ÄÖÜäöüß)" %i,
@@ -330,21 +344,18 @@ class afEditorTestHelper(afTestHelper):
                     'r_prerequisite' : u"\nTestcase prerequisite %03d (ÄÖÜäöüß)" %i,
                     'r_testdata'     : u"\nTestcase testdata %03d (ÄÖÜäöüß)" %i,
                     'r_steps'        : u"\nTestcase steps %03d (ÄÖÜäöüß)" %i,
-                    'r_notes'        : u"\nTestcase notes %03d (ÄÖÜäöüß)" %i } 
+                    'r_notes'        : u"\nTestcase notes %03d (ÄÖÜäöüß)" %i,
+                    'related_requirements' : related_requirements[i],
+                    'related_testsuites'   : related_testsuites[i] }                      
             yield(data)
-
-
-    def getTestcaseParentRequirementPos(self):
-        positions = (-1, 0, 2, 2, 16, -1)
-        for pos in positions:
-            yield(pos)
     
     
     def addTestcases(self):
-        for tc, rpos in zip(self.getTestcase(), self.getTestcaseParentRequirementPos()):
-            if rpos < 0:
+        for tc in self.getTestcase():
+            if len(tc['related_requirements']) == 0:
                 self.treeview.Select((0,))
             else:
+                rpos = tc['related_requirements'][0]-1
                 self.treeview.Select((0,3))
                 self.afeditorwin.leftwinListView.Select(rpos)
             self.addTestcase(**tc)
