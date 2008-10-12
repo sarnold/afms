@@ -77,16 +77,7 @@ class TestCreatedArtefactContents(subunittest.TestCase):
 
     def test_0050_FeatureContents(self):
         """Inspect feature contents"""
-        features = [af for af in helper.getFeature()]
-        expected_related_requirements_list = [[] for af in features]
-        for fpos, i in zip(helper.getRequirementParentFeaturePos(), helper.count(1)):
-            if fpos > -1:
-                expected_related_requirements_list[fpos].append(i)
-        expected_attached_usecases_list = [[] for af in features]
-        for (fpos, rpos), i in zip(helper.getUsecaseParentPos(), helper.count(1)):
-            if fpos > -1:
-                expected_attached_usecases_list[fpos].append(i) 
-        for af, i in  zip(features, helper.count(0)):
+        for af, i in  zip(helper.getFeature(), helper.count(0)):
             helper.treeview.Select((0,2,i))
             title = helper.afeditorwin['Title:Edit'].TextBlock()
             id = int(helper.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
@@ -116,22 +107,13 @@ class TestCreatedArtefactContents(subunittest.TestCase):
             self.assertEqual(status, afresource.STATUS_NAME[af['status']])
             self.assertEqual(risk, afresource.RISK_NAME[af['risk']])
             self.assertEqual(description, af['r_description'])
-            self.assertEqual(actual_related_requirements, expected_related_requirements_list[i])
-            self.assertEqual(actual_attached_usecases, expected_attached_usecases_list[i])
+            self.assertEqual(actual_related_requirements, list(af['related_requirements']))
+            self.assertEqual(actual_attached_usecases, list(af['related_usecases']))
     
     
     def test_0060_RequirementContents(self):
         """Inspect requirement contents"""
-        requirements = [af for af in helper.getRequirement()]
-        expected_attached_usecases_list = [[] for af in requirements]
-        for (fpos, rpos), i in zip(helper.getUsecaseParentPos(), helper.count(1)):
-            if rpos > -1:
-                expected_attached_usecases_list[rpos].append(i) 
-        expected_attached_testcases_list = [[] for af in requirements]
-        for rpos, i in zip(helper.getTestcaseParentRequirementPos(), helper.count(1)):
-            if rpos > -1:
-                expected_attached_testcases_list[rpos].append(i)
-        for af, parentfeature, i in  zip(requirements, helper.getRequirementParentFeaturePos(), helper.count(0)):
+        for af, i in  zip(helper.getRequirement(), helper.count(0)):
             helper.treeview.Select((0,3,i))
             title = helper.afeditorwin['Title:Edit'].TextBlock()
             id = int(helper.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
@@ -165,10 +147,6 @@ class TestCreatedArtefactContents(subunittest.TestCase):
             coltypes = [{'type':int, 'key':'id'}, ]
             for afitem in helper.readArtefactList(coltypes, helper.afeditorwin['Features:ListView']):
                 actual_related_features.append(afitem['id'])
-            if parentfeature > -1: 
-                expected_related_features = [parentfeature+1]
-            else:
-                expected_related_features = []
             # related requirements
             p.TypeKeys('^{TAB}')
             actual_related_requirements = []
@@ -188,10 +166,10 @@ class TestCreatedArtefactContents(subunittest.TestCase):
             self.assertEqual(af['r_description'], description)
             self.assertEqual(origin, af['origin'])
             self.assertEqual(rationale, af['r_rationale'])
-            self.assertEqual(actual_attached_testcases, expected_attached_testcases_list[i])
-            self.assertEqual(actual_attached_usecases, expected_attached_usecases_list[i])
-            self.assertEqual(actual_related_features, expected_related_features)
-            self.assertEqual(actual_related_requirements, [])
+            self.assertEqual(actual_attached_testcases, list(af['related_testcases']))
+            self.assertEqual(actual_attached_usecases, list(af['related_usecases']))
+            self.assertEqual(actual_related_features, list(af['related_features']))
+            self.assertEqual(actual_related_requirements, list(af['related_requirements']))
             
 
     def test_0070_UsecaseContents(self):
@@ -208,6 +186,20 @@ class TestCreatedArtefactContents(subunittest.TestCase):
             mainscenario = helper.getHTMLWindowContent(helper.afeditorwin['mainscenario'])
             altscenario = helper.getHTMLWindowContent(helper.afeditorwin['altscenario'])
             notes = helper.getHTMLWindowContent(helper.afeditorwin['notes'])
+            p = helper.afeditorwin['Priority:Edit'].Parent().Parent()
+            # releated features
+            p.TypeKeys('^{TAB}')
+            actual_related_features = []
+            coltypes = [{'type':int, 'key':'id'}, ]
+            for afitem in helper.readArtefactList(coltypes, helper.afeditorwin['Features:ListView']):
+                actual_related_features.append(afitem['id'])
+            # related requirements
+            p.TypeKeys('^{TAB}')
+            actual_related_requirements = []
+            coltypes = [{'type':int, 'key':'id'}, ]
+            for afitem in helper.readArtefactList(coltypes, helper.afeditorwin['Requirements:ListView']):
+                actual_related_requirements.append(afitem['id'])
+            p.TypeKeys(2 * '^{TAB}')
             self.assertEqual(af['summary'], summary)
             self.assertEqual(i+1, id)
             self.assertEqual(priority, afresource.PRIORITY_NAME[af['priority']])
@@ -218,6 +210,8 @@ class TestCreatedArtefactContents(subunittest.TestCase):
             self.assertEqual(mainscenario, af['r_mainscenario'])
             self.assertEqual(altscenario, af['r_altscenario'])
             self.assertEqual(notes, af['r_notes'])
+            self.assertEqual(actual_related_features, list(af['related_features']))
+            self.assertEqual(actual_related_requirements, list(af['related_requirements']))
 
 
     def test_0080_TestcaseContents(self):
@@ -233,6 +227,20 @@ class TestCreatedArtefactContents(subunittest.TestCase):
             testdata = helper.getHTMLWindowContent(helper.afeditorwin['testdata'])
             steps = helper.getHTMLWindowContent(helper.afeditorwin['steps'])
             notes = helper.getHTMLWindowContent(helper.afeditorwin['notes'])
+            p = helper.afeditorwin['Key:Edit'].Parent().Parent()
+            # related requirements
+            p.TypeKeys('^{TAB}')
+            actual_related_requirements = []
+            coltypes = [{'type':int, 'key':'id'}, ]
+            for afitem in helper.readArtefactList(coltypes, helper.afeditorwin['Requirements:ListView']):
+                actual_related_requirements.append(afitem['id'])
+            # releated testsuites
+            p.TypeKeys('^{TAB}')
+            actual_related_testsuites = []
+            coltypes = [{'type':int, 'key':'id'}, ]
+            for afitem in helper.readArtefactList(coltypes, helper.afeditorwin['Testsuites:ListView']):
+                actual_related_testsuites.append(afitem['id'])
+            p.TypeKeys(2 * '^{TAB}')
             self.assertEqual(title, af['title'])
             self.assertEqual(id, i+1)
             self.assertEqual(key, af['key'])
@@ -242,6 +250,8 @@ class TestCreatedArtefactContents(subunittest.TestCase):
             self.assertEqual(testdata, af['r_testdata'])
             self.assertEqual(steps, af['r_steps'])
             self.assertEqual(notes, af['r_notes'])
+            self.assertEqual(actual_related_requirements, list(af['related_requirements']))
+            self.assertEqual(actual_related_testsuites, list(af['related_testsuites']))
 
 
     def test_0090_TestsuiteContents(self):
