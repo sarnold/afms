@@ -78,200 +78,84 @@ class TestCreatedArtefactContents(subunittest.TestCase):
     def test_0050_FeatureContents(self):
         """Inspect feature contents"""
         for af, i in  zip(helper.getFeature(), helper.count(0)):
-            helper.treeview.Select((0,2,i))
-            title = helper.afeditorwin['Title:Edit'].TextBlock()
-            id = int(helper.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
-            key = helper.afeditorwin['Key:Edit'].TextBlock()
-            priority = helper.afeditorwin['Priority:Edit'].TextBlock()
-            status = helper.afeditorwin['Status:Edit'].TextBlock()
-            risk = helper.afeditorwin['Risk:Edit'].TextBlock()
-            description = helper.getHTMLWindowContent(helper.afeditorwin['htmlWindow'])
-            p = helper.afeditorwin['Priority:Edit'].Parent().Parent()
-            # related requirements
-            p.TypeKeys('^{TAB}')
-            actual_related_requirements = []
-            coltypes = [{'type':int, 'key':'id'}, ]
-            for requirement in helper.readArtefactList(coltypes, helper.afeditorwin['Requirements:ListView']):
-                actual_related_requirements.append(requirement['id'])
-            # attached usecases
-            p.TypeKeys('^{TAB}')
-            actual_attached_usecases = []
-            coltypes = [{'type':int, 'key':'id'}, ]
-            for usecase in helper.readArtefactList(coltypes, helper.afeditorwin['Usecases:ListView']):
-                actual_attached_usecases.append(usecase['id'])
-            p.TypeKeys(2*'^+{TAB}')
-            self.assertEqual(af['title'], title)
-            self.assertEqual(i+1, id)
-            self.assertEqual(af['key'], key)
-            self.assertEqual(priority, afresource.PRIORITY_NAME[af['priority']])
-            self.assertEqual(status, afresource.STATUS_NAME[af['status']])
-            self.assertEqual(risk, afresource.RISK_NAME[af['risk']])
-            self.assertEqual(description, af['r_description'])
-            self.assertEqual(actual_related_requirements, list(af['related_requirements']))
-            self.assertEqual(actual_attached_usecases, list(af['related_usecases']))
+            actual_af = helper.readFeatureAtPosition(i)
+            self.assertEqual(af['title'], actual_af['title'])
+            self.assertEqual(i+1, actual_af['id'])
+            self.assertEqual(af['key'], actual_af['key'])
+            self.assertEqual(actual_af['priority'], afresource.PRIORITY_NAME[af['priority']])
+            self.assertEqual(actual_af['status'], afresource.STATUS_NAME[af['status']])
+            self.assertEqual(actual_af['risk'], afresource.RISK_NAME[af['risk']])
+            self.assertEqual(actual_af['description'], af['r_description'])
+            self.assertEqual(actual_af['related_requirements'], list(af['related_requirements']))
+            self.assertEqual(actual_af['related_usecases'], list(af['related_usecases']))
     
     
     def test_0060_RequirementContents(self):
         """Inspect requirement contents"""
         for af, i in  zip(helper.getRequirement(), helper.count(0)):
-            helper.treeview.Select((0,3,i))
-            title = helper.afeditorwin['Title:Edit'].TextBlock()
-            id = int(helper.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
-            key = helper.afeditorwin['Key:Edit'].TextBlock()
-            priority = helper.afeditorwin['Priority:Edit'].TextBlock()
-            status = helper.afeditorwin['Status:Edit'].TextBlock()
-            complexity = helper.afeditorwin['Complexity:Edit'].TextBlock()
-            assigned = helper.afeditorwin['Assigned:Edit'].TextBlock()
-            effort = helper.afeditorwin['Effort:Edit'].TextBlock()
-            category = helper.afeditorwin['Category:Edit'].TextBlock()
-            description = helper.getHTMLWindowContent(helper.afeditorwin['htmlWindow']).strip(' \n')  
-            p = helper.afeditorwin['Priority:Edit'].Parent().Parent()
-            p.TypeKeys('^{TAB}')
-            origin = helper.getHTMLWindowContent(helper.afeditorwin['oridin_edit']).strip(' \n')
-            rationale = helper.getHTMLWindowContent(helper.afeditorwin['rationale_edit']).strip(' \n')
-            # attached testcases
-            p.TypeKeys('^{TAB}')
-            actual_attached_testcases = []
-            coltypes = [{'type':int, 'key':'id'}, ]
-            for afitem in helper.readArtefactList(coltypes, helper.afeditorwin['Testcases:ListView']):
-                actual_attached_testcases.append(afitem['id'])
-            # attached usecases
-            p.TypeKeys('^{TAB}')
-            actual_attached_usecases = []
-            coltypes = [{'type':int, 'key':'id'}, ]
-            for afitem in helper.readArtefactList(coltypes, helper.afeditorwin['Usecases:ListView']):
-                actual_attached_usecases.append(afitem['id'])
-            # releated features
-            p.TypeKeys('^{TAB}')
-            actual_related_features = []
-            coltypes = [{'type':int, 'key':'id'}, ]
-            for afitem in helper.readArtefactList(coltypes, helper.afeditorwin['Features:ListView']):
-                actual_related_features.append(afitem['id'])
-            # related requirements
-            p.TypeKeys('^{TAB}')
-            actual_related_requirements = []
-            coltypes = [{'type':int, 'key':'id'}, ]
-            for afitem in helper.readArtefactList(coltypes, helper.afeditorwin['Requirements:ListView']):
-                actual_related_requirements.append(afitem['id'])
-            p.TypeKeys(2 * '^{TAB}')
-            self.assertEqual(af['title'], title)
-            self.assertEqual(i+1, id)
-            self.assertEqual(af['key'], key)
-            self.assertEqual(priority, afresource.PRIORITY_NAME[af['priority']])
-            self.assertEqual(status, afresource.STATUS_NAME[af['status']])
-            self.assertEqual(complexity, afresource.COMPLEXITY_NAME[af['complexity']])
-            self.assertEqual(assigned, af['assigned'])
-            self.assertEqual(effort, afresource.EFFORT_NAME[af['effort']])
-            self.assertEqual(category, afresource.CATEGORY_NAME[af['category']])
-            self.assertEqual(af['r_description'], description)
-            self.assertEqual(origin, af['origin'])
-            self.assertEqual(rationale, af['r_rationale'])
-            self.assertEqual(actual_attached_testcases, list(af['related_testcases']))
-            self.assertEqual(actual_attached_usecases, list(af['related_usecases']))
-            self.assertEqual(actual_related_features, list(af['related_features']))
-            self.assertEqual(actual_related_requirements, list(af['related_requirements']))
+            actual_af = helper.readRequirementAtPosition(i)
+            self.assertEqual(af['title'], actual_af['title'])
+            self.assertEqual(i+1, actual_af['id'])
+            self.assertEqual(af['key'], actual_af['key'])
+            self.assertEqual(actual_af['priority'], afresource.PRIORITY_NAME[af['priority']])
+            self.assertEqual(actual_af['status'], afresource.STATUS_NAME[af['status']])
+            self.assertEqual(actual_af['complexity'], afresource.COMPLEXITY_NAME[af['complexity']])
+            self.assertEqual(actual_af['assigned'], af['assigned'])
+            self.assertEqual(actual_af['effort'], afresource.EFFORT_NAME[af['effort']])
+            self.assertEqual(actual_af['category'], afresource.CATEGORY_NAME[af['category']])
+            self.assertEqual(af['r_description'], actual_af['description'])
+            self.assertEqual(actual_af['origin'], af['origin'])
+            self.assertEqual(actual_af['rationale'], af['r_rationale'])
+            self.assertEqual(actual_af['related_testcases'], list(af['related_testcases']))
+            self.assertEqual(actual_af['related_usecases'], list(af['related_usecases']))
+            self.assertEqual(actual_af['related_features'], list(af['related_features']))
+            self.assertEqual(actual_af['related_requirements'], list(af['related_requirements']))
             
 
     def test_0070_UsecaseContents(self):
         """Inspect usecase contents"""
         for af, i in  zip(helper.getUsecase(), helper.count(0)):
-            helper.treeview.Select((0,4,i))
-            summary = helper.afeditorwin['Summary:Edit'].TextBlock()
-            id = int(helper.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
-            priority = helper.afeditorwin['Priority:Edit'].TextBlock()
-            usefrequency = helper.afeditorwin['Use frequency:Edit'].TextBlock()
-            actors = helper.afeditorwin['Actors:Edit'].TextBlock()
-            stakeholders = helper.afeditorwin['Stakeholders:Edit'].TextBlock()            
-            prerequisites = helper.getHTMLWindowContent(helper.afeditorwin['prerequisites'])
-            mainscenario = helper.getHTMLWindowContent(helper.afeditorwin['mainscenario'])
-            altscenario = helper.getHTMLWindowContent(helper.afeditorwin['altscenario'])
-            notes = helper.getHTMLWindowContent(helper.afeditorwin['notes'])
-            p = helper.afeditorwin['Priority:Edit'].Parent().Parent()
-            # releated features
-            p.TypeKeys('^{TAB}')
-            actual_related_features = []
-            coltypes = [{'type':int, 'key':'id'}, ]
-            for afitem in helper.readArtefactList(coltypes, helper.afeditorwin['Features:ListView']):
-                actual_related_features.append(afitem['id'])
-            # related requirements
-            p.TypeKeys('^{TAB}')
-            actual_related_requirements = []
-            coltypes = [{'type':int, 'key':'id'}, ]
-            for afitem in helper.readArtefactList(coltypes, helper.afeditorwin['Requirements:ListView']):
-                actual_related_requirements.append(afitem['id'])
-            p.TypeKeys(2 * '^{TAB}')
-            self.assertEqual(af['summary'], summary)
-            self.assertEqual(i+1, id)
-            self.assertEqual(priority, afresource.PRIORITY_NAME[af['priority']])
-            self.assertEqual(usefrequency, afresource.USEFREQUENCY_NAME[af['usefrequency']])
-            self.assertEqual(actors, af['actors'])
-            self.assertEqual(stakeholders, af['stakeholders'])
-            self.assertEqual(prerequisites, af['r_prerequisites'])
-            self.assertEqual(mainscenario, af['r_mainscenario'])
-            self.assertEqual(altscenario, af['r_altscenario'])
-            self.assertEqual(notes, af['r_notes'])
-            self.assertEqual(actual_related_features, list(af['related_features']))
-            self.assertEqual(actual_related_requirements, list(af['related_requirements']))
+            actual_af = helper.readUsecaseAtPosition(i)
+            self.assertEqual(actual_af['summary'], af['summary'])
+            self.assertEqual(actual_af['id'], i+1)
+            self.assertEqual(actual_af['priority'], afresource.PRIORITY_NAME[af['priority']])
+            self.assertEqual(actual_af['usefrequency'], afresource.USEFREQUENCY_NAME[af['usefrequency']])
+            self.assertEqual(actual_af['actors'], af['actors'])
+            self.assertEqual(actual_af['stakeholders'], af['stakeholders'])
+            self.assertEqual(actual_af['prerequisites'], af['r_prerequisites'])
+            self.assertEqual(actual_af['mainscenario'], af['r_mainscenario'])
+            self.assertEqual(actual_af['altscenario'], af['r_altscenario'])
+            self.assertEqual(actual_af['notes'], af['r_notes'])
+            self.assertEqual(actual_af['related_features'], list(af['related_features']))
+            self.assertEqual(actual_af['related_requirements'], list(af['related_requirements']))
 
 
     def test_0080_TestcaseContents(self):
         """Inspect testcase contents"""
         for af, i in  zip(helper.getTestcase(), helper.count(0)):
-            helper.treeview.Select((0,5,i))
-            title = helper.afeditorwin['Title:Edit'].TextBlock()
-            id = int(helper.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
-            key = helper.afeditorwin['Key:Edit'].TextBlock()
-            script = helper.afeditorwin['Script:Edit'].TextBlock()
-            purpose = helper.getHTMLWindowContent(helper.afeditorwin['purpose'])
-            prerequisite = helper.getHTMLWindowContent(helper.afeditorwin['prerequisite'])
-            testdata = helper.getHTMLWindowContent(helper.afeditorwin['testdata'])
-            steps = helper.getHTMLWindowContent(helper.afeditorwin['steps'])
-            notes = helper.getHTMLWindowContent(helper.afeditorwin['notes'])
-            p = helper.afeditorwin['Key:Edit'].Parent().Parent()
-            # related requirements
-            p.TypeKeys('^{TAB}')
-            actual_related_requirements = []
-            coltypes = [{'type':int, 'key':'id'}, ]
-            for afitem in helper.readArtefactList(coltypes, helper.afeditorwin['Requirements:ListView']):
-                actual_related_requirements.append(afitem['id'])
-            # releated testsuites
-            p.TypeKeys('^{TAB}')
-            actual_related_testsuites = []
-            coltypes = [{'type':int, 'key':'id'}, ]
-            for afitem in helper.readArtefactList(coltypes, helper.afeditorwin['Testsuites:ListView']):
-                actual_related_testsuites.append(afitem['id'])
-            p.TypeKeys(2 * '^{TAB}')
-            self.assertEqual(title, af['title'])
-            self.assertEqual(id, i+1)
-            self.assertEqual(key, af['key'])
-            self.assertEqual(script, af['script'])
-            self.assertEqual(purpose, af['r_purpose'])
-            self.assertEqual(prerequisite, af['r_prerequisite'])
-            self.assertEqual(testdata, af['r_testdata'])
-            self.assertEqual(steps, af['r_steps'])
-            self.assertEqual(notes, af['r_notes'])
-            self.assertEqual(actual_related_requirements, list(af['related_requirements']))
-            self.assertEqual(actual_related_testsuites, list(af['related_testsuites']))
+            data = helper.readTestcaseAtPosition(i)
+            self.assertEqual(data['title'], af['title'])
+            self.assertEqual(data['id'], i+1)
+            self.assertEqual(data['key'], af['key'])
+            self.assertEqual(data['script'], af['script'])
+            self.assertEqual(data['purpose'], af['r_purpose'])
+            self.assertEqual(data['prerequisite'], af['r_prerequisite'])
+            self.assertEqual(data['testdata'], af['r_testdata'])
+            self.assertEqual(data['steps'], af['r_steps'])
+            self.assertEqual(data['notes'], af['r_notes'])
+            self.assertEqual(data['related_requirements'], list(af['related_requirements']))
+            self.assertEqual(data['related_testsuites'], list(af['related_testsuites']))
 
 
     def test_0090_TestsuiteContents(self):
         """Inspect testsuite contents"""
         for af, i in  zip(helper.getTestsuite(), helper.count(0)):
-            helper.treeview.Select((0,6,i))
-            title = helper.afeditorwin['Title:Edit'].TextBlock()
-            id = int(helper.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
-            execorder = helper.afeditorwin["Execution order ID's:Edit"].TextBlock()
-            description = helper.getHTMLWindowContent(helper.afeditorwin['htmlWindow'])
-            testcaseids = []
-            coltypes = [{'type':int, 'key':'id'}, ]
-            for testcaseid in helper.readArtefactList(coltypes, helper.afeditorwin['Testcases:ListView']):
-                testcaseids.append(testcaseid['id'])
-            testcaseids = tuple(testcaseids)
-            self.assertEqual(af['title'], title)
-            self.assertEqual(i+1, id)
-            self.assertEqual(execorder, af['execorder'])
-            self.assertEqual(description, af['r_description'])
-            self.assertEqual(testcaseids, af['testcaseids'])
+            data = helper.readTestsuiteAtPosition(i)
+            self.assertEqual(data['title'], af['title'])
+            self.assertEqual(data['id'], i+1)
+            self.assertEqual(data['execorder'], af['execorder'])
+            self.assertEqual(data['description'], af['r_description'])
+            self.assertEqual(data['testcaseids'], af['testcaseids'])
 
 
     def test_9999_tearDown(self):

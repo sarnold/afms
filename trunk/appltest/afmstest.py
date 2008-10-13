@@ -19,7 +19,7 @@ testdbfile = os.path.join(os.getcwd(), TESTDIR, TESTFILE)
 
 
 class afTestHelper(object):
-    """Base helper class for testing afms applications"""    
+    """Base self class for testing afms applications"""    
 
     def execApplication(self, applicationpath):
         stdout = subprocess.PIPE
@@ -437,4 +437,157 @@ class afEditorTestHelper(afTestHelper):
         
     def exitApp(self):
         self.afeditor.Close()
+        
+        
+    def readFeatureAtPosition(self, pos):
+        self.treeview.Select((0,2,pos))
+        data = {}
+        data['title'] = self.afeditorwin['Title:Edit'].TextBlock()
+        data['id'] = int(self.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
+        data['key'] = self.afeditorwin['Key:Edit'].TextBlock()
+        data['priority'] = self.afeditorwin['Priority:Edit'].TextBlock()
+        data['status'] = self.afeditorwin['Status:Edit'].TextBlock()
+        data['risk'] = self.afeditorwin['Risk:Edit'].TextBlock()
+        data['description'] = self.getHTMLWindowContent(self.afeditorwin['htmlWindow'])
+        p = self.afeditorwin['Priority:Edit'].Parent().Parent()
+        # related requirements
+        p.TypeKeys('^{TAB}')
+        related_requirements = []
+        coltypes = [{'type':int, 'key':'id'}, ]
+        for requirement in self.readArtefactList(coltypes, self.afeditorwin['Requirements:ListView']):
+            related_requirements.append(requirement['id'])
+        data['related_requirements'] = related_requirements
+        # attached usecases
+        p.TypeKeys('^{TAB}')
+        attached_usecases = []
+        coltypes = [{'type':int, 'key':'id'}, ]
+        for usecase in self.readArtefactList(coltypes, self.afeditorwin['Usecases:ListView']):
+            attached_usecases.append(usecase['id'])
+        data['related_usecases'] = attached_usecases 
+        p.TypeKeys(2*'^+{TAB}')
+        return data
+        
+    def readRequirementAtPosition(self, pos):
+        self.treeview.Select((0,3,pos))
+        data = {}
+        data['title'] = self.afeditorwin['Title:Edit'].TextBlock()
+        data['id'] = int(self.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
+        data['key'] = self.afeditorwin['Key:Edit'].TextBlock()
+        data['priority'] = self.afeditorwin['Priority:Edit'].TextBlock()
+        data['status'] = self.afeditorwin['Status:Edit'].TextBlock()
+        data['complexity'] = self.afeditorwin['Complexity:Edit'].TextBlock()
+        data['assigned'] = self.afeditorwin['Assigned:Edit'].TextBlock()
+        data['effort'] = self.afeditorwin['Effort:Edit'].TextBlock()
+        data['category'] = self.afeditorwin['Category:Edit'].TextBlock()
+        data['description'] = self.getHTMLWindowContent(self.afeditorwin['htmlWindow']).strip(' \n')  
+        p = self.afeditorwin['Priority:Edit'].Parent().Parent()
+        p.TypeKeys('^{TAB}')
+        data['origin'] = self.getHTMLWindowContent(self.afeditorwin['oridin_edit']).strip(' \n')
+        data['rationale'] = self.getHTMLWindowContent(self.afeditorwin['rationale_edit']).strip(' \n')
+        # attached testcases
+        p.TypeKeys('^{TAB}')
+        actual_attached_testcases = []
+        coltypes = [{'type':int, 'key':'id'}, ]
+        for afitem in self.readArtefactList(coltypes, self.afeditorwin['Testcases:ListView']):
+            actual_attached_testcases.append(afitem['id'])
+        data['related_testcases'] = actual_attached_testcases
+        # attached usecases
+        p.TypeKeys('^{TAB}')
+        actual_attached_usecases = []
+        coltypes = [{'type':int, 'key':'id'}, ]
+        for afitem in self.readArtefactList(coltypes, self.afeditorwin['Usecases:ListView']):
+            actual_attached_usecases.append(afitem['id'])
+        data['related_usecases'] = actual_attached_usecases
+        # releated features
+        p.TypeKeys('^{TAB}')
+        actual_related_features = []
+        coltypes = [{'type':int, 'key':'id'}, ]
+        for afitem in self.readArtefactList(coltypes, self.afeditorwin['Features:ListView']):
+            actual_related_features.append(afitem['id'])
+        data['related_features'] = actual_related_features
+        # related requirements
+        p.TypeKeys('^{TAB}')
+        actual_related_requirements = []
+        coltypes = [{'type':int, 'key':'id'}, ]
+        for afitem in self.readArtefactList(coltypes, self.afeditorwin['Requirements:ListView']):
+            actual_related_requirements.append(afitem['id'])
+        data['related_requirements'] = actual_related_requirements
+        p.TypeKeys(2 * '^{TAB}')
+        return data
+    
+    
+    def readUsecaseAtPosition(self, pos):
+            self.treeview.Select((0,4,pos))
+            data = {}
+            data['summary'] = self.afeditorwin['Summary:Edit'].TextBlock()
+            data['id'] = int(self.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
+            data['priority'] = self.afeditorwin['Priority:Edit'].TextBlock()
+            data['usefrequency'] = self.afeditorwin['Use frequency:Edit'].TextBlock()
+            data['actors'] = self.afeditorwin['Actors:Edit'].TextBlock()
+            data['stakeholders'] = self.afeditorwin['Stakeholders:Edit'].TextBlock()            
+            data['prerequisites'] = self.getHTMLWindowContent(self.afeditorwin['prerequisites'])
+            data['mainscenario'] = self.getHTMLWindowContent(self.afeditorwin['mainscenario'])
+            data['altscenario'] = self.getHTMLWindowContent(self.afeditorwin['altscenario'])
+            data['notes'] = self.getHTMLWindowContent(self.afeditorwin['notes'])
+            p = self.afeditorwin['Priority:Edit'].Parent().Parent()
+            # releated features
+            p.TypeKeys('^{TAB}')
+            actual_related_features = []
+            coltypes = [{'type':int, 'key':'id'}, ]
+            for afitem in self.readArtefactList(coltypes, self.afeditorwin['Features:ListView']):
+                actual_related_features.append(afitem['id'])
+            data['related_features'] = actual_related_features
+            # related requirements
+            p.TypeKeys('^{TAB}')
+            actual_related_requirements = []
+            coltypes = [{'type':int, 'key':'id'}, ]
+            for afitem in self.readArtefactList(coltypes, self.afeditorwin['Requirements:ListView']):
+                actual_related_requirements.append(afitem['id'])
+            data['related_requirements'] = actual_related_requirements
+            p.TypeKeys(2 * '^{TAB}')
+            return data
 
+    def readTestcaseAtPosition(self, pos):
+            self.treeview.Select((0,5,pos))
+            data = {}
+            data['title'] = self.afeditorwin['Title:Edit'].TextBlock()
+            data['id'] = int(self.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
+            data['key'] = self.afeditorwin['Key:Edit'].TextBlock()
+            data['script'] = self.afeditorwin['Script:Edit'].TextBlock()
+            data['purpose'] = self.getHTMLWindowContent(self.afeditorwin['purpose'])
+            data['prerequisite'] = self.getHTMLWindowContent(self.afeditorwin['prerequisite'])
+            data['testdata'] = self.getHTMLWindowContent(self.afeditorwin['testdata'])
+            data['steps'] = self.getHTMLWindowContent(self.afeditorwin['steps'])
+            data['notes'] = self.getHTMLWindowContent(self.afeditorwin['notes'])
+            p = self.afeditorwin['Key:Edit'].Parent().Parent()
+            # related requirements
+            p.TypeKeys('^{TAB}')
+            actual_related_requirements = []
+            coltypes = [{'type':int, 'key':'id'}, ]
+            for afitem in self.readArtefactList(coltypes, self.afeditorwin['Requirements:ListView']):
+                actual_related_requirements.append(afitem['id'])
+            data['related_requirements'] = actual_related_requirements
+            # releated testsuites
+            p.TypeKeys('^{TAB}')
+            actual_related_testsuites = []
+            coltypes = [{'type':int, 'key':'id'}, ]
+            for afitem in self.readArtefactList(coltypes, self.afeditorwin['Testsuites:ListView']):
+                actual_related_testsuites.append(afitem['id'])
+            data['related_testsuites'] = actual_related_testsuites
+            p.TypeKeys(2 * '^{TAB}')
+            return data
+        
+        
+    def readTestsuiteAtPosition(self, pos):
+            self.treeview.Select((0,6,pos))
+            data = {}
+            data['title'] = self.afeditorwin['Title:Edit'].TextBlock()
+            data['id'] = int(self.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
+            data['execorder'] = self.afeditorwin["Execution order ID's:Edit"].TextBlock()
+            data['description'] = self.getHTMLWindowContent(self.afeditorwin['htmlWindow'])
+            testcaseids = []
+            coltypes = [{'type':int, 'key':'id'}, ]
+            for testcaseid in self.readArtefactList(coltypes, self.afeditorwin['Testcases:ListView']):
+                testcaseids.append(testcaseid['id'])
+            data['testcaseids'] = tuple(testcaseids)
+            return data
