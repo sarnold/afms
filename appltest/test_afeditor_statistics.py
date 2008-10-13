@@ -55,8 +55,6 @@ class TestStatistics(subunittest.TestCase):
         coltypes = [{'type':unicode, 'key':'label'}, {'type':unicode, 'key':'value'}]
         for listitem in helper.readArtefactList(coltypes, helper.afeditorwin['ListView']):
             listitems.append(listitem)
-        #print listitems
-        #helper.afeditorwin.print_control_identifiers()
         helper.afeditorwin['OKButton'].Click()
         statistics = [
             {'value': u'3 (2,4,5)', 'label': u'Features without requirements'}, 
