@@ -122,3 +122,24 @@ DIV.hint p.last {
     background-image:url(graphics/note.png); 
     background-repeat:no-repeat;
 }
+
+DIV#leftpanel {
+  font-size: 0.91em;
+  float: left; width: 320px; height:2000px;
+  margin: 0; padding: 0;
+  margin-top:100px;
+}
+DIV#artefact-management-system-afms hr {
+margin-left: -320px;
+}
+DIV#artefact-management-system-afms ul {
+margin-left:340px;
+}
+
+DIV.footer {
+font-size: x-small;
+/*position: relative; left:-320px; width:320px;*/
+}
+
+
+
