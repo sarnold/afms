@@ -28,6 +28,12 @@
         </div>
         <!-- end_mainmenu -->
 
+.. raw:: html
+
+    <div id="leftpanel">
+    <img src="images/afeditor_3d.png" width="300px"/>
+    </div>
+
 
 ================================
 Artefact Management System AFMS 
