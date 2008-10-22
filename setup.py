@@ -27,7 +27,7 @@ from version import VERSION
 addonfile1 = os.path.join(sys.prefix,'Lib/site-packages/docutils/writers/html4css1/html4css1.css')
 addonfile2 = os.path.join(sys.prefix,'Lib/site-packages/docutils/writers/html4css1/template.txt')
 
-data_files = [("", ['html4css1.css', 'template.txt'])]
+data_files = [("", ['html4css1.css', 'template.txt', 'afmsreport.css'])]
 languages = ['de', 'en']
 for lang in languages:
     path = 'locale/%s/LC_MESSAGES' % lang
