@@ -41,28 +41,37 @@ import afresource, afconfig
 class TestDeleteRestoreArtefactContents(subunittest.TestCase):
     """Test deletion and restoration of artefacts"""
     
+    def __init__(self, arg):
+        subunittest.TestCase.__init__(self, arg)
+        self.numberofartefacts = 63
+        
+
     def test_0010_NumberOfArtefacts(self):
         """Check number of artefacts in database"""
         self.assertEqual(helper.treeview.ItemCount(), 63)
     
     
-    def _deleteSelectedItem(self, msg):
+    def _deleteSelectedItem(self, msg=None):
         helper.treeview.TypeKeys('{DEL}')
         helper.afeditorwin['&Yes'].Click()
-        helper.afeditorwin['Edit0'].SetText(msg)
-        helper.afeditorwin['OK'].Click()
+        if msg is not None:
+            helper.afeditorwin['Edit0'].SetText(msg)
+            helper.afeditorwin['OK'].Click()
         
         
     def test_0020_DeleteTextSection(self):
         helper.treeview.Select((0,0,2))
         self._deleteSelectedItem('deleted by test_0020_DeleteTextSection (1)')
-        self.assertEqual(helper.treeview.ItemCount(), 62)
+        self.numberofartefacts -= 1
+        self.assertEqual(helper.treeview.ItemCount(), self.numberofartefacts)
         helper.treeview.Select((0,0,0))
         self._deleteSelectedItem('deleted by test_0020_DeleteTextSection (2)')
-        self.assertEqual(helper.treeview.ItemCount(), 61)
+        self.numberofartefacts -= 1
+        self.assertEqual(helper.treeview.ItemCount(), self.numberofartefacts)
         helper.treeview.Select((0,0,2))
         self._deleteSelectedItem('deleted by test_0020_DeleteTextSection (3)')
-        self.assertEqual(helper.treeview.ItemCount(), 60)
+        self.numberofartefacts -= 1
+        self.assertEqual(helper.treeview.ItemCount(), self.numberofartefacts)
         helper.treeview.Select((0,0))        
         nitems = helper.afeditorwin.leftwinListView.ItemCount()
         self.assertEqual(nitems, 2)
@@ -74,6 +83,28 @@ class TestDeleteRestoreArtefactContents(subunittest.TestCase):
         self.failUnless(helper.treeview.GetItem((0,0,1)))
         self.failUnlessRaises(AttributeError, helper.treeview.GetItem, (0,0,2))
         
+
+    def test_0030_DeleteGlossaryEntry(self):
+        helper.treeview.Select((0,1,2))
+        self._deleteSelectedItem()
+        self.numberofartefacts -= 1
+        self.assertEqual(helper.treeview.ItemCount(), self.numberofartefacts)
+        helper.treeview.Select((0,1,2))
+        self._deleteSelectedItem()
+        self.numberofartefacts -= 1
+        self.assertEqual(helper.treeview.ItemCount(), self.numberofartefacts)
+        helper.treeview.Select((0,1))        
+        nitems = helper.afeditorwin.leftwinListView.ItemCount()
+        self.assertEqual(nitems, 3)
+        helper.afeditorwin.leftwinListView.Select(0)
+        coltypes = [{'type':int, 'key':'id'}, {'type':unicode, 'key':'term'}, {'type':unicode, 'key':'description'}]
+        for actual, refid, in zip(helper.readArtefactList(coltypes), (1,2,5)):
+            self.assertEqual(actual['id'], refid)
+        self.failUnless(helper.treeview.GetItem((0,1,0)))
+        self.failUnless(helper.treeview.GetItem((0,1,1)))
+        self.failUnless(helper.treeview.GetItem((0,1,2)))
+        self.failUnlessRaises(AttributeError, helper.treeview.GetItem, (0,1,3))
+
 
     def xxtest_9999_tearDown(self):
         """No messages on stdout and stderr"""
@@ -95,7 +126,7 @@ class TestSuite(subunittest.TestSuite):
 
 def getSuite():
     testloader = subunittest.TestLoader()
-    testloader.testMethodPrefix = 'test'
+    testloader.testMethodPrefix = 'test_0030_DeleteGlossaryEntry'
     suite = TestSuite()
     suite.addTests(testloader.loadTestsFromTestCase(TestDeleteRestoreArtefactContents))
     return suite
