@@ -53,12 +53,14 @@ class EditArtefactDialog(wx.Dialog):
         self.SetAffirmativeId(wx.ID_SAVE)
         btn.SetDefault()
         btnsizer.AddButton(btn)
+        self.savebtn = btn
 
         btn = wx.Button(self, wx.ID_CANCEL)
         btnsizer.AddButton(btn)
         btnsizer.Realize()
         sizer.Add(btnsizer, 0, wx.ALIGN_RIGHT | wx.ALL, 5)
-
+        self.cancelbtn = btn
+        
 
     def PreviewClick(self, evt):
         dlg = PreviewArtefactDialog(self, -1, title=_("Preview"), contentview = self.contentviewclass)
