@@ -71,8 +71,6 @@ import _affilterview, _affilter, afdbtoarchive, afarchivetodb, _afstatisticsview
 #TODO: enter key on Feature/Requirement/... in tree should expand the tree
 #TODO: empty trash function
 
-_EDIT_MODE = False
-
 
 class FileDropTarget(wx.FileDropTarget):
     def __init__(self, callback):
@@ -85,6 +83,20 @@ class FileDropTarget(wx.FileDropTarget):
         self.callback(filenames[0])
 
 
+class EditParams(object):
+    iseditmode = False
+    parent_id = None
+    item_id = None
+    editdlg = None
+    savedata = None
+    callback_onsave = None
+    callback_arg = None
+
+
+def Ignore(*args):
+    pass
+
+    
 class MyApp(wx.App):
     """
     wxWidgets main application class.
@@ -111,7 +123,7 @@ class MyApp(wx.App):
         if not os.path.exists(workdir):
              self.config.Write("workdir", documents_dir)
         wx.Config.Set(self.config)
-
+        self.editparams = EditParams()
         self.model = afmodel.afModel(self, self.config.Read("workdir", documents_dir))
 
         # Setup language stuff
@@ -770,12 +782,17 @@ class MyApp(wx.App):
         """
         # Get the current selected item when the new command is issued
         (parent_id, item_id) = self.GetParentAndItemID()
-        result = self.requestEditView("REQUIREMENTS", -1)
-        if result[0] != wx.ID_SAVE: return
-        if (parent_id != "FEATURES"): return
-        rq_id = result[2]['ID']
-        self.model.addFeatureRequirementRelation(item_id, rq_id)
-
+        if (parent_id != "FEATURES"):
+            self.requestEditView("REQUIREMENTS", -1)
+        else:
+            self.requestEditView("REQUIREMENTS", -1,
+                                 callback_onsave=lambda af, item_id: self.model.addFeatureRequirementRelation(item_id, af['ID']),
+                                 callback_arg=item_id)
+        #if result[0] != wx.ID_SAVE: return
+        #if (parent_id != "FEATURES"): return
+        #rq_id = result[2]['ID']
+        #self.model.addFeatureRequirementRelation(item_id, rq_id)
+        
 
     def OnNewTestcase(self, evt):
         """
@@ -789,13 +806,21 @@ class MyApp(wx.App):
         """
         # Get the current selected item when the new command is issued
         (parent_id, item_id) = self.GetParentAndItemID()
-        result = self.requestEditView("TESTCASES", -1)
-        if result[0] != wx.ID_SAVE: return
-        tc_id = result[2]['ID']
         if (parent_id == "REQUIREMENTS"):
-            self.model.addRequirementTestcaseRelation(item_id, tc_id)
+            f = lambda af, item_id: self.model.addRequirementTestcaseRelation(item_id, af['ID'])
         elif (parent_id == "TESTSUITES"):
-            self.model.addTestsuiteTestcaseRelation(item_id, tc_id)
+            f = lambda af, item_id: self.model.addTestsuiteTestcaseRelation(item_id, af['ID'])
+        else:
+            f = Ignore
+        self.requestEditView("TESTCASES", -1, callback_onsave=f, callback_arg=item_id)
+
+        #result = self.requestEditView("TESTCASES", -1)
+        #if result[0] != wx.ID_SAVE: return
+        #tc_id = result[2]['ID']
+        #if (parent_id == "REQUIREMENTS"):
+        #    self.model.addRequirementTestcaseRelation(item_id, tc_id)
+        #elif (parent_id == "TESTSUITES"):
+        #    self.model.addTestsuiteTestcaseRelation(item_id, tc_id)
 
 
     def OnNewUsecase(self, evt):
@@ -809,13 +834,22 @@ class MyApp(wx.App):
         """
         # Get the current selected item when the new command is issued
         (parent_id, item_id) = self.GetParentAndItemID()
-        result = self.requestEditView("USECASES", -1)
-        if result[0] != wx.ID_SAVE: return
-        uc_id = result[2]['ID']
         if (parent_id == "REQUIREMENTS"):
-            self.model.addRequirementUsecaseRelation(item_id, uc_id)
+            f = lambda af, item_id: self.model.addRequirementUsecaseRelation(item_id, af['ID'])
         elif (parent_id == "FEATURES"):
-            self.model.addFeatureUsecaseRelation(item_id, uc_id)
+            f =lambda af, item_id: self.model.addFeatureUsecaseRelation(item_id, af['ID'])
+        else:
+            f = Ignore    
+        self.requestEditView("USECASES", -1, callback_onsave=f, callback_arg=item_id)
+        
+        
+        #result = self.requestEditView("USECASES", -1)
+        #if result[0] != wx.ID_SAVE: return
+        #uc_id = result[2]['ID']
+        #if (parent_id == "REQUIREMENTS"):
+        #    self.model.addRequirementUsecaseRelation(item_id, uc_id)
+        #elif (parent_id == "FEATURES"):
+        #    self.model.addFeatureUsecaseRelation(item_id, uc_id)
 
 
     def OnNewTestsuite(self, evt):
@@ -928,7 +962,7 @@ class MyApp(wx.App):
         Edit product information in dialog window
         @type  product_info: nested tuple
         @param product_info: Product data
-        """
+        """        
         dlg = EditArtefactDialog(self.mainframe.rightWindow, -1, title=_("Edit Product"), contentview = afProductInformation)
         dlg.contentview.InitContent(product_info)
         dlgResult = dlg.ShowModal()
@@ -948,7 +982,7 @@ class MyApp(wx.App):
         """
         feature.validator =  self.validateArtefact
         afconfig.VERSION_NAME = self.model.requestVersionList('FEATURES')
-        return self.EditArtefact(_("Edit feature"), afFeatureNotebook, self.model.saveFeature, feature)
+        self.EditArtefact(_("Edit feature"), afFeatureNotebook, self.model.saveFeature, feature)
 
 
     def EditRequirement(self, requirement):
@@ -963,7 +997,7 @@ class MyApp(wx.App):
         afconfig.ASSIGNED_NAME = self.model.requestAssignedList()
         afconfig.VERSION_NAME = self.model.requestVersionList('REQUIREMENTS')
         requirement.validator = self.validateArtefact
-        return self.EditArtefact(_("Edit requirement"), afRequirementNotebook, self.model.saveRequirement, requirement)
+        self.EditArtefact(_("Edit requirement"), afRequirementNotebook, self.model.saveRequirement, requirement)
 
 
     def validateArtefact(self, initial_requirement, current_requirement):
@@ -999,7 +1033,7 @@ class MyApp(wx.App):
         @return: same as L{EditArtefact}
         """
         afconfig.VERSION_NAME = self.model.requestVersionList('TESTCASES')
-        return self.EditArtefact(_("Edit testcase"), afTestcaseNotebook, self.model.saveTestcase, testcase)
+        self.EditArtefact(_("Edit testcase"), afTestcaseNotebook, self.model.saveTestcase, testcase)
 
 
     def EditUsecase(self, usecase):
@@ -1012,7 +1046,7 @@ class MyApp(wx.App):
         """
         afconfig.ACTOR_NAME = self.model.requestActorList()
         afconfig.STAKEHOLDER_NAME = self.model.requestStakeholderList()
-        return self.EditArtefact(_("Edit usecase"), afUsecaseNotebook, self.model.saveUsecase, usecase)
+        self.EditArtefact(_("Edit usecase"), afUsecaseNotebook, self.model.saveUsecase, usecase)
 
 
     def EditTestsuite(self, testsuite):
@@ -1023,15 +1057,15 @@ class MyApp(wx.App):
         @return: same as L{EditArtefact}
         @rtype:  nested tuple
         """
-        return self.EditArtefact(_("Edit testsuite"), afTestsuiteView, self.model.saveTestsuite, testsuite)
+        self.EditArtefact(_("Edit testsuite"), afTestsuiteView, self.model.saveTestsuite, testsuite)
 
 
     def EditSimpleSection(self, simplesection):
-        return self.EditArtefact(_("Edit section"), afSimpleSectionNotebook, self.model.saveSimpleSection, simplesection)
+        self.EditArtefact(_("Edit section"), afSimpleSectionNotebook, self.model.saveSimpleSection, simplesection)
 
 
     def EditGlossaryEntry(self, glossaryentry):
-        return self.EditArtefact(_("Edit glossary entry"), afGlossaryEntryView, self.model.saveGlossaryEntry, glossaryentry)
+        self.EditArtefact(_("Edit glossary entry"), afGlossaryEntryView, self.model.saveGlossaryEntry, glossaryentry)
 
 
     def EditArtefact(self, title, contentview, savedata, data):
@@ -1057,9 +1091,15 @@ class MyApp(wx.App):
         dlg.contentview.InitContent(data)
         #TODO: pass validator to this function and use this to init validator of contentview
         # this should not be the wxValidator
-        global _EDIT_MODE
-        _EDIT_MODE = True
-        dlgResult = dlg.ShowModal()
+        # TODO: do pseudo modal dialog
+        dlg.Show()
+        dlg.SetFocus() #TODO: testme
+        dlg.Bind(wx.EVT_BUTTON, self.EditArtefactDialogSave, id=dlg.savebtn.GetId())
+        dlg.Bind(wx.EVT_BUTTON, self.EditArtefactDialogCancel, id=dlg.cancelbtn.GetId())
+        self.editparams.editdlg = dlg
+        self.editparams.savedata = savedata
+        return
+        
         _EDIT_MODE = False
         if dlgResult == wx.ID_SAVE:
             data = dlg.contentview.GetContent()
@@ -1079,7 +1119,7 @@ class MyApp(wx.App):
         return [dlgResult, new_artefact, data, contentview]
 
 
-    def requestEditView(self, parent_id, item_id):
+    def requestEditView(self, parent_id, item_id, callback_onsave=Ignore, callback_arg=None):
         """
         Handle the request to edit an artefact
 
@@ -1105,42 +1145,96 @@ class MyApp(wx.App):
                  is returned.
         @rtype:  nested tuple
         """
+        if self.editparams.iseditmode: return
         logging.debug("afeditor.requestEditView(%s, %s)" % (parent_id, item_id))
-        result = None
+        self.editparams.parent_id = parent_id
+        self.editparams.item_id = item_id
+        self.editparams.iseditmode = True
+        self.mainframe.EnableTools(False)
+        self.mainframe.EnableMenus(False)
+        self.mainframe.EnableFilters(False)
+        self.mainframe.SetStatusText(_('Edit'), 1)
+        self.editparams.callback_onsave = callback_onsave
+        self.editparams.callback_arg = callback_arg
 
         if item_id == "PRODUCT":
             # Root node of tree is selected, edit project information
             self.EditProductInfo(self.model.getProductInformation())
+            self.editparams.iseditmode = False
             return
 
         elif parent_id == "FEATURES":
-            result = self.EditFeature(self.model.getFeature(item_id))
+            self.EditFeature(self.model.getFeature(item_id))
 
         elif parent_id == "REQUIREMENTS":
-            result = self.EditRequirement(self.model.getRequirement(item_id))
+            self.EditRequirement(self.model.getRequirement(item_id))
 
         elif parent_id == "TESTCASES":
-            result = self.EditTestcase(self.model.getTestcase(item_id))
+            self.EditTestcase(self.model.getTestcase(item_id))
 
         elif parent_id == "USECASES":
-            result = self.EditUsecase(self.model.getUsecase(item_id))
+            self.EditUsecase(self.model.getUsecase(item_id))
 
         elif parent_id == "TESTSUITES":
-            result = self.EditTestsuite(self.model.getTestsuite(item_id))
+            self.EditTestsuite(self.model.getTestsuite(item_id))
 
         elif parent_id == "SIMPLESECTIONS":
-            result = self.EditSimpleSection(self.model.getSimpleSection(item_id))
+            self.EditSimpleSection(self.model.getSimpleSection(item_id))
 
         elif parent_id == "GLOSSARYENTRIES":
-            result = self.EditGlossaryEntry(self.model.getGlossaryEntry(item_id))
+            self.EditGlossaryEntry(self.model.getGlossaryEntry(item_id))
 
-        if result[0] == wx.ID_SAVE:
-            self.InitFilters()
+        return
+        #if result[0] == wx.ID_SAVE:
+        #    self.InitFilters()
 
-        if result is not None:
-            self.updateView(result, parent_id, item_id)
+        #if result is not None:
+        #    self.updateView(result, parent_id, item_id)
 
-        return result
+        #return result
+
+
+    def EditArtefactDialogSave(self, evt):
+        """Save button pressed in edit artefact dialog"""
+        logging.debug("afeditor.EditArtefactDialogSave()")
+        dlg = self.editparams.editdlg
+        savedata = self.editparams.savedata
+        data = dlg.contentview.GetContent()
+        try:
+            (data, new_artefact) = savedata(data)
+            self.editparams.callback_onsave(data, self.editparams.callback_arg)
+        except:
+            new_artefact = False
+            msg = str(sys.exc_info()[0])+"\n"+str(sys.exc_info()[1])
+            wx.MessageBox(msg, _('Error saving artefact'), wx.OK | wx.ICON_ERROR)
+            logging.error(msg)
+            logging.error(sys.exc_info())
+        dlg.Destroy()
+        logging.debug("afeditor.EditArtefact() done")
+        ##return [dlgResult, new_artefact, data, contentview]
+        self.InitFilters()
+        self.updateView((wx.ID_OK, new_artefact, data, None), self.editparams.parent_id, self.editparams.item_id)
+        self.editparams.iseditmode = False
+        self.mainframe.EnableTools(True)
+        self.mainframe.EnableMenus(True)
+        self.mainframe.EnableFilters(True)
+        self.mainframe.SetStatusText('', 1)
+        
+    
+    def EditArtefactDialogCancel(self, evt):
+        """Cancel button pressed in edit artefact dialog"""
+        logging.debug("afeditor.EditArtefactDialogCancel()")
+        dlg = self.editparams.editdlg
+        data = None
+        new_artefact = False
+        dlg.Destroy()
+        logging.debug("afeditor.EditArtefact() canceled")
+        ##return [dlgResult, new_artefact, data, contentview]
+        self.editparams.iseditmode = False
+        self.mainframe.EnableTools(True)
+        self.mainframe.EnableMenus(True)
+        self.mainframe.EnableFilters(True)
+        self.mainframe.SetStatusText('', 1)
 
 
     def undeleteArtefact(self, parent_id, item_id):
@@ -1376,7 +1470,7 @@ class MyApp(wx.App):
                 self.InitFilters()
             except:
                 _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error importing artefacts!'))
-
+    
 
 def main():
     import os, sys, getopt

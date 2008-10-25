@@ -47,7 +47,10 @@ class afNoFilterView(scrolled.ScrolledPanel):
 
     def GetFilterContent(self):
         return _affilter.afNoFilter()
-
+    
+    def EnableButtons(self, enable):
+        pass
+    
 
 class afBaseFilterView(scrolled.ScrolledPanel):
     def __init__(self, parent):
@@ -68,8 +71,14 @@ class afBaseFilterView(scrolled.ScrolledPanel):
         # TODO: Implement load/save functions
         btns[2].Hide()
         btns[3].Hide()
+        self._btns = btns
         self.vbox.Add(hbox, 0, wx.ALL|wx.EXPAND, 5)
 
+
+    def EnableButtons(self, enable):
+        for btn in self._btns:
+            btn.Enable(enable)
+            
 
     def AddTextFieldWidget(self, hbox, choices, fieldnames):
         sizer = wx.BoxSizer(wx.VERTICAL)

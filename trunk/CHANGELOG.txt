@@ -2,6 +2,14 @@
 AFMS Release 0.5.x (2008-xx-xx)
 ===============================
 
+Changes
+~~~~~~~
+* Edit artefact dialog is not modal any more but all editing and 
+  filter functions in the main window are disabled while editing an 
+  artefact.
+  This allows to inspect other artefacts while editing an artefact.
+
+
 Bug fixes
 ~~~~~~~~~  
 * when a feature is selected (in tree or list) and the command

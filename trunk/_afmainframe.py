@@ -50,6 +50,7 @@ class MainFrame(wx.Frame):
         self.SetupToolbar()
         self.SetupStatusBar()
         self.SetupSashLayout(self)
+        self.filterviewbuttonsenable = True
 
         icons = wx.IconBundle()
         icons.AddIcon(wx.IconFromBitmap(_afimages.getapp16x16Bitmap()))
@@ -86,12 +87,18 @@ class MainFrame(wx.Frame):
             self.filterview.Hide()
         self.filterview = filterview
         self.filterview.Show()
+        self.filterview.EnableButtons(self.filterviewbuttonsenable)
         self.filterview.SetupScrolling()
         self.bottomWindowSizer.Clear(deleteWindows = False)
         self.bottomWindowSizer.Add(filterview, 1, wx.ALL | wx.EXPAND, 5)
         self.bottomWindow.Layout()
         filterview.Layout()
 
+    
+    def EnableFilters(self, enable):
+        self.filterview.EnableButtons(enable)
+        self.filterviewbuttonsenable = enable
+        
 
     def SetFilterInfo(self, filterstate):
         for aftype, state in filterstate.iteritems():
@@ -245,6 +252,13 @@ class MainFrame(wx.Frame):
         tb.EnableTool(20, False)
 
         tb.Realize()
+        
+        
+    def EnableTools(self, enable):
+        tb = self.GetToolBar()
+        id = (10,11,12,30,31,18,13,14,17,15,16,19,20)
+        map(tb.EnableTool, id, [enable]*len(id))
+        
 
     def SetupMenu(self):
         "Create menubar"
@@ -341,6 +355,12 @@ class MainFrame(wx.Frame):
         menuBar.Append(menu, _('&Help'))
 
         self.SetMenuBar(menuBar)
+        
+        
+    def EnableMenus(self, enable):
+        menuBar = self.GetMenuBar()
+        id = (0,1,2,3,4)
+        map(menuBar.EnableTop, id, [enable]*len(id))
 
 
     def OnSashDrag(self, event):
