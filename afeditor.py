@@ -89,6 +89,7 @@ class EditParams(object):
     item_id = None
     editdlg = None
     savedata = None
+    simplesectionlevelbtn = None
     callback_onsave = None
     callback_arg = None
 
@@ -463,7 +464,6 @@ class MyApp(wx.App):
         @type  evt: wx.NotebookEvent
         @param evt: event data
         """
-        #logging.debug('OnPageChanged,  old:%d, new:%d\n' % (event.GetOldSelection(), evt.GetSelection()))
         self.notebooktab[self.currentview] = evt.GetSelection()
 
 
@@ -788,10 +788,6 @@ class MyApp(wx.App):
             self.requestEditView("REQUIREMENTS", -1,
                                  callback_onsave=lambda af, item_id: self.model.addFeatureRequirementRelation(item_id, af['ID']),
                                  callback_arg=item_id)
-        #if result[0] != wx.ID_SAVE: return
-        #if (parent_id != "FEATURES"): return
-        #rq_id = result[2]['ID']
-        #self.model.addFeatureRequirementRelation(item_id, rq_id)
         
 
     def OnNewTestcase(self, evt):
@@ -814,14 +810,6 @@ class MyApp(wx.App):
             f = Ignore
         self.requestEditView("TESTCASES", -1, callback_onsave=f, callback_arg=item_id)
 
-        #result = self.requestEditView("TESTCASES", -1)
-        #if result[0] != wx.ID_SAVE: return
-        #tc_id = result[2]['ID']
-        #if (parent_id == "REQUIREMENTS"):
-        #    self.model.addRequirementTestcaseRelation(item_id, tc_id)
-        #elif (parent_id == "TESTSUITES"):
-        #    self.model.addTestsuiteTestcaseRelation(item_id, tc_id)
-
 
     def OnNewUsecase(self, evt):
         """
@@ -841,15 +829,6 @@ class MyApp(wx.App):
         else:
             f = Ignore    
         self.requestEditView("USECASES", -1, callback_onsave=f, callback_arg=item_id)
-        
-        
-        #result = self.requestEditView("USECASES", -1)
-        #if result[0] != wx.ID_SAVE: return
-        #uc_id = result[2]['ID']
-        #if (parent_id == "REQUIREMENTS"):
-        #    self.model.addRequirementUsecaseRelation(item_id, uc_id)
-        #elif (parent_id == "FEATURES"):
-        #    self.model.addFeatureUsecaseRelation(item_id, uc_id)
 
 
     def OnNewTestsuite(self, evt):
@@ -882,7 +861,6 @@ class MyApp(wx.App):
         if item:
             (parent_id, item_id) = self.mainframe.treeCtrl.GetItemInfo(item)
             self.updateNodeView(parent_id, item_id)
-            #logging.debug("OnSelChanged: <%s, %s>\n" % (parent_id, item_id))
             self.mainframe.treeCtrl.SetFocus()
 
 
@@ -1091,33 +1069,15 @@ class MyApp(wx.App):
         dlg.contentview.InitContent(data)
         #TODO: pass validator to this function and use this to init validator of contentview
         # this should not be the wxValidator
-        # TODO: do pseudo modal dialog
         dlg.Show()
         dlg.SetFocus() #TODO: testme
         dlg.Bind(wx.EVT_BUTTON, self.EditArtefactDialogSave, id=dlg.savebtn.GetId())
+        dlg.Bind(wx.EVT_BUTTON, self.EditArtefactDialogSave, id=dlg.savecontbtn.GetId())
         dlg.Bind(wx.EVT_BUTTON, self.EditArtefactDialogCancel, id=dlg.cancelbtn.GetId())
         self.editparams.editdlg = dlg
         self.editparams.savedata = savedata
         return
         
-        _EDIT_MODE = False
-        if dlgResult == wx.ID_SAVE:
-            data = dlg.contentview.GetContent()
-            try:
-                (data, new_artefact) = savedata(data)
-            except:
-                new_artefact = False
-                msg = str(sys.exc_info()[0])+"\n"+str(sys.exc_info()[1])
-                wx.MessageBox(msg, _('Error saving artefact'), wx.OK | wx.ICON_ERROR)
-                logging.error(msg)
-                logging.error(sys.exc_info())
-        else:
-            data = None
-            new_artefact = False
-        dlg.Destroy()
-        logging.debug("afeditor.EditArtefact() done")
-        return [dlgResult, new_artefact, data, contentview]
-
 
     def requestEditView(self, parent_id, item_id, callback_onsave=Ignore, callback_arg=None):
         """
@@ -1147,15 +1107,7 @@ class MyApp(wx.App):
         """
         if self.editparams.iseditmode: return
         logging.debug("afeditor.requestEditView(%s, %s)" % (parent_id, item_id))
-        self.editparams.parent_id = parent_id
-        self.editparams.item_id = item_id
-        self.editparams.iseditmode = True
-        self.mainframe.EnableTools(False)
-        self.mainframe.EnableMenus(False)
-        self.mainframe.EnableFilters(False)
-        self.mainframe.SetStatusText(_('Edit'), 1)
-        self.editparams.callback_onsave = callback_onsave
-        self.editparams.callback_arg = callback_arg
+        self.__BeginEditModal(parent_id, item_id, callback_onsave, callback_arg)
 
         if item_id == "PRODUCT":
             # Root node of tree is selected, edit project information
@@ -1185,19 +1137,14 @@ class MyApp(wx.App):
             self.EditGlossaryEntry(self.model.getGlossaryEntry(item_id))
 
         return
-        #if result[0] == wx.ID_SAVE:
-        #    self.InitFilters()
-
-        #if result is not None:
-        #    self.updateView(result, parent_id, item_id)
-
-        #return result
 
 
     def EditArtefactDialogSave(self, evt):
         """Save button pressed in edit artefact dialog"""
         logging.debug("afeditor.EditArtefactDialogSave()")
         dlg = self.editparams.editdlg
+        if not dlg.Validate(): return
+        continue_edit = evt.GetId() == dlg.savecontbtn.GetId()
         savedata = self.editparams.savedata
         data = dlg.contentview.GetContent()
         try:
@@ -1209,16 +1156,15 @@ class MyApp(wx.App):
             wx.MessageBox(msg, _('Error saving artefact'), wx.OK | wx.ICON_ERROR)
             logging.error(msg)
             logging.error(sys.exc_info())
-        dlg.Destroy()
-        logging.debug("afeditor.EditArtefact() done")
-        ##return [dlgResult, new_artefact, data, contentview]
+        logging.debug("afeditor.EditArtefactDialogSave() done")
         self.InitFilters()
         self.updateView((wx.ID_OK, new_artefact, data, None), self.editparams.parent_id, self.editparams.item_id)
-        self.editparams.iseditmode = False
-        self.mainframe.EnableTools(True)
-        self.mainframe.EnableMenus(True)
-        self.mainframe.EnableFilters(True)
-        self.mainframe.SetStatusText('', 1)
+        if continue_edit:
+            dlg.contentview.UpdateContent(data)
+            self.editparams.item_id = data['ID']
+        else:
+            dlg.Destroy()
+            self.__EndEditModal()
         
     
     def EditArtefactDialogCancel(self, evt):
@@ -1228,14 +1174,29 @@ class MyApp(wx.App):
         data = None
         new_artefact = False
         dlg.Destroy()
-        logging.debug("afeditor.EditArtefact() canceled")
-        ##return [dlgResult, new_artefact, data, contentview]
+        self.__EndEditModal()
+
+
+    def __BeginEditModal(self, parent_id, item_id, callback_onsave, callback_arg):
+        self.editparams.parent_id = parent_id
+        self.editparams.item_id = item_id
+        self.editparams.iseditmode = True
+        self.mainframe.EnableTools(False)
+        self.mainframe.EnableMenus(False)
+        self.mainframe.EnableFilters(False)
+        self.mainframe.SetStatusText(_('Edit'), 1)
+        self.editparams.callback_onsave = callback_onsave
+        self.editparams.callback_arg = callback_arg
+        if self.editparams.simplesectionlevelbtn is not None: self.editparams.simplesectionlevelbtn.Enable(False)
+    
+    
+    def __EndEditModal(self):
         self.editparams.iseditmode = False
         self.mainframe.EnableTools(True)
         self.mainframe.EnableMenus(True)
         self.mainframe.EnableFilters(True)
         self.mainframe.SetStatusText('', 1)
-
+        if self.editparams.simplesectionlevelbtn is not None: self.editparams.simplesectionlevelbtn.Enable(True)
 
     def undeleteArtefact(self, parent_id, item_id):
         """
@@ -1288,6 +1249,7 @@ class MyApp(wx.App):
             self.DisableUpdateNodeView = False
             return
         logging.debug("afeditor.updateNodeView(%s, %s)" % (parent_id, item_id))
+        self.editparams.simplesectionlevelbtn = None
         if item_id == "PRODUCT":
             # Root node of tree is selected, show project information
             self.ViewProductInfo(self.model.getProductInformation())
@@ -1328,6 +1290,8 @@ class MyApp(wx.App):
                                   self.model.getSimpleSectionList(affilter=self.simplesectionfilterview.GetFilterContent()),
                                   select_id)
             self.mainframe.AddFilterView(self.simplesectionfilterview)
+            self.editparams.simplesectionlevelbtn = self.contentview.level_button
+            self.contentview.level_button.Enable(not self.editparams.iseditmode)
             #
         elif item_id == "GLOSSARYENTRIES":
             self.ViewArtefactList(afGlossaryEntryList, self.glossaryentrylistview,

@@ -73,6 +73,9 @@ class afGlossaryEntryView(wx.Panel):
             description=self.description_edit.GetValue(),
             ID=int(self.id_edit.GetValue()))
 
+    def UpdateContent(self, artefact):
+        self.id_edit.SetValue(str(artefact['ID']))
+
     def ChangeSelection(self, n):
         pass
 

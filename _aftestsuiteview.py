@@ -107,6 +107,10 @@ class afTestsuiteView(wx.Panel):
         testsuite.setUnrelatedTestcases(unrelated_tcobjs)
 
         return testsuite
+    
+    
+    def UpdateContent(self, artefact):
+        self.id_edit.SetValue(str(artefact['ID']))
 
 
     def OnItemActivated(self, evt):
