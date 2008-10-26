@@ -82,3 +82,7 @@ class afBaseNotebook(wx.Notebook):
 
     def OnTimer(self, evt):
         self.changedate_edit.SetValue(time.strftime(afresource.TIME_FORMAT))
+        
+        
+    def UpdateContent(self, artefact):
+        self.id_edit.SetValue(str(artefact['ID']))
