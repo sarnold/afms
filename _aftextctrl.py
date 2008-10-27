@@ -42,12 +42,17 @@ class afTextCtrl(wx.TextCtrl):
     def __init__(self, parent, ID=-1, validator=wx.DefaultValidator):
         style = wx.TE_MULTILINE|wx.TE_PROCESS_ENTER|wx.TE_PROCESS_TAB|wx.TE_RICH2
         wx.TextCtrl.__init__(self, parent, ID, style=style, validator=validator)
-        font = self.GetFont()
-        font.SetFamily(wx.FONTFAMILY_TELETYPE )
-        self.SetFont(font)
+        ttFont = self.GetFont()
+        ttFont.SetFamily(wx.FONTFAMILY_TELETYPE)
+        if "wxMSW" in wx.PlatformInfo:
+            # see http://aspn.activestate.com/ASPN/Mail/Message/wxPython-users/1690364 for explanation
+            e = wx.NativeFontInfo()
+            e.FromString("0;-11;0;0;0;400;0;0;0;0;3;2;1;49;Courier New")
+            ttFont.SetNativeFontInfo(e)
+        self.SetFont(ttFont)
         self.Bind(wx.EVT_CONTEXT_MENU, self.OnContextMenu)
         self._InitPopupMenu()
-
+    
 
     def _InitPopupMenu(self):
         class menuitem: 

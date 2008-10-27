@@ -93,7 +93,7 @@ class afEditorTestHelper(afTestHelper):
         editwin = self.app['Edit section']
         editwin['Title:Edit'].SetText(kwargs['title'])
         editwin['Content:RICHEDIT50W'].SetText(kwargs['content'])
-        editwin['Save'].Click()
+        editwin['Save && Close'].Click()
         
         
     def editTextSection(self, pos, callback):
@@ -107,7 +107,7 @@ class afEditorTestHelper(afTestHelper):
         callback(data)
         editwin['Title:Edit'].SetText(data['title'])
         editwin['Content:RICHEDIT50W'].SetText(data['content'])
-        editwin['Save'].Click()
+        editwin['Save && Close'].Click()
         
     
     def getTextSection(self, n=5):
@@ -131,7 +131,7 @@ class afEditorTestHelper(afTestHelper):
         editwin = self.app['Edit glossary entry']
         editwin['Term:Edit'].SetText(kwargs['term'])
         editwin['Description:RICHEDIT50W'].SetText(kwargs['description'])
-        editwin['Save'].Click()
+        editwin['Save && Close'].Click()
         
 
     def editGlossaryEntry(self, pos, callback):
@@ -145,7 +145,7 @@ class afEditorTestHelper(afTestHelper):
         callback(data)
         editwin['Term:Edit'].SetText(data['term'])
         editwin['Description:RICHEDIT50W'].SetText(data['description'])
-        editwin['Save'].Click()
+        editwin['Save && Close'].Click()
 
 
     def getGlossaryEntry(self, n=5):
@@ -171,7 +171,7 @@ class afEditorTestHelper(afTestHelper):
         editwin['Priority:ComboBox'].Select(kwargs['priority'])
         editwin['Status:ComboBox'].Select(kwargs['status'])
         editwin['Risk:ComboBox'].Select(kwargs['risk'])
-        editwin['Save'].Click()
+        editwin['Save && Close'].Click()
 
 
     def editFeature(self, pos, callback):
@@ -185,7 +185,8 @@ class afEditorTestHelper(afTestHelper):
         callback(data)
         editwin['Title:Edit'].SetText(data['title'])
         editwin['Description:RICHEDIT50W'].SetText(data['description'])
-        editwin['Save'].Click()
+        editwin['Status:ComboBox'].Select(0)
+        editwin['Save && Close'].Click()
 
     
     def getFeature(self):
@@ -229,8 +230,23 @@ class afEditorTestHelper(afTestHelper):
         editwin['Origin:RICHEDIT50W'].SetText(kwargs['origin'])
         editwin['Rationale:RICHEDIT50W'].SetText(kwargs['rationale'])
         editwin.TypeKeys('^+{TAB}')
-        editwin['Save'].Click()
+        editwin['Save && Close'].Click()
         
+
+    def editRequirement(self, pos, callback):
+        timing.WaitUntil(10, 1, self.afeditor.IsEnabled)
+        self.treeview.Select((0,3,pos))
+        self.afeditor.MenuSelect("Edit -> Edit artefact ...")
+        editwin = self.app['Edit requirement']
+        data = {}
+        data['title'] = editwin['Title:Edit'].TextBlock()
+        data['description'] = editwin['Description:RICHEDIT50W'].TextBlock()
+        callback(data)
+        editwin['Title:Edit'].SetText(data['title'])
+        editwin['Description:RICHEDIT50W'].SetText(data['description'])
+        editwin['Status:ComboBox'].Select(0)
+        editwin['Save && Close'].Click()
+
     
     def getRequirement(self):
         priority   = (0, 1, 2, 3, 0, 1, 2, 3, 0, 1,  2,  3,  0,  1,  2,  3,  0)
@@ -289,7 +305,7 @@ class afEditorTestHelper(afTestHelper):
         editproductwin = self.app['Edit Product']
         editproductwin['Title:Edit'].SetText(title)
         editproductwin['Description:RICHEDIT50W'].SetEditText(description)
-        editproductwin['Save'].Click()
+        editproductwin['Save && Close'].Click()
         self.treeview.Select((0,))
         
     
@@ -306,7 +322,7 @@ class afEditorTestHelper(afTestHelper):
         editwin['Main scenario:Edit'].SetText(kwargs['mainscenario'])
         editwin['Alt scenario:Edit'].SetText(kwargs['altscenario'])
         editwin['Notes:Edit'].SetText(kwargs['notes'])
-        editwin['Save'].Click()
+        editwin['Save && Close'].Click()
         
     
     def getUsecase(self):
@@ -367,7 +383,7 @@ class afEditorTestHelper(afTestHelper):
         editwin['Steps:Edit'].SetText(kwargs['steps'])
         editwin['Script:Edit'].SetText(kwargs['script'])
         editwin['Notes && Questions:Edit'].SetText(kwargs['notes'])
-        editwin['Save'].Click()
+        editwin['Save && Close'].Click()
         
     
     def getTestcase(self):
@@ -414,7 +430,7 @@ class afEditorTestHelper(afTestHelper):
         for tcpos in kwargs['testcasepos']:
             testcaselistview.Select(tcpos)
             testcaselistview.TypeKeys('{SPACE}')
-        editwin['Save'].Click()
+        editwin['Save && Close'].Click()
         
     
     def getTestsuite(self):
