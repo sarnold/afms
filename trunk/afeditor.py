@@ -1290,6 +1290,7 @@ class MyApp(wx.App):
                                   self.model.getSimpleSectionList(affilter=self.simplesectionfilterview.GetFilterContent()),
                                   select_id)
             self.mainframe.AddFilterView(self.simplesectionfilterview)
+            # TODO: enable/disable this button when editing an artefact is not solved elegant
             self.editparams.simplesectionlevelbtn = self.contentview.level_button
             self.contentview.level_button.Enable(not self.editparams.iseditmode)
             #

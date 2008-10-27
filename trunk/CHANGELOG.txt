@@ -7,7 +7,10 @@ Changes
 * Edit artefact dialog is not modal any more but all editing and 
   filter functions in the main window are disabled while editing an 
   artefact.
-  This allows to inspect other artefacts while editing an artefact.
+  This allows to inspect other artefacts while editing an artefact. 
+  
+* Edit artefact dialog now has buttons "Save & Continue" and "Save & Close".
+  Former saves the artefact but the dialog doesn't close.
 
 
 Bug fixes
@@ -15,6 +18,10 @@ Bug fixes
 * when a feature is selected (in tree or list) and the command
   'New usecase' is issued, the new usecase now becomes attached 
   to the selected feature. 
+  
+* When editing artefacts most of multiline text controls are now really 
+  using monospaced font, at least for Win32.
+  This makes editing restructured text (REST) easier. 
 
 
 ===============================

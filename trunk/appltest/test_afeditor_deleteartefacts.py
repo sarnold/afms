@@ -55,6 +55,7 @@ class TestDeleteRestoreArtefactContents(subunittest.TestCase):
         
         
     def test_0020_DeleteTextSection(self):
+        """Deleting text sections"""
         global numberofartefacts
         helper.treeview.Select((0,0,2))
         self._deleteSelectedItem('deleted by test_0020_DeleteTextSection (1)')
@@ -81,6 +82,7 @@ class TestDeleteRestoreArtefactContents(subunittest.TestCase):
         
 
     def test_0030_DeleteGlossaryEntry(self):
+        """Deleting glossary entries"""
         global numberofartefacts
         helper.treeview.Select((0,1,2))
         self._deleteSelectedItem()

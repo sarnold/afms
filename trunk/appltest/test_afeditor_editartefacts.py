@@ -59,6 +59,19 @@ class myEditorTestHelper(afmstest.afEditorTestHelper):
         af['title'] = 'MODFT ' + af['title']
         return af
 
+
+    def getRequirement(self):
+        for af in super(myEditorTestHelper, self).getRequirement():
+            # Hmm...
+            # Ask a wizard why I have to do this here and why 
+            # test_afeditor_verifyartefactcontents.py is running without that
+            af['r_description'] = '\n' + af['r_description']
+            yield self.modifyRequirement(af)
+
+
+    def modifyRequirement(self, af):
+        af['title'] = 'MODRQ ' + af['title']
+        return af
             
 
 class TestArtefactEditing(subunittest.TestCase):
@@ -69,7 +82,7 @@ class TestArtefactEditing(subunittest.TestCase):
         self.assertEqual(helper.treeview.ItemCount(), 63)
         
         
-    def _test_0020_EditTextSection(self):
+    def test_0020_EditTextSection(self):
         """Verify text section editing"""
         for n in range(5):
             helper.editTextSection(n, helper.modifyTextSection)
@@ -84,7 +97,7 @@ class TestArtefactEditing(subunittest.TestCase):
             self.assertEqual(af['id'], id)
 
 
-    def _test_0030_EditGlossaryEntry(self):
+    def test_0030_EditGlossaryEntry(self):
         """Verify glossary entry editing"""
         for n in range(5):
             helper.editGlossaryEntry(n, helper.modifyGlossaryEntry)
@@ -101,6 +114,17 @@ class TestArtefactEditing(subunittest.TestCase):
             helper.editFeature(n, helper.modifyFeature)
         for af, i in  zip(helper.getFeature(), helper.count(0)):
             helper.treeview.Select((0,2,i))
+            self.assertEqual(af['title'], helper.afeditorwin['Title:Edit'].TextBlock())
+            description = helper.getHTMLWindowContent(helper.afeditorwin['htmlWindow'])
+            self.assertEqual(description, af['r_description'])
+
+
+    def test_0050_EditRequirement(self):
+        """Verify requirement editing"""
+        for n in range(17):
+            helper.editRequirement(n, helper.modifyRequirement)
+        for af, i in  zip(helper.getRequirement(), helper.count(0)):
+            helper.treeview.Select((0,3,i))
             self.assertEqual(af['title'], helper.afeditorwin['Title:Edit'].TextBlock())
             description = helper.getHTMLWindowContent(helper.afeditorwin['htmlWindow'])
             self.assertEqual(description, af['r_description'])
@@ -130,7 +154,7 @@ class TestSuite(subunittest.TestSuite):
 
 def getSuite():
     testloader = subunittest.TestLoader()
-    testloader.testMethodPrefix = 'test'
+    testloader.testMethodPrefix = 'test_'
     suite = TestSuite()
     suite.addTests(testloader.loadTestsFromTestCase(TestArtefactEditing))
     return suite
