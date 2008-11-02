@@ -56,6 +56,8 @@ Tango
       http://creativecommons.org/licenses/by-sa/2.5/
 
 
+The documentation pages are using Lightbox for some effects, see http://www.huddletogether.com/projects/lightbox2/
+
 .. include:: common.txt
 
 

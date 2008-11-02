@@ -53,9 +53,11 @@ In addition to these artefacts |afeditor| supports plain text sections and a glo
 
 Here is a screenshot of the |afeditor| main window.
 
-    |screenshot_overview|
-    
-.. |screenshot_overview| image:: images/screenshot_overview.png
+.. raw:: html
+
+    <a href="images/screenshot_overview.png" rel="lightbox" title="Main window of afeditor">
+    <img src="images/screenshot_overview.png" width="400"></img>
+    </a>
 
 The top left panel contains a tree view of all artefacts. 
 If you select an artefact node like *Features* or *Requirements* in the tree view 
