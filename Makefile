@@ -31,10 +31,12 @@ ICON_SRC := $(wildcard icons/*.png) \
             $(addprefix icons/, mkimage.py README.txt COPYRIGHT.txt) 
 ICON_SRC := $(subst /,\,$(ICON_SRC))
 
-DOC_SRC := $(addprefix doc/, afmsdoc.css makedoc.cmd makedoc.sh) \
+DOC_SRC := $(addprefix doc/, afmsdoc.css lightbox.css makedoc.cmd makedoc.sh) \
            $(wildcard $(addprefix doc/, *.txt)) \
            $(addprefix doc/graphics/, grid.jpeg tab_b.gif tab_l.gif tab_r.gif) \
-           $(wildcard doc/images/*.png) 
+           $(addprefix doc/graphics/, close.gif closelabel.gif loading.gif nextlabel.gif prevlabel.gif note.png) \
+           $(wildcard doc/images/*.png) \
+           $(wildcard $(addprefix doc/scripts, *.js)) 
 DOC_SRC := $(subst /,\,$(DOC_SRC))
 
 DOC_HTML = $(subst /,\,$(wildcard $(addprefix doc/, *.html)))
