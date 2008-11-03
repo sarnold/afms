@@ -1,5 +1,5 @@
 ===============================
-AFMS Release 0.5.x (2008-xx-xx)
+AFMS Release 0.5.1 (2008-11-03)
 ===============================
 
 Changes
@@ -22,6 +22,8 @@ Bug fixes
 * When editing artefacts most of multiline text controls are now really 
   using monospaced font, at least for Win32.
   This makes editing restructured text (REST) easier. 
+  
+* Fixed bug #2179148: afmsreport.css now included in win32 binary distribution
 
 
 ===============================
