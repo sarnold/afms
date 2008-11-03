@@ -1,0 +1,148 @@
+/*
+Copyright 2008 Achim Köhler
+
+This file is part of AFMS.
+
+AFMS is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published
+by the Free Software Foundation, either version 2 of the License,
+or (at your option) any later version.
+
+AFMS is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AFMS.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/* $Id$ */
+
+
+body, th, td, input, select {
+ font-family: Verdana, Helvetica, Arial, sans-serif;
+}
+
+table.aftable {
+	border-style:none;
+}
+
+td.aftable, th.aftable {
+	border-style: none;
+	vertical-align: top;
+	background-color: #CCCCCC;
+	width: 80%;
+}
+
+th.aftable {
+	background-color: #FFFF66;
+	text-align:right;
+	width: 20%;
+}
+
+table.history, th.history, td.history {
+	border-style:solid;
+	border-width:thin;
+	border-color:#AAAAAA;
+	background-color: #CCCCCC;
+	width:auto;
+	text-align:left;
+}
+
+table, table.docutils, tr, th, td {
+    border-style:solid;
+    border-width:thin;
+    width:auto;
+    }
+
+h1, h2 {
+	background-image: none;
+	background: #9999CC;
+	color: #000;
+	margin-bottom: 0;
+}
+
+h1 {
+ border-left: solid 1.2em #4444FF;
+}
+
+h2 {
+ border-left: solid 0.7em #4444FF;
+}
+
+h3 {
+	border-left: solid 0.7em #5555FF;
+	background: #9999FF;
+}
+
+h4 {
+ border-left: solid 0.7em #5555FF;
+ background: #AAAAFF;
+}
+
+div.requirement, div.feature, div.usecase, div.testsuite, div.testcase {
+	margin-left : 30px;
+	background-color: #F0F0F0;
+}
+
+div.producttitle {
+	font-weight:bold;
+	margin-bottom:1em;
+}
+
+div.productdescription {
+}
+
+p.footer {
+	font-style : italic;
+	font-size : small;
+}
+
+p.glossaryid {
+    color: #AAAAAA;
+    font-size:small;
+    margin-bottom:0;
+}
+
+p.glossarytitle {
+    margin-top:0;
+}
+
+dt {
+	font-weight:bold;
+}
+
+dd {
+	margin-bottom:1em;
+}
+
+table.navi {
+	vertical-align: middle;
+	border-spacing: 10pt 0pt;
+}
+
+table.navi {
+	background-color: #AAAAAA;
+	padding: 0pt 10pt 0pt 5pt;
+}
+
+p.alert {
+	background-color: #EE0000;
+}
+
+#bodycol h3, #bodycol h4 {
+	border: 0;
+}
+
+p.fail {
+    background-color: #EE0000;
+}
+
+p.pass {
+    background-color: #00EE00;
+}
+
+.alert {
+    background-color: #EE0000;
+}

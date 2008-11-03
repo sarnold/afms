@@ -1,0 +1,269 @@
+===============================
+AFMS Release 0.5.1 (2008-11-03)
+===============================
+
+Changes
+~~~~~~~
+* Edit artefact dialog is not modal any more but all editing and 
+  filter functions in the main window are disabled while editing an 
+  artefact.
+  This allows to inspect other artefacts while editing an artefact. 
+  
+* Edit artefact dialog now has buttons "Save & Continue" and "Save & Close".
+  Former saves the artefact but the dialog doesn't close.
+
+
+Bug fixes
+~~~~~~~~~  
+* when a feature is selected (in tree or list) and the command
+  'New usecase' is issued, the new usecase now becomes attached 
+  to the selected feature. 
+  
+* When editing artefacts most of multiline text controls are now really 
+  using monospaced font, at least for Win32.
+  This makes editing restructured text (REST) easier. 
+  
+* Fixed bug #2179148: afmsreport.css now included in win32 binary distribution
+
+
+===============================
+AFMS Release 0.5.0 (2008-09-23)
+===============================
+
+New features
+~~~~~~~~~~~~
+* Testcase extension: a new text field for a URL to a test script has been 
+  added. In testrunner this script could be executed from within the GUI. 
+  Test result is set according to the return code of the script. Also in 
+  testrunner all or some scripts may be executed in batch mode. 
+
+* Extended settings dialog: 
+  configurable stylesheets for XML and HTML export
+  and opening the default viewer after report creation
+
+* Drag and drop support for afeditor and testrunner: 
+  dropping a artefact file in the tree region opens the file
+
+* Statistics: simple artefact statistics available with menu item 
+  File/Statistics
+
+* Recent files (afeditor and testrunner): 
+  list of recently opened files is now provided in File menu
+
+* Added table formating to popup menu of multiline text controls.
+  This works for HTML and REST renderers
+  
+* Added Indent/Unindent command to popup menu of multiline text controls.  
+
+* Added a menu item Help/Feedback with links to bug tracker, feature request 
+  tracker and so on.
+
+* In error messages dialogs due to Python exceptions the complete tracelog is 
+  shown. This will allow better support.
+
+
+Changes
+~~~~~~~
+* Toolbar button for glossary entries replaces 'Add' button 
+  below the glossary list view 
+  
+* HTML export now makes XHTML
+
+* XML export format changed
+
+* Improved display in list views for long strings with lots of tabs and newlines
+
+* "Version" field replaced by "Key" field: for features, requirements and 
+  testcases the field "Version" has been renamed to "Key". When editing such 
+  an artefact the value of the key field could be selected from a drop down 
+  list.
+  Rationale: some users requested a kind of grouping for artefacts. This could 
+  be done by giving same keys to artefacts belonging to the same group.
+  Note: in the databes the version field is used to hold the key information.
+
+* More documentation
+
+
+Bug fixes
+~~~~~~~~~  
+* Conversion from XML archive file to database with afarchivetodb.py now works
+  properly.
+  Added a final commit statement to avoid an empty usecase table in the database.
+  
+* Databases with a filename containing non ascii characters (e.g. german 
+  umlaut) may now be created and opened without an error message
+  (see http://bugs.python.org/issue2127 for details).
+  
+
+===============================
+AFMS Release 0.4.0 (2008-08-10)
+===============================
+
+New features
+~~~~~~~~~~~~
+* Artefact database may now be archived as XML files and these XML archives 
+  may be converted to databases again.
+  This may be done from within afeditor or using the
+  standalone scripts afarchivetodb.py and afdbtoarchive.py.
+  
+* Multiline text strings starting with '.. HTML' followd by a blank line 
+  are now rendered as HTML. 
+  
+* Multiline text controls now have a popup menu offering simple text formatting 
+  commands. This works for HTML and REST renderers
+  
+* Relations between requirements are supported now.
+
+
+Changes
+~~~~~~~
+* When deleting or restoring an artefact a message box now 
+  appears to enter a changelog message.
+  
+* When editing artefacts most of multiline text controls are now using monospaced font.
+  This makes editing restructured text (REST) easier. 
+  
+  
+Bug fixes
+~~~~~~~~~  
+* Fixed bug 2000163: language resource files now come along with Win32 binaries
+
+* Required files template.txt and html4css1.css are now in the source distribution
+
+
+===============================
+AFMS Release 0.3.0 (2008-06-21)
+===============================
+
+New features
+~~~~~~~~~~~~
+* Win32 binaries are now available, thanks to py2exe
+
+* New artefact type 'Text sections' for plain text sections
+
+* New artefact type 'Glossary entry' to support a glossary
+
+* afexporthtml.py: added command line option '-l', 
+  '--language' to set output language
+
+* English language is now supported using message catalog 
+  locale/en/LC_MESSAGES/afms.po 
+
+
+Changes
+~~~~~~~
+* History (Changelog) is now included in the HTML and XML report
+
+* CSS is embedded in the HTML report 
+
+Bug fixes
+~~~~~~~~~
+* afexporthtml.py and afexportxml.py are now working as command 
+  line tool again. There was a bug due to to the usage of 
+  gettext introduced in release 0.1.4.
+  
+* Fixed bugs 1989554 and 1989552: update of test result view in testrunner
+  now works properly
+
+
+===============================
+AFMS Release 0.2.1 (2008-05-07)
+===============================
+
+Bug fixes
+~~~~~~~~~
+* Documentation files are now included again
+
+
+===============================
+AFMS Release 0.2.0 (2008-05-05)
+===============================
+
+New features
+~~~~~~~~~~~~
+* Basic filter functionality implemented
+
+* Preview button available when editing artefacts
+
+Changes
+~~~~~~~
+* Released archive files now unpack everything 
+  under a single folder named afms-x.x.x where x.x.x
+  is the version number
+
+Bug fixes
+~~~~~~~~~
+* In table view of artefacts the date and user of the last change to the artefact is shown now.
+
+
+===============================
+AFMS Release 0.1.4 (2008-04-10)
+===============================
+
+Changes
+~~~~~~~
+* GNU gettext is now used for internationalization
+  German language is supported using message catalog 
+  locale/de/LC_MESSAGES/afms.po 
+
+Bug fixes
+~~~~~~~~~
+* Fixed bug and some inconsistencies observed under 
+  gtk2 (Ubuntu 7.1, Gnome). New artefacts can now be created 
+  and edited properly.
+  
+* fixed initialization of some comboboxes (actors, stakeholders, assigned)
+
+
+===============================
+AFMS Release 0.1.3 (2008-03-24)
+===============================
+
+Changes
+~~~~~~~
+* Changed font size in HTML text fields (Windows only)
+
+* In list views markup identifiers (like <html>, .. rest) 
+  in strings are no more shown. Line breaks are printed with
+  a '|' character.
+    
+* when executing a test in testrunner the modal dialog box now
+  shows both, the test case and the test result. This makes it possible
+  to scroll through lengthy text fields in the test case.
+
+* Internally artefacts are now represented by objects. 
+
+Bug fixes
+~~~~~~~~~
+* fixed issue when invoking afeditor.py or testrunner.py
+  with a relative path
+
+
+===============================
+AFMS Release 0.1.2 (2008-03-12)
+===============================
+
+Changes
+~~~~~~~
+* Improved rendering of long lines in HTML text fields
+
+* In the HTML export use cases not belonging to requirements are now
+  listed in the section 'Usecases not belonging to requirements',
+  which has become therefore the last section in the output document
+
+New features
+~~~~~~~~~~~~
+* Clipboard support for artefacts 
+
+Bug fixes
+~~~~~~~~~
+* In list view of artefacts the Keyboard commands Space, Ctrl-Space etc. 
+  now works as expected
+
+  
+
+===============================
+AFMS Release 0.1.0 (2008-03-06)
+===============================
+
+* Initial release
