@@ -378,6 +378,8 @@ class MainFrame(wx.Frame):
 
     def OnSize(self, event):
         wx.LayoutAlgorithm().LayoutWindow(self, self.rightWindow)
+        self.bottomWindow.Refresh()
+        self.bottomWindow.Layout()
         event.Skip()
 
 
