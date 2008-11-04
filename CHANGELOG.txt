@@ -1,4 +1,13 @@
 ===============================
+AFMS Release 0.5.y (2008-11-yy)
+===============================
+
+Bug fixes
+~~~~~~~~~  
+* filter view is now properly redrawn when resizing the main window
+
+
+===============================
 AFMS Release 0.5.1 (2008-11-03)
 ===============================
 
