@@ -24,7 +24,7 @@
 import wx
 import afconfig
 import _afimages
-import afresource
+import afresource, _afhelper
 
 class afProductTree(wx.TreeCtrl):
     def __init__(self, parent):
@@ -104,17 +104,18 @@ class afProductTree(wx.TreeCtrl):
         self.SelectItem(self.root)
 
 
-    def AddChildItem(self, parent, item):
-        #FIXME
-        try:
-            ID = item['ID']
-            title = item['title']
-        except:
-            ID = item[0]
-            title = item[1]
+    def __getProperties(self, item):
+        ID = item['ID']
+        title = item['title']
+        color = _afhelper.getColorForArtefact(item)
+        return (ID, title, color)
 
+
+    def AddChildItem(self, parent, item):
+        (ID, title, color) = self.__getProperties(item)
         item_text = self.FormatChildLabel(ID, title)
         child = self.AppendItem(self.treeChild[parent], item_text, 2, -1)
+        self.SetItemTextColour(child, color)
         self.SetPyData(child, ID)
 
 
@@ -159,9 +160,11 @@ class afProductTree(wx.TreeCtrl):
         return (treeParentId, treeChildId)
 
 
-    def UpdateItemText(self, parent_id, item_id, label):
+    def UpdateItemText(self, parent_id, item_id, item):
+        (ID, title, color) = self.__getProperties(item)
         (treeParentId, treeChildId) = self.FindItem(parent_id, item_id)
-        self.SetItemText(treeChildId, self.FormatChildLabel(item_id, label))
+        self.SetItemText(treeChildId, self.FormatChildLabel(item_id, title))
+        self.SetItemTextColour(treeChildId, color)
 
 
     def SetSelection(self, parent_id, item_id = None):

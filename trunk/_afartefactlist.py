@@ -25,7 +25,7 @@ import sys
 import logging
 import wx
 import  wx.lib.mixins.listctrl  as  listmix
-import _afimages
+import _afimages, _afhelper
 import afconfig
 import afresource
 from _afsimplesectionleveldialog import EditSimpleSectionLevelDialog
@@ -96,12 +96,17 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
         assert(0==1) # aka virtual function
 
 
+    def ColorsForRow(self, afobj):
+        return _afhelper.getColorForArtefact(afobj)
+
+
     def InitContent(self, artefact_list, select_id=0):
         self.itemDataMap = {}
         self.artefactlist = artefact_list
         for i in range(len(artefact_list)):
             ID = artefact_list[i]['ID']
             data = self.FormatRow(artefact_list[i])
+            color = self.ColorsForRow(artefact_list[i])
             self.itemDataMap[i] = data
             if self.checkstyle:
                 index = self.list.InsertStringItem(sys.maxint, data[0])
@@ -109,6 +114,7 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
                 index = self.list.InsertStringItem(sys.maxint, data[0])
                 #index = self.list.InsertImageStringItem(sys.maxint, "%04d" % data[0], self.empty)
             self.list.SetItemData(index, i)
+            self.list.SetItemTextColour(index, color)
 
             for j in range(self.num_of_columns):
                 if isinstance(data[j], (type(''), type(u''))):
@@ -238,8 +244,19 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
                 self.list.SetStringItem(index, j, str(data[j]))
 
 
+    def ChangeItem(self, index, newitem):
+        data = self.FormatRow(newitem)
+        i = self.list.GetItemData(index)
+        self.itemDataMap[i] = data
+        for j in range(self.num_of_columns):
+            if isinstance(data[j], (type(''), type(u''))):
+                self.list.SetStringItem(index, j, data[j])
+            else:
+                self.list.SetStringItem(index, j, str(data[j]))
+
+
     def toText(self, s):
-        """Make s prinable in one line"""
+        """Make s printable in one line"""
         s = s.strip()
         if len(s) > 150:
             s = s[:147] + '...'
@@ -469,3 +486,22 @@ class afChangeList(afArtefactList):
     def OnItemSelected(self, event):
         self.currentItem = event.m_itemIndex
         self.longdescription.SetValue(self.list.GetItem(self.currentItem, 2).GetText())
+
+#-------------------------------------------------------------------------
+
+class afTagList(afArtefactList):
+    """Widget for displaying tag lists"""
+    def __init__(self, parent, ID = -1, checkstyle=False):
+        self.column_titles = [_('ID'), _('Short description'), _('Description')]
+        self.key = "TAGS"
+        afArtefactList.__init__(self, parent, self.column_titles, ID, checkstyle=checkstyle)
+
+
+    def FormatRow(self, tagobj):
+        return (self.idformat % tagobj['ID'],
+                tagobj['shortdesc'],
+                self.toText(tagobj['longdesc']))
+
+
+    def ColorsForRow(self, tagobj):
+        return tagobj.color[tagobj['color']]

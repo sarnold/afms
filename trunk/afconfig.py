@@ -35,5 +35,5 @@ ACTOR_NAME = []
 STAKEHOLDER_NAME = []
 VERSION_NAME = []
 
-
+TAGLIST = []
 
