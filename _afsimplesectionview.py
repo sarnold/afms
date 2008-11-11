@@ -75,6 +75,7 @@ class afSimpleSectionNotebook(_afbasenotebook.afBaseNotebook):
 
         panel.Layout()
         self.AddPage(panel, _("Section"))
+        self.AddTagsPanel()
         self.AddChangelogPanel()
         self.panel = panel
 
@@ -84,10 +85,10 @@ class afSimpleSectionNotebook(_afbasenotebook.afBaseNotebook):
         self.title_edit.SetValue(simplesection['title'])
         self.level_edit.SetValue(str(simplesection['level']))
         self.content_edit.SetValue(simplesection['content'])
-
+        self.InitTags(simplesection.getTags())
         if self.viewonly:
             self.changelist.InitContent(simplesection.getChangelist())
-
+            
         self.Show()
         self.GetParent().Layout()
         self.title_edit.SetFocus()
@@ -99,6 +100,7 @@ class afSimpleSectionNotebook(_afbasenotebook.afBaseNotebook):
                              content=self.content_edit.GetValue(),
                              level=self.level_edit.GetValue())
         simplesection.setChangelog(self.GetChangelogContent())
+        simplesection.setTags(self.GetTags())
         return simplesection
 
 

@@ -307,6 +307,9 @@ class MainFrame(wx.Frame):
 
         menu.Append(202, _('&Delete artefact ...\tDel'), _('Delete selected artefact'))
         menu.Enable(202, False)
+        
+        menu.Append(205, _('&Edit tags ...'), _('Edit tags'))
+        menu.Enable(205, False)
         menuBar.Append(menu, _('&Edit'))
 
         menu = wx.Menu()
@@ -421,7 +424,7 @@ class MainFrame(wx.Frame):
         self.InitTree(artefactnames, number_of_deleted_artefacts)
         self.treeCtrl.SelectItem(self.treeCtrl.root)
         self.SetStatusText(path, 2)
-        for m, i in zip([0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3], [103, 104, 105, 106, 201, 202, 203, 204, 301, 302, 303, 304, 305, 306, 307, 401]):
+        for m, i in zip([0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3], [103, 104, 105, 106, 201, 202, 203, 204, 205, 301, 302, 303, 304, 305, 306, 307, 401]):
             self.GetMenuBar().GetMenu(m).Enable(i, True)
         for i in (12,13,14,15,16, 17, 18, 19, 20, 30, 31):
             self.GetToolBar().EnableTool(i, True)

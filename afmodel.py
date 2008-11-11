@@ -38,7 +38,7 @@ import logging
 import afconfig
 import afresource
 from _afartefact import cFeature, cRequirement, cUsecase, cTestcase, cTestsuite
-from _afartefact import cChangelogEntry, cProduct, cSimpleSection, cGlossaryEntry
+from _afartefact import cChangelogEntry, cProduct, cSimpleSection, cGlossaryEntry, cTag
 
 # Database version
 _DBVERSION = "1.2"
@@ -130,6 +130,21 @@ class afModel(object):
         self.connection.commit()
 
 
+    def _updateto_1_5(self, c):
+        logging.debug("afmodel._updateto_1_5()")
+        # save new version
+        c.execute("update product set value=? where property=='dbversion';", ('1.5',))
+        # commands to update from 1.4 to 1.5
+        c.execute("create table taglist (ID integer, color text, shortdesc text, longdesc text);")
+        for i in range(20):
+            c.execute('insert into taglist values (?, ?, ?, ?);', (i+1, 'Black', '', ''))
+        tables = 'features requirements usecases testcases testsuites simplesections glossary'.split()
+        for table in tables:
+            c.execute("alter table %s add tags text;" % table)
+            c.execute("update %s set tags='';" % table)
+        self.connection.commit()
+
+
     def requestNewProduct(self, path):
         """
         Request to create a new product
@@ -175,6 +190,7 @@ class afModel(object):
         self._updateto_1_2(c)
         self._updateto_1_3(c)
         self._updateto_1_4(c)
+        self._updateto_1_5(c)
         ##self.InsertTestData()
         self.connection.commit()
 
@@ -223,6 +239,30 @@ class afModel(object):
         if self.version < 1.4:
             self.version = 1.4
             self._updateto_1_4(c)
+        if self.version < 1.5:
+            self.version = 1.5
+            self._updateto_1_5(c)
+
+    #---------------------------------------------------------------------
+
+    def getTaglist(self):
+        query_string = 'select all ID, shortdesc, longdesc, color from taglist;'
+        plainlist = self.getData(query_string)
+        taglist = []
+        for tag in plainlist:
+            tagobj = cTag(ID=tag[0], shortdesc=tag[1], longdesc=tag[2], color=tag[3])
+            taglist.append(tagobj)
+        return taglist
+
+
+    def saveTaglist(self, taglist):
+        logging.debug("saveTaglist()")
+        c = self.connection.cursor()
+        for tag in taglist:
+            c.execute('update taglist set shortdesc=?, longdesc=?, color=? where ID=?;',
+                      (tag['shortdesc'], tag['longdesc'], tag['color'], tag['ID']))
+        self.connection.commit()
+
     #---------------------------------------------------------------------
 
     def getProductInformation(self):
@@ -803,9 +843,9 @@ class afModel(object):
             else:
                 orderclause = 'order by ID'
 
-            c.execute('select ID, title from %s where delcnt==0 %s %s;' % (tablename, clause, orderclause), params)
+            c.execute('select ID, title, tags from %s where delcnt==0 %s %s;' % (tablename, clause, orderclause), params)
             for row in c:
-                r[key].append((row[0], row[1]))
+                r[key].append({'ID':row[0], 'title':row[1], 'tags':row[2]})
         return r
 
 
@@ -1534,11 +1574,12 @@ class afModel(object):
         if ID < 0:
             simplesection = cSimpleSection()
         else:
-            query_string = 'select ID, title, content, level from simplesections where ID = %d;' % ID
+            query_string = 'select ID, title, content, level, tags from simplesections where ID = %d;' % ID
             c.execute(query_string)
             basedata = c.fetchone()
             simplesection = cSimpleSection(ID=basedata[0], title=basedata[1], content=basedata[2],
                                level=basedata[3])
+            simplesection.setTags(basedata[4])
 
         simplesection.setChangelist(self.getChangelist(_TYPEID_SIMPLESECTION, ID))
         return simplesection
@@ -1577,13 +1618,12 @@ class afModel(object):
                 maxlevel = 0
             simplesection['level'] = maxlevel + 1
 
-        plainsimplesection = [simplesection['ID'], simplesection['title'], simplesection['content'], simplesection['level']]
-        plainsimplesection.append(0) # append delcnt
+        plainsimplesection = [simplesection['ID'], simplesection['title'], simplesection['content'], simplesection['level'], 0, simplesection.getTags()]
         sqlstr = []
-        sqlstr.append("insert into simplesections values (NULL, ?, ?, ?, ?)")
+        sqlstr.append("insert into simplesections values (NULL, ?, ?, ?, ?, ?)")
         sqlstr.append("select max(ID) from simplesections")
         sqlstr.append("update simplesections set "\
-            "'title'=?, 'content'=?, level=?, 'delcnt'=? where ID=?")
+            "'title'=?, 'content'=?, level=?, 'delcnt'=?, tags=? where ID=?")
         (basedata, new_artefact) = self.saveArtefact(plainsimplesection, sqlstr, commit=True)
         ss_id = basedata[0]
 
@@ -1610,7 +1650,7 @@ class afModel(object):
         else:
             where_string = 'delcnt==0'
 
-        query_string = 'select ID, title, content, level from simplesections where %s %s'
+        query_string = 'select ID, title, content, level, tags from simplesections where %s %s'
         c = self.connection.cursor()
         if affilter is not None and affilter.isApplied():
             (clause, params) = affilter.GetSQLWhereClause('and')
@@ -1625,6 +1665,7 @@ class afModel(object):
         sslist = []
         for ssplain in ssplainlist:
             ss = cSimpleSection(ID=ssplain[0], title=ssplain[1], content=ssplain[2], level=ssplain[3])
+            ss.setTags(ssplain[4])
             sslist.append(ss)
 
         return sslist

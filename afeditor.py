@@ -63,6 +63,7 @@ import afexportxml
 import _afimporter
 import afresource
 import _afclipboard
+import _aftagsview
 from _afartefact import cChangelogEntry
 
 import _affilterview, _affilter, afdbtoarchive, afarchivetodb, _afstatisticsview
@@ -97,7 +98,7 @@ class EditParams(object):
 def Ignore(*args):
     pass
 
-    
+
 class MyApp(wx.App):
     """
     wxWidgets main application class.
@@ -227,6 +228,7 @@ class MyApp(wx.App):
         self.Bind(wx.EVT_MENU, self.OnDeleteArtefact, id = 202)
         self.Bind(wx.EVT_MENU, self.copyArtefactToClipboard, id = 203)
         self.Bind(wx.EVT_MENU, self.pasteArtefactFromClipboard, id = 204)
+        self.Bind(wx.EVT_MENU, self.OnEditTags, id = 205)
 
         self.Bind(wx.EVT_MENU, self.OnNewFeature, id = 301)
         self.Bind(wx.EVT_MENU, self.OnNewRequirement, id = 302)
@@ -350,6 +352,15 @@ class MyApp(wx.App):
         dlg = _afstatisticsview.StatisticsDialog(self.mainframe, -1)
         dlg.InitContent(statisticdata)
         dlg.ShowModal()
+
+
+    def OnEditTags(self, evt):
+        dlg = _aftagsview.afTagListEditor(self.mainframe)
+        dlg.InitContent(afconfig.TAGLIST)
+        if dlg.ShowModal() == wx.ID_SAVE:
+            afconfig.TAGLIST = dlg.GetContent()
+            self.model.saveTaglist(afconfig.TAGLIST)
+        dlg.Destroy()
 
 
     def OnSimpleSectionLevelChanged(self, evt):
@@ -500,6 +511,7 @@ class MyApp(wx.App):
             try:
                 self.model.requestNewProduct(path)
                 self.InitView()
+                afconfig.TAGLIST = self.model.getTaglist()
                 afconfig.basedir = os.path.dirname(self.model.getFilename())
                 self.mainframe.filehistory.AddFileToHistory(path)
             except:
@@ -543,6 +555,7 @@ class MyApp(wx.App):
         @param path: Path of product database file
         """
         self.model.requestOpenProduct(path)
+        afconfig.TAGLIST = self.model.getTaglist()
         self.InitFilters()
         self.InitView()
         afconfig.basedir = os.path.dirname(self.model.getFilename())
@@ -788,7 +801,7 @@ class MyApp(wx.App):
             self.requestEditView("REQUIREMENTS", -1,
                                  callback_onsave=lambda af, item_id: self.model.addFeatureRequirementRelation(item_id, af['ID']),
                                  callback_arg=item_id)
-        
+
 
     def OnNewTestcase(self, evt):
         """
@@ -827,7 +840,7 @@ class MyApp(wx.App):
         elif (parent_id == "FEATURES"):
             f =lambda af, item_id: self.model.addFeatureUsecaseRelation(item_id, af['ID'])
         else:
-            f = Ignore    
+            f = Ignore
         self.requestEditView("USECASES", -1, callback_onsave=f, callback_arg=item_id)
 
 
@@ -940,7 +953,7 @@ class MyApp(wx.App):
         Edit product information in dialog window
         @type  product_info: nested tuple
         @param product_info: Product data
-        """        
+        """
         dlg = EditArtefactDialog(self.mainframe.rightWindow, -1, title=_("Edit Product"), contentview = afProductInformation)
         dlg.contentview.InitContent(product_info)
         dlgResult = dlg.ShowModal()
@@ -1077,7 +1090,7 @@ class MyApp(wx.App):
         self.editparams.editdlg = dlg
         self.editparams.savedata = savedata
         return
-        
+
 
     def requestEditView(self, parent_id, item_id, callback_onsave=Ignore, callback_arg=None):
         """
@@ -1165,8 +1178,8 @@ class MyApp(wx.App):
         else:
             dlg.Destroy()
             self.__EndEditModal()
-        
-    
+
+
     def EditArtefactDialogCancel(self, evt):
         """Cancel button pressed in edit artefact dialog"""
         logging.debug("afeditor.EditArtefactDialogCancel()")
@@ -1188,8 +1201,8 @@ class MyApp(wx.App):
         self.editparams.callback_onsave = callback_onsave
         self.editparams.callback_arg = callback_arg
         if self.editparams.simplesectionlevelbtn is not None: self.editparams.simplesectionlevelbtn.Enable(False)
-    
-    
+
+
     def __EndEditModal(self):
         self.editparams.iseditmode = False
         self.mainframe.EnableTools(True)
@@ -1379,7 +1392,7 @@ class MyApp(wx.App):
             item_id = data['ID']
         else:
             # Update tree in left panel
-            self.mainframe.treeCtrl.UpdateItemText(parent_id, item_id, data['title'])
+            self.mainframe.treeCtrl.UpdateItemText(parent_id, item_id, data)
 
         self.DisableOnSelChanged = True
         if self.currentview in self.listview:
@@ -1435,7 +1448,7 @@ class MyApp(wx.App):
                 self.InitFilters()
             except:
                 _afhelper.ExceptionMessageBox(sys.exc_info(), _('Error importing artefacts!'))
-    
+
 
 def main():
     import os, sys, getopt

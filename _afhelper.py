@@ -30,7 +30,18 @@ if __name__=="__main__":
     gettext.install(DOMAIN, LOCALEDIR, unicode=True)
 import wx
 from _afchangelogentryview import *
-import afinfo, _afhtmlwindow
+import afinfo, _afhtmlwindow, afconfig
+
+
+def getColorForArtefact(artefact):
+    tagchars = artefact['tags']
+    if len(tagchars) > 0:
+        colortagchar = min(tagchars) # tag with highest ID defines the color
+        colortagindex = afconfig.TAGLIST[0].tagchar2index(colortagchar)
+        colorname = afconfig.TAGLIST[colortagindex]['color']
+    else:
+        colorname = 'Black'
+    return afconfig.TAGLIST[0].color[colorname]
 
 
 def ShowFeedbackDialog(parent):
@@ -61,15 +72,15 @@ class ExceptionViewDialog(wx.Dialog):
         tb = wx.TextCtrl(self, -1, detailedmsg, style=wx.TE_MULTILINE | wx.TE_READONLY );
         bmp = wx.ArtProvider.GetBitmap(wx.ART_ERROR)
         sb = wx.StaticBitmap(self, -1, bmp)
-        
+
         hsizer = wx.BoxSizer(wx.HORIZONTAL)
         hsizer.Add(sb, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL , 5)
         hsizer.Add(st, 1, wx.ALL | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL , 5)
-        
+
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(hsizer, 0, wx.ALL, 5)
         sizer.Add(tb, 1, wx.ALL|wx.EXPAND, 5)
-        
+
         btnsizer = wx.StdDialogButtonSizer()
         btn = wx.Button(self, wx.ID_OK)
         btnsizer.AddButton(btn)
@@ -87,7 +98,7 @@ def ExceptionMessageBox(exceptiondata, title="Exception"):
     details = ''.join(traceback.format_exception(exceptiondata[0], exceptiondata[1], exceptiondata[2]))
     dlg = ExceptionViewDialog(None, title, brief, details)
     dlg.ShowModal()
-    
+
 
 class DontAnnoyYesNoDialog(wx.Dialog):
     def __init__(self, message, title=""):
@@ -274,7 +285,7 @@ def getRelPath(path):
 
 
 class SimpleFileBrowser(wx.Panel):
-    def __init__(self, parent, id=-1, labelText='File name', 
+    def __init__(self, parent, id=-1, labelText='File name',
             buttonText = '...', buttonStyle = wx.BU_EXACTFIT,
             fileDialogTitle = 'Choose file', fileDialogStyle = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
             defaultDir = '.', defaultFile = '', fileWildcard='*.*', callbackFunc = None):
@@ -285,7 +296,7 @@ class SimpleFileBrowser(wx.Panel):
         self.fileWildcard = fileWildcard
         self.callbackFunc = callbackFunc
         wx.Panel.__init__(self, parent, id)
-        
+
         self.edit  = wx.TextCtrl(self, -1)
         self.button = wx.Button(self, -1, buttonText, style=buttonStyle)
         sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -298,19 +309,19 @@ class SimpleFileBrowser(wx.Panel):
         self.Layout()
         self.Bind(wx.EVT_BUTTON, self.OnButtonClick, self.button)
         self.edit.Bind(wx.EVT_KILL_FOCUS, self.OnText, self.edit)
-        
+
     def AlignWith(self, sfb):
         if not isinstance(sfb, SimpleFileBrowser): raise TypeError
         self._SameSize(self.label, sfb.label)
         self._SameSize(self.button, sfb.button)
-    
+
     def _SameSize(self, widget1, widget2):
         size1 = widget1.GetSize()
         size2 = widget1.GetSize()
         size1[0] = size2[0] = max(size1[0], size2[0])
         widget1.SetMinSize(size1)
         widget2.SetMinSize(size2)
-        
+
     def OnButtonClick(self, evt):
         dlg = wx.FileDialog(
             self, message = self.fileDialogTitle,
@@ -324,15 +335,15 @@ class SimpleFileBrowser(wx.Panel):
             self.edit.SetValue(path)
             self.OnText(None)
         dlg.Destroy()
-        
+
     def OnText(self, evt):
-        if self.callbackFunc is not None: 
+        if self.callbackFunc is not None:
             text = self.edit.GetValue()
             self.callbackFunc(text)
-        
+
     def GetValue(self):
         return self.edit.GetValue()
-        
+
     def SetValue(self, value):
         self.edit.SetValue(value)
 
@@ -343,10 +354,10 @@ if __name__ == "__main__":
     class TestRelFolder(unittest.TestCase):
         def setUp(self):
             pass
-            
+
         def tofolder(self, f):
             return f.replace('/', os.sep)
-            
+
         def test1(self):
             reffolder = self.tofolder('/a/b/c')
             folder = self.tofolder('/a/b/d')
@@ -364,19 +375,19 @@ if __name__ == "__main__":
             folder = self.tofolder('d:\\a\\b\\c')
             relfolder = getRelFolder(reffolder, folder)
             self.assertEqual(relfolder, folder)
-            
+
         def test4(self):
             reffolder = self.tofolder('/a/b/c')
             folder = self.tofolder('/a/b/c')
             relfolder = getRelFolder(reffolder, folder)
             self.assertEqual(relfolder, '')
-            
+
         def test5(self):
             reffolder = self.tofolder('/a/b/c')
             folder = self.tofolder('/a/b')
             relfolder = getRelFolder(reffolder, folder)
             self.assertEqual(relfolder, self.tofolder('../'))
-            
+
         def test6(self):
             file = 'C:\\work\\projects\\afms\\sample\\image\\xxx.PNG'
             reffolder = 'C:\\work\\projects\\afms\\sample'

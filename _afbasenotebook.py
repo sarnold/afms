@@ -24,9 +24,9 @@
 import time
 import wx
 from _afhtmlwindow import *
-from _afartefactlist import afChangeList
+from _afartefactlist import afChangeList, afTagList
 import afresource
-from _afartefact import cChangelogEntry
+from _afartefact import cChangelogEntry, cTag
 from _afchangelogentryview import afChangelogEntryView
 
 class afBaseNotebook(wx.Notebook):
@@ -76,13 +76,47 @@ class afBaseNotebook(wx.Notebook):
         self.AddPage(panel, _('Changelog'))
 
 
+    def AddTagsPanel(self):
+        panel = wx.Panel(self, -1)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        self.tagslist = afTagList(panel, -1, checkstyle=not self.viewonly)
+        sizer.Add(self.tagslist, 2, wx.BOTTOM| wx.EXPAND, 3)
+        panel.SetSizer(sizer)
+        self.tagspanel = panel
+        self.AddPage(panel, _('Tags'))
+
+
+    def InitTags(self, tags):
+        import afconfig
+        checked_taglist = []
+        unchecked_taglist = []
+        index = 0
+        for tag in afconfig.TAGLIST:
+            if cTag.index2tagchar(index) in tags:
+                checked_taglist.append(tag)
+            else:
+                unchecked_taglist.append(tag)
+            index += 1
+        if self.viewonly:
+            self.tagslist.InitContent(checked_taglist)
+        else:
+            self.tagslist.InitCheckableContent(unchecked_taglist, checked_taglist)
+
+
+    def GetTags(self):
+        s = ''
+        for id in self.tagslist.GetItemIDByCheckState()[0]:
+            s += cTag.index2tagchar(id-1)
+        return s
+
+
     def GetChangelogContent(self):
         return self.changelogpanel.GetContent()
 
 
     def OnTimer(self, evt):
         self.changedate_edit.SetValue(time.strftime(afresource.TIME_FORMAT))
-        
-        
+
+
     def UpdateContent(self, artefact):
         self.id_edit.SetValue(str(artefact['ID']))

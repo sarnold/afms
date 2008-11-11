@@ -21,6 +21,7 @@
 
 # $Id$
 
+import wx
 import afresource
 
 
@@ -31,9 +32,12 @@ class cArtefact():
         self._changelist = []
         self._changelog = None
         self._supportschangelog = False
+        self._tags = ''
 
 
     def __getitem__(self, key):
+        if key=='tags':
+            return self._tags
         return self._basedata[key]
 
 
@@ -100,6 +104,14 @@ class cArtefact():
     def supportsChangelog(self):
         """Return True when a changelog is part of an artefact"""
         return self._supportschangelog
+
+
+    def getTags(self):
+        return self._tags
+
+
+    def setTags(self, tags):
+        self._tags = tags
 
 #----------------------------------------------------------------------
 
@@ -655,3 +667,31 @@ class cGlossaryEntry(cArtefact):
         for label, key in zip(self._labels, self._keys):
             s += u"%s: %s\n" % (label, self._basedata[key])
         return s.encode('iso-8859-1')
+
+#----------------------------------------------------------------------
+
+class cTag(object):
+    color = {'Red' : wx.RED, 'Green' : wx.GREEN, 'Blue' : wx.BLUE, 'Black': wx.BLACK,
+             'Yellow' : wx.Colour(255, 255,   0), 'Light Blue': wx.Colour(173, 216, 230),
+             'Magenta' : wx.Colour(255,   0, 255), 'Pink' : wx.Colour(255, 181, 197),
+             'Orange' : wx.Colour(255, 165,   0),  'Purple' : wx.Colour(160,  32, 240)}
+    colornames = ['Black', 'Blue', 'Red', 'Green', 'Yellow', 'Light Blue', 'Magenta',
+                  'Pink', 'Orange', 'Purple']
+
+    @staticmethod
+    def index2tagchar(index):
+        return chr(index+ord('A'))
+
+    @staticmethod
+    def tagchar2index(tagchar):
+        return ord(tagchar)-ord('A')
+
+    def __init__(self, ID, shortdesc, longdesc, color='Black'):
+        self._basedata = {'ID' : ID, 'shortdesc' : shortdesc, 'longdesc' : longdesc, 'color': color}
+
+    def __getitem__(self, key):
+        return self._basedata[key]
+
+
+    def __setitem__(self, key, value):
+        self._basedata[key] = value
