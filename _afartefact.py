@@ -125,6 +125,8 @@ class cChangelogEntry():
         'date'        : date }
 
     def __getitem__(self, key):
+        if key=='tags':
+            return ''
         return self._basedata[key]
 
 
