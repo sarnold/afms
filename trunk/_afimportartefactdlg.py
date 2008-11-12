@@ -25,6 +25,7 @@ import wx
 from _afartefactlist import *
 import afresource
 
+_namelist = afresource.ARTEFACTS + [{"name": _("Tags"), "id": "TAGS"}]
 
 class ImportArtefactDialog(wx.Dialog):
     def __init__(self, parent, ID):
@@ -41,6 +42,9 @@ class ImportArtefactDialog(wx.Dialog):
         self.select_related_checkbox = wx.CheckBox(self, -1, _('Select related artefacts automatically'))
         self.select_related_checkbox.SetValue(True)
         sizer.Add(self.select_related_checkbox, 0, wx.EXPAND | wx.ALL, 5)
+        st = wx.StaticText(self, -1, _('Note: existing tags may be overwritten!'))
+        st.SetForegroundColour(wx.RED)
+        sizer.Add(st, 0, wx.EXPAND | wx.ALL, 5)
 
         self.notebook = ArtefactNotebook(self)
         sizer.Add(self.notebook, 1, wx.EXPAND | wx.ALL, 5)
@@ -76,7 +80,8 @@ class ImportArtefactDialog(wx.Dialog):
 
 
     def CheckArtefacts(self, artefact_kind, idlist):
-        artefact_kinds = [item['id'] for item in afresource.ARTEFACTS]
+        global _namelist
+        artefact_kinds = [item['id'] for item in _namelist]
         index = artefact_kinds.index(artefact_kind)
         listobj = self.notebook.artefactlist[index]
         listobj.CheckItems(idlist)
@@ -94,10 +99,10 @@ class ImportArtefactDialog(wx.Dialog):
 class ArtefactNotebook(wx.Notebook):
     def __init__(self, parent):
         wx.Notebook.__init__(self, parent)
-
-        self.artefactlist = [obj(self, checkstyle = True) for obj in [afFeatureList, afRequirementList, afUsecaseList, afTestcaseList, afTestsuiteList, afSimpleSectionList, afGlossaryEntryList]]
-        for i in range(len(afresource.ARTEFACTS)):
-            self.AddPage(self.artefactlist[i], _(afresource.ARTEFACTS[i]['name']))
+        self.artefactlist = [obj(self, checkstyle = True) for obj in [afFeatureList, afRequirementList, afUsecaseList, afTestcaseList, afTestsuiteList, afSimpleSectionList, afGlossaryEntryList, afTagList]]
+        global _namelist
+        for i in range(len(_namelist)):
+            self.AddPage(self.artefactlist[i], _(_namelist[i]['name']))
 
 
     def InitContent(self, *args):
