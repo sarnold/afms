@@ -264,6 +264,20 @@ class afExportHTML(afExportXMLBase):
         self.body.appendChild(self._createHeadline('h1', _('Changelog'), {'name': 'changelog'}))
         self.body.appendChild(self.changelog)
 
+        # --- Tags ---
+        self.toc.appendChild(self._createHeadline('h2', _('Tags'), {'href': '#tags'}))
+        self.body.appendChild(self._createHeadline('h1', _('Tags'), {'name': 'tags'}))
+        node = self._createElement('dl', {'class':'tags'})
+        for tag in afconfig.TAGLIST:
+            subnode = self._createElement('dt', {'class': 'tag%(ID)d' % tag})
+            subnode.appendChild(self._createTextElement('a', '#%(ID)d' % tag, {'class': 'tag%(ID)d' % tag, 'name' : 'tag%(ID)d' % tag}))
+            shortdesc = tag['shortdesc'].strip()
+            if shortdesc != '':
+                subnode.appendChild(self._createTextElement('span', ': %(shortdesc)s' % tag, {'class': 'tag%(ID)d' % tag}))
+            node.appendChild(subnode)
+            node.appendChild(self._createTextElement('dd', '%(longdesc)s' % tag, {'class': 'tag%(ID)d' % tag}))
+            self.body.appendChild(node)
+
         # --- Footer ---
         self.body.appendChild(self._createElement('hr'))
         footer = _('Created from %s at %s by %s') % (self.model.getFilename(), strftime(afresource.TIME_FORMAT, localtime()), afconfig.CURRENT_USER)
@@ -311,6 +325,7 @@ class afExportHTML(afExportXMLBase):
         subnode.appendChild(self._createTextElement('a', 'SS-%(ID)03d: %(title)s' % simplesection, {'name': 'SS-%(ID)03d' % simplesection}))
         node.appendChild(subnode)
         node.appendChild(self._render(simplesection['content']))
+        self.renderTags(node, simplesection)
         tocnode = self._createTextElement('a', 'SS-%(ID)03d: %(title)s' % simplesection, {'href': '#SS-%(ID)03d' % simplesection})
         (changelognode, changeloglink) = self.renderChangelist('SS', simplesection)
         node.appendChild(changeloglink)
@@ -540,8 +555,8 @@ class afExportHTML(afExportXMLBase):
         else:
             attribute = {'name': 'TC-%(ID)03d' % testcase}
         return self._createTextElement('a', 'TC-%(ID)03d: %(title)s' % testcase, attribute)
-    
-    
+
+
     def _renderTestcaseBasedata(self, table, basedata):
         table.appendChild(self._createTableRow(_('Version'),      basedata['version']))
         table.appendChild(self._createTableRow(_('Purpose'),      self._render(basedata['purpose'])))
@@ -550,7 +565,7 @@ class afExportHTML(afExportXMLBase):
         table.appendChild(self._createTableRow(_('Steps'),        self._render(basedata['steps'])))
         table.appendChild(self._createTableRow(_('Script URL'),   basedata['scripturl']))
         table.appendChild(self._createTableRow(_('Notes'),        self._render(basedata['notes'])))
-        
+
 
     def renderTestsuite(self, ID):
         testsuite = self.model.getTestsuite(ID)
@@ -625,6 +640,25 @@ class afExportHTML(afExportXMLBase):
         hrefanchor = self._createTextElement('a', _('Changelog'), {'href': '#H%(keystr)s-%(ID)03d' % artefact})
         link.appendChild(hrefanchor)
         return (node, link)
+
+
+    def renderTags(self, node, af):
+        node.appendChild(self._createTextElement('h3', _('Tags')))
+        tagcharlist = list(af.getTags())
+        tagcharlist.sort()
+        if len(tagcharlist) <= 0:
+            node.appendChild(self._createTextElement('p', _('None'), {'class': 'tags'}))
+            return
+        subnode = self._createElement('p', {'class':'tags'})
+        for tagchar in tagcharlist:
+            tag = afconfig.TAGLIST[_afartefact.cTag.tagchar2index(tagchar)]
+            subnode.appendChild(self._createTextElement('a', '#%(ID)d' % tag, {'class': 'tag%(ID)d' % tag, 'href': '#tag%(ID)d' % tag}))
+            shortdesc = tag['shortdesc'].strip()
+            if shortdesc != '':
+                subnode.appendChild(self._createTextElement('span', ' (%(shortdesc)s)' % tag, {'class': 'tag%(ID)d' % tag}))
+            if tagchar != tagcharlist[-1]:
+                subnode.appendChild(self._createTextElement('span', ','))
+            node.appendChild(subnode)
 
 
     def _createTableRow(self, left, right):
@@ -734,6 +768,7 @@ class CommandLineProcessor():
         try:
             cwd = os.getcwd()
             model.requestOpenProduct(self.databasename)
+            afconfig.TAGLIST = model.getTaglist()
             os.chdir(cwd)
         except:
             print("Error opening database file %s" % self.databasename)

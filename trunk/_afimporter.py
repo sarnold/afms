@@ -104,6 +104,7 @@ class afImporter():
 
 
     def _ImportRelatedTags(self, af):
+            if not self.dlg.GetOverwriteTags(): return
             aftags = af.getTags()
             related_tag_ids = [cTag.tagchar2index(c)+1 for c in aftags]
             logging.debug("_afimporter.OnListItemChecked(): auto checking tags %s" % str(related_tag_ids))
