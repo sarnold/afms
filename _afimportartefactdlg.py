@@ -41,10 +41,12 @@ class ImportArtefactDialog(wx.Dialog):
 
         self.select_related_checkbox = wx.CheckBox(self, -1, _('Select related artefacts automatically'))
         self.select_related_checkbox.SetValue(True)
+        self.Bind(wx.EVT_CHECKBOX, self.OnSelectRelatedCheckbox)
         sizer.Add(self.select_related_checkbox, 0, wx.EXPAND | wx.ALL, 5)
-        st = wx.StaticText(self, -1, _('Note: existing tags may be overwritten!'))
-        st.SetForegroundColour(wx.RED)
-        sizer.Add(st, 0, wx.EXPAND | wx.ALL, 5)
+        self.overwrite_tags_checkbox = wx.CheckBox(self, -1, _('Existing tags may be overwritten automatically'))
+        self.overwrite_tags_checkbox.SetValue(True)
+        ##self.Bind(wx.EVT_CHECKBOX, self.OnOverwriteTagsCheckbox)
+        sizer.Add(self.overwrite_tags_checkbox, 0, wx.EXPAND | wx.ALL, 5)
 
         self.notebook = ArtefactNotebook(self)
         sizer.Add(self.notebook, 1, wx.EXPAND | wx.ALL, 5)
@@ -58,6 +60,10 @@ class ImportArtefactDialog(wx.Dialog):
         btnsizer.Realize()
         sizer.Add(btnsizer, 0, wx.ALIGN_RIGHT | wx.ALL, 5)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnListItemActivated)
+
+
+    def OnSelectRelatedCheckbox(self, evt):
+        self.overwrite_tags_checkbox.Enable(self.select_related_checkbox.GetValue())
 
 
     def OnListItemActivated(self, evt):
@@ -77,6 +83,10 @@ class ImportArtefactDialog(wx.Dialog):
 
     def GetAutoSelectRelated(self):
         return self.select_related_checkbox.GetValue()
+
+
+    def GetOverwriteTags(self):
+        return self.overwrite_tags_checkbox.GetValue()
 
 
     def CheckArtefacts(self, artefact_kind, idlist):
