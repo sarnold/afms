@@ -129,7 +129,7 @@ class afUsecaseNotebook(_afbasenotebook.afBaseNotebook):
         self.featurelist = self.AddRelatedArtefactPanel(afFeatureList, _("Related Features"))
         # Related requirements panel; this relation could not be edited from here
         self.requirementlist = self.AddRelatedArtefactPanel(afRequirementList, _("Related Requirements"))
-
+        self.AddTagsPanel()
         self.AddChangelogPanel()
 
 
@@ -151,7 +151,7 @@ class afUsecaseNotebook(_afbasenotebook.afBaseNotebook):
 
         self.requirementlist.InitContent(usecase.getRelatedRequirements())
         self.featurelist.InitContent(usecase.getRelatedFeatures())
-
+        self.InitTags(usecase.getTags())
         if self.viewonly:
            self.changelist.InitContent(usecase.getChangelist())
 
@@ -171,5 +171,6 @@ class afUsecaseNotebook(_afbasenotebook.afBaseNotebook):
                            altscenario=self.altscenario_edit.GetValue(),
                            notes=self.notes_edit.GetValue())
         usecase.setChangelog(self.GetChangelogContent())
+        usecase.setTags(self.GetTags())
         return usecase
 

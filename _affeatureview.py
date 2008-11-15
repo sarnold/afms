@@ -125,7 +125,7 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
         panel.SetSizer(sizer)
         self.AddPage(panel, _("Attached Usecases"))
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnListItemActivated)
-
+        self.AddTagsPanel()
         self.AddChangelogPanel()
 
 
@@ -149,7 +149,7 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
 
         self.requirementlist.InitCheckableContent(feature.getUnrelatedRequirements(), feature.getRelatedRequirements(), self.viewonly)
         self.usecaselist.InitCheckableContent(feature.getUnrelatedUsecases(), feature.getRelatedUsecases(), self.viewonly)
-
+        self.InitTags(feature.getTags())
         if self.viewonly:
             self.changelist.InitContent(feature.getChangelist())
         else:
@@ -184,7 +184,7 @@ class afFeatureNotebook(_afbasenotebook.afBaseNotebook):
         feature.setRelatedUsecases(related_usecases)
 
         feature.setChangelog(self.GetChangelogContent())
-
+        feature.setTags(self.GetTags())
         return feature
 
 
