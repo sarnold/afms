@@ -114,7 +114,7 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
 
         # Related testsuites panel; this relation could not be edited from here
         self.testsuitelist = self.AddRelatedArtefactPanel(afTestsuiteList, _("Related Testsuites"))
-
+        self.AddTagsPanel()
         self.AddChangelogPanel()
 
 
@@ -131,7 +131,7 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
 
         self.requirementlist.InitContent(testcase.getRelatedRequirements())
         self.testsuitelist.InitContent(testcase.getRelatedTestsuites())
-
+        self.InitTags(testcase.getTags())
         if self.viewonly:
             self.changelist.InitContent(testcase.getChangelist())
 
@@ -151,6 +151,7 @@ class afTestcaseNotebook(_afbasenotebook.afBaseNotebook):
                              version=self.version_edit.GetValue(),
                              scripturl = self.scripturl_edit.GetValue())
         testcase.setChangelog(self.GetChangelogContent())
+        testcase.setTags(self.GetTags())
         return testcase
 
 

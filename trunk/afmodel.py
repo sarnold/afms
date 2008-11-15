@@ -295,30 +295,31 @@ class afModel(object):
         if ID < 0:
             feature = cFeature()
         else:
-            query_string = 'select ID, title, priority, status, version, risk, description from features where ID = %d;' % ID
+            query_string = 'select ID, title, priority, status, version, risk, description, tags from features where ID = %d;' % ID
             c.execute(query_string)
             basedata = c.fetchone()
             feature = cFeature(ID=basedata[0], title=basedata[1], priority=basedata[2],
                                status=basedata[3], version=basedata[4], risk=basedata[5],
                                description=basedata[6])
+            feature.setTags(basedata[7])
 
         select_string = 'select rq_id from feature_requirement_relation where ft_id=%d and delcnt==0' % ID
         query_string = 'select ID, title, priority, status, complexity,' \
-            'assigned, effort, category, version, description from requirements where id in (%s);' % select_string
+            'assigned, effort, category, version, description, tags from requirements where id in (%s);' % select_string
         related_requirements_list = self.getData(query_string)
         feature.setRelatedRequirements(self._RequirementListFromPlainList(related_requirements_list))
 
         query_string = 'select ID, title, priority, status, complexity,' \
-            'assigned, effort, category, version, description from requirements where id not in (%s) and delcnt==0;' % select_string
+            'assigned, effort, category, version, description, tags from requirements where id not in (%s) and delcnt==0;' % select_string
         unrelated_requirements_list = self.getData(query_string)
         feature.setUnrelatedRequirements(self._RequirementListFromPlainList(unrelated_requirements_list))
 
         select_string = 'select uc_id from feature_usecase_relation where ft_id=%d and delcnt==0' % ID
-        query_string = 'select ID, title, priority, usefrequency, actors, stakeholders from usecases where id in (%s);' % select_string
+        query_string = 'select ID, title, priority, usefrequency, actors, stakeholders, tags from usecases where id in (%s);' % select_string
         related_usecase_list = self.getData(query_string)
         feature.setRelatedUsecases(self._UsecaseListFromPlainList(related_usecase_list))
 
-        query_string = 'select ID, title, priority, usefrequency, actors, stakeholders from usecases where id not in (%s) and delcnt==0;' % select_string
+        query_string = 'select ID, title, priority, usefrequency, actors, stakeholders, tags from usecases where id not in (%s) and delcnt==0;' % select_string
         unrelated_usecase_list = self.getData(query_string)
         feature.setUnrelatedUsecases(self._UsecaseListFromPlainList(unrelated_usecase_list))
 
@@ -341,7 +342,7 @@ class afModel(object):
             requirement = cRequirement()
         else:
             query_string = 'select ID, title, priority, status, version, complexity,' \
-                'assigned, effort, category, origin, rationale, description from requirements where ID = %d;' % ID
+                'assigned, effort, category, origin, rationale, description, tags from requirements where ID = %d;' % ID
             c.execute(query_string)
             basedata = c.fetchone()
             requirement = cRequirement(ID=basedata[0], title=basedata[1],
@@ -349,45 +350,46 @@ class afModel(object):
                                        complexity=basedata[5], assigned=basedata[6], effort=basedata[7],
                                        category=basedata[8], origin=basedata[9], rationale=basedata[10],
                                        description=basedata[11])
+            requirement.setTags(basedata[12])
 
         select_string = 'select tc_id from requirement_testcase_relation where rq_id=%d and delcnt==0' % ID
-        query_string = 'select all id, title, version, scripturl, purpose from testcases where id in (%s);' % select_string
+        query_string = 'select all id, title, version, scripturl, purpose, tags from testcases where id in (%s);' % select_string
         c.execute(query_string)
         relatedtestcaselist = self.getData(query_string)
         requirement.setRelatedTestcases(self._TestcaseListFromPlainList(relatedtestcaselist))
 
-        query_string = 'select all id, title, version, scripturl, purpose from testcases where id not in (%s) and delcnt==0;' % select_string
+        query_string = 'select all id, title, version, scripturl, purpose, tags from testcases where id not in (%s) and delcnt==0;' % select_string
         c.execute(query_string)
         unrelatedtestcaselist = self.getData(query_string)
         requirement.setUnrelatedTestcases(self._TestcaseListFromPlainList(unrelatedtestcaselist))
 
         select_string = 'select uc_id from requirement_usecase_relation where rq_id=%d and delcnt==0' % ID
-        query_string = 'select all id, title, priority, usefrequency, actors, stakeholders from usecases where id in (%s);' % select_string
+        query_string = 'select all id, title, priority, usefrequency, actors, stakeholders, tags from usecases where id in (%s);' % select_string
         c.execute(query_string)
         relatedusecaselist = self.getData(query_string)
         requirement.setRelatedUsecases(self._UsecaseListFromPlainList(relatedusecaselist))
 
-        query_string = 'select all id, title, priority, usefrequency, actors, stakeholders from usecases where id not in (%s) and delcnt==0;' % select_string
+        query_string = 'select all id, title, priority, usefrequency, actors, stakeholders, tags from usecases where id not in (%s) and delcnt==0;' % select_string
         c.execute(query_string)
         unrelatedusecaselist = self.getData(query_string)
         requirement.setUnrelatedUsecases(self._UsecaseListFromPlainList(unrelatedusecaselist))
 
         select_string = 'select ft_id from feature_requirement_relation where rq_id=%d and delcnt==0' % ID
-        query_string = 'select all ID, title, priority, status, version, risk, description from features where ID in (%s);' % select_string
+        query_string = 'select all ID, title, priority, status, version, risk, description, tags from features where ID in (%s);' % select_string
         c.execute(query_string)
         features = self.getData(query_string)
         requirement.setRelatedFeatures(self._FeatureListFromPlainList(features))
 
         # new in database version 1.2
         query_string = '''select ID, title, priority, status, complexity,
-            assigned, effort, category, version, description from requirements where
+            assigned, effort, category, version, description, tags from requirements where
             id in (select rq1_id from requirement_requirement_relation where rq2_id==%d and delcnt==0) or
             id in (select rq2_id from requirement_requirement_relation where rq1_id==%d and delcnt==0);''' % (ID, ID)
         requirements_list = self.getData(query_string)
         requirement.setRelatedRequirements(self._RequirementListFromPlainList(requirements_list))
 
         query_string = '''select ID, title, priority, status, complexity,
-            assigned, effort, category, version, description from requirements where
+            assigned, effort, category, version, description, tags from requirements where
             id not in (select rq1_id from requirement_requirement_relation where rq2_id==%d and delcnt==0) and
             id not in (select rq2_id from requirement_requirement_relation where rq1_id==%d and delcnt==0) and
             id!=%d;''' % (ID, ID, ID)
@@ -410,6 +412,7 @@ class afModel(object):
             ftobj['version'] = ft[4]
             ftobj['risk'] = ft[5]
             ftobj['description'] = ft[6]
+            ftobj.setTags(ft[7])
             ftobj.setChangelist(self.getChangelist(_TYPEID_FEATURE, ftobj['ID']))
             ftlist.append(ftobj)
         return ftlist
@@ -428,16 +431,17 @@ class afModel(object):
         if ID < 0:
             testcase = cTestcase()
         else:
-            query_string = 'select ID, title, purpose, prerequisite, testdata , steps , notes, version, scripturl from testcases where ID = %d;' % ID
+            query_string = 'select ID, title, purpose, prerequisite, testdata , steps , notes, version, scripturl, tags from testcases where ID = %d;' % ID
             c.execute(query_string)
             basedata = c.fetchone()
             testcase = cTestcase(ID=basedata[0], title=basedata[1], purpose=basedata[2],
                                  prerequisite=basedata[3], testdata=basedata[4],
                                  steps=basedata[5], notes=basedata[6], version=basedata[7], scripturl=basedata[8])
+            testcase.setTags(basedata[9])
 
         select_string = 'select rq_id from requirement_testcase_relation where tc_id=%d and delcnt==0' % ID
         query_string = 'select ID, title, priority, status, complexity,' \
-            'assigned, effort, category, version, description from requirements where id in (%s);' % select_string
+            'assigned, effort, category, version, description, tags from requirements where id in (%s);' % select_string
         c.execute(query_string)
         related_requirements = self.getData(query_string)
         testcase.setRelatedRequirements(self._RequirementListFromPlainList(related_requirements))
@@ -470,7 +474,7 @@ class afModel(object):
         if ID < 0:
             usecase = cUsecase()
         else:
-            query_string = 'select ID, title, priority, usefrequency, actors, stakeholders, prerequisites, mainscenario, altscenario, notes from usecases where ID = %d;' % ID
+            query_string = 'select ID, title, priority, usefrequency, actors, stakeholders, prerequisites, mainscenario, altscenario, notes, tags from usecases where ID = %d;' % ID
             c.execute(query_string)
             basedata = c.fetchone()
             usecase = cUsecase(ID=basedata[0], title=basedata[1], priority=basedata[2],
@@ -478,16 +482,17 @@ class afModel(object):
                                stakeholders=basedata[5], prerequisites=basedata[6],
                                mainscenario=basedata[7], altscenario=basedata[8],
                                notes=basedata[9])
+            usecase.setTags(basedata[10])
 
         select_string = 'select rq_id from requirement_usecase_relation where uc_id=%d and delcnt==0' % ID
         query_string = 'select ID, title, priority, status, complexity,' \
-            'assigned, effort, category, version, description from requirements where id in (%s);' % select_string
+            'assigned, effort, category, version, description, tags from requirements where id in (%s);' % select_string
         c.execute(query_string)
         related_requirements = self.getData(query_string)
         usecase.setRelatedRequirements(self._RequirementListFromPlainList(related_requirements))
 
         select_string = 'select ft_id from feature_usecase_relation where uc_id=%d and delcnt==0' % ID
-        query_string = 'select all ID, title, priority, status, version, risk, description from features where ID in (%s);' % select_string
+        query_string = 'select all ID, title, priority, status, version, risk, description, tags from features where ID in (%s);' % select_string
         c.execute(query_string)
         related_features = self.getData(query_string)
         usecase.setRelatedFeatures(self._FeatureListFromPlainList(related_features))
@@ -502,6 +507,7 @@ class afModel(object):
             rqobj = cRequirement(ID=rq[0], title=rq[1], priority=rq[2], status=rq[3],
                                  complexity=rq[4], assigned=rq[5], effort=rq[6],
                                  category=rq[7], version=rq[8], description=rq[9])
+            rqobj.setTags(rq[10])
             rqobj.setChangelist(self.getChangelist(_TYPEID_REQUIREMENT, rqobj['ID']))
             rqlist.append(rqobj)
         return rqlist
@@ -528,11 +534,11 @@ class afModel(object):
                                    description=basedata[2], execorder=basedata[3])
 
         select_string = 'select tc_id from testsuite_testcase_relation where ts_id=%d and delcnt==0' % ID
-        query_string = 'select all id, title, version, scripturl, purpose from testcases where id in (%s);' % select_string
+        query_string = 'select all id, title, version, scripturl, purpose, tags from testcases where id in (%s);' % select_string
         includedtestcaselist = self.getData(query_string)
         testsuite.setRelatedTestcases(self._TestcaseListFromPlainList(includedtestcaselist))
 
-        query_string = 'select all id, title, version, scripturl, purpose from testcases where id not in (%s) and delcnt==0;' % select_string
+        query_string = 'select all id, title, version, scripturl, purpose, tags from testcases where id not in (%s) and delcnt==0;' % select_string
         excludedtestcaselist = self.getData(query_string)
         testsuite.setUnrelatedTestcases(self._TestcaseListFromPlainList(excludedtestcaselist))
         return testsuite
@@ -636,7 +642,7 @@ class afModel(object):
         else:
             where_string = 'delcnt==0'
 
-        query_string = 'select ID, title, priority, status, version, risk, description from features where %s %s;'
+        query_string = 'select ID, title, priority, status, version, risk, description, tags from features where %s %s;'
         c = self.connection.cursor()
         if affilter is not None and affilter.isApplied():
             (clause, params) = affilter.GetSQLWhereClause('and')
@@ -667,7 +673,7 @@ class afModel(object):
         else:
             where_string = 'delcnt==0'
 
-        query_string = 'select ID, title, priority, status, complexity, assigned, effort, category, version, description from requirements where %s %s;'
+        query_string = 'select ID, title, priority, status, complexity, assigned, effort, category, version, description, tags from requirements where %s %s;'
         c = self.connection.cursor()
         if affilter is not None and affilter.isApplied():
             (clause, params) = affilter.GetSQLWhereClause('and')
@@ -698,7 +704,7 @@ class afModel(object):
         else:
             where_string = 'delcnt==0'
 
-        query_string = 'select ID, title, priority, usefrequency, actors, stakeholders from usecases where %s %s;'
+        query_string = 'select ID, title, priority, usefrequency, actors, stakeholders, tags from usecases where %s %s;'
         c = self.connection.cursor()
         if affilter is not None and affilter.isApplied():
             (clause, params) = affilter.GetSQLWhereClause('and')
@@ -729,7 +735,7 @@ class afModel(object):
         else:
             where_string = 'delcnt==0'
 
-        query_string = 'select id, title, version, scripturl, purpose from testcases where %s %s;'
+        query_string = 'select id, title, version, scripturl, purpose, tags from testcases where %s %s;'
         c = self.connection.cursor()
         if affilter is not None and affilter.isApplied():
             (clause, params) = affilter.GetSQLWhereClause('and')
@@ -753,6 +759,7 @@ class afModel(object):
             tcobj['version'] = tc[2]
             tcobj['scripturl'] = tc[3]
             tcobj['purpose'] = tc[4]
+            tcobj.setTags(tc[5])
             tcobj.setChangelist(self.getChangelist(_TYPEID_TESTCASE, tcobj['ID']))
             tclist.append(tcobj)
         return tclist
@@ -768,6 +775,7 @@ class afModel(object):
             ucobj['usefrequency'] = uc[3]
             ucobj['actors'] = uc[4]
             ucobj['stakeholders'] = uc[5]
+            ucobj.setTags(uc[6])
             ucobj.setChangelist(self.getChangelist(_TYPEID_USECASE, ucobj['ID']))
             uclist.append(ucobj)
         return uclist
@@ -890,14 +898,13 @@ class afModel(object):
         """
         logging.debug("afmodel.saveFeature()")
         plainfeature = [feature['ID'], feature['title'], feature['priority'], feature['status'],
-                        feature['version'], feature['risk'], feature['description']]
-        plainfeature.append(0) # append delcnt
+                        feature['version'], feature['risk'], feature['description'], 0, feature.getTags()]
         sqlstr = []
-        sqlstr.append("insert into features values (NULL, ?, ?, ?, ?, ?, ?, ?)")
+        sqlstr.append("insert into features values (NULL, ?, ?, ?, ?, ?, ?, ?, ?)")
         sqlstr.append("select max(ID) from features")
         sqlstr.append("update features set "\
             "'title'=?, 'priority'=?, 'status'=?, 'version'=?, 'risk'=?, 'description'=?, " \
-            "'delcnt'=? where ID=?;")
+            "'delcnt'=?, 'tags'=? where ID=?;")
         (basedata, new_artefact) = self.saveArtefact(plainfeature, sqlstr)
         ft_id = basedata[0]
 
@@ -933,16 +940,15 @@ class afModel(object):
                             requirement['complexity'], requirement['assigned'],
                             requirement['effort'], requirement['category'],
                             requirement['origin'], requirement['rationale'],
-                            requirement['description']]
-        plainrequirement.append(0) # append delcnt
+                            requirement['description'], 0, requirement.getTags()]
         logging.debug("afmodel.saveRequirement()")
         sqlstr = []
-        sqlstr.append("insert into requirements values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        sqlstr.append("insert into requirements values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
         sqlstr.append("select max(ID) from requirements")
         sqlstr.append("update requirements set "\
             "'title'=?, 'priority'=?, 'status'=?, 'version'=?,"\
             "'complexity'=?, 'assigned'=?, 'effort'=?, 'category'=?,"\
-            "'origin'=?, 'rationale'=?, 'description'=?, 'delcnt'=? where ID=?")
+            "'origin'=?, 'rationale'=?, 'description'=?, 'delcnt'=?, 'tags'=? where ID=?")
 
         (basedata, new_artefact) = self.saveArtefact(plainrequirement, sqlstr, commit = False)
         rq_id = basedata[0]
@@ -987,14 +993,14 @@ class afModel(object):
         logging.debug("afmodel.saveTestcase()")
         plaintestcase = [testcase['ID'], testcase['title'], testcase['purpose'],
                          testcase['prerequisite'], testcase['testdata'],
-                         testcase['steps'], testcase['notes'], testcase['version'], 0, testcase['scripturl']]
+                         testcase['steps'], testcase['notes'], testcase['version'], 0, testcase['scripturl'], testcase.getTags()]
 
         sqlstr = []
-        sqlstr.append("insert into testcases values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        sqlstr.append("insert into testcases values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
         sqlstr.append("select max(ID) from testcases")
         sqlstr.append("update testcases set "\
             "'title'=?, 'purpose'=?, 'prerequisite'=?, 'testdata'=?,"\
-            "'steps'=?, 'notes'=?, 'version'=?, 'delcnt'=?, 'scripturl'=? where ID=?")
+            "'steps'=?, 'notes'=?, 'version'=?, 'delcnt'=?, 'scripturl'=?, 'tags'=? where ID=?")
         (basedata, new_artefact) = self.saveArtefact(plaintestcase, sqlstr)
         tc_id = basedata[0]
 
@@ -1019,16 +1025,15 @@ class afModel(object):
                         usecase['usefrequency'], usecase['actors'],
                         usecase['stakeholders'], usecase['prerequisites'],
                         usecase['mainscenario'], usecase['altscenario'],
-                        usecase['notes']]
+                        usecase['notes'], 0, usecase.getTags()]
         changelog = usecase.getChangelog()
-        plainusecase.append(0) # append delcnt
         sqlstr = []
-        sqlstr.append("insert into usecases values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        sqlstr.append("insert into usecases values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
         sqlstr.append("select max(ID) from usecases")
         sqlstr.append("update usecases set "\
             "'title'=?, 'priority'=?, 'usefrequency'=?, 'actors'=?, 'stakeholders'=?," \
             "'prerequisites'=?, 'mainscenario'=?,"\
-            "'altscenario'=?, 'notes'=?, 'delcnt'=? where ID=?")
+            "'altscenario'=?, 'notes'=?, 'delcnt'=?, 'tags'=? where ID=?")
         (basedata, new_artefact) = self.saveArtefact(plainusecase, sqlstr, commit = False)
         uc_id = basedata[0]
 
@@ -1048,13 +1053,12 @@ class afModel(object):
         @rtype:  tuple (cTestsuite, bool)
         """
         logging.debug("afmodel.saveTestsuite()")
-        plaintestsuite = [testsuite['ID'], testsuite['title'], testsuite['description'], testsuite['execorder']]
-        plaintestsuite.append(0) # append delcnt
+        plaintestsuite = [testsuite['ID'], testsuite['title'], testsuite['description'], testsuite['execorder'], 0, testsuite.getTags()]
         sqlstr = []
-        sqlstr.append("insert into testsuites values (NULL, ?, ?, ?, ?)")
+        sqlstr.append("insert into testsuites values (NULL, ?, ?, ?, ?, ?)")
         sqlstr.append("select max(ID) from testsuites")
         sqlstr.append("update testsuites set "\
-            "'title'=?, 'description'=?, execorder=?, 'delcnt'=? where ID=?")
+            "'title'=?, 'description'=?, execorder=?, 'delcnt'=?, 'tags'=? where ID=?")
         (basedata, new_artefact) = self.saveArtefact(plaintestsuite, sqlstr, commit=False)
         ts_id = basedata[0]
 

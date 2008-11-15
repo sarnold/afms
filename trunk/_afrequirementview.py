@@ -193,7 +193,7 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnListItemActivated)
 
         #-----------------------------------------------------------------
-
+        self.AddTagsPanel()
         self.AddChangelogPanel()
 
 
@@ -221,7 +221,7 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
         self.usecaselist.InitCheckableContent(requirement.getUnrelatedUsecases(), requirement.getRelatedUsecases(), self.viewonly)
         self.requirementlist.InitCheckableContent(requirement.getUnrelatedRequirements(), requirement.getRelatedRequirements(), self.viewonly)
         self.featurelist.InitContent(requirement.getRelatedFeatures())
-
+        self.InitTags(requirement.getTags())
         if self.viewonly:
             self.changelist.InitContent(requirement.getChangelist())
         else:
@@ -266,7 +266,7 @@ class afRequirementNotebook(_afbasenotebook.afBaseNotebook):
         requirement.setRelatedRequirements(related_requirements)
 
         requirement.setChangelog(self.GetChangelogContent())
-
+        requirement.setTags(self.GetTags())
         return requirement
 
 
