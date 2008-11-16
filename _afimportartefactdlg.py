@@ -45,7 +45,6 @@ class ImportArtefactDialog(wx.Dialog):
         sizer.Add(self.select_related_checkbox, 0, wx.EXPAND | wx.ALL, 5)
         self.overwrite_tags_checkbox = wx.CheckBox(self, -1, _('Existing tags may be overwritten automatically'))
         self.overwrite_tags_checkbox.SetValue(True)
-        ##self.Bind(wx.EVT_CHECKBOX, self.OnOverwriteTagsCheckbox)
         sizer.Add(self.overwrite_tags_checkbox, 0, wx.EXPAND | wx.ALL, 5)
 
         self.notebook = ArtefactNotebook(self)

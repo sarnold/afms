@@ -51,10 +51,9 @@ def render(text, maskspecialchars=True, enclosingtag='div'):
             text = text.replace("<", "&lt;")
             text = text.replace('"', "&quot;")
         lines = text.split("\n")
-        ##text = '<html>' + "<br />".join(lines) + '</html>'
         text = "<br />".join(lines)
     return '<%s>%s</%s>' % (enclosingtag, text, enclosingtag)
-    
+
 
 class afHtmlWindow(html.HtmlWindow):
     def __init__(self, parent, id, size=wx.DefaultSize, enablescriptexec=False, name='htmlWindow'):
@@ -76,8 +75,8 @@ class afHtmlWindow(html.HtmlWindow):
 
     def OnKeyChar(self, event):
         """
-        A key is pressed 
-        Ctrl-A        selects all 
+        A key is pressed
+        Ctrl-A        selects all
         """
         keycode = event.GetKeyCode()
         modifiers = event.GetModifiers()
@@ -86,7 +85,7 @@ class afHtmlWindow(html.HtmlWindow):
             self.SelectAll()
         else:
             event.Skip()
-        
+
     def _MakeLocalURL(self, url):
         logging.debug("_afhtmlwindows._MakeLocalURL(%s)" % url)
         lst = urlparse.urlsplit(url)
@@ -125,7 +124,7 @@ class afHtmlWindow(html.HtmlWindow):
     def SetValue(self, value):
         """
         Set value to display.
-        """        
+        """
         self.SetPage(render(value))
 
 

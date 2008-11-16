@@ -217,7 +217,7 @@ class afModel(object):
         self._InitFunctions()
         c = self.connection.cursor()
         c.execute('create temporary table lastchanges (afid integer, aftype integer, changetype integer, date text, user text, description text)')
-        for aftype in (_TYPEID_FEATURE, _TYPEID_REQUIREMENT, _TYPEID_USECASE, _TYPEID_TESTCASE, _TYPEID_TESTSUITE):
+        for aftype in (_TYPEID_FEATURE, _TYPEID_REQUIREMENT, _TYPEID_USECASE, _TYPEID_TESTCASE, _TYPEID_TESTSUITE, _TYPEID_SIMPLESECTION):
             c.execute('insert into lastchanges select afid, aftype, changetype, max(date), user, description from changelog where aftype=? group by afid', (aftype, ))
         self.connection.commit()
         c.execute('select value from product where property="dbversion";')
@@ -447,12 +447,13 @@ class afModel(object):
         testcase.setRelatedRequirements(self._RequirementListFromPlainList(related_requirements))
 
         select_string = 'select ts_id from testsuite_testcase_relation where tc_id=%d and delcnt==0' % ID
-        query_string = 'select ID, title, description from testsuites where id in (%s);' % select_string
+        query_string = 'select ID, title, description, tags from testsuites where id in (%s);' % select_string
         c.execute(query_string)
         related_testsuites = self.getData(query_string)
         tslist = []
         for ts in related_testsuites:
             tsobj = cTestsuite(ID=ts[0], title=ts[1], description=ts[2])
+            tsobj.setTags(ts[3])
             tslist.append(tsobj)
         testcase.setRelatedTestsuites(tslist)
 
@@ -527,11 +528,12 @@ class afModel(object):
         if ID < 0:
             testsuite = cTestsuite()
         else:
-            query_string = 'select ID, title, description, execorder from testsuites where ID = %d;' % ID
+            query_string = 'select ID, title, description, execorder, tags from testsuites where ID = %d;' % ID
             c.execute(query_string)
             basedata = c.fetchone()
             testsuite = cTestsuite(ID=basedata[0], title=basedata[1],
                                    description=basedata[2], execorder=basedata[3])
+            testsuite.setTags(basedata[4])
 
         select_string = 'select tc_id from testsuite_testcase_relation where ts_id=%d and delcnt==0' % ID
         query_string = 'select all id, title, version, scripturl, purpose, tags from testcases where id in (%s);' % select_string
@@ -797,7 +799,7 @@ class afModel(object):
         else:
             where_string = 'delcnt==0'
 
-        query_string = 'select ID, title, description, execorder from testsuites where %s %s;'
+        query_string = 'select ID, title, description, execorder, tags from testsuites where %s %s;'
         c = self.connection.cursor()
         if affilter is not None and affilter.isApplied():
             (clause, params) = affilter.GetSQLWhereClause('and')
@@ -811,6 +813,7 @@ class afModel(object):
         tslist = []
         for tsplain in tsplainlist:
             ts = cTestsuite(ID=tsplain[0], title=tsplain[1], description=tsplain[2], execorder=tsplain[3])
+            ts.setTags(tsplain[4])
             tslist.append(ts)
 
         c = self.connection.cursor()
@@ -1759,13 +1762,12 @@ class afModel(object):
         """
         logging.debug("afmodel.saveGlossaryEntry()")
 
-        plainglossaryentry = [glossaryentry['ID'], glossaryentry['title'], glossaryentry['description']]
-        plainglossaryentry.append(0) # append delcnt
+        plainglossaryentry = [glossaryentry['ID'], glossaryentry['title'], glossaryentry['description'], 0, '']
         sqlstr = []
-        sqlstr.append("insert into glossary values (NULL, ?, ?, ?)")
+        sqlstr.append("insert into glossary values (NULL, ?, ?, ?, ?)")
         sqlstr.append("select max(ID) from glossary")
         sqlstr.append("update glossary set "\
-            "'title'=?, 'description'=?, 'delcnt'=? where ID=?")
+            "'title'=?, 'description'=?, 'delcnt'=?, 'tags'=? where ID=?")
         (basedata, new_artefact) = self.saveArtefact(plainglossaryentry, sqlstr, commit=True)
         ge_id = basedata[0]
 

@@ -91,6 +91,16 @@ class afFilter(object):
         return '(' + joinop.join(clause) + ')'
 
 
+    def GetSQLWhereClauseForTags(self):
+        if len(self.tags) <= 0:  return ''
+        return 'or '.join(["tags like '%%%c%%'" % tagchar for tagchar in self.tags])
+
+
+    def appendExpression(self, exprlist, expr):
+        if len(expr) > 0:
+            exprlist.append(expr)
+
+
 class afFeatureFilter(afFilter):
     def __init__(self):
         super(afFeatureFilter, self).__init__()
@@ -99,6 +109,7 @@ class afFeatureFilter(afFilter):
         self.status   = []
         self.risk     = []
         self.version  = []
+        self.tags     = []
         self.changedfrom = wx.DateTimeFromDMY(1, 1, 2000)
         self.changedto   = wx.Now()
         self.changedby   = None
@@ -122,9 +133,8 @@ class afFeatureFilter(afFilter):
             expr.append('version in ' + self._FormatStringList(self.version))
         expr.append(self.GetSQLWhereClauseForChanges())
 
-        tfexpr = self.GetSQLWhereClauseForTextfields()
-        if len(tfexpr) > 0:
-            expr.append(tfexpr)
+        self.appendExpression(expr, self.GetSQLWhereClauseForTextfields())
+        self.appendExpression(expr, self.GetSQLWhereClauseForTags())
 
         clause = ' and '.join(expr)
         clause = prefix + ' ' + clause
@@ -148,6 +158,7 @@ class afRequirementFilter(afFilter):
         self.category = []
         self.version  = []
         self.assigned = []
+        self.tags = []
         self.changedfrom = wx.DateTimeFromDMY(1, 1, 2000)
         self.changedto   = wx.Now()
         self.changedby   = None
@@ -180,9 +191,8 @@ class afRequirementFilter(afFilter):
             expr.append('assigned in ' + self._FormatStringList(self.assigned))
         expr.append(self.GetSQLWhereClauseForChanges())
 
-        tfexpr = self.GetSQLWhereClauseForTextfields()
-        if len(tfexpr) > 0:
-            expr.append(tfexpr)
+        self.appendExpression(expr, self.GetSQLWhereClauseForTextfields())
+        self.appendExpression(expr, self.GetSQLWhereClauseForTags())
 
         clause = ' and '.join(expr)
         if len(clause) > 0:
@@ -230,9 +240,8 @@ class afUsecaseFilter(afFilter):
             expr.append('actors in ' + self._FormatStringList(self.actors))
         expr.append(self.GetSQLWhereClauseForChanges())
 
-        tfexpr = self.GetSQLWhereClauseForTextfields()
-        if len(tfexpr) > 0:
-            expr.append(tfexpr)
+        self.appendExpression(expr, self.GetSQLWhereClauseForTextfields())
+        self.appendExpression(expr, self.GetSQLWhereClauseForTags())
 
         clause = ' and '.join(expr)
         if len(clause) > 0:
@@ -268,9 +277,8 @@ class afTestcaseFilter(afFilter):
             expr.append('version in ' + self._FormatStringList(self.version))
         expr.append(self.GetSQLWhereClauseForChanges())
 
-        tfexpr = self.GetSQLWhereClauseForTextfields()
-        if len(tfexpr) > 0:
-            expr.append(tfexpr)
+        self.appendExpression(expr, self.GetSQLWhereClauseForTextfields())
+        self.appendExpression(expr, self.GetSQLWhereClauseForTags())
 
         clause = ' and '.join(expr)
         if len(clause) > 0:
@@ -291,11 +299,8 @@ class afTestsuiteFilter(afFilter):
 
     def GetSQLWhereClause(self, prefix=''):
         expr = []
-
-        tfexpr = self.GetSQLWhereClauseForTextfields()
-        if len(tfexpr) > 0:
-            expr.append(tfexpr)
-
+        self.appendExpression(expr, self.GetSQLWhereClauseForTextfields())
+        self.appendExpression(expr, self.GetSQLWhereClauseForTags())
         clause = ' and '.join(expr)
         if len(clause) > 0:
             clause = prefix + ' ' + clause
@@ -303,3 +308,34 @@ class afTestsuiteFilter(afFilter):
         params = {'pattern': self.textpattern}
 
         return (clause, params)
+
+#-------------------------------------------------------------------------------
+
+class afSimpleSectionFilter(afFilter):
+    def __init__(self):
+        super(afSimpleSectionFilter, self).__init__()
+        self.changedfrom = wx.DateTimeFromDMY(1, 1, 2000)
+        self.changedto   = wx.Now()
+        self.changedby   = None
+        self.changedbylist = []
+
+    def SetChangedByList(self, cbl):
+        self.changedbylist = cbl
+
+    def GetSQLWhereClause(self, prefix=''):
+        expr = []
+        expr.append(self.GetSQLWhereClauseForChanges())
+        self.appendExpression(expr, self.GetSQLWhereClauseForTextfields())
+        self.appendExpression(expr, self.GetSQLWhereClauseForTags())
+
+        clause = ' and '.join(expr)
+        if len(clause) > 0:
+            clause = prefix + ' ' + clause
+
+        params = {'user': self.changedby,
+            'fromdate': self.changedfrom,
+            'todate' : self.changedto,
+            'pattern': self.textpattern}
+        print clause
+        return (clause, params)
+

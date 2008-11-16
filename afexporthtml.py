@@ -110,6 +110,11 @@ class afExportHTML(afExportXMLBase):
         node = self.xmldoc.createElement('style')
         node.setAttribute('type', "text/css")
         node.appendChild(self.xmldoc.createTextNode(self.getCSSFile()))
+        for tag in afconfig.TAGLIST:
+            args = (tag['ID'],)+ _afartefact.cTag.color[tag['color']]
+            s = 'span.tag%d {color:#%02x%02x%02x;}' % args
+            node.appendChild(self.xmldoc.createTextNode(s))
+            pass
         head.appendChild(node)
         return head
 
@@ -368,6 +373,7 @@ class afExportHTML(afExportXMLBase):
         table.appendChild(self._createTableRow(_('Related Usecases'), subnode))
 
         tocnode = self.renderFeatureAnchor(feature, True)
+        self.renderTags(node, feature)
         (changelognode, changeloglink) = self.renderChangelist('FT', feature)
         node.appendChild(changeloglink)
         return (node, tocnode, changelognode)
@@ -439,6 +445,7 @@ class afExportHTML(afExportXMLBase):
         table.appendChild(self._createTableRow(_('Attached Testcases'), subnode))
 
         tocnode = self.renderRequirementAnchor(requirement, True)
+        self.renderTags(node, requirement)
         (changelognode, changeloglink) = self.renderChangelist('REQ', requirement)
         node.appendChild(changeloglink)
         return (node, tocnode, changelognode)
@@ -500,6 +507,7 @@ class afExportHTML(afExportXMLBase):
         table.appendChild(self._createTableRow(_('Related Features'), subnode))
 
         tocnode = self.renderUsecaseAnchor(usecase, True)
+        self.renderTags(node, usecase)
         (changelognode, changeloglink) = self.renderChangelist('UC', usecase)
         node.appendChild(changeloglink)
         return (node, tocnode, changelognode)
@@ -544,6 +552,7 @@ class afExportHTML(afExportXMLBase):
         table.appendChild(self._createTableRow(_('Related Testsuites'), subnode))
 
         tocnode = self.renderTestcaseAnchor(testcase, True)
+        self.renderTags(node, testcase)
         (changelognode, changeloglink) = self.renderChangelist('TC', testcase)
         node.appendChild(changeloglink)
         return (node, tocnode, changelognode)
@@ -591,7 +600,7 @@ class afExportHTML(afExportXMLBase):
             for testcase in relatedtestcases:
                 self.appendListItem(subnode, self.renderTestcaseAnchor(testcase, True))
         table.appendChild(self._createTableRow(_('Attached Testcases'), subnode))
-
+        self.renderTags(node, testsuite)
         tocnode = self.renderTestsuiteAnchor(testsuite, True)
         return (node, tocnode)
 
@@ -643,22 +652,25 @@ class afExportHTML(afExportXMLBase):
 
 
     def renderTags(self, node, af):
-        node.appendChild(self._createTextElement('h3', _('Tags')))
+        subnode = self._createElement('p', {'class':'tags'})
+        subnode.appendChild(self._createTextElement('a', _('Tags')+': ', {'class':'taghead', 'href':'#tags'}))
         tagcharlist = list(af.getTags())
         tagcharlist.sort()
         if len(tagcharlist) <= 0:
-            node.appendChild(self._createTextElement('p', _('None'), {'class': 'tags'}))
-            return
-        subnode = self._createElement('p', {'class':'tags'})
-        for tagchar in tagcharlist:
-            tag = afconfig.TAGLIST[_afartefact.cTag.tagchar2index(tagchar)]
-            subnode.appendChild(self._createTextElement('a', '#%(ID)d' % tag, {'class': 'tag%(ID)d' % tag, 'href': '#tag%(ID)d' % tag}))
-            shortdesc = tag['shortdesc'].strip()
-            if shortdesc != '':
-                subnode.appendChild(self._createTextElement('span', ' (%(shortdesc)s)' % tag, {'class': 'tag%(ID)d' % tag}))
-            if tagchar != tagcharlist[-1]:
-                subnode.appendChild(self._createTextElement('span', ','))
-            node.appendChild(subnode)
+            subnode.appendChild(self._createTextElement('span', _('None'), {'class': 'tags'}))
+        else:
+            for tagchar in tagcharlist:
+                tag = afconfig.TAGLIST[_afartefact.cTag.tagchar2index(tagchar)]
+                s = '#%(ID)d' % tag
+                subnode.appendChild(self._createTextElement('a', s, {'class': 'tag%(ID)d' % tag, 'href': '#tag%(ID)d' % tag}))
+                s = ''
+                shortdesc = tag['shortdesc'].strip()
+                if shortdesc != '':
+                    s += ' (%(shortdesc)s)' % tag
+                if tagchar != tagcharlist[-1]:
+                    s += ','
+                subnode.appendChild(self._createTextElement('span', s, {'class': 'tag%(ID)d' % tag}))
+        node.appendChild(subnode)
 
 
     def _createTableRow(self, left, right):

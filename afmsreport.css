@@ -146,3 +146,15 @@ p.pass {
 .alert {
     background-color: #EE0000;
 }
+
+p.tags {
+	margin-left:3em;
+	text-indent:-3em;
+	
+}
+
+span.taghead {
+}
+
+span.tag {
+}
