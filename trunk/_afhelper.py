@@ -41,7 +41,8 @@ def getColorForArtefact(artefact):
         colorname = afconfig.TAGLIST[colortagindex]['color']
     else:
         colorname = 'Black'
-    return afconfig.TAGLIST[0].color[colorname]
+        colortagindex = None
+    return (wx.Color(*afconfig.TAGLIST[0].color[colorname]), colortagindex)
 
 
 def ShowFeedbackDialog(parent):

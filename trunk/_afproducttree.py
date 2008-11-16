@@ -40,7 +40,7 @@ class afProductTree(wx.TreeCtrl):
         self.il = il
 
         self.root = self.AddRoot(_("Product"))
-        self.SetPyData(self.root, "PRODUCT")
+        self.SetPyData(self.root, {'ID':"PRODUCT", 'colorindex':None})
         self.SetItemImage(self.root, fldridx, wx.TreeItemIcon_Normal)
         self.SetItemImage(self.root, fldropenidx, wx.TreeItemIcon_Expanded)
 
@@ -48,14 +48,14 @@ class afProductTree(wx.TreeCtrl):
         for i in afresource.ARTEFACTSTREEVIEWORDER:
             item = afresource.ARTEFACTS[i]
             child = self.AppendItem(self.root, _(item["name"]))
-            self.SetPyData(child, item["id"])
+            self.SetPyData(child, {'ID':item["id"], 'colorindex':None})
             self.SetItemImage(child, fldridx, wx.TreeItemIcon_Normal)
             self.SetItemImage(child, fldropenidx, wx.TreeItemIcon_Expanded)
             self.treeChild[item["id"]] = child
 
         # --- artefact trash ---
         trash = self.AppendItem(self.root, _(afresource.TRASH["name"]))
-        self.SetPyData(trash, afresource.TRASH["id"])
+        self.SetPyData(trash, {'ID':afresource.TRASH["id"], 'colorindex':None})
         self.SetItemImage(trash, self.emptytrashidx, wx.TreeItemIcon_Normal)
         self.SetItemImage(trash, self.emptytrashidx, wx.TreeItemIcon_Expanded)
         self.treeChild[afresource.TRASH["id"]] = trash
@@ -63,7 +63,7 @@ class afProductTree(wx.TreeCtrl):
         for i in afresource.ARTEFACTSTREEVIEWORDER:
             item = afresource.ARTEFACTS[i]
             child = self.AppendItem(trash, _(item["name"]))
-            self.SetPyData(child, afresource.TRASH["id"]+item["id"])
+            self.SetPyData(child, {'ID':afresource.TRASH["id"]+item["id"], 'colorindex':None})
             self.SetItemImage(child, self.emptytrashidx, wx.TreeItemIcon_Normal)
             self.SetItemImage(child, self.emptytrashidx, wx.TreeItemIcon_Expanded)
             self.trashChild[item["id"]] = child
@@ -107,16 +107,16 @@ class afProductTree(wx.TreeCtrl):
     def __getProperties(self, item):
         ID = item['ID']
         title = item['title']
-        color = _afhelper.getColorForArtefact(item)
-        return (ID, title, color)
+        (color, colorindex) = _afhelper.getColorForArtefact(item)
+        return (ID, title, color, colorindex)
 
 
     def AddChildItem(self, parent, item):
-        (ID, title, color) = self.__getProperties(item)
+        (ID, title, color, colorindex) = self.__getProperties(item)
         item_text = self.FormatChildLabel(ID, title)
         child = self.AppendItem(self.treeChild[parent], item_text, 2, -1)
         self.SetItemTextColour(child, color)
-        self.SetPyData(child, ID)
+        self.SetPyData(child, {'ID':ID, 'colorindex':colorindex})
 
 
     def FormatChildLabel(self, ID, text):
@@ -124,10 +124,10 @@ class afProductTree(wx.TreeCtrl):
 
 
     def GetItemInfo(self, item):
-        item_id = self.GetPyData(item)
+        item_id = self.GetPyData(item)['ID']
         parent = self.GetItemParent(item)
         if parent:
-            parent_id = self.GetPyData(parent)
+            parent_id = self.GetPyData(parent)['ID']
         else:
             parent_id = None
         return (parent_id, item_id)
@@ -137,7 +137,7 @@ class afProductTree(wx.TreeCtrl):
         rootItemId = self.GetRootItem()
         (treeItemId, cookie) = self.GetFirstChild(rootItemId)
         for i in range(0, self.GetChildrenCount(rootItemId, False)):
-            if self.GetPyData(treeItemId) == parent_id:
+            if self.GetPyData(treeItemId)['ID'] == parent_id:
                 break;
             treeItemId = self.GetNextSibling(treeItemId)
         return treeItemId
@@ -146,10 +146,11 @@ class afProductTree(wx.TreeCtrl):
     def _FindChildItemId(self, treeItemId, item_id):
         (childItemId, cookie) = self.GetFirstChild(treeItemId)
         for i in range(0, self.GetChildrenCount(treeItemId, False)+1):
-            if self.GetPyData(childItemId) == item_id:
+            if self.GetPyData(childItemId)['ID'] == item_id:
                 break;
             childItemId = self.GetNextSibling(childItemId)
         return (childItemId)
+
 
     def FindItem(self, parent_id, item_id):
         treeParentId = self._FindParentItemId(parent_id)
@@ -161,10 +162,27 @@ class afProductTree(wx.TreeCtrl):
 
 
     def UpdateItemText(self, parent_id, item_id, item):
-        (ID, title, color) = self.__getProperties(item)
+        (ID, title, color, colorindex) = self.__getProperties(item)
         (treeParentId, treeChildId) = self.FindItem(parent_id, item_id)
         self.SetItemText(treeChildId, self.FormatChildLabel(item_id, title))
         self.SetItemTextColour(treeChildId, color)
+        pydata = self.GetPyData(treeChildId)
+        pydata['colorindex'] = colorindex
+
+
+    def UpdateItemColors(self):
+        for af in afresource.ARTEFACTS:
+            treeParentId = self._FindParentItemId(af['id'])
+            (treeChildId, cookie) = self.GetFirstChild(treeParentId)
+            for i in range(0, self.GetChildrenCount(treeParentId, False)):
+                ci = self.GetPyData(treeChildId)['colorindex']
+                if ci is not None:
+                    colorname = afconfig.TAGLIST[ci]['color']
+                    color = wx.Color(*afconfig.TAGLIST[0].color[colorname])
+                    self.SetItemTextColour(treeChildId, color)
+                    ID = self.GetPyData(treeChildId)['ID']
+                    self.SetPyData(treeChildId, {'ID':ID, 'colorindex':ci})
+                treeChildId = self.GetNextSibling(treeChildId)
 
 
     def SetSelection(self, parent_id, item_id = None):

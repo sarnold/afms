@@ -97,7 +97,7 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
 
 
     def ColorsForRow(self, afobj):
-        return _afhelper.getColorForArtefact(afobj)
+        return _afhelper.getColorForArtefact(afobj)[0]
 
 
     def InitContent(self, artefact_list, select_id=0):

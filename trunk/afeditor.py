@@ -188,7 +188,7 @@ class MyApp(wx.App):
         self.usecasefilterview = _affilterview.afUsecaseFilterView(self.mainframe.bottomWindow)
         self.testcasefilterview = _affilterview.afTestcaseFilterView(self.mainframe.bottomWindow)
         self.testsuitefilterview = _affilterview.afTestsuiteFilterView(self.mainframe.bottomWindow)
-        self.simplesectionfilterview = _affilterview.afNoFilterView(self.mainframe.bottomWindow)
+        self.simplesectionfilterview = _affilterview.afSimpleSectionFilterView(self.mainframe.bottomWindow)
         self.glossaryentryfilterview = _affilterview.afNoFilterView(self.mainframe.bottomWindow)
 
         filterviews = [self.featurefilterview, self.requirementfilterview, self.productfilterview,
@@ -360,6 +360,8 @@ class MyApp(wx.App):
         if dlg.ShowModal() == wx.ID_SAVE:
             afconfig.TAGLIST = dlg.GetContent()
             self.model.saveTaglist(afconfig.TAGLIST)
+            self.mainframe.treeCtrl.UpdateItemColors()
+            self.InitFilters()
         dlg.Destroy()
 
 
@@ -586,6 +588,9 @@ class MyApp(wx.App):
 
         flt = _affilter.afTestsuiteFilter()
         self.testsuitefilterview.InitFilterContent(flt)
+
+        flt = _affilter.afSimpleSectionFilter()
+        self.simplesectionfilterview.InitFilterContent(flt)
 
 
     def InitView(self):
@@ -1048,7 +1053,7 @@ class MyApp(wx.App):
         @return: same as L{EditArtefact}
         @rtype:  nested tuple
         """
-        self.EditArtefact(_("Edit testsuite"), afTestsuiteView, self.model.saveTestsuite, testsuite)
+        self.EditArtefact(_("Edit testsuite"), afTestsuiteNotebook, self.model.saveTestsuite, testsuite)
 
 
     def EditSimpleSection(self, simplesection):
@@ -1326,7 +1331,7 @@ class MyApp(wx.App):
             self.ViewArtefact(self.model.getUsecase(item_id), afUsecaseNotebook, self.usecaseview)
             self.mainframe.AddFilterView(self.usecasefilterview)
         elif parent_id == "TESTSUITES":
-            self.ViewArtefact(self.model.getTestsuite(item_id), afTestsuiteView, self.testsuiteview)
+            self.ViewArtefact(self.model.getTestsuite(item_id), afTestsuiteNotebook, self.testsuiteview)
             self.mainframe.AddFilterView(self.testsuitefilterview)
         elif parent_id == "SIMPLESECTIONS":
             self.ViewArtefact(self.model.getSimpleSection(item_id), afSimpleSectionNotebook, self.simplesectionview)

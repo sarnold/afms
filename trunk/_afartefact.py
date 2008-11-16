@@ -673,11 +673,14 @@ class cGlossaryEntry(cArtefact):
 #----------------------------------------------------------------------
 
 class cTag(object):
-    color = {'Red' : wx.RED, 'Green' : wx.GREEN, 'Blue' : wx.BLUE, 'Black': wx.BLACK,
-             'Yellow' : wx.Colour(255, 255,   0), 'Light Blue': wx.Colour(173, 216, 230),
-             'Magenta' : wx.Colour(255,   0, 255), 'Pink' : wx.Colour(255, 181, 197),
-             'Orange' : wx.Colour(255, 165,   0),  'Purple' : wx.Colour(160,  32, 240)}
-    colornames = ['Black', 'Blue', 'Red', 'Green', 'Yellow', 'Light Blue', 'Magenta',
+    color = {'Red' : (192, 0, 0), 'Green' : (0, 192, 0), 'Blue' : (0, 0, 255), 'Black': (0, 0, 0),
+             'Gold' : (0xFF, 0xD7, 0x00), 'Aquamarine': (0x7f, 0xff, 0xd4),
+             'Magenta' : (255,   0, 255), 'Pink' : (0xFF, 0x69, 0xB4),
+             'Orange' : (255, 0x8C,   0),  'Purple' : (160,  32, 240)}
+    # let pygettext extract these strings
+    colornames = [_('Black'), _('Blue'), _('Red'), _('Green'), _('Gold'), _('Aquamarine'), _('Magenta'),
+                  _('Pink'), _('Orange'), _('Purple')]
+    colornames = ['Black', 'Blue', 'Red', 'Green', 'Gold', 'Aquamarine', 'Magenta',
                   'Pink', 'Orange', 'Purple']
 
     @staticmethod

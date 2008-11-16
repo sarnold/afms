@@ -28,28 +28,28 @@ from _aftextctrl import *
 from _afartefactlist import *
 from _afvalidators import NotEmptyValidator
 from _afartefact import cTestsuite, cTestcase
+import _afbasenotebook
 
-class afTestsuiteView(wx.Panel):
+class afTestsuiteNotebook(_afbasenotebook.afBaseNotebook):
     def __init__(self, parent, id = -1, viewonly = True):
-        wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize)
+        wx.Notebook.__init__(self, parent, id, size=(21,21), style= wx.BK_DEFAULT)
         self.viewonly = viewonly
-        title_text = wx.StaticText(self, -1, _("Title")+':')
-        id_text = wx.StaticText(self, -1, _("ID")+':')
-        description_text = wx.StaticText(self, -1, _("Description")+':')
-        seq_text = wx.StaticText(self, -1, _("Execution order ID's")+':')
+        color = parent.GetBackgroundColour()
+        self.SetOwnBackgroundColour(color)
+        panel = wx.Panel(self, -1)
+        title_text = wx.StaticText(panel, -1, _("Title")+':')
+        id_text = wx.StaticText(panel, -1, _("ID")+':')
+        description_text = wx.StaticText(panel, -1, _("Description")+':')
+
 
         if viewonly:
-            self.title_edit = wx.TextCtrl(self, -1, "", style = wx.TE_READONLY)
-            self.id_edit = wx.TextCtrl(self, -1, "", style = wx.TE_READONLY)
-            self.description_edit = afHtmlWindow(self, -1)
-            self.seq_edit = wx.TextCtrl(self, -1, "", style = wx.TE_READONLY)
-            self.testcaselist = afTestcaseList(self, -1)
+            self.title_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
+            self.id_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
+            self.description_edit = afHtmlWindow(panel, -1)
         else:
-            self.title_edit = wx.TextCtrl(self, -1, "", validator = NotEmptyValidator())
-            self.id_edit = wx.TextCtrl(self, -1, "", style = wx.TE_READONLY)
-            self.description_edit = afTextCtrl(self)
-            self.seq_edit = wx.TextCtrl(self, -1, "", validator = MyValidator(self))
-            self.testcaselist = afTestcaseList(self, -1, checkstyle=True)
+            self.title_edit = wx.TextCtrl(panel, -1, "", validator = NotEmptyValidator())
+            self.id_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
+            self.description_edit = afTextCtrl(panel)
 
         self.id_edit.Enable(False)
 
@@ -60,19 +60,36 @@ class afTestsuiteView(wx.Panel):
         sizer.Add(self.id_edit, 0, wx.EXPAND | wx.ALIGN_TOP )
         sizer.Add(description_text, 0, wx.EXPAND | wx.ALIGN_BOTTOM )
         sizer.Add(self.description_edit, 0, wx.EXPAND | wx.ALIGN_TOP )
-        sizer.Add(seq_text, 0, wx.EXPAND | wx.ALIGN_BOTTOM )
-        sizer.Add(self.seq_edit, 0, wx.EXPAND | wx.ALIGN_TOP )
         sizer.AddGrowableRow(2)
         sizer.AddGrowableCol(1)
         sizer.SetFlexibleDirection(wx.BOTH)
         hbox = wx.BoxSizer(wx.VERTICAL)
         hbox.Add(sizer, 3, wx.ALL | wx.EXPAND, 5)
-        hbox.Add(wx.StaticText(self, -1, _("Testcases")+':'), 0, wx.LEFT, 5)
-        hbox.Add(self.testcaselist, 4, wx.ALL | wx.EXPAND, 5)
 
-        self.SetSizer(hbox)
-        self.Layout()
+        panel.SetSizer(hbox)
+        panel.Layout()
+        self.AddPage(panel, _('Testsuite'))
+
+        #-----------------------------------------------------------------
+        # Related testcases panel
+        panel = wx.Panel(self, -1)
+        seq_text = wx.StaticText(panel, -1, _("Execution order ID's")+':')
+        if self.viewonly:
+            self.seq_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
+        else:
+            self.seq_edit = wx.TextCtrl(panel, -1, "", validator = MyValidator(panel))
+        self.testcaselist = afTestcaseList(panel, -1, checkstyle=not self.viewonly)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+        hbox.Add(seq_text, 0, wx.EXPAND | wx.RIGHT | wx.ALIGN_BOTTOM , 5 )
+        hbox.Add(self.seq_edit, 1, wx.EXPAND)
+        sizer.Add(hbox, 0, wx.ALL | wx.EXPAND, 6)
+        sizer.Add(self.testcaselist, 1, wx.ALL| wx.EXPAND, 6)
+        panel.SetSizer(sizer)
+        self.AddPage(panel, _("Attached Testcases"))
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnItemActivated)
+
+        self.AddTagsPanel()
 
 
     def InitContent(self, testsuite):
@@ -82,7 +99,7 @@ class afTestsuiteView(wx.Panel):
         self.seq_edit.SetValue(testsuite['execorder'])
 
         self.testcaselist.InitCheckableContent(testsuite.getUnrelatedTestcases(), testsuite.getRelatedTestcases(), self.viewonly)
-
+        self.InitTags(testsuite.getTags())
         self.Show()
         self.GetParent().Layout()
         self.title_edit.SetFocus()
@@ -105,10 +122,10 @@ class afTestsuiteView(wx.Panel):
             tcobj = cTestcase(ID=tc_id)
             unrelated_tcobjs.append(tcobj)
         testsuite.setUnrelatedTestcases(unrelated_tcobjs)
-
+        testsuite.setTags(self.GetTags())
         return testsuite
-    
-    
+
+
     def UpdateContent(self, artefact):
         self.id_edit.SetValue(str(artefact['ID']))
 

@@ -27,8 +27,9 @@ Several filter view classes for each kind of artefacts.
 
 import wx
 import  wx.lib.scrolledpanel as scrolled
-import afresource
+import afresource, afconfig
 import _affilter
+import _afartefact
 
 
 class afNoFilterView(scrolled.ScrolledPanel):
@@ -47,10 +48,10 @@ class afNoFilterView(scrolled.ScrolledPanel):
 
     def GetFilterContent(self):
         return _affilter.afNoFilter()
-    
+
     def EnableButtons(self, enable):
         pass
-    
+
 
 class afBaseFilterView(scrolled.ScrolledPanel):
     def __init__(self, parent):
@@ -78,7 +79,7 @@ class afBaseFilterView(scrolled.ScrolledPanel):
     def EnableButtons(self, enable):
         for btn in self._btns:
             btn.Enable(enable)
-            
+
 
     def AddTextFieldWidget(self, hbox, choices, fieldnames):
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -147,6 +148,9 @@ class afBaseFilterView(scrolled.ScrolledPanel):
         box.Add(stext, 0, wx.ALIGN_CENTER)
         box.Add(self.combo_changedby, 0, wx.ALIGN_CENTER | wx.LEFT | wx.RIGHT, 5)
 
+    def AddTagsWidget(self, box, style):
+        self.lbox_tags  = self.AddListboxWidget(box, style, _('Tags'), [])
+
     def ResetFilterClick(self, evt):
         self.tfield_textpattern.Clear()
         self.combo_textcondition.SetSelection(wx.NOT_FOUND)
@@ -158,17 +162,20 @@ class afBaseFilterView(scrolled.ScrolledPanel):
         flt.textfields = [self.fieldnames[i] for i in self.lbox_textfields.GetSelections()]
         flt.textcondition = self.combo_textcondition.GetSelection()
         flt.textpattern = self.tfield_textpattern.GetValue()
+        if hasattr(self, 'lbox_tags'):
+            flt.tags = [_afartefact.cTag.index2tagchar(i) for i in self.lbox_tags.GetSelections()]
 
-        todate = self.changedate_to.GetValue()
-        todate.SetHour(23)
-        todate.SetMinute(59)
-        todate.SetSecond(59)
-        flt.changedto = todate.Format(afresource.TIME_FORMAT)
-        flt.changedfrom   = self.changedate_from.GetValue().Format(afresource.TIME_FORMAT)
-        if self.combo_changedby.GetSelection() == 0:
-            flt.changedby = ''
-        else:
-            flt.changedby = self.combo_changedby.GetValue()
+        if hasattr(self, 'changedate_to'):
+            todate = self.changedate_to.GetValue()
+            todate.SetHour(23)
+            todate.SetMinute(59)
+            todate.SetSecond(59)
+            flt.changedto = todate.Format(afresource.TIME_FORMAT)
+            flt.changedfrom   = self.changedate_from.GetValue().Format(afresource.TIME_FORMAT)
+            if self.combo_changedby.GetSelection() == 0:
+                flt.changedby = ''
+            else:
+                flt.changedby = self.combo_changedby.GetValue()
 
         return flt
 
@@ -196,9 +203,13 @@ class afBaseFilterView(scrolled.ScrolledPanel):
 
 
     def InitFilterContent(self, ff):
-        values = ff.changedbylist
-        values.insert(0, _('anyone'))
-        self.updateCombobox(self.combo_changedby, values)
+        if hasattr(ff, 'changedbylist'):
+            values = ff.changedbylist
+            values.insert(0, _('anyone'))
+            self.updateCombobox(self.combo_changedby, values)
+        if hasattr(self, 'lbox_tags'):
+            values = ['(%(ID)d) %(shortdesc)s' % tag for tag in afconfig.TAGLIST]
+            self.updateListbox(self.lbox_tags, values)
 
 #-------------------------------------------------------------------------------
 
@@ -222,6 +233,7 @@ class afFeatureFilterView(afBaseFilterView):
         self.AddStatusWidget(hbox, style)
         self.AddRiskWidget(hbox, style)
         self.AddVersionWidget(hbox, style)
+        self.AddTagsWidget(hbox, style)
 
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         self.vbox.Add(hbox, 0, wx.ALL|wx.EXPAND, 5)
@@ -297,6 +309,7 @@ class afRequirementFilterView(afBaseFilterView):
         self.lbox_category = self.AddListboxWidget(hbox, style, _('Category'), [_(i) for i in afresource.CATEGORY_NAME])
         self.lbox_effort = self.AddListboxWidget(hbox, style, _('Effort'), [_(i) for i in afresource.EFFORT_NAME])
         self.lbox_assigned = self.AddListboxWidget(hbox, style, _('Assigned'), [])
+        self.AddTagsWidget(hbox, style)
 
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         self.vbox.Add(hbox, 0, wx.ALL|wx.EXPAND, 5)
@@ -374,6 +387,7 @@ class afUsecaseFilterView(afBaseFilterView):
         self.lbox_usefrequency = self.AddListboxWidget(hbox, style, _('Use frequency'), [_(i) for i in afresource.USEFREQUENCY_NAME])
         self.lbox_stakeholders = self.AddListboxWidget(hbox, style, _('Stakeholders'), [])
         self.lbox_actors = self.AddListboxWidget(hbox, style, _('Actors'), [])
+        self.AddTagsWidget(hbox, style)
 
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         self.vbox.Add(hbox, 0, wx.ALL|wx.EXPAND, 5)
@@ -444,6 +458,7 @@ class afTestcaseFilterView(afBaseFilterView):
 
         style = wx.LB_EXTENDED|wx.LB_HSCROLL|wx.LB_NEEDED_SB
         self.AddVersionWidget(hbox, style)
+        self.AddTagsWidget(hbox, style)
 
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         self.vbox.Add(hbox, 0, wx.ALL|wx.EXPAND, 5)
@@ -505,6 +520,7 @@ class afTestsuiteFilterView(afBaseFilterView):
         self.vbox.Add(hbox, 1)
 
         self.AddTextFieldWidget(hbox, [_("Title"), _("Description")], ['title', 'description'])
+        self.AddTagsWidget(hbox, wx.LB_EXTENDED|wx.LB_HSCROLL|wx.LB_NEEDED_SB)
 
         self.SetSizer(self.vbox)
         self.SetAutoLayout(True)
@@ -535,13 +551,73 @@ class afTestsuiteFilterView(afBaseFilterView):
 
 
     def InitFilterContent(self, ff):
-        pass
+        super(afTestsuiteFilterView, self).InitFilterContent(ff)
 
 
     def GetFilterContent(self):
-        ff = _affilter.afTestsuiteFilter()
+        ff = super(afTestsuiteFilterView, self).GetFilterContent(_affilter.afTestsuiteFilter())
         ff.textfields = [self.fieldnames[i] for i in self.lbox_textfields.GetSelections()]
         ff.textcondition = self.combo_textcondition.GetSelection()
         ff.textpattern = self.tfield_textpattern.GetValue()
         ff.applied = self.applied
         return ff
+
+#-------------------------------------------------------------------------------
+
+class afSimpleSectionFilterView(afBaseFilterView):
+    def __init__(self, parent):
+        super(afSimpleSectionFilterView, self).__init__(parent)
+        self.btnId = wx.NewId()
+        self.AddButtons(self.btnId)
+        self.Bind(wx.EVT_BUTTON, self.ApplyFilterClick, id=self.btnId+0)
+        self.Bind(wx.EVT_BUTTON, self.ResetFilterClick, id=self.btnId+1)
+        self.Bind(wx.EVT_BUTTON, self.SaveFilterClick, id=self.btnId+2)
+        self.Bind(wx.EVT_BUTTON, self.LoadFilterClick, id=self.btnId+3)
+
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+        self.vbox.Add(hbox, 1)
+
+        self.AddTextFieldWidget(hbox, [_("Title"), _("Content")], ['title', 'content'])
+
+        style = wx.LB_EXTENDED|wx.LB_HSCROLL|wx.LB_NEEDED_SB
+        self.AddTagsWidget(hbox, style)
+
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+        self.vbox.Add(hbox, 0, wx.ALL|wx.EXPAND, 5)
+        self.AddChangeSearchWidget(hbox)
+
+        self.SetSizer(self.vbox)
+        self.SetAutoLayout(True)
+        self.SetupScrolling()
+
+
+    def ApplyFilterClick(self, evt):
+        self.applied = True
+        evt.SetClientData({'aftype' : 'SIMPLESECTIONS', 'state': self.applied})
+        evt.Skip()
+
+
+    def ResetFilterClick(self, evt):
+        self.applied = False
+        super(afSimpleSectionFilterView, self).ResetFilterClick(evt)
+        evt.SetClientData({'aftype' : 'SIMPLESECTIONS', 'state': self.applied})
+        evt.Skip()
+
+
+    def SaveFilterClick(self, evt):
+        pass # not yet implemented
+
+
+    def LoadFilterClick(self, evt):
+        pass # not yet implemented
+
+
+    def InitFilterContent(self, ff):
+        super(afSimpleSectionFilterView, self).InitFilterContent(ff)
+
+
+    def GetFilterContent(self):
+        ff = super(afSimpleSectionFilterView, self).GetFilterContent(_affilter.afSimpleSectionFilter())
+        ff.applied = self.applied
+        return ff
+

@@ -34,26 +34,26 @@ class afTagListEditor(wx.Dialog):
         self.SetMinSize(self.GetSize())
         self.taglist = _afartefactlist.afTagList(self)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnListItemActivated)
-        
+
         btnsizer = wx.StdDialogButtonSizer()
         btn = wx.Button(self, wx.ID_SAVE, _('Save && Close'))
         at = wx.AcceleratorTable([(wx.ACCEL_CTRL, ord('S'), wx.ID_SAVE )])
         self.SetAcceleratorTable(at)
         self.SetAffirmativeId(wx.ID_SAVE)
         btn.SetDefault()
-        btnsizer.AddButton(btn)        
+        btnsizer.AddButton(btn)
         btn = wx.Button(self, wx.ID_CANCEL)
         btnsizer.AddButton(btn)
         btnsizer.Realize()
-        
+
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.taglist, 1, wx.ALL | wx.EXPAND, 10)
         sizer.Add(btnsizer, 0, wx.EXPAND|wx.ALL, 10)
-    
+
         self.SetSizer(sizer)
         self.Layout()
 
- 
+
     def OnListItemActivated(self, evt):
         dlg = cTagEdit(self)
         index = evt.GetData()
@@ -65,17 +65,17 @@ class afTagListEditor(wx.Dialog):
             self.taglist.ChangeItem(index, tagobj)
             self.taglist.list.SetItemTextColour(index, tagobj.color[tagobj['color']])
         dlg.Destroy()
-        
-        
+
+
     def InitContent(self, taglist):
         self.temptaglist = copy.deepcopy(taglist)
         self.taglist.InitContent(self.temptaglist)
-        
-        
+
+
     def GetContent(self):
         return self.temptaglist
 
-    
+
 class cTagEdit(wx.Dialog):
     def __init__(self, parent, ID=-1):
         style = wx.CAPTION | wx.SYSTEM_MENU | wx.CLOSE_BOX | \
@@ -90,13 +90,13 @@ class cTagEdit(wx.Dialog):
         self.color_combo = wx.ComboBox(self, -1, choices=choices, style=wx.CB_READONLY)
         fgs = wx.FlexGridSizer(4, 2, 10, 10)
         fgs.AddGrowableCol(1, 1)
-        fgs.Add(wx.StaticText(self, -1, _('ID:')), 0, wx.ALL, 0)
+        fgs.Add(wx.StaticText(self, -1, _('ID')+':'), 0, wx.ALL, 0)
         fgs.Add(self.id_edit, 0, wx.ALL|wx.EXPAND, 0)
-        fgs.Add(wx.StaticText(self, -1, _('Short description:')), 0, wx.ALL, 0)
+        fgs.Add(wx.StaticText(self, -1, _('Short description')+':'), 0, wx.ALL, 0)
         fgs.Add(self.shortdesc_edit, 0, wx.ALL|wx.EXPAND, 0)
-        fgs.Add(wx.StaticText(self, -1, _('Long description:')), 0, wx.ALL, 0)
+        fgs.Add(wx.StaticText(self, -1, _('Long description')+':'), 0, wx.ALL, 0)
         fgs.Add(self.longdesc_edit, 0, wx.ALL|wx.EXPAND, 0)
-        fgs.Add(wx.StaticText(self, -1, _('Tag color:')), 0, wx.ALL, 0)
+        fgs.Add(wx.StaticText(self, -1, _('Tag color')+':'), 0, wx.ALL, 0)
         fgs.Add(self.color_combo, 0, wx.ALL|wx.EXPAND, 0)
         fgs.SetFlexibleDirection(wx.BOTH)
         btnsizer = wx.StdDialogButtonSizer()
@@ -110,8 +110,8 @@ class cTagEdit(wx.Dialog):
         sizer.Add(fgs, 1, wx.ALL | wx.EXPAND, 10)
         sizer.Add(btnsizer, 0, wx.EXPAND|wx.ALL, 5)
         self.SetSizer(sizer)
-        
-        
+
+
     def InitContent(self, tagobj):
         self.id_edit.SetValue(str(tagobj['ID']))
         self.shortdesc_edit.SetValue(tagobj['shortdesc'])
