@@ -110,6 +110,9 @@ class afExportXML(afExportXMLBase):
            node = self.renderTestsuite(id)
            self.root.appendChild(node)
 
+        # --- Tags ---
+        self.root.appendChild(self.renderTags())
+
 
     def renderProductInformation(self):
         productinfo = self.model.getProductInformation()
@@ -126,6 +129,8 @@ class afExportXML(afExportXMLBase):
         node.appendChild(self._render(simplesection['content'], enclosingtag='content'))
         changelognode = self.renderChangelist(simplesection)
         node.appendChild(changelognode)
+        tagnode = self.renderTaglist(simplesection)
+        node.appendChild(tagnode)
         return node
 
 
@@ -147,6 +152,8 @@ class afExportXML(afExportXMLBase):
         node.appendChild(self.renderRelatedArtefacts('relatedrequirements', feature.getRelatedRequirements()))
         node.appendChild(self.renderRelatedArtefacts('relatedusecases', feature.getRelatedUsecases()))
         node.appendChild(self.renderChangelist(feature))
+        tagnode = self.renderTaglist(feature)
+        node.appendChild(tagnode)
         return node
 
 
@@ -163,6 +170,8 @@ class afExportXML(afExportXMLBase):
         node.appendChild(self.renderRelatedArtefacts('relatedusecases', requirement.getRelatedUsecases()))
         node.appendChild(self.renderRelatedArtefacts('relatedtestcases', requirement.getRelatedTestcases()))
         node.appendChild(self.renderChangelist(requirement))
+        tagnode = self.renderTaglist(requirement)
+        node.appendChild(tagnode)
         return node
 
 
@@ -174,9 +183,11 @@ class afExportXML(afExportXMLBase):
         node.appendChild(self.renderRelatedArtefacts('relatedrequirements', testcase.getRelatedRequirements()))
         node.appendChild(self.renderRelatedArtefacts('relatedtestsuites', testcase.getRelatedTestsuites()))
         node.appendChild(self.renderChangelist(testcase))
+        tagnode = self.renderTaglist(testcase)
+        node.appendChild(tagnode)
         return node
-        
-        
+
+
     def _renderTestcaseBasedata(self, node, basedata):
         node.appendChild(self._createTextElement('title',    basedata['title']))
         node.appendChild(self._createTextElement('version',    basedata['version']))
@@ -196,6 +207,8 @@ class afExportXML(afExportXMLBase):
         node.appendChild(self.renderRelatedArtefacts('relatedfeatures', usecase.getRelatedFeatures()))
         node.appendChild(self.renderRelatedArtefacts('relatedrequirements', usecase.getRelatedRequirements()))
         node.appendChild(self.renderChangelist(usecase))
+        tagnode = self.renderTaglist(usecase)
+        node.appendChild(tagnode)
         return node
 
 
@@ -207,6 +220,8 @@ class afExportXML(afExportXMLBase):
             node.appendChild(self._createTextElement(key, basedata[key]))
         node.appendChild(self._render(basedata['description'], enclosingtag='description'))
         node.appendChild(self.renderRelatedArtefacts('relatedtestcases', testsuite.getRelatedTestcases()))
+        tagnode = self.renderTaglist(testsuite)
+        node.appendChild(tagnode)
         return node
 
 
@@ -228,6 +243,33 @@ class afExportXML(afExportXMLBase):
             subnode.appendChild(self._createTextElement('changetype', str(basedata['changetype'])))
             subnode.appendChild(self._createTextElement('date', basedata['date']))
             node.appendChild(subnode)
+        return node
+
+
+    def renderTags(self):
+        node = self._createElement('tags')
+        for tag in afconfig.TAGLIST:
+            subnode = self._createElement('tag', {'ID': str(tag['ID'])})
+            subnode.appendChild(self._createTextElement('ID', str(tag['ID'])))
+            subnode.appendChild(self._createTextElement('shortdesc', tag['shortdesc']))
+            subnode.appendChild(self._createTextElement('longdesc', str(tag['ID'])))
+            colornode = self._createElement('color')
+            args = _afartefact.cTag.color[tag['color']]
+            colornode.appendChild(self._createTextElement('name', tag['color']))
+            colornode.appendChild(self._createTextElement('red', str(args[0])))
+            colornode.appendChild(self._createTextElement('green', str(args[1])))
+            colornode.appendChild(self._createTextElement('blue', str(args[2])))
+            subnode.appendChild(colornode)
+            node.appendChild(subnode)
+        return node
+
+
+    def renderTaglist(self, artefact):
+        node = self._createElement('taglist')
+        tagchars = artefact.getTags()
+        for tagchar in tagchars:
+            tag = afconfig.TAGLIST[_afartefact.cTag.tagchar2index(tagchar)]
+            node.appendChild(self._createTextElement('tag', str(tag['ID'])))
         return node
 
 
@@ -298,6 +340,7 @@ class CommandLineProcessor():
             cwd = os.getcwd()
             model.requestOpenProduct(self.databasename)
             os.chdir(cwd)
+            afconfig.TAGLIST = model.getTaglist()
         except:
             print("Error opening database file %s" % self.databasename)
             sys.exit(1)
