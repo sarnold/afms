@@ -1131,6 +1131,7 @@ class MyApp(wx.App):
             # Root node of tree is selected, edit project information
             self.EditProductInfo(self.model.getProductInformation())
             self.editparams.iseditmode = False
+            self.__EndEditModal()
             return
 
         elif parent_id == "FEATURES":
