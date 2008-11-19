@@ -65,6 +65,7 @@ import afresource
 import _afclipboard
 import _aftagsview
 from _afartefact import cChangelogEntry
+import _afbulkview
 
 import _affilterview, _affilter, afdbtoarchive, afarchivetodb, _afstatisticsview
 
@@ -627,7 +628,6 @@ class MyApp(wx.App):
             try:
                 (tree_parent_id, tree_item_id) = (parent_id, item_id)
                 (parent_id, item_id) = self.contentview.GetSelectionID()
-                if item_id is None: return
             except:
                 # no item selected in the list
                 return
@@ -1133,6 +1133,14 @@ class MyApp(wx.App):
             self.editparams.iseditmode = False
             self.__EndEditModal()
             return
+
+        elif item_id == None:
+            if parent_id == "FEATURES":
+                dlg = _afbulkview.EditBulkArtefactDialog(self.mainframe.rightWindow, "Title", _afbulkview.afBulkFeatureView)
+                dlg.ShowModal()
+            else:
+                pass
+            self.__EndEditModal()
 
         elif parent_id == "FEATURES":
             self.EditFeature(self.model.getFeature(item_id))
