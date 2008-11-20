@@ -29,7 +29,7 @@ import afresource
 
 
 class EditBulkArtefactDialog(wx.Dialog):
-    def __init__(self, parent, title, contentview):
+    def __init__(self, parent, title, contentview, aflist):
         style = wx.CAPTION | wx.SYSTEM_MENU | wx.CLOSE_BOX | \
                 wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER | wx.FRAME_NO_TASKBAR
         size = parent.GetSize()
@@ -40,7 +40,7 @@ class EditBulkArtefactDialog(wx.Dialog):
         self.SetSizer(sizer)
         self.Layout()
 
-        self.contentview = contentview(self)
+        self.contentview = contentview(self, aflist)
         sizer.Add(self.contentview, 1, wx.EXPAND)
 
         btnsizer = wx.StdDialogButtonSizer()
@@ -91,48 +91,64 @@ class afBulkArtefactView(wx.Panel):
         if event.GetDragStatus() == wx.SASH_STATUS_OUT_OF_RANGE: return
         self.leftWindow.SetDefaultSize((event.GetDragRect().width, -1))
         self.KeepRightWindowMinSize()
-        
-        
+
+
     def KeepRightWindowMinSize(self):
         if self.rightWindow.GetSize()[0] < 20:
-            self.leftWindow.SetDefaultSize((self.GetParent().GetClientSize()[0]-20, -1))        
+            self.leftWindow.SetDefaultSize((self.GetParent().GetClientSize()[0]-20, -1))
         wx.LayoutAlgorithm().LayoutWindow(self, self.rightWindow)
         self.rightWindow.Refresh()
 
 
 class afBulkFeatureView(afBulkArtefactView):
-    def __init__(self, parent):
+    #TODO: overwrite existing tags? How to clear tags?
+    def __init__(self, parent, aflist):
         afBulkArtefactView.__init__(self, parent)
-        self.aflist = _afartefactlist.afFeatureList(self.leftWindow)
-        self.leftWindow.GetSizer().Add(self.aflist, 1, wx.EXPAND)
-        
-        self.afnotebook = _afbasenotebook.afBaseNotebook(self.rightWindow)
+        self.aflistview = _afartefactlist.afFeatureList(self.leftWindow, checkstyle=True)
+        self.aflistview.InitCheckableContent(aflist, [])
+        self.leftWindow.GetSizer().Add(self.aflistview, 1, wx.EXPAND)
+
+        self.afnotebook = _afbasenotebook.afBaseNotebook(self.rightWindow, viewonly=False)
+        self.afnotebook.SetOwnBackgroundColour(parent.GetBackgroundColour())
+
         panel = wx.Panel(self.afnotebook)
         sizer = wx.FlexGridSizer(4, 2, 10, 10)
         sizer.AddGrowableCol(1)
         sizer.SetFlexibleDirection(wx.HORIZONTAL)
         panel.SetSizer(sizer)
+        DONTCHANGE = '---'+_("don't change")+'---'
         st = wx.StaticText(panel, -1, _("Version")+':')
-        self.version_edit = wx.ComboBox(panel, -1, choices = afconfig.VERSION_NAME, style=wx.CB_DROPDOWN)
+        choices = [DONTCHANGE,]+afconfig.VERSION_NAME
+        self.version_edit = wx.ComboBox(panel, -1, choices=choices, style=wx.CB_DROPDOWN)
+        self.version_edit.SetSelection(0)
         sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
         sizer.Add(self.version_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+        #
         st = wx.StaticText(panel, -1, _("Priority")+':')
-        self.priority_edit = wx.ComboBox(panel, -1, choices = [_(i) for i in afresource.PRIORITY_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        choices = [DONTCHANGE,] + [_(i) for i in afresource.PRIORITY_NAME]
+        self.priority_edit = wx.ComboBox(panel, -1, choices = choices, style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.priority_edit.SetSelection(0)
         sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
-        sizer.Add(self.priority_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)  
-        st = wx.StaticText(panel, -1, _("Status")+':')    
-        self.status_edit = wx.ComboBox(panel, -1, choices = [_(i) for i in afresource.STATUS_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        sizer.Add(self.priority_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+        #
+        st = wx.StaticText(panel, -1, _("Status")+':')
+        choices = [DONTCHANGE,] + [_(i) for i in afresource.STATUS_NAME]
+        self.status_edit = wx.ComboBox(panel, -1, choices=choices , style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.status_edit.SetSelection(0)
         sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
         sizer.Add(self.status_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+        #
         st = wx.StaticText(panel, -1, _("Risk")+':')
-        self.risk_edit = wx.ComboBox(panel, -1, choices = [_(i) for i in afresource.RISK_NAME], style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        choices = [DONTCHANGE,] + [_(i) for i in afresource.RISK_NAME]
+        self.risk_edit = wx.ComboBox(panel, -1, choices=choices, style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.risk_edit.SetSelection(0)
         sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
         sizer.Add(self.risk_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
         self.afnotebook.AddPage(panel, _('Feature'))
-        
-        
+
         self.afnotebook.AddTagsPanel()
+        self.afnotebook.InitTags([])
         self.rightWindow.GetSizer().Add(self.afnotebook, 1, wx.EXPAND|wx.ALL, 10)
-        
-        
-        
+
+
+

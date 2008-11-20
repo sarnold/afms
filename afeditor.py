@@ -1135,8 +1135,14 @@ class MyApp(wx.App):
             return
 
         elif item_id == None:
+            #FIXME !!!
             if parent_id == "FEATURES":
-                dlg = _afbulkview.EditBulkArtefactDialog(self.mainframe.rightWindow, "Title", _afbulkview.afBulkFeatureView)
+                afconfig.VERSION_NAME = self.model.requestVersionList('FEATURES')
+                dlg = _afbulkview.EditBulkArtefactDialog(
+                    self.mainframe.rightWindow,
+                    "Title",
+                    _afbulkview.afBulkFeatureView,
+                    self.model.getFeatureList(affilter=self.featurefilterview.GetFilterContent()))
                 dlg.ShowModal()
             else:
                 pass
