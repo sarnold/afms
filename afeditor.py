@@ -64,7 +64,7 @@ import _afimporter
 import afresource
 import _afclipboard
 import _aftagsview
-from _afartefact import cChangelogEntry
+from _afartefact import cChangelogEntry, cTag
 import _afbulkview
 
 import _affilterview, _affilter, afdbtoarchive, afarchivetodb, _afstatisticsview
@@ -1138,12 +1138,23 @@ class MyApp(wx.App):
             #FIXME !!!
             if parent_id == "FEATURES":
                 afconfig.VERSION_NAME = self.model.requestVersionList('FEATURES')
+                aflist = self.model.getFeatureList(affilter=self.featurefilterview.GetFilterContent())
                 dlg = _afbulkview.EditBulkArtefactDialog(
-                    self.mainframe.rightWindow,
-                    "Title",
-                    _afbulkview.afBulkFeatureView,
-                    self.model.getFeatureList(affilter=self.featurefilterview.GetFilterContent()))
-                dlg.ShowModal()
+                    self.mainframe.rightWindow, "Title",
+                    _afbulkview.afBulkFeatureView, aflist)
+                if wx.ID_SAVE == dlg.ShowModal():
+                    (artefactids, fields, newtags, changelog) = dlg.contentview.GetContent()
+                    # fields is tuple (version, priority, status, risk)
+                    keys = ('version', 'priority', 'status', 'risk')
+                    for id in artefactids:
+                        af = self.model.getFeature(id)
+                        for key, field in zip(keys, fields):
+                            if field is not None:
+                                af[key] = field
+                        af.setTags(newtags)
+                        af.setChangelog(changelog)
+                        self.model.saveFeature(af)
+                        # TODO: refresh list and tree view, especially when tags has changed
             else:
                 pass
             self.__EndEditModal()
