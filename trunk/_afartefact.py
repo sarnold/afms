@@ -22,7 +22,7 @@
 # $Id$
 
 import wx
-import afresource
+import afresource, afconfig
 
 
 class cArtefact():
@@ -111,7 +111,27 @@ class cArtefact():
 
 
     def setTags(self, tags):
-        self._tags = tags
+        if (type(tags) != type([])):
+            self._tags = tags
+        else:
+            self.setTagsFromList(tags)
+
+
+    def setTagsFromList(self, taglist):
+        """Each item in taglist identifies a tag, fisrt item tag 1, second item tag 2 and so on.
+           Each item is either 0, 1 or None.
+           If 1, the tag is set. If 0, the tag is not set.
+           If None, the current setting remains unchanged."""
+        aftags = [0] * len(afconfig.TAGLIST)
+        tagstr = ''
+        for tagchar in self._tags:
+            aftags[cTag.tagchar2index(tagchar)] = 1
+            for i in range(len(aftags)):
+                if taglist[i] is not None:
+                    aftags[i] = taglist[i]
+                if aftags[i] != 0:
+                    tagstr += cTag.index2tagchar(i)
+        self._tags = tagstr
 
 #----------------------------------------------------------------------
 

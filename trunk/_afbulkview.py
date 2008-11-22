@@ -26,6 +26,7 @@ from _afartefactlist import *
 import afconfig
 import _afbasenotebook, _afartefactlist, _afbasenotebook
 import afresource
+from _afartefact import cTag
 
 
 class EditBulkArtefactDialog(wx.Dialog):
@@ -100,6 +101,42 @@ class afBulkArtefactView(wx.Panel):
         self.rightWindow.Refresh()
 
 
+    def InitTagsSelection(self, aflist):
+        """Initialize list of tags.
+           For each tags:
+            If none af the artefacts in aflist has the current tag, the tag is unchecked in the list
+            If all af the artefacts in aflist has the current tag, the tag is checked in the list
+            If some af the artefacts in aflist has the current tag, the tag is tristated in the list
+            or checked, when there is only one artefact in aflist.
+        """
+        tagcnt = [0] * len(afconfig.TAGLIST)
+        for af in aflist:
+            tagstr =  af.getTags()
+            for tagchar in tagstr:
+                tagcnt[cTag.tagchar2index(tagchar)] += 1
+        if len(aflist) == 1:
+            fn = self.afnotebook.tagslist.list.CheckItem
+        else:
+            fn = self.afnotebook.tagslist.list.TristateItem
+        for i in range(len(tagcnt)):
+            if tagcnt[i] == len(aflist):
+                # every artefact has this tag
+                self.afnotebook.tagslist.list.CheckItem(i)
+            elif tagcnt[i] > 0:
+                # some artefacts have this tag
+                fn(i)
+
+
+    def GetTagsSelection(self):
+        selection = []
+        for i in range(self.afnotebook.tagslist.list.GetItemCount()):
+            value = self.afnotebook.tagslist.list.GetState(i)
+            if value == 2:
+                value = None
+            selection.append(value)
+        return selection
+
+
 class afBulkFeatureView(afBulkArtefactView):
     #TODO: overwrite existing tags? How to clear tags?
     def __init__(self, parent, aflist):
@@ -148,7 +185,21 @@ class afBulkFeatureView(afBulkArtefactView):
 
         self.afnotebook.AddTagsPanel()
         self.afnotebook.InitTags([])
+        self.InitTagsSelection(aflist)
+        self.afnotebook.AddChangelogPanel()
         self.rightWindow.GetSizer().Add(self.afnotebook, 1, wx.EXPAND|wx.ALL, 10)
 
 
-
+    def GetContent(self):
+        fields = []
+        for widget in [self.version_edit, self.priority_edit, self.status_edit, self.risk_edit]:
+            value = widget.GetCurrentSelection()
+            if value == 0:
+                fields.append(None)
+            else:
+                fields.append(value-1)
+        if fields[0] is not None:
+            # get version (key) string instead of selection
+            fields[0] = self.version_edit.GetValue()
+        artefactids = self.aflistview.GetItemIDByCheckState()[0]
+        return (artefactids, fields, self.GetTagsSelection(), self.afnotebook.changelogpanel.GetContent())

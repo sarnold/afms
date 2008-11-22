@@ -25,20 +25,48 @@ import sys
 import logging
 import wx
 import  wx.lib.mixins.listctrl  as  listmix
+from wx.lib.mixins.listctrl  import CheckListCtrlMixin
 import _afimages, _afhelper
 import afconfig
 import afresource
 from _afsimplesectionleveldialog import EditSimpleSectionLevelDialog
 
 
-class ArtefactListCtrl(wx.ListCtrl, listmix.ListCtrlAutoWidthMixin, listmix.CheckListCtrlMixin):
+class CheckTristateListCtrlMixin(CheckListCtrlMixin):
+    def __init__(self, check_image=None, uncheck_image=None):
+        CheckListCtrlMixin.__init__(self, check_image, uncheck_image)
+        self.__CreateBitmap = self._CheckListCtrlMixin__CreateBitmap
+        self.__imagelist_ = self._CheckListCtrlMixin__imagelist_
+        tristate_image = self.__CreateBitmap(wx.CONTROL_UNDETERMINED)
+        self.tristate_image = self.__imagelist_.Add(tristate_image)
+
+
+    def TristateItem(self, index):
+        self.SetItemImage(index, 2)
+
+
+    def CheckItem(self, index, check = True):
+        img_idx = self.GetItem(index).GetImage()
+        if img_idx in (1, 2) and check is False:
+            self.SetItemImage(index, 0)
+            self.OnCheckItem(index, False)
+        elif img_idx in (0, 2) and check is True:
+            self.SetItemImage(index, 1)
+            self.OnCheckItem(index, True)
+
+
+    def GetState(self, index):
+        return self.GetItem(index).GetImage()
+
+
+class ArtefactListCtrl(wx.ListCtrl, listmix.ListCtrlAutoWidthMixin, CheckTristateListCtrlMixin):
     def __init__(self, parent, ID, pos=wx.DefaultPosition,
                  size=wx.DefaultSize, style=0, checkstyle=False):
         wx.ListCtrl.__init__(self, parent, ID, pos, size, style)
         listmix.ListCtrlAutoWidthMixin.__init__(self)
         self.parent = parent
         if checkstyle:
-            listmix.CheckListCtrlMixin.__init__(self)
+            CheckTristateListCtrlMixin.__init__(self)
 
 
     def OnCheckItem(self, index, flag):
@@ -141,6 +169,11 @@ class afArtefactList(wx.Panel, listmix.ColumnSorterMixin):
                 self.list.CheckItem(i)
         else:
             self.InitContent(checkedcontent)
+
+
+    def InitTristateContent(self, tristatecontent):
+        for i in range(len(tristatecontent)):
+            self.list.TristateItem(i)
 
 
     def GetItemIDByCheckState(self):
