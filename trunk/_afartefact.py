@@ -126,11 +126,11 @@ class cArtefact():
         tagstr = ''
         for tagchar in self._tags:
             aftags[cTag.tagchar2index(tagchar)] = 1
-            for i in range(len(aftags)):
-                if taglist[i] is not None:
-                    aftags[i] = taglist[i]
-                if aftags[i] != 0:
-                    tagstr += cTag.index2tagchar(i)
+        for i in range(len(aftags)):
+            if taglist[i] is not None:
+                aftags[i] = taglist[i]
+            if aftags[i] != 0:
+                tagstr += cTag.index2tagchar(i)
         self._tags = tagstr
 
 #----------------------------------------------------------------------

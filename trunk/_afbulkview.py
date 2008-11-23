@@ -45,9 +45,6 @@ class EditBulkArtefactDialog(wx.Dialog):
         sizer.Add(self.contentview, 1, wx.EXPAND)
 
         btnsizer = wx.StdDialogButtonSizer()
-        btn = wx.Button(self, wx.NewId(), _('Save && Continue'))
-        btnsizer.Add(btn)
-        self.savecontbtn = btn
         btn = wx.Button(self, wx.ID_SAVE, _('Save && Close'))
         at = wx.AcceleratorTable([(wx.ACCEL_CTRL, ord('S'), wx.ID_SAVE )])
         self.SetAcceleratorTable(at)
