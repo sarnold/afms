@@ -1095,36 +1095,64 @@ class MyApp(wx.App):
         self.editparams.editdlg = dlg
         self.editparams.savedata = savedata
         return
+    
+    # ----------------------------------------
+    def BulkEditFeatures(self):
+        afconfig.VERSION_NAME = self.model.requestVersionList('FEATURES')
+        aflist = self.model.getFeatureList(affilter=self.featurefilterview.GetFilterContent())
+        dlg = _afbulkview.EditBulkArtefactDialog(self.mainframe.rightWindow, "Title", _afbulkview.afBulkFeatureView, aflist)
+        dlg.Bind(wx.EVT_BUTTON, self.BulkEditFeatureDialogSave, id=dlg.savebtn.GetId())
+        dlg.Bind(wx.EVT_BUTTON, self.EditArtefactDialogCancel, id=dlg.cancelbtn.GetId())
+        self.editparams.editdlg = dlg
+        self.editparams.savedata = None
+        dlg.Show()
 
+    
+    def BulkEditFeatureDialogSave(self, evt):
+        """Called when pressing 'Save' """
+        dlg = self.editparams.editdlg
+        (artefactids, fields, newtags, changelog) = dlg.contentview.GetContent()
+        # fields is tuple (version, priority, status, risk)
+        keys = ('version', 'priority', 'status', 'risk')
+        warnid = []
+        for id in artefactids:
+            af = self.model.getFeature(id)
+            af.setTags(newtags)
+            af.setChangelog(changelog)            
+            # current_status    new_status
+            # submitted         submitted, approved, completed  allow
+            # approved          submitted                       allow
+            # approved          approved                        deny any changes
+            # approved          completed                       deny any changes except status change
+            # completed         submitted                       allow
+            # completed         approved                        deny any changes except status change
+            # completed         completed                       deny any changes 
+            if af['status'] == afresource.STATUS_SUBMITTED or fields[2] == afresource.STATUS_SUBMITTED:
+                for key, field in zip(keys, fields):
+                    if field is not None:
+                        af[key] = field
+            elif af['status'] == afresource.STATUS_APPROVED or af['status'] == afresource.STATUS_COMPLETED:
+                if fields[2] is not None:
+                    af['status'] = fields[2]
+                warnid.append(af['ID'])
+            else:
+                warnid.append(af['ID'])
+            self.model.saveFeature(af)
+        self.InitFilters()
+        self.InitView()
+        self.mainframe.treeCtrl.SetSelection(self.editparams.parent_id)
+        dlg.Destroy()
+        self.__EndEditModal()
+        if len(warnid) == 0: return
+        msg = _('Some changes may have been rejected for approved or completed artefacts.') + '\n Check ID ' + ', '.join([str(i) for i in warnid])
+        wx.MessageDialog(self.mainframe, msg, _('Warning'), wx.ICON_EXCLAMATION|wx.OK).ShowModal()
+
+    # ----------------------------------------
 
     def requestEditView(self, parent_id, item_id, callback_onsave=Ignore, callback_arg=None):
-        """
-        Handle the request to edit an artefact
-
-        Depending on C{parent_id} and C{item_id} the corresponding editing function
-        is called. This is one of
-            - L{EditProductInfo}
-            - L{EditFeature}
-            - L{EditRequirement}
-            - L{EditTestcase}
-            - L{EditUsecase}
-            - L{EditTestsuite}
-        @type  parent_id: string
-        @param parent_id: The kind of artefact to be edited
-        @type    item_id: int
-        @param   item_id: The ID of the artefact to edit
-        @return: same as L{EditArtefact} except for feature, requirement and
-                 testsuite editing. For these kind of artefacts a nested tuple
-                 with values
-                     0. Return value of dialog, either C{wx.SAVE} or C{wx.CANCEL}
-                     1. Boolean flag indicating a new artefact if set
-                     2. Basedata part of Possibly edited artefact data
-                     3. The input parameter contentview
-                 is returned.
-        @rtype:  nested tuple
-        """
+        """Handle the request to edit an artefact"""
+        logging.debug("afeditor.requestEditView(%s, %s) (iseditmode=%d)" % (parent_id, item_id, self.editparams.iseditmode ))
         if self.editparams.iseditmode: return
-        logging.debug("afeditor.requestEditView(%s, %s)" % (parent_id, item_id))
         self.__BeginEditModal(parent_id, item_id, callback_onsave, callback_arg)
 
         if item_id == "PRODUCT":
@@ -1135,29 +1163,10 @@ class MyApp(wx.App):
             return
 
         elif item_id == None:
-            #FIXME !!!
             if parent_id == "FEATURES":
-                afconfig.VERSION_NAME = self.model.requestVersionList('FEATURES')
-                aflist = self.model.getFeatureList(affilter=self.featurefilterview.GetFilterContent())
-                dlg = _afbulkview.EditBulkArtefactDialog(
-                    self.mainframe.rightWindow, "Title",
-                    _afbulkview.afBulkFeatureView, aflist)
-                if wx.ID_SAVE == dlg.ShowModal():
-                    (artefactids, fields, newtags, changelog) = dlg.contentview.GetContent()
-                    # fields is tuple (version, priority, status, risk)
-                    keys = ('version', 'priority', 'status', 'risk')
-                    for id in artefactids:
-                        af = self.model.getFeature(id)
-                        for key, field in zip(keys, fields):
-                            if field is not None:
-                                af[key] = field
-                        af.setTags(newtags)
-                        af.setChangelog(changelog)
-                        self.model.saveFeature(af)
-                        # TODO: refresh list and tree view, especially when tags has changed
+                self.BulkEditFeatures()
             else:
                 pass
-            self.__EndEditModal()
 
         elif parent_id == "FEATURES":
             self.EditFeature(self.model.getFeature(item_id))
@@ -1241,6 +1250,7 @@ class MyApp(wx.App):
         self.mainframe.EnableFilters(True)
         self.mainframe.SetStatusText('', 1)
         if self.editparams.simplesectionlevelbtn is not None: self.editparams.simplesectionlevelbtn.Enable(True)
+
 
     def undeleteArtefact(self, parent_id, item_id):
         """
