@@ -1095,30 +1095,29 @@ class MyApp(wx.App):
         self.editparams.editdlg = dlg
         self.editparams.savedata = savedata
         return
-    
+
     # ----------------------------------------
     def BulkEditFeatures(self):
         afconfig.VERSION_NAME = self.model.requestVersionList('FEATURES')
         aflist = self.model.getFeatureList(affilter=self.featurefilterview.GetFilterContent())
-        dlg = _afbulkview.EditBulkArtefactDialog(self.mainframe.rightWindow, "Title", _afbulkview.afBulkFeatureView, aflist)
+        dlg = _afbulkview.EditBulkArtefactDialog(self.mainframe.rightWindow, _("Edit features"), _afbulkview.afBulkFeatureView, aflist)
         dlg.Bind(wx.EVT_BUTTON, self.BulkEditFeatureDialogSave, id=dlg.savebtn.GetId())
         dlg.Bind(wx.EVT_BUTTON, self.EditArtefactDialogCancel, id=dlg.cancelbtn.GetId())
         self.editparams.editdlg = dlg
         self.editparams.savedata = None
         dlg.Show()
 
-    
+
     def BulkEditFeatureDialogSave(self, evt):
         """Called when pressing 'Save' """
         dlg = self.editparams.editdlg
         (artefactids, fields, newtags, changelog) = dlg.contentview.GetContent()
-        # fields is tuple (version, priority, status, risk)
-        keys = ('version', 'priority', 'status', 'risk')
+        # fields is dictionary  with keys version, priority, status, risk
         warnid = []
         for id in artefactids:
             af = self.model.getFeature(id)
             af.setTags(newtags)
-            af.setChangelog(changelog)            
+            af.setChangelog(changelog)
             # current_status    new_status
             # submitted         submitted, approved, completed  allow
             # approved          submitted                       allow
@@ -1126,14 +1125,14 @@ class MyApp(wx.App):
             # approved          completed                       deny any changes except status change
             # completed         submitted                       allow
             # completed         approved                        deny any changes except status change
-            # completed         completed                       deny any changes 
-            if af['status'] == afresource.STATUS_SUBMITTED or fields[2] == afresource.STATUS_SUBMITTED:
-                for key, field in zip(keys, fields):
-                    if field is not None:
-                        af[key] = field
+            # completed         completed                       deny any changes
+            if af['status'] == afresource.STATUS_SUBMITTED or fields['status'] == afresource.STATUS_SUBMITTED:
+                for key, value in fields.iteritems():
+                    if value is not None:
+                        af[key] = value
             elif af['status'] == afresource.STATUS_APPROVED or af['status'] == afresource.STATUS_COMPLETED:
-                if fields[2] is not None:
-                    af['status'] = fields[2]
+                if fields['status'] is not None:
+                    af['status'] = fields['status']
                 warnid.append(af['ID'])
             else:
                 warnid.append(af['ID'])
@@ -1143,6 +1142,175 @@ class MyApp(wx.App):
         self.mainframe.treeCtrl.SetSelection(self.editparams.parent_id)
         dlg.Destroy()
         self.__EndEditModal()
+        self.BulkEditWarnRejected(warnid)
+
+
+    def BulkEditRequirements(self):
+        afconfig.VERSION_NAME = self.model.requestVersionList('REQUIREMENTS')
+        afconfig.ASSIGNED_NAME = self.model.requestAssignedList()
+        aflist = self.model.getRequirementList(affilter=self.requirementfilterview.GetFilterContent())
+        dlg = _afbulkview.EditBulkArtefactDialog(self.mainframe.rightWindow, _("Edit requirements"), _afbulkview.afBulkRequirementView, aflist)
+        dlg.Bind(wx.EVT_BUTTON, self.BulkEditRequirementDialogSave, id=dlg.savebtn.GetId())
+        dlg.Bind(wx.EVT_BUTTON, self.EditArtefactDialogCancel, id=dlg.cancelbtn.GetId())
+        self.editparams.editdlg = dlg
+        self.editparams.savedata = None
+        dlg.Show()
+
+
+    def BulkEditRequirementDialogSave(self, evt):
+        """Called when pressing 'Save' """
+        dlg = self.editparams.editdlg
+        (artefactids, fields, newtags, changelog) = dlg.contentview.GetContent()
+        warnid = []
+        for id in artefactids:
+            af = self.model.getRequirement(id)
+            af.setTags(newtags)
+            af.setChangelog(changelog)
+            if af['status'] == afresource.STATUS_SUBMITTED or fields['status'] == afresource.STATUS_SUBMITTED:
+                for key, value in fields.iteritems():
+                    if value is not None:
+                        af[key] = value
+            elif af['status'] == afresource.STATUS_APPROVED or af['status'] == afresource.STATUS_COMPLETED:
+                if fields['status'] is not None:
+                    af['status'] = fields['status']
+                warnid.append(af['ID'])
+            else:
+                warnid.append(af['ID'])
+            self.model.saveRequirement(af)
+        self.InitFilters()
+        self.InitView()
+        self.mainframe.treeCtrl.SetSelection(self.editparams.parent_id)
+        dlg.Destroy()
+        self.__EndEditModal()
+        self.BulkEditWarnRejected(warnid)
+
+
+    def BulkEditWarnRejected(self, warnid):
+        if len(warnid) == 0: return
+        msg = _('Some changes may have been rejected for approved or completed artefacts.') + '\n Check ID ' + ', '.join([str(i) for i in warnid])
+        wx.MessageDialog(self.mainframe, msg, _('Warning'), wx.ICON_EXCLAMATION|wx.OK).ShowModal()
+
+
+    def BulkEditUsecases(self):
+        afconfig.ACTOR_NAME = self.model.requestActorList()
+        afconfig.STAKEHOLDER_NAME = self.model.requestStakeholderList()
+        aflist = self.model.getUsecaseList(affilter=self.usecasefilterview.GetFilterContent())
+        dlg = _afbulkview.EditBulkArtefactDialog(self.mainframe.rightWindow, _("Edit usecases"), _afbulkview.afBulkUsecaseView, aflist)
+        dlg.Bind(wx.EVT_BUTTON, self.BulkEditUsecaseDialogSave, id=dlg.savebtn.GetId())
+        dlg.Bind(wx.EVT_BUTTON, self.EditArtefactDialogCancel, id=dlg.cancelbtn.GetId())
+        self.editparams.editdlg = dlg
+        self.editparams.savedata = None
+        dlg.Show()
+
+
+    def BulkEditUsecaseDialogSave(self, evt):
+        """Called when pressing 'Save' """
+        dlg = self.editparams.editdlg
+        (artefactids, fields, newtags, changelog) = dlg.contentview.GetContent()
+        for id in artefactids:
+            af = self.model.getUsecase(id)
+            af.setTags(newtags)
+            af.setChangelog(changelog)
+            for key, value in fields.iteritems():
+                if value is not None:
+                    af[key] = value
+            self.model.saveUsecase(af)
+        self.InitFilters()
+        self.InitView()
+        self.mainframe.treeCtrl.SetSelection(self.editparams.parent_id)
+        dlg.Destroy()
+        self.__EndEditModal()
+
+
+    def BulkEditTestcases(self):
+        afconfig.VERSION_NAME = self.model.requestVersionList('TESTCASES')
+        aflist = self.model.getTestcaseList(affilter=self.testcasefilterview.GetFilterContent())
+        dlg = _afbulkview.EditBulkArtefactDialog(self.mainframe.rightWindow, _("Edit testcases"), _afbulkview.afBulkTestcaseView, aflist)
+        dlg.Bind(wx.EVT_BUTTON, self.BulkEditTestcaseDialogSave, id=dlg.savebtn.GetId())
+        dlg.Bind(wx.EVT_BUTTON, self.EditArtefactDialogCancel, id=dlg.cancelbtn.GetId())
+        self.editparams.editdlg = dlg
+        self.editparams.savedata = None
+        dlg.Show()
+
+
+    def BulkEditTestcaseDialogSave(self, evt):
+        """Called when pressing 'Save' """
+        dlg = self.editparams.editdlg
+        (artefactids, fields, newtags, changelog) = dlg.contentview.GetContent()
+        for id in artefactids:
+            af = self.model.getTestcase(id)
+            af.setTags(newtags)
+            af.setChangelog(changelog)
+            for key, value in fields.iteritems():
+                if value is not None:
+                    af[key] = value
+            self.model.saveTestcase(af)
+        self.InitFilters()
+        self.InitView()
+        self.mainframe.treeCtrl.SetSelection(self.editparams.parent_id)
+        dlg.Destroy()
+        self.__EndEditModal()
+
+
+    def BulkEditSimplesections(self):
+        aflist = self.model.getSimpleSectionList(affilter=self.simplesectionfilterview.GetFilterContent())
+        dlg = _afbulkview.EditBulkArtefactDialog(self.mainframe.rightWindow, _("Edit text sections"), _afbulkview.afBulkSimplesectionView, aflist)
+        dlg.Bind(wx.EVT_BUTTON, self.BulkEditSimplesectionDialogSave, id=dlg.savebtn.GetId())
+        dlg.Bind(wx.EVT_BUTTON, self.EditArtefactDialogCancel, id=dlg.cancelbtn.GetId())
+        self.editparams.editdlg = dlg
+        self.editparams.savedata = None
+        dlg.Show()
+
+
+    def BulkEditSimplesectionDialogSave(self, evt):
+        """Called when pressing 'Save' """
+        dlg = self.editparams.editdlg
+        (artefactids, fields, newtags, changelog) = dlg.contentview.GetContent()
+        for id in artefactids:
+            af = self.model.getSimpleSection(id)
+            af.setTags(newtags)
+            af.setChangelog(changelog)
+            for key, value in fields.iteritems():
+                if value is not None:
+                    af[key] = value
+            self.model.saveSimpleSection(af)
+        self.InitFilters()
+        self.InitView()
+        self.mainframe.treeCtrl.SetSelection(self.editparams.parent_id)
+        dlg.Destroy()
+        self.__EndEditModal()
+
+
+    def BulkEditTestsuites(self):
+        aflist = self.model.getTestsuiteList(affilter=self.testsuitefilterview.GetFilterContent())
+        dlg = _afbulkview.EditBulkArtefactDialog(self.mainframe.rightWindow, _("Edit testsuite"), _afbulkview.afBulkTestsuiteView, aflist)
+        dlg.Bind(wx.EVT_BUTTON, self.BulkEditTestsuiteDialogSave, id=dlg.savebtn.GetId())
+        dlg.Bind(wx.EVT_BUTTON, self.EditArtefactDialogCancel, id=dlg.cancelbtn.GetId())
+        self.editparams.editdlg = dlg
+        self.editparams.savedata = None
+        dlg.Show()
+
+
+    def BulkEditTestsuiteDialogSave(self, evt):
+        """Called when pressing 'Save' """
+        dlg = self.editparams.editdlg
+        (artefactids, fields, newtags, changelog) = dlg.contentview.GetContent()
+        for id in artefactids:
+            af = self.model.getTestsuite(id)
+            af.setTags(newtags)
+            af.setChangelog(changelog)
+            for key, value in fields.iteritems():
+                if value is not None:
+                    af[key] = value
+            self.model.saveTestsuite(af)
+        self.InitFilters()
+        self.InitView()
+        self.mainframe.treeCtrl.SetSelection(self.editparams.parent_id)
+        dlg.Destroy()
+        self.__EndEditModal()
+
+
+    def BulkEditWarnRejected(self, warnid):
         if len(warnid) == 0: return
         msg = _('Some changes may have been rejected for approved or completed artefacts.') + '\n Check ID ' + ', '.join([str(i) for i in warnid])
         wx.MessageDialog(self.mainframe, msg, _('Warning'), wx.ICON_EXCLAMATION|wx.OK).ShowModal()
@@ -1165,8 +1333,18 @@ class MyApp(wx.App):
         elif item_id == None:
             if parent_id == "FEATURES":
                 self.BulkEditFeatures()
+            elif parent_id == "REQUIREMENTS":
+                self.BulkEditRequirements()
+            elif parent_id == "USECASES":
+                self.BulkEditUsecases()
+            elif parent_id == "TESTCASES":
+                self.BulkEditTestcases()
+            elif parent_id == "TESTSUITES":
+                self.BulkEditTestsuites()
+            elif parent_id == "SIMPLESECTIONS":
+                self.BulkEditSimplesections()
             else:
-                pass
+                self.__EndEditModal()
 
         elif parent_id == "FEATURES":
             self.EditFeature(self.model.getFeature(item_id))

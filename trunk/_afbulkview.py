@@ -135,7 +135,6 @@ class afBulkArtefactView(wx.Panel):
 
 
 class afBulkFeatureView(afBulkArtefactView):
-    #TODO: overwrite existing tags? How to clear tags?
     def __init__(self, parent, aflist):
         afBulkArtefactView.__init__(self, parent)
         self.aflistview = _afartefactlist.afFeatureList(self.leftWindow, checkstyle=True)
@@ -188,15 +187,279 @@ class afBulkFeatureView(afBulkArtefactView):
 
 
     def GetContent(self):
-        fields = []
-        for widget in [self.version_edit, self.priority_edit, self.status_edit, self.risk_edit]:
+        fields = {}
+        keys = ('version', 'priority', 'status', 'risk')
+        widgets = [self.version_edit, self.priority_edit, self.status_edit, self.risk_edit]
+        for widget, key in zip(widgets, keys):
             value = widget.GetCurrentSelection()
             if value == 0:
-                fields.append(None)
+                fields[key] = None
             else:
-                fields.append(value-1)
-        if fields[0] is not None:
+                fields[key] = value - 1
+        if fields['version'] is not None:
             # get version (key) string instead of selection
-            fields[0] = self.version_edit.GetValue()
+            fields['version'] = self.version_edit.GetValue()
+        artefactids = self.aflistview.GetItemIDByCheckState()[0]
+        return (artefactids, fields, self.GetTagsSelection(), self.afnotebook.changelogpanel.GetContent())
+
+
+class afBulkRequirementView(afBulkArtefactView):
+    def __init__(self, parent, aflist):
+        afBulkArtefactView.__init__(self, parent)
+        self.aflistview = _afartefactlist.afRequirementList(self.leftWindow, checkstyle=True)
+        self.aflistview.InitCheckableContent(aflist, [])
+        self.leftWindow.GetSizer().Add(self.aflistview, 1, wx.EXPAND)
+
+        self.afnotebook = _afbasenotebook.afBaseNotebook(self.rightWindow, viewonly=False)
+        self.afnotebook.SetOwnBackgroundColour(parent.GetBackgroundColour())
+
+        panel = wx.Panel(self.afnotebook)
+        sizer = wx.FlexGridSizer(8, 2, 10, 10)
+        sizer.AddGrowableCol(1)
+        sizer.SetFlexibleDirection(wx.HORIZONTAL)
+        panel.SetSizer(sizer)
+        DONTCHANGE = '---'+_("don't change")+'---'
+        st = wx.StaticText(panel, -1, _("Version")+':')
+        choices = [DONTCHANGE,]+afconfig.VERSION_NAME
+        self.version_edit = wx.ComboBox(panel, -1, choices=choices, style=wx.CB_DROPDOWN)
+        self.version_edit.SetSelection(0)
+        sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
+        sizer.Add(self.version_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+        #
+        st = wx.StaticText(panel, -1, _("Priority")+':')
+        choices = [DONTCHANGE,] + [_(i) for i in afresource.PRIORITY_NAME]
+        self.priority_edit = wx.ComboBox(panel, -1, choices = choices, style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.priority_edit.SetSelection(0)
+        sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
+        sizer.Add(self.priority_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+        #
+        st = wx.StaticText(panel, -1, _("Status")+':')
+        choices = [DONTCHANGE,] + [_(i) for i in afresource.STATUS_NAME]
+        self.status_edit = wx.ComboBox(panel, -1, choices=choices , style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.status_edit.SetSelection(0)
+        sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
+        sizer.Add(self.status_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+        #
+        st = wx.StaticText(panel, -1, _("Complexity")+':')
+        choices = [DONTCHANGE,] + [_(i) for i in afresource.COMPLEXITY_NAME]
+        self.complexity_edit = wx.ComboBox(panel, -1, choices=choices, style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.complexity_edit.SetSelection(0)
+        sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
+        sizer.Add(self.complexity_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+        #
+        st = wx.StaticText(panel, -1, _("Assigned")+':')
+        choices = [DONTCHANGE,] + afconfig.ASSIGNED_NAME
+        self.assigned_edit = wx.ComboBox(panel, -1, choices=choices, style=wx.CB_DROPDOWN)
+        self.assigned_edit.SetSelection(0)
+        sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
+        sizer.Add(self.assigned_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+        #
+        st = wx.StaticText(panel, -1, _("Effort")+':')
+        choices = [DONTCHANGE,] + [_(i) for i in afresource.EFFORT_NAME]
+        self.effort_edit = wx.ComboBox(panel, -1, choices=choices, style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.effort_edit.SetSelection(0)
+        sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
+        sizer.Add(self.effort_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+        #
+        st = wx.StaticText(panel, -1, _("Category")+':')
+        choices = [DONTCHANGE,] + [_(i) for i in afresource.CATEGORY_NAME]
+        self.category_edit = wx.ComboBox(panel, -1, choices=choices, style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.category_edit.SetSelection(0)
+        sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
+        sizer.Add(self.category_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+
+        self.afnotebook.AddPage(panel, _('Requirement'))
+
+        self.afnotebook.AddTagsPanel()
+        self.afnotebook.InitTags([])
+        self.InitTagsSelection(aflist)
+        self.afnotebook.AddChangelogPanel()
+        self.rightWindow.GetSizer().Add(self.afnotebook, 1, wx.EXPAND|wx.ALL, 10)
+
+
+    def GetContent(self):
+        fields = {}
+        widgets = [self.version_edit, self.priority_edit, self.status_edit, self.complexity_edit, self.assigned_edit,self.effort_edit, self.category_edit]
+        keys = ('version', 'priority', 'status', 'complexity', 'assigned', 'effort', 'category')
+        for widget, key in zip(widgets, keys):
+            value = widget.GetCurrentSelection()
+            if value == 0:
+                fields[key] = None
+            else:
+                fields[key] = value - 1
+        if fields['version'] is not None:
+            # get version (key) string instead of selection
+            fields['version'] = self.version_edit.GetValue()
+        if fields['assigned'] is not None:
+            # get assigned string instead of selection
+            fields['assigned'] = self.assigned_edit.GetValue()
+        artefactids = self.aflistview.GetItemIDByCheckState()[0]
+        return (artefactids, fields, self.GetTagsSelection(), self.afnotebook.changelogpanel.GetContent())
+
+
+class afBulkUsecaseView(afBulkArtefactView):
+    def __init__(self, parent, aflist):
+        afBulkArtefactView.__init__(self, parent)
+        self.aflistview = _afartefactlist.afUsecaseList(self.leftWindow, checkstyle=True)
+        self.aflistview.InitCheckableContent(aflist, [])
+        self.leftWindow.GetSizer().Add(self.aflistview, 1, wx.EXPAND)
+
+        self.afnotebook = _afbasenotebook.afBaseNotebook(self.rightWindow, viewonly=False)
+        self.afnotebook.SetOwnBackgroundColour(parent.GetBackgroundColour())
+
+        panel = wx.Panel(self.afnotebook)
+        sizer = wx.FlexGridSizer(4, 2, 10, 10)
+        sizer.AddGrowableCol(1)
+        sizer.SetFlexibleDirection(wx.HORIZONTAL)
+        panel.SetSizer(sizer)
+        DONTCHANGE = '---'+_("don't change")+'---'
+        #
+        st = wx.StaticText(panel, -1, _("Priority")+':')
+        choices = [DONTCHANGE,] + [_(i) for i in afresource.PRIORITY_NAME]
+        self.priority_edit = wx.ComboBox(panel, -1, choices = choices, style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.priority_edit.SetSelection(0)
+        sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
+        sizer.Add(self.priority_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+        #
+        st = wx.StaticText(panel, -1, _('Use frequency')+':')
+        choices = [DONTCHANGE,] + [_(i) for i in afresource.USEFREQUENCY_NAME]
+        self.usefreq_edit = wx.ComboBox(panel, -1, choices = choices, style=wx.CB_DROPDOWN | wx.CB_READONLY)
+        self.usefreq_edit.SetSelection(0)
+        sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
+        sizer.Add(self.usefreq_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+        #
+        st = wx.StaticText(panel, -1, _("Actors")+':')
+        choices = [DONTCHANGE,] + afconfig.ACTOR_NAME
+        self.actors_edit = wx.ComboBox(panel, -1, choices = choices, style=wx.CB_DROPDOWN)
+        self.actors_edit.SetSelection(0)
+        sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
+        sizer.Add(self.actors_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+        #
+        st = wx.StaticText(panel, -1, _("Stakeholders")+':')
+        choices = [DONTCHANGE,] + afconfig.STAKEHOLDER_NAME
+        self.stakeholders_edit = wx.ComboBox(panel, -1, choices = choices, style=wx.CB_DROPDOWN)
+        self.stakeholders_edit.SetSelection(0)
+        sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
+        sizer.Add(self.stakeholders_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+
+        self.afnotebook.AddPage(panel, _('Usecase'))
+
+        self.afnotebook.AddTagsPanel()
+        self.afnotebook.InitTags([])
+        self.InitTagsSelection(aflist)
+        self.afnotebook.AddChangelogPanel()
+        self.rightWindow.GetSizer().Add(self.afnotebook, 1, wx.EXPAND|wx.ALL, 10)
+
+
+    def GetContent(self):
+        fields = {}
+        widgets = [self.priority_edit, self.usefreq_edit, self.actors_edit, self.stakeholders_edit]
+        keys = ('priority', 'usefrequency', 'actors', 'stakeholders')
+        for widget, key in zip(widgets, keys):
+            value = widget.GetCurrentSelection()
+            if value == 0:
+                fields[key] = None
+            else:
+                fields[key] = value - 1
+        if fields['actors'] is not None:
+            # get actors string instead of selection
+            fields['actors'] = self.actors_edit.GetValue()
+        if fields['stakeholders'] is not None:
+            # get stakeholders string instead of selection
+            fields['stakeholders'] = self.stakeholders_edit.GetValue()
+        artefactids = self.aflistview.GetItemIDByCheckState()[0]
+        return (artefactids, fields, self.GetTagsSelection(), self.afnotebook.changelogpanel.GetContent())
+
+
+class afBulkTestcaseView(afBulkArtefactView):
+    def __init__(self, parent, aflist):
+        afBulkArtefactView.__init__(self, parent)
+        self.aflistview = _afartefactlist.afTestcaseList(self.leftWindow, checkstyle=True)
+        self.aflistview.InitCheckableContent(aflist, [])
+        self.leftWindow.GetSizer().Add(self.aflistview, 1, wx.EXPAND)
+
+        self.afnotebook = _afbasenotebook.afBaseNotebook(self.rightWindow, viewonly=False)
+        self.afnotebook.SetOwnBackgroundColour(parent.GetBackgroundColour())
+
+        panel = wx.Panel(self.afnotebook)
+        sizer = wx.FlexGridSizer(1, 2, 10, 10)
+        sizer.AddGrowableCol(1)
+        sizer.SetFlexibleDirection(wx.HORIZONTAL)
+        panel.SetSizer(sizer)
+        DONTCHANGE = '---'+_("don't change")+'---'
+        st = wx.StaticText(panel, -1, _("Version")+':')
+        choices = [DONTCHANGE,]+afconfig.VERSION_NAME
+        self.version_edit = wx.ComboBox(panel, -1, choices=choices, style=wx.CB_DROPDOWN)
+        self.version_edit.SetSelection(0)
+        sizer.Add(st, 0, wx.LEFT|wx.TOP, 10)
+        sizer.Add(self.version_edit, 1, wx.EXPAND|wx.RIGHT|wx.TOP, 10)
+        self.afnotebook.AddPage(panel, _('Testcase'))
+
+        self.afnotebook.AddTagsPanel()
+        self.afnotebook.InitTags([])
+        self.InitTagsSelection(aflist)
+        self.afnotebook.AddChangelogPanel()
+        self.rightWindow.GetSizer().Add(self.afnotebook, 1, wx.EXPAND|wx.ALL, 10)
+
+
+    def GetContent(self):
+        fields = {}
+        keys = ('version', )
+        widgets = [self.version_edit]
+        for widget, key in zip(widgets, keys):
+            value = widget.GetCurrentSelection()
+            if value == 0:
+                fields[key] = None
+            else:
+                fields[key] = value - 1
+        if fields['version'] is not None:
+            # get version (key) string instead of selection
+            fields['version'] = self.version_edit.GetValue()
+        artefactids = self.aflistview.GetItemIDByCheckState()[0]
+        return (artefactids, fields, self.GetTagsSelection(), self.afnotebook.changelogpanel.GetContent())
+
+
+class afBulkSimplesectionView(afBulkArtefactView):
+    def __init__(self, parent, aflist):
+        afBulkArtefactView.__init__(self, parent)
+        self.aflistview = _afartefactlist.afSimpleSectionList(self.leftWindow, checkstyle=True)
+        self.aflistview.InitCheckableContent(aflist, [])
+        self.leftWindow.GetSizer().Add(self.aflistview, 1, wx.EXPAND)
+
+        self.afnotebook = _afbasenotebook.afBaseNotebook(self.rightWindow, viewonly=False)
+        self.afnotebook.SetOwnBackgroundColour(parent.GetBackgroundColour())
+
+        self.afnotebook.AddTagsPanel()
+        self.afnotebook.InitTags([])
+        self.InitTagsSelection(aflist)
+        self.afnotebook.AddChangelogPanel()
+        self.rightWindow.GetSizer().Add(self.afnotebook, 1, wx.EXPAND|wx.ALL, 10)
+
+
+    def GetContent(self):
+        fields = {}
+        artefactids = self.aflistview.GetItemIDByCheckState()[0]
+        return (artefactids, fields, self.GetTagsSelection(), self.afnotebook.changelogpanel.GetContent())
+
+
+class afBulkTestsuiteView(afBulkArtefactView):
+    def __init__(self, parent, aflist):
+        afBulkArtefactView.__init__(self, parent)
+        self.aflistview = _afartefactlist.afTestsuiteList(self.leftWindow, checkstyle=True)
+        self.aflistview.InitCheckableContent(aflist, [])
+        self.leftWindow.GetSizer().Add(self.aflistview, 1, wx.EXPAND)
+
+        self.afnotebook = _afbasenotebook.afBaseNotebook(self.rightWindow, viewonly=False)
+        self.afnotebook.SetOwnBackgroundColour(parent.GetBackgroundColour())
+
+        self.afnotebook.AddTagsPanel()
+        self.afnotebook.InitTags([])
+        self.InitTagsSelection(aflist)
+        self.afnotebook.AddChangelogPanel()
+        self.rightWindow.GetSizer().Add(self.afnotebook, 1, wx.EXPAND|wx.ALL, 10)
+
+
+    def GetContent(self):
+        fields = {}
         artefactids = self.aflistview.GetItemIDByCheckState()[0]
         return (artefactids, fields, self.GetTagsSelection(), self.afnotebook.changelogpanel.GetContent())
