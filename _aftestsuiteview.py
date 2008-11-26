@@ -73,12 +73,12 @@ class afTestsuiteNotebook(_afbasenotebook.afBaseNotebook):
         #-----------------------------------------------------------------
         # Related testcases panel
         panel = wx.Panel(self, -1)
+        self.testcaselist = afTestcaseList(panel, -1, checkstyle=not self.viewonly)
         seq_text = wx.StaticText(panel, -1, _("Execution order ID's")+':')
         if self.viewonly:
             self.seq_edit = wx.TextCtrl(panel, -1, "", style = wx.TE_READONLY)
         else:
-            self.seq_edit = wx.TextCtrl(panel, -1, "", validator = MyValidator(panel))
-        self.testcaselist = afTestcaseList(panel, -1, checkstyle=not self.viewonly)
+            self.seq_edit = wx.TextCtrl(panel, -1, "", validator = MyValidator(self.testcaselist))
         sizer = wx.BoxSizer(wx.VERTICAL)
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         hbox.Add(seq_text, 0, wx.EXPAND | wx.RIGHT | wx.ALIGN_BOTTOM , 5 )
@@ -142,17 +142,17 @@ class afTestsuiteNotebook(_afbasenotebook.afBaseNotebook):
 #----------------------------------------------------------------------
 
 class MyValidator(wx.PyValidator):
-    def __init__(self, parent, pyVar=None):
+    def __init__(self, testcaselist, pyVar=None):
         wx.PyValidator.__init__(self)
         self.Bind(wx.EVT_CHAR, self.OnChar)
-        self.parent = parent
+        self.testcaselist = testcaselist
 
     def Clone(self):
-        return MyValidator(self.parent)
+        return MyValidator(self.testcaselist)
 
     def Validate(self, win):
         textCtrl = self.GetWindow()
-        val = textCtrl.GetValue().replace(",", " ")
+        val = textCtrl.GetValue().replace(',', ' ')
 
         try:
             msg = _("Syntax error in execution order")
@@ -160,14 +160,14 @@ class MyValidator(wx.PyValidator):
             if len(intarray) == 0:
                 return True
             intarray = set(intarray)
-            includedtestcasesID = set(self.parent.testcaselist.GetItemIDByCheckState()[0])
+            includedtestcasesID = set(self.testcaselist.GetItemIDByCheckState()[0])
             if len(includedtestcasesID-intarray):
                 msg = _("Some testcase ID's in this testsuite are not listed in execution order")
-                raise
+                raise ValueError
             if len(intarray-includedtestcasesID):
                 msg = _("Some testcase ID's in execution order are not in this testsuite")
-                raise
-        except:
+                raise ValueError
+        except ValueError:
             wx.MessageBox(msg+'!', _("Error"), wx.ICON_ERROR )
             textCtrl.SetBackgroundColour("pink")
             textCtrl.SetFocus()
