@@ -425,11 +425,13 @@ class afEditorTestHelper(afTestHelper):
         editwin = self.app['Edit testsuite']
         editwin['Title:Edit'].SetText(kwargs['title'])
         editwin['Description:Edit'].SetText(kwargs['description'])
+        editwin.TypeKeys('^{TAB}')
         editwin["Execution order ID's:Edit"].SetText(kwargs['execorder'])
         testcaselistview = editwin['Testcases:ListView']
         for tcpos in kwargs['testcasepos']:
             testcaselistview.Select(tcpos)
             testcaselistview.TypeKeys('{SPACE}')
+        editwin.TypeKeys('^+{TAB}')
         editwin['Save && Close'].Click()
         
     
@@ -571,7 +573,7 @@ class afEditorTestHelper(afTestHelper):
         for afitem in self.readArtefactList(coltypes, self.afeditorwin['Requirements:ListView']):
             actual_related_requirements.append(afitem['id'])
         data['related_requirements'] = actual_related_requirements
-        p.TypeKeys(2 * '^{TAB}')
+        p.TypeKeys(3 * '^{TAB}')
         return data
     
     
@@ -603,7 +605,7 @@ class afEditorTestHelper(afTestHelper):
         for afitem in self.readArtefactList(coltypes, self.afeditorwin['Requirements:ListView']):
             actual_related_requirements.append(afitem['id'])
         data['related_requirements'] = actual_related_requirements
-        p.TypeKeys(2 * '^{TAB}')
+        p.TypeKeys(3 * '^{TAB}')
         return data
 
 
@@ -634,7 +636,7 @@ class afEditorTestHelper(afTestHelper):
         for afitem in self.readArtefactList(coltypes, self.afeditorwin['Testsuites:ListView']):
             actual_related_testsuites.append(afitem['id'])
         data['related_testsuites'] = actual_related_testsuites
-        p.TypeKeys(2 * '^{TAB}')
+        p.TypeKeys(3 * '^{TAB}')
         return data
         
         
@@ -643,11 +645,14 @@ class afEditorTestHelper(afTestHelper):
         data = {}
         data['title'] = self.afeditorwin['Title:Edit'].TextBlock()
         data['id'] = int(self.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
-        data['execorder'] = self.afeditorwin["Execution order ID's:Edit"].TextBlock()
         data['description'] = self.getHTMLWindowContent(self.afeditorwin['htmlWindow'])
+        p = self.afeditorwin['Title:Edit'].Parent().Parent()
+        p.TypeKeys('^{TAB}')
+        data['execorder'] = self.afeditorwin["Execution order ID's:Edit"].TextBlock()
         testcaseids = []
         coltypes = [{'type':int, 'key':'id'}, ]
         for testcaseid in self.readArtefactList(coltypes, self.afeditorwin['Testcases:ListView']):
             testcaseids.append(testcaseid['id'])
         data['testcaseids'] = tuple(testcaseids)
+        p.TypeKeys(2 * '^{TAB}')
         return data

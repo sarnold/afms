@@ -91,6 +91,7 @@ class TestSuite(subunittest.TestSuite):
 
 def getSuite():
     testloader = subunittest.TestLoader()
+    testloader.testMethodPrefix = 'test_'
     suite = TestSuite()
     suite.addTests(testloader.loadTestsFromTestCase(TestArtefactCreation))
     return suite
