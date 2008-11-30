@@ -1283,7 +1283,7 @@ class MyApp(wx.App):
 
     def BulkEditTestsuites(self):
         aflist = self.model.getTestsuiteList(affilter=self.testsuitefilterview.GetFilterContent())
-        dlg = _afbulkview.EditBulkArtefactDialog(self.mainframe.rightWindow, _("Edit testsuite"), _afbulkview.afBulkTestsuiteView, aflist)
+        dlg = _afbulkview.EditBulkArtefactDialog(self.mainframe.rightWindow, _("Edit testsuites"), _afbulkview.afBulkTestsuiteView, aflist)
         dlg.Bind(wx.EVT_BUTTON, self.BulkEditTestsuiteDialogSave, id=dlg.savebtn.GetId())
         dlg.Bind(wx.EVT_BUTTON, self.EditArtefactDialogCancel, id=dlg.cancelbtn.GetId())
         self.editparams.editdlg = dlg
