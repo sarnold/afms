@@ -146,7 +146,7 @@ class afExportXML(afExportXMLBase):
         feature = self.model.getFeature(ID)
         basedata = feature.getPrintableDataDict()
         node = self._createElement('feature', {'ID' : str(ID)})
-        for key in ('priority', 'status', 'version', 'risk'):
+        for key in ('title', 'priority', 'status', 'version', 'risk'):
             node.appendChild(self._createTextElement(key, basedata[key]))
         node.appendChild(self._render(basedata['description'], enclosingtag='description'))
         node.appendChild(self.renderRelatedArtefacts('relatedrequirements', feature.getRelatedRequirements()))
@@ -161,7 +161,7 @@ class afExportXML(afExportXMLBase):
         requirement = self.model.getRequirement(ID)
         basedata = requirement.getPrintableDataDict()
         node = self._createElement('requirement', {'ID': str(ID)})
-        for key in ('priority', 'status', 'version', 'complexity', 'assigned', 'effort', 'category'):
+        for key in ('title', 'priority', 'status', 'version', 'complexity', 'assigned', 'effort', 'category'):
             node.appendChild(self._createTextElement(key,    basedata[key]))
         for key in ('description', 'origin', 'rationale'):
             node.appendChild(self._render(basedata[key], enclosingtag=key))

@@ -32,6 +32,7 @@ import unittest
 import test_afeditor_createartefacts, test_afeditor_verifyartefactlists
 import test_afeditor_statistics, test_afeditor_verifyartefactcontents
 import test_afeditor_deleteartefacts, test_afeditor_editartefacts
+import test_afexportxml
 
 suitelist = []
 suitelist.append(test_afeditor_createartefacts.getSuite())
@@ -40,6 +41,7 @@ suitelist.append(test_afeditor_verifyartefactcontents.getSuite())
 suitelist.append(test_afeditor_statistics.getSuite())
 suitelist.append(test_afeditor_deleteartefacts.getSuite())
 suitelist.append(test_afeditor_editartefacts.getSuite())
+suitelist.append(test_afexportxml.getSuite())
 suite  = unittest.TestSuite(suitelist)
 
 unittest.TextTestRunner(verbosity=2).run(suite)
