@@ -34,41 +34,45 @@ class TestArtefactCreation(subunittest.TestCase):
     def test_0000_NumberOfArtefactsAtStart(self):
         """Number of artefacts at start"""
         self.assertEqual(helper.treeview.ItemCount(), 16)
-        
+
+    def test_0015_EditTags(self):
+        "Edit tags"
+        helper.editTags()
+
     def test_0010_EditProduct(self):
         """Edit product"""
         helper.editProduct('Product title', '.. REST\n\nProduct description\n')
-        
+
     def test_0020_AddTextSections(self):
         "Add text sections"
         helper.addTextSections(5)
         
     def test_0030_AddGlossaryEntries(self):
-        "Add glossary entries"        
+        "Add glossary entries"
         helper.addGlossaryEntries(4)
-        
+
     def test_0040_AddFeatures(self):
-        "Add features"        
+        "Add features"
         helper.addFeatures()
-        
+
     def test_0050_AddRequirements(self):
-        "Add requirements"                
+        "Add requirements"
         helper.addRequirements()
-        
+
     def test_0060_AddUsecases(self):
-        "Add usecases"        
+        "Add usecases"
         helper.addUsecases()
-        
+
     def test_0070_AddTestcases(self):
-        "Add testcases"        
+        "Add testcases"
         helper.addTestcases()
-        
+
     def test_0080_AddTestsuites(self):
-        "Add testsuites"        
+        "Add testsuites"
         helper.addTestsuites()
-        
+
     def test_0090_NumberOfArtefactsAtEnd(self):
-        """Number of artefacts at end"""        
+        """Number of artefacts at end"""
         self.assertEqual(helper.treeview.ItemCount(), 16+32+5+10)
 
     def test_9999_tearDown(self):
@@ -77,13 +81,18 @@ class TestArtefactCreation(subunittest.TestCase):
         self.assertEqual('\n'.join(helper.process.stdout.readlines()), '')
         self.assertEqual('\n'.join(helper.process.stderr.readlines()), '')
 
+    yx0 = test_0000_NumberOfArtefactsAtStart
+    x1 = test_0010_EditProduct
+    yx2 = test_0015_EditTags
+    yx3 = test_0020_AddTextSections
+    x4 = test_0040_AddFeatures
 
 class TestSuite(subunittest.TestSuite):
     def setUpSuite(self):
         global helper
         if not os.path.exists(afmstest.testdbdir):
             os.mkdir(afmstest.testdbdir)
-        if os.path.exists(afmstest.testdbfile): 
+        if os.path.exists(afmstest.testdbfile):
             os.remove(afmstest.testdbfile)
         helper = afEditorTestHelper(afmstest.EXECUTABLE, delay=0.1)
         helper.newProduct(afmstest.testdbfile)
@@ -91,7 +100,8 @@ class TestSuite(subunittest.TestSuite):
 
 def getSuite():
     testloader = subunittest.TestLoader()
-    testloader.testMethodPrefix = 'test_'
+    testloader.testMethodPrefix = 'x'
+    testloader.testMethodPrefix = 'test'
     suite = TestSuite()
     suite.addTests(testloader.loadTestsFromTestCase(TestArtefactCreation))
     return suite
