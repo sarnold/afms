@@ -19,33 +19,33 @@ testdbfile = os.path.join(os.getcwd(), TESTDIR, TESTFILE)
 
 
 class afTestHelper(object):
-    """Base self class for testing afms applications"""    
+    """Base self class for testing afms applications"""
 
     def execApplication(self, applicationpath):
         stdout = subprocess.PIPE
         stderr = subprocess.PIPE
         process = subprocess.Popen(sys.executable + ' ' + applicationpath, stdout=stdout, stderr=stderr)
         return process
-    
-    
+
+
 class afEditorTestHelper(afTestHelper):
     """Helper class for testing afeditor application"""
 
     def __init__(self, applicationpath, delay=1.0):
         self.process = self.execApplication(applicationpath)
         self.app = application.Application()
-        
+
         def connect():
             self.app.connect_(title_re='AF Editor')
-            
+
         timing.WaitUntilPasses(10, 0.5, connect, pywinauto.findwindows.WindowNotFoundError)
         self.delay = delay
         self.initTimings()
         self.afeditorwin = self.app.window_(process = self.process.pid)
         self.treeview = self.afeditorwin['TreeView']
         self.afeditor  = self.afeditorwin.WrapperObject()
-        
-        
+
+
     def initTimings(self):
         Timings.window_find_timeout = 10
         Timings.app_start_timeout = 10
@@ -76,8 +76,8 @@ class afEditorTestHelper(afTestHelper):
         Timings.after_editsetedittext_wait = 0
         Timings.after_editselect_wait = 0
         Timings.Slow()
-        
-        
+
+
     def setTiming(self, speed):
         if speed.lower() == 'slow':
             Timings.Slow()
@@ -93,9 +93,16 @@ class afEditorTestHelper(afTestHelper):
         editwin = self.app['Edit section']
         editwin['Title:Edit'].SetText(kwargs['title'])
         editwin['Content:RICHEDIT50W'].SetText(kwargs['content'])
+        p = editwin['Title:Edit'].Parent().Parent()
+        p.TypeKeys('^{TAB}')
+        listview = editwin['ListView']
+        for ti in kwargs['tagid']:
+            listview.Select(ti - 1)
+            listview.TypeKeys('{SPACE}')
+        p.TypeKeys(2 * '^{TAB}')
         editwin['Save && Close'].Click()
-        
-        
+
+
     def editTextSection(self, pos, callback):
         timing.WaitUntil(10, 1, self.afeditor.IsEnabled)
         self.treeview.Select((0,0,pos))
@@ -108,23 +115,26 @@ class afEditorTestHelper(afTestHelper):
         editwin['Title:Edit'].SetText(data['title'])
         editwin['Content:RICHEDIT50W'].SetText(data['content'])
         editwin['Save && Close'].Click()
-        
-    
+
+
     def getTextSection(self, n=5):
+        tagid = ((1, 3), (4, 20), (1, 3, 4, 20), (20,), ())
         for i in range(n):
+            j = min(i, len(tagid)-1)
             yield({'title'    : u'Section title %03d (ÄÖÜäöüß)' % i,
                    'content'  : u'.. REST\n\nContent of text section %03d (ÄÖÜäöüß)\n' % i,
                    'r_content': u'\nContent of text section %03d (ÄÖÜäöüß) ' % i,
                    'level'    : i+1,
-                   'id'       : i+1 })
-        
-        
+                   'id'       : i+1,
+                   'tagid'    : tagid[j] })
+
+
     def addTextSections(self, n = 5):
         for ts in self.getTextSection(5):
             self.addTextSection(**ts)
             ##time.sleep(self.delay)
-        
-    
+
+
     def addGlossaryEntry(self, **kwargs):
         timing.WaitUntil(10, 1, self.afeditor.IsEnabled)
         self.afeditor.MenuSelect("New -> New glossary entry ...")
@@ -132,7 +142,7 @@ class afEditorTestHelper(afTestHelper):
         editwin['Term:Edit'].SetText(kwargs['term'])
         editwin['Description:RICHEDIT50W'].SetText(kwargs['description'])
         editwin['Save && Close'].Click()
-        
+
 
     def editGlossaryEntry(self, pos, callback):
         timing.WaitUntil(10, 1, self.afeditor.IsEnabled)
@@ -154,7 +164,7 @@ class afEditorTestHelper(afTestHelper):
                    'description'   : u'.. REST\n\nDescription of glossary term %03d (ÄÖÜäöüß)\n' % i,
                    'r_description' : u'\nDescription of glossary term %03d (ÄÖÜäöüß) ' % i})
 
-        
+
     def addGlossaryEntries(self, n = 5):
         for ge in self.getGlossaryEntry(5):
             self.addGlossaryEntry(**ge)
@@ -171,6 +181,13 @@ class afEditorTestHelper(afTestHelper):
         editwin['Priority:ComboBox'].Select(kwargs['priority'])
         editwin['Status:ComboBox'].Select(kwargs['status'])
         editwin['Risk:ComboBox'].Select(kwargs['risk'])
+        p = editwin['Title:Edit'].Parent().Parent()
+        p.TypeKeys(3 * '^{TAB}')
+        listview = editwin['ListView']
+        for ti in kwargs['tagid']:
+            listview.Select(ti - 1)
+            listview.TypeKeys('{SPACE}')
+        p.TypeKeys(2 * '^{TAB}')
         editwin['Save && Close'].Click()
 
 
@@ -188,30 +205,32 @@ class afEditorTestHelper(afTestHelper):
         editwin['Status:ComboBox'].Select(0)
         editwin['Save && Close'].Click()
 
-    
+
     def getFeature(self):
         priority = (0, 1, 2, 3, 0)
         status   = (2, 1, 0, 2, 1)
         risk     = (4, 3, 2, 1, 0)
+        tagid = ((1, 3), (3, 20), (1, 3, 4, 20), (4,), ())
         related_requirements = ((5,), (), (2,3), (), ())
-        related_usecases     = ((), (2,), (), (), (4,)) 
+        related_usecases     = ((), (2,), (), (), (4,))
         for i in range(len(priority)):
-            yield({'title'         : u'Feature title %03d (ÄÖÜäöüß)' % i, 
+            yield({'title'         : u'Feature title %03d (ÄÖÜäöüß)' % i,
                    'description'   : u'.. REST\n\nDescription of feature %03d (ÄÖÜäöüß)\n' % i,
                    'r_description' : u'\nDescription of feature %03d (ÄÖÜäöüß) ' % i,
-                   'key'           : u'Key of feature %03d (ÄÖÜäöüß)' % i, 
-                   'priority'      : priority[i], 
+                   'key'           : u'Key of feature %03d (ÄÖÜäöüß)' % i,
+                   'priority'      : priority[i],
                    'status'        : status[i],
                    'risk'          : risk[i],
                    'related_requirements' : related_requirements[i],
-                   'related_usecases'     :  related_usecases[i]})
-        
-        
+                   'related_usecases'     : related_usecases[i],
+                   'tagid'                : tagid[i]})
+
+
     def addFeatures(self):
         for ft in self.getFeature():
             self.addFeature(**ft)
             ##time.sleep(self.delay)
-            
+
 
     def addRequirement(self, **kwargs):
         timing.WaitUntil(10, 1, self.afeditor.IsEnabled)
@@ -231,7 +250,7 @@ class afEditorTestHelper(afTestHelper):
         editwin['Rationale:RICHEDIT50W'].SetText(kwargs['rationale'])
         editwin.TypeKeys('^+{TAB}')
         editwin['Save && Close'].Click()
-        
+
 
     def editRequirement(self, pos, callback):
         timing.WaitUntil(10, 1, self.afeditor.IsEnabled)
@@ -247,7 +266,7 @@ class afEditorTestHelper(afTestHelper):
         editwin['Status:ComboBox'].Select(0)
         editwin['Save && Close'].Click()
 
-    
+
     def getRequirement(self):
         priority   = (0, 1, 2, 3, 0, 1, 2, 3, 0, 1,  2,  3,  0,  1,  2,  3,  0)
         status     = (2, 1, 0, 2, 1, 0, 2, 1, 0, 2,  1,  0,  2,  1,  0,  2,  1)
@@ -263,7 +282,7 @@ class afEditorTestHelper(afTestHelper):
                 'title'         : u'Requirement title %03d (ÄÖÜäöüß)' % i,
                 'description'   : u'.. HTML\n\nDescription of requirement %03d (ÄÖÜäöüß)\n' % i,
                 'r_description' : u'Description of requirement %03d (ÄÖÜäöüß)' % i,
-                'key'           : u'Key of requirement %03d (ÄÖÜäöüß)' % i, 
+                'key'           : u'Key of requirement %03d (ÄÖÜäöüß)' % i,
                 'priority'      : priority[i],
                 'status'        : status[i],
                 'complexity'    : complexity[i],
@@ -283,8 +302,8 @@ class afEditorTestHelper(afTestHelper):
                 'related_usecases'     : related_usecases[i],
                 'related_testcases'    : related_testcases[i]}
             yield(data)
-                    
-        
+
+
     def addRequirements(self):
         for r in self.getRequirement():
             if len(r['related_features']) != 0:
@@ -292,13 +311,13 @@ class afEditorTestHelper(afTestHelper):
                 # select feature in treeview at fpos
                 i = (0, 2, fpos)
             else:
-                # don't select any feature in treeview 
+                # don't select any feature in treeview
                 i = (0, 3)
             self.treeview.Select(i)
             self.addRequirement(**r)
             ##time.sleep(self.delay)
-        
-            
+
+
     def editProduct(self, title, description):
         self.treeview.Select((0,))
         self.treeview.TypeKeys('{ENTER}')
@@ -307,8 +326,8 @@ class afEditorTestHelper(afTestHelper):
         editproductwin['Description:RICHEDIT50W'].SetEditText(description)
         editproductwin['Save && Close'].Click()
         self.treeview.Select((0,))
-        
-    
+
+
     def addUsecase(self, **kwargs):
         timing.WaitUntil(10, 1, self.afeditor.IsEnabled)
         self.afeditor.MenuSelect("New -> New usecase ...")
@@ -323,15 +342,15 @@ class afEditorTestHelper(afTestHelper):
         editwin['Alt scenario:Edit'].SetText(kwargs['altscenario'])
         editwin['Notes:Edit'].SetText(kwargs['notes'])
         editwin['Save && Close'].Click()
-        
-    
+
+
     def getUsecase(self):
         priority     = (3, 2, 1, 0, 3)
         usefrequency = (0, 1, 2, 3, 4)
         related_requirements = ((), (),   (2,), (),   (10,))
         related_features     = ((), (2,), (),   (5,), ())
         for i in range(len(usefrequency)):
-            data = {'summary'         : u"Usecase summary %03d (ÄÖÜäöüß)" % i, 
+            data = {'summary'         : u"Usecase summary %03d (ÄÖÜäöüß)" % i,
                     'priority'        : priority[i],
                     'usefrequency'    : usefrequency[i],
                     'actors'          : u"Usecase actor %03d (ÄÖÜäöüß)" %i,
@@ -345,9 +364,9 @@ class afEditorTestHelper(afTestHelper):
                     'r_altscenario'   : u"\nUsecase altscenario %03d (ÄÖÜäöüß)" %i,
                     'r_notes'         : u"\nUsecase notes %03d (ÄÖÜäöüß)" %i,
                     'related_features'     : related_features[i],
-                    'related_requirements' : related_requirements[i]} 
+                    'related_requirements' : related_requirements[i]}
             yield(data)
-                
+
 
     def addUsecases(self):
         self.treeview.Select((0, 4))
@@ -384,30 +403,30 @@ class afEditorTestHelper(afTestHelper):
         editwin['Script:Edit'].SetText(kwargs['script'])
         editwin['Notes && Questions:Edit'].SetText(kwargs['notes'])
         editwin['Save && Close'].Click()
-        
-    
+
+
     def getTestcase(self):
         related_requirements = ((),    (1,),  (3,),  (3, ), (17,), ())
         related_testsuites   = ((1,3), (1,3), (1,3), (2,),  (2,3), ())
         for i in range(6):
-            data = {'title'          : u"Testcase title %03d (ÄÖÜäöüß)" % i, 
+            data = {'title'          : u"Testcase title %03d (ÄÖÜäöüß)" % i,
                     'key'            : u"Testcase key %03d (ÄÖÜäöüß)" %i,
                     'purpose'        : u"Testcase purpose %03d (ÄÖÜäöüß)" %i,
                     'prerequisite'   : u"Testcase prerequisite %03d (ÄÖÜäöüß)" %i,
                     'testdata'       : u"Testcase testdata %03d (ÄÖÜäöüß)" %i,
                     'steps'          : u"Testcase steps %03d (ÄÖÜäöüß)" %i,
                     'script'         : u"samplescript.cmd %03d" %i,
-                    'notes'          : u"Testcase notes %03d (ÄÖÜäöüß)" %i, 
+                    'notes'          : u"Testcase notes %03d (ÄÖÜäöüß)" %i,
                     'r_purpose'      : u"\nTestcase purpose %03d (ÄÖÜäöüß)" %i,
                     'r_prerequisite' : u"\nTestcase prerequisite %03d (ÄÖÜäöüß)" %i,
                     'r_testdata'     : u"\nTestcase testdata %03d (ÄÖÜäöüß)" %i,
                     'r_steps'        : u"\nTestcase steps %03d (ÄÖÜäöüß)" %i,
                     'r_notes'        : u"\nTestcase notes %03d (ÄÖÜäöüß)" %i,
                     'related_requirements' : related_requirements[i],
-                    'related_testsuites'   : related_testsuites[i] }                      
+                    'related_testsuites'   : related_testsuites[i] }
             yield(data)
-    
-    
+
+
     def addTestcases(self):
         for tc in self.getTestcase():
             if len(tc['related_requirements']) == 0:
@@ -433,14 +452,14 @@ class afEditorTestHelper(afTestHelper):
             testcaselistview.TypeKeys('{SPACE}')
         editwin.TypeKeys('^+{TAB}')
         editwin['Save && Close'].Click()
-        
-    
+
+
     def getTestsuite(self):
         testcaseids =  ((1,2,3), (4,5), (1,2,3,5), ())
         testcasepos = ((0,1,2), (3,4), (0,1,2,4), ())
         execorder =   ('3,2,1', '', '1,3,2,5', '')
         for i in range(len(testcasepos)):
-            data = {'title'         : u"Testsuite title %03d (ÄÖÜäöüß)" % i, 
+            data = {'title'         : u"Testsuite title %03d (ÄÖÜäöüß)" % i,
                     'description'   : u"Testsuite description %03d (ÄÖÜäöüß)" %i,
                     'r_description' : u"\nTestsuite description %03d (ÄÖÜäöüß)" %i,
                     'execorder'     : execorder[i],
@@ -448,29 +467,29 @@ class afEditorTestHelper(afTestHelper):
                     'testcaseids'   : testcaseids[i],
                     'nbrtestcases'  : len(testcasepos[i])}
             yield(data)
-    
-    
+
+
     def addTestsuites(self):
         ##Timings.Slow()
         for ts in self.getTestsuite():
             self.addTestsuite(**ts)
 
-    
+
     def newProduct(self, filename):
         self.afeditor.MenuSelect("File -> New product ...")
         savedlg = self.app['Save new product to file']
         savedlg.FileNameEdit.SetEditText(filename)
         savedlg.SpeichernButton.CloseClick()
         ##time.sleep(self.delay)
-        
-        
+
+
     def openProduct(self, filename):
         self.afeditor.MenuSelect("File -> Open product ...")
         dlg = self.app['Open product file']
         dlg.FileNameEdit.SetEditText(filename)
         dlg[u'Ö&ffnenButton'].CloseClick()
-        
-        
+
+
     def readArtefactList(self, coltypes, listview=None):
         if listview == None:
             listview = self.afeditorwin.leftwinListView
@@ -481,24 +500,24 @@ class afEditorTestHelper(afTestHelper):
                 data = listview.GetItem(r,c)['text']
                 item[coltype['key']] =  coltype['type'](data)
             yield(item)
-            
-            
+
+
     def getHTMLWindowContent(self, htmlwindow):
         htmlwindow.TypeKeys('^A^C')
         return clipboard.GetData()
 
-        
+
     def count(self, start=0, incr=1):
         cnt = start-incr
         while(True):
             cnt = cnt + incr
             yield(cnt)
 
-        
+
     def exitApp(self):
         self.afeditor.Close()
-        
-        
+
+
     def readFeatureAtPosition(self, pos):
         self.treeview.Select((0,2,pos))
         data = {}
@@ -523,11 +542,11 @@ class afEditorTestHelper(afTestHelper):
         coltypes = [{'type':int, 'key':'id'}, ]
         for usecase in self.readArtefactList(coltypes, self.afeditorwin['Usecases:ListView']):
             attached_usecases.append(usecase['id'])
-        data['related_usecases'] = attached_usecases 
+        data['related_usecases'] = attached_usecases
         p.TypeKeys(2*'^+{TAB}')
         return data
-        
-        
+
+
     def readRequirementAtPosition(self, pos):
         self.treeview.Select((0,3,pos))
         data = {}
@@ -540,7 +559,7 @@ class afEditorTestHelper(afTestHelper):
         data['assigned'] = self.afeditorwin['Assigned:Edit'].TextBlock()
         data['effort'] = self.afeditorwin['Effort:Edit'].TextBlock()
         data['category'] = self.afeditorwin['Category:Edit'].TextBlock()
-        data['description'] = self.getHTMLWindowContent(self.afeditorwin['htmlWindow']).strip(' \n')  
+        data['description'] = self.getHTMLWindowContent(self.afeditorwin['htmlWindow']).strip(' \n')
         p = self.afeditorwin['Priority:Edit'].Parent().Parent()
         p.TypeKeys('^{TAB}')
         data['origin'] = self.getHTMLWindowContent(self.afeditorwin['oridin_edit']).strip(' \n')
@@ -575,8 +594,8 @@ class afEditorTestHelper(afTestHelper):
         data['related_requirements'] = actual_related_requirements
         p.TypeKeys(3 * '^{TAB}')
         return data
-    
-    
+
+
     def readUsecaseAtPosition(self, pos):
         self.treeview.Select((0,4,pos))
         data = {}
@@ -585,7 +604,7 @@ class afEditorTestHelper(afTestHelper):
         data['priority'] = self.afeditorwin['Priority:Edit'].TextBlock()
         data['usefrequency'] = self.afeditorwin['Use frequency:Edit'].TextBlock()
         data['actors'] = self.afeditorwin['Actors:Edit'].TextBlock()
-        data['stakeholders'] = self.afeditorwin['Stakeholders:Edit'].TextBlock()            
+        data['stakeholders'] = self.afeditorwin['Stakeholders:Edit'].TextBlock()
         data['prerequisites'] = self.getHTMLWindowContent(self.afeditorwin['prerequisites'])
         data['mainscenario'] = self.getHTMLWindowContent(self.afeditorwin['mainscenario'])
         data['altscenario'] = self.getHTMLWindowContent(self.afeditorwin['altscenario'])
@@ -638,8 +657,8 @@ class afEditorTestHelper(afTestHelper):
         data['related_testsuites'] = actual_related_testsuites
         p.TypeKeys(3 * '^{TAB}')
         return data
-        
-        
+
+
     def readTestsuiteAtPosition(self, pos):
         self.treeview.Select((0,6,pos))
         data = {}
@@ -656,3 +675,29 @@ class afEditorTestHelper(afTestHelper):
         data['testcaseids'] = tuple(testcaseids)
         p.TypeKeys(2 * '^{TAB}')
         return data
+
+
+    def getTags(self):
+        taglist = [{'id' : 1, 'short' : "Black short", 'long' : 'Black long', 'color' : 0},
+            {'id' : 3, 'short' : "Blue short", 'long' : 'Blue long', 'color' : 1},
+            {'id' : 4, 'short' : "Red short", 'long' : 'Red long', 'color' : 2},
+            {'id' : 20, 'short' : "Green short", 'long' : 'Green long', 'color' : 3}]
+        for tag in taglist:
+            yield(tag)
+
+
+    def editTags(self):
+        timing.WaitUntil(10, 1, self.afeditor.IsEnabled)
+        self.afeditor.MenuSelect("Edit -> Edit tags ...")
+        editwin = self.app['Select tag to edit']
+        listview = editwin['ListView']
+        for tag in self.getTags():
+            listview.Select(tag['id']-1)
+            listview.TypeKeys('{ENTER}')
+            edittagwin = self.app['Edit tag']
+            edittagwin['Short description:Edit'].SetText(tag['short'])
+            edittagwin['Long description:Edit'].SetText(tag['long'])
+            edittagwin['ComboBox'].Select(tag['color'])
+            edittagwin['OKButton'].Click()
+        editwin['Save && Close'].Click()
+
