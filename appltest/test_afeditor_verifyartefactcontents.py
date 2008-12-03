@@ -56,14 +56,12 @@ class TestCreatedArtefactContents(subunittest.TestCase):
     def test_0030_TextSectionContents(self):
         """Inspect text section contents"""
         for af, i in  zip(helper.getTextSection(5), helper.count(0)):
-            helper.treeview.Select((0,0,i))
-            self.assertEqual(af['title'], helper.afeditorwin['Title:Edit'].TextBlock())
-            content = helper.getHTMLWindowContent(helper.afeditorwin['htmlWindow'])
-            self.assertEqual(content, af['r_content'])
-            level = int(helper.afeditorwin.window_(enabled_only=False, best_match='Level:Edit').TextBlock())
-            self.assertEqual(af['level'], level)
-            id = int(helper.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
-            self.assertEqual(af['id'], id)
+            actual_af = helper.readTextSectionAtPosition(i)
+            self.assertEqual(af['title'], actual_af['title'])
+            self.assertEqual(af['r_content'], actual_af['content'])
+            self.assertEqual(af['level'], actual_af['level'])
+            self.assertEqual(af['id'], actual_af['id'])
+            self.assertEqual(list(af['tagid']), actual_af['tagid'])
 
 
     def test_0040_GlossaryEntryContents(self):
@@ -88,6 +86,7 @@ class TestCreatedArtefactContents(subunittest.TestCase):
             self.assertEqual(actual_af['description'], af['r_description'])
             self.assertEqual(actual_af['related_requirements'], list(af['related_requirements']))
             self.assertEqual(actual_af['related_usecases'], list(af['related_usecases']))
+            self.assertEqual(actual_af['tagid'], list(af['tagid']))
     
     
     def test_0060_RequirementContents(self):
@@ -110,6 +109,7 @@ class TestCreatedArtefactContents(subunittest.TestCase):
             self.assertEqual(actual_af['related_usecases'], list(af['related_usecases']))
             self.assertEqual(actual_af['related_features'], list(af['related_features']))
             self.assertEqual(actual_af['related_requirements'], list(af['related_requirements']))
+            self.assertEqual(actual_af['tagid'], list(af['tagid']))
             
 
     def test_0070_UsecaseContents(self):
@@ -128,7 +128,7 @@ class TestCreatedArtefactContents(subunittest.TestCase):
             self.assertEqual(actual_af['notes'], af['r_notes'])
             self.assertEqual(actual_af['related_features'], list(af['related_features']))
             self.assertEqual(actual_af['related_requirements'], list(af['related_requirements']))
-
+            self.assertEqual(actual_af['tagid'], list(af['tagid']))
 
     def test_0080_TestcaseContents(self):
         """Inspect testcase contents"""
@@ -145,6 +145,7 @@ class TestCreatedArtefactContents(subunittest.TestCase):
             self.assertEqual(data['notes'], af['r_notes'])
             self.assertEqual(data['related_requirements'], list(af['related_requirements']))
             self.assertEqual(data['related_testsuites'], list(af['related_testsuites']))
+            self.assertEqual(data['tagid'], list(af['tagid']))
 
 
     def test_0090_TestsuiteContents(self):
@@ -156,6 +157,7 @@ class TestCreatedArtefactContents(subunittest.TestCase):
             self.assertEqual(data['execorder'], af['execorder'])
             self.assertEqual(data['description'], af['r_description'])
             self.assertEqual(data['testcaseids'], af['testcaseids'])
+            self.assertEqual(data['tagid'], list(af['tagid']))
 
 
     def test_9999_tearDown(self):
@@ -175,7 +177,7 @@ class TestSuite(subunittest.TestSuite):
 
 def getSuite():
     testloader = subunittest.TestLoader()
-    testloader.testMethodPrefix = 'test_'
+    testloader.testMethodPrefix = 'test'
     suite = TestSuite()
     suite.addTests(testloader.loadTestsFromTestCase(TestCreatedArtefactContents))
     return suite

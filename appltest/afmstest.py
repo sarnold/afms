@@ -42,6 +42,7 @@ class afEditorTestHelper(afTestHelper):
         self.delay = delay
         self.initTimings()
         self.afeditorwin = self.app.window_(process = self.process.pid)
+        
         self.treeview = self.afeditorwin['TreeView']
         self.afeditor  = self.afeditorwin.WrapperObject()
 
@@ -248,7 +249,12 @@ class afEditorTestHelper(afTestHelper):
         editwin.TypeKeys('^{TAB}')
         editwin['Origin:RICHEDIT50W'].SetText(kwargs['origin'])
         editwin['Rationale:RICHEDIT50W'].SetText(kwargs['rationale'])
-        editwin.TypeKeys('^+{TAB}')
+        editwin.TypeKeys(5 * '^{TAB}')
+        listview = editwin['ListView']
+        for ti in kwargs['tagid']:
+            listview.Select(ti - 1)
+            listview.TypeKeys('{SPACE}')        
+        editwin.TypeKeys(2 * '^{TAB}')
         editwin['Save && Close'].Click()
 
 
@@ -277,6 +283,7 @@ class afEditorTestHelper(afTestHelper):
         related_features     = ((), (3,), (3,),  (), (1,), (), (), (), (), (),   (), (), (), (), (), (), ())
         related_usecases     = ((), (3,), (),    (), (),   (), (), (), (), (5,), (), (), (), (), (), (), ())
         related_testcases    = ((2,), (), (3,4), (), (),   (), (), (), (), (),   (), (), (), (), (), (), (5,))
+        tagid = ((1,3,4,20), (1,), (3,), (4,), (), (20,), (4,20), (3,4), (1, 3), (3,20), (), (), (), (4,), (), (), (3,))
         for i in range(len(category)):
             data = {
                 'title'         : u'Requirement title %03d (ÄÖÜäöüß)' % i,
@@ -300,7 +307,8 @@ class afEditorTestHelper(afTestHelper):
                 'related_features'     : related_features[i],
                 'related_requirements' : related_requirements[i],
                 'related_usecases'     : related_usecases[i],
-                'related_testcases'    : related_testcases[i]}
+                'related_testcases'    : related_testcases[i],
+                'tagid'                : tagid[i]}
             yield(data)
 
 
@@ -341,6 +349,12 @@ class afEditorTestHelper(afTestHelper):
         editwin['Main scenario:Edit'].SetText(kwargs['mainscenario'])
         editwin['Alt scenario:Edit'].SetText(kwargs['altscenario'])
         editwin['Notes:Edit'].SetText(kwargs['notes'])
+        editwin.TypeKeys(3 * '^{TAB}')
+        listview = editwin['ListView']
+        for ti in kwargs['tagid']:
+            listview.Select(ti - 1)
+            listview.TypeKeys('{SPACE}')        
+        editwin.TypeKeys(3 * '^+{TAB}')
         editwin['Save && Close'].Click()
 
 
@@ -349,6 +363,7 @@ class afEditorTestHelper(afTestHelper):
         usefrequency = (0, 1, 2, 3, 4)
         related_requirements = ((), (),   (2,), (),   (10,))
         related_features     = ((), (2,), (),   (5,), ())
+        tagid = ((1,), (3,), (4,20), (), (20,))
         for i in range(len(usefrequency)):
             data = {'summary'         : u"Usecase summary %03d (ÄÖÜäöüß)" % i,
                     'priority'        : priority[i],
@@ -364,7 +379,8 @@ class afEditorTestHelper(afTestHelper):
                     'r_altscenario'   : u"\nUsecase altscenario %03d (ÄÖÜäöüß)" %i,
                     'r_notes'         : u"\nUsecase notes %03d (ÄÖÜäöüß)" %i,
                     'related_features'     : related_features[i],
-                    'related_requirements' : related_requirements[i]}
+                    'related_requirements' : related_requirements[i],
+                    'tagid'                : tagid[i]}
             yield(data)
 
 
@@ -402,12 +418,19 @@ class afEditorTestHelper(afTestHelper):
         editwin['Steps:Edit'].SetText(kwargs['steps'])
         editwin['Script:Edit'].SetText(kwargs['script'])
         editwin['Notes && Questions:Edit'].SetText(kwargs['notes'])
+        editwin.TypeKeys(3 * '^{TAB}')
+        listview = editwin['ListView']
+        for ti in kwargs['tagid']:
+            listview.Select(ti - 1)
+            listview.TypeKeys('{SPACE}')        
+        editwin.TypeKeys(3 * '^+{TAB}')
         editwin['Save && Close'].Click()
 
 
     def getTestcase(self):
         related_requirements = ((),    (1,),  (3,),  (3, ), (17,), ())
         related_testsuites   = ((1,3), (1,3), (1,3), (2,),  (2,3), ())
+        tagid                = ((4,), (3,), (20,), (3,4), (), (4,20))
         for i in range(6):
             data = {'title'          : u"Testcase title %03d (ÄÖÜäöüß)" % i,
                     'key'            : u"Testcase key %03d (ÄÖÜäöüß)" %i,
@@ -423,7 +446,8 @@ class afEditorTestHelper(afTestHelper):
                     'r_steps'        : u"\nTestcase steps %03d (ÄÖÜäöüß)" %i,
                     'r_notes'        : u"\nTestcase notes %03d (ÄÖÜäöüß)" %i,
                     'related_requirements' : related_requirements[i],
-                    'related_testsuites'   : related_testsuites[i] }
+                    'related_testsuites'   : related_testsuites[i],
+                    'tagid'                : tagid[i]}
             yield(data)
 
 
@@ -450,7 +474,12 @@ class afEditorTestHelper(afTestHelper):
         for tcpos in kwargs['testcasepos']:
             testcaselistview.Select(tcpos)
             testcaselistview.TypeKeys('{SPACE}')
-        editwin.TypeKeys('^+{TAB}')
+        editwin.TypeKeys('^{TAB}')
+        listview = editwin['ListView']
+        for ti in kwargs['tagid']:
+            listview.Select(ti - 1)
+            listview.TypeKeys('{SPACE}')        
+        editwin.TypeKeys('^{TAB}')
         editwin['Save && Close'].Click()
 
 
@@ -458,6 +487,7 @@ class afEditorTestHelper(afTestHelper):
         testcaseids =  ((1,2,3), (4,5), (1,2,3,5), ())
         testcasepos = ((0,1,2), (3,4), (0,1,2,4), ())
         execorder =   ('3,2,1', '', '1,3,2,5', '')
+        tagid = ((3,), (20,), (), (4,))
         for i in range(len(testcasepos)):
             data = {'title'         : u"Testsuite title %03d (ÄÖÜäöüß)" % i,
                     'description'   : u"Testsuite description %03d (ÄÖÜäöüß)" %i,
@@ -465,6 +495,7 @@ class afEditorTestHelper(afTestHelper):
                     'execorder'     : execorder[i],
                     'testcasepos'   : testcasepos[i],
                     'testcaseids'   : testcaseids[i],
+                    'tagid'         : tagid[i],
                     'nbrtestcases'  : len(testcasepos[i])}
             yield(data)
 
@@ -517,7 +548,26 @@ class afEditorTestHelper(afTestHelper):
     def exitApp(self):
         self.afeditor.Close()
 
-
+    
+    def readTextSectionAtPosition(self, pos):
+        self.treeview.Select((0,0,pos))
+        data = {}
+        data['title'] = self.afeditorwin['Title:Edit'].TextBlock()
+        data['content'] = self.getHTMLWindowContent(self.afeditorwin['htmlWindow'])
+        data['level'] = int(self.afeditorwin.window_(enabled_only=False, best_match='Level:Edit').TextBlock())
+        data['id'] = int(self.afeditorwin.window_(enabled_only=False, best_match='ID:Edit').TextBlock())
+        p = self.afeditorwin['Title:Edit'].Parent().Parent()
+        # related requirements
+        p.TypeKeys('^{TAB}')
+        tagid = []
+        coltypes = [{'type':int, 'key':'id'}, ]
+        for tag in self.readArtefactList(coltypes, self.afeditorwin['ListView']):
+            tagid.append(tag['id'])
+        data['tagid'] = tagid
+        p.TypeKeys('^+{TAB}')    
+        return data
+        
+        
     def readFeatureAtPosition(self, pos):
         self.treeview.Select((0,2,pos))
         data = {}
@@ -543,7 +593,14 @@ class afEditorTestHelper(afTestHelper):
         for usecase in self.readArtefactList(coltypes, self.afeditorwin['Usecases:ListView']):
             attached_usecases.append(usecase['id'])
         data['related_usecases'] = attached_usecases
-        p.TypeKeys(2*'^+{TAB}')
+        # tags
+        p.TypeKeys('^{TAB}')
+        tagid = []
+        coltypes = [{'type':int, 'key':'id'}, ]
+        for tag in self.readArtefactList(coltypes, self.afeditorwin['ListView']):
+            tagid.append(tag['id'])
+        data['tagid'] = tagid        
+        p.TypeKeys(3 * '^+{TAB}')
         return data
 
 
@@ -592,7 +649,14 @@ class afEditorTestHelper(afTestHelper):
         for afitem in self.readArtefactList(coltypes, self.afeditorwin['Requirements:ListView']):
             actual_related_requirements.append(afitem['id'])
         data['related_requirements'] = actual_related_requirements
-        p.TypeKeys(3 * '^{TAB}')
+        # tags
+        p.TypeKeys('^{TAB}')
+        tagid = []
+        coltypes = [{'type':int, 'key':'id'}, ]
+        for tag in self.readArtefactList(coltypes, self.afeditorwin['ListView']):
+            tagid.append(tag['id'])
+        data['tagid'] = tagid        
+        p.TypeKeys(2 * '^{TAB}')
         return data
 
 
@@ -624,7 +688,14 @@ class afEditorTestHelper(afTestHelper):
         for afitem in self.readArtefactList(coltypes, self.afeditorwin['Requirements:ListView']):
             actual_related_requirements.append(afitem['id'])
         data['related_requirements'] = actual_related_requirements
-        p.TypeKeys(3 * '^{TAB}')
+        # tags
+        p.TypeKeys('^{TAB}')
+        tagid = []
+        coltypes = [{'type':int, 'key':'id'}, ]
+        for tag in self.readArtefactList(coltypes, self.afeditorwin['ListView']):
+            tagid.append(tag['id'])
+        data['tagid'] = tagid        
+        p.TypeKeys(2 * '^{TAB}')
         return data
 
 
@@ -655,7 +726,14 @@ class afEditorTestHelper(afTestHelper):
         for afitem in self.readArtefactList(coltypes, self.afeditorwin['Testsuites:ListView']):
             actual_related_testsuites.append(afitem['id'])
         data['related_testsuites'] = actual_related_testsuites
-        p.TypeKeys(3 * '^{TAB}')
+        # tags
+        p.TypeKeys('^{TAB}')
+        tagid = []
+        coltypes = [{'type':int, 'key':'id'}, ]
+        for tag in self.readArtefactList(coltypes, self.afeditorwin['ListView']):
+            tagid.append(tag['id'])
+        data['tagid'] = tagid        
+        p.TypeKeys(2 * '^{TAB}')
         return data
 
 
@@ -673,7 +751,14 @@ class afEditorTestHelper(afTestHelper):
         for testcaseid in self.readArtefactList(coltypes, self.afeditorwin['Testcases:ListView']):
             testcaseids.append(testcaseid['id'])
         data['testcaseids'] = tuple(testcaseids)
-        p.TypeKeys(2 * '^{TAB}')
+        # tags
+        p.TypeKeys('^{TAB}')
+        tagid = []
+        coltypes = [{'type':int, 'key':'id'}, ]
+        for tag in self.readArtefactList(coltypes, self.afeditorwin['ListView']):
+            tagid.append(tag['id'])
+        data['tagid'] = tagid        
+        p.TypeKeys(1 * '^{TAB}')
         return data
 
 
