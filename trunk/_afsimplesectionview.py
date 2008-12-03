@@ -78,6 +78,12 @@ class afSimpleSectionNotebook(_afbasenotebook.afBaseNotebook):
         self.AddTagsPanel()
         self.AddChangelogPanel()
         self.panel = panel
+        self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnListItemActivated)
+
+    
+    def OnListItemActivated(self, evt):
+        # Ignore double clicks in lists (related requirements, ...)
+        pass
 
 
     def InitContent(self, simplesection):
