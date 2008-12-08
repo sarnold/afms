@@ -184,13 +184,18 @@ Here are all data fields of a feature [#readyset]_:
 
 Again, for the description, you may use plain text, `HTML markup`_ or  `reStructuredText markup`_.
 
-Along with the basic data of a feature a list of related requirements and a changelog is provided. 
-Select the tab "Attached requirements" to see which requirements are attached to the current feature.
-You may check or uncheck requirements in the list to attach or detach them from the feature.
+Along with the basic data of a feature a list of related requirements, related usecases and a 
+changelog is provided. 
+Select the tab "Attached requirements" or "Attached usecases" to see which requirements and usecases
+are attached to the current feature.
+You may check or uncheck requirements or usecases in the lists to attach or detach them from the feature.
 
   |screenshot_editfeature_attachedreqs|
   
 .. |screenshot_editfeature_attachedreqs| image:: images/screenshot_editfeature_attachedreqs.png
+
+As for almost all kinds of artefacts (except glossary entries) you may `assign some tags`_ to a feature.
+Simply go to the tab "Tags" and select the required tags.
 
 .. _`feature history`:
 
@@ -427,6 +432,24 @@ A glossary entry has the fields
     +-----------------+----------------------------------------------------------------------------+
 
 
+
+.. _`assign some tags`:
+
+Tags for artefacts
+------------------
+
+Tags may be assigned to all artefacts except glossary entries. When creating a new artefact or edit an 
+existing one, simply go to the "Tags" tab and select the tags to assign.
+
+Tags itself can be edited with the menu command "Edit tags"  from the "Edit" menu.
+You can set a short description, a detailed description and a color for a tag. The color
+of the tag is used to render the artefacts having this tag. If an artefact has several tags 
+the color of the tag with the smallest ID is used.
+
+All tags are saved in the database.
+
+
+
 Deleting artefacts
 ------------------
 
@@ -503,6 +526,9 @@ imported.
 On top of the dialog there is a checkbox "Select related artefacts automatically". If it is checked
 and you check for example a requirement to be imported, then all test cases and use cases related 
 to that requirement are checked and subsequently imported too.
+
+If the checkbox "Existing tags may be overwrittten automatically" is checked any existing tags
+in the database may be overwritten by imported tags.
 
 
 .. _`filter`:
