@@ -1,5 +1,5 @@
 ===============================
-AFMS Release 0.5.y (2008-11-yy)
+AFMS Release 0.6.0 (2008-12-08)
 ===============================
 
 New features
@@ -18,6 +18,8 @@ New features
 Bug fixes
 ~~~~~~~~~
 * filter view is now properly redrawn when resizing the main window
+* Bug #2356397 fixed: When exporting to XML the requirement title 
+  and the feature no longer goes missing from the XML
 
 
 ===============================
