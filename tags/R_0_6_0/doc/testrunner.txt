@@ -1,0 +1,170 @@
+.. $Id$
+
+.. header:: 
+    .. raw:: html
+
+        <!-- begin_mainmenu $select -->
+        <div class="tabs">
+          <ul>
+          <li>
+          <a href="index.html"><span>Main page</span></a>
+          </li>
+          <li>
+          <a href="afeditor.html"><span>afeditor</span></a>
+          </li>
+          <li id="current">
+          <a href="testrunner.html"><span>testrunner</span></a>
+          </li>
+          <li>
+          <a href="markup.html"><span>Text markup</span></a>
+          </li>
+          <li>
+          <a href="acknowledgement.html"><span>Acknowledgement</span></a>
+          </li>
+          <li>
+          <a href="changelog.html"><span>Changelog</span></a>
+          </li>
+          </ul>
+        </div>
+        <!-- end_mainmenu -->
+
+
+==================================
+AFMS: Short Manual for testrunner
+==================================
+
+.. contents::
+
+----
+
+Overview
+--------
+
+|testrunner| is a tool to run testcases in a testsuite created with |afeditor|.
+Testcases are run either by performing the test steps manually or by executing a test script.
+If a testcase has a script you may execute the script in |testrunner|. Output of the script
+is captured and the test result is set to "fail" if the return value of the script is 
+not 0.
+Additionally |testrunner| is able to execute the scripts of all testcases having one in a 
+single run. Again, the output of each script is captured and the test result is set according to 
+the return value of the script.
+
+Here is a screenshot of the |testrunner| main window.
+
+.. image:: images/screenshot_tr_overview.png
+
+The left panel gives an overwiew about testcases and the execution status.
+In the mid panel the data of the selected testcase is shown. The right panel
+contains the result or status of the selected testcase.
+
+Starting |testrunner|
+---------------------
+
+You may start |testrunner| from the command line calling "testrunner.py". For Microsoft Windows, 
+if you don't like the console, you may run |testrunner| by double clicking the file 
+``testrunner.pyw`` in the explorer window. If you have downloaded the Win32 binary release simply
+execute ``testrunner.exe``.
+
+When running from command line you may enter several command line options. Type::
+
+    testrunner --help
+
+to see the available options.
+
+
+Create a new test run
+---------------------
+
+Select "New test run" from the "File" menu, press "Ctrl-N" or press the button
+|new_product_btn| in the toolbar to create a new test run. 
+A wizard will guide you through the four required steps:
+
+#. Select the database with the artefacts of the software product
+#. Select the test suite containing the testcases
+#. Enter description of the test run (i.e. release information) and the name of the tester
+#. Enter the filename to save the test run to
+
+After that a database file is created containing a **copy** of the testsuite and the testcases,
+the product information from the artefact database and the description of the test run.
+To view these informations later you can select the menu item "About current test run" from the 
+"Test" menu. 
+
+Testcases may now be executed and the test results will be stored in the database.
+
+
+Execute test cases
+------------------
+
+To 'execute' a test case you simply have to activate the pending test case in the list 
+i.e. with a double click. 
+Alternatively you can select the menu item "Run selected" from the "Test" menu or press the 
+button |run_testcase_btn| in the toolbar. 
+A dialog opens with testcase data (read only) and inputs for 
+the test result.
+
+  |screenshot_testrunner_execscriptdialog|
+  
+You have to select the test result, either "FAIL", "PASS' or "SKIP".
+For a failed test you must enter a action, that means what has been done 
+in reponse to the failure. A bug ID or bug report URL may be entered here for example.
+Any additional information can be saved in the "Remark" field. A time stamp of the test execution
+is captured automatically.
+
+If the testcase has a script you can execute it by clicking the label "Script URL".
+The output of the script is written to the "Remark" field. If the script returns the value 0 the
+test result is set to "PASS", otherwise it is is set to "FAIL".
+The dialog does not close after script execution, so you may edit all fields as required.
+
+.. |screenshot_testrunner_execdialog| image:: images/screenshot_testrunner_execdialog.png
+.. |screenshot_testrunner_execscriptdialog| image:: images/screenshot_testrunner_execscriptdialog.png
+
+
+Batch execution of scripts 
+--------------------------
+
+Selecting menu item "Run all scripted" from the "Test" menu opens a list dialog with all 
+testcases having a script. You can select which testcases to run and which testcases not 
+to run. Pressing the "Run selected" button in the dialog runs all scripts and records 
+each script output and return value. In the action field of each executed testcase the message 
+"None (automated run)" is logged.
+
+  |screenshot_testrunner_batchdialog|
+
+.. |screenshot_testrunner_batchdialog| image:: images/screenshot_testrunner_batchdialog.png
+
+
+Pausing a test run
+------------------
+
+All test results are saved immediately to the database. Thus you can quit the application 
+anytime and resume test execution later.
+
+
+Abort test run
+--------------
+
+Choose the menu item "Cancel current test run" from the "Test" menu.
+After entering the reason for cancelation all pending test cases will be marked as skipped.
+and the remark field will show the reason for cancelation.
+
+
+Query information about a test run
+----------------------------------
+
+Select menu item "About current test run" from the "Test" menu. This will give information about 
+the product, the test suite and the test run.
+
+
+Export test run as HTML or XML
+------------------------------
+
+Select "Export as HTML" or "Export as XML" from the "File" menu.
+A test report will be saved in the selected format. Style sheets for the reports 
+may be specified in the "Settings" dialog which is called from the menu item "Settings/General"
+
+.. hint:: The HTML report creates pure XHTML. So if you use HML markup in the multiline text fields
+          you have to use XHTML too. Otherwise you have to expect error messages from your browser.
+
+
+
+.. include:: common.txt
