@@ -56,7 +56,7 @@ Here is a screenshot of the |afeditor| main window.
 .. raw:: html
 
     <a href="images/screenshot_overview.png" rel="lightbox" title="Main window of afeditor">
-    <img src="images/screenshot_overview.png" width="400"></img>
+    <img src="images/screenshot_overview.png" width="400" alt="Overview screenshot"></img>
     </a>
 
 The top left panel contains a tree view of all artefacts. 
