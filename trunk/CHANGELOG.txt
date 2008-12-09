@@ -1,4 +1,14 @@
 ===============================
+AFMS Release 0.6.x (2008-12-xx)
+===============================
+
+Bug fixes
+~~~~~~~~~
+* testrunner: fixed broken feature, testcases which have been 
+  executed can now not be executed again in testrunner.
+
+
+===============================
 AFMS Release 0.6.0 (2008-12-08)
 ===============================
 

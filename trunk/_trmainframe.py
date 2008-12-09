@@ -303,7 +303,7 @@ class TestcaseListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
 
 
     def UpdateItem(self, index, status):
-        self.itemDataMap[index][1] = status
+        self.itemDataMap[index]['testresult'] = status
         self.list.SetStringItem(index, 1, _(afresource.TEST_STATUS_NAME[status]))
         item = self.list.GetItem(index)
         item.SetTextColour(self.color[status])
