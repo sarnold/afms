@@ -1,0 +1,52 @@
+Sweetie BasePack 
+----------------
+
+ Author:  Joseph North
+ Email:   sublick@gmail.com
+ Licence: Attribution-ShareAlike 3.0
+ Website: sweetie.sublink.ca
+
+Source:  http://sweetie.sublink.ca/preview/icons/Sweetie-BasePack-v3
+License: http://creativecommons.org/licenses/by-sa/3.0/
+
+24-tab-add.png
+24-tab-open.png
+24-tag-pencil.png
+24-tag-remove.png
+24-tag-manager.png
+24-tag-add.png
+
+
+Nuvola
+-------
+
+    TITLE:	NUVOLA ICON THEME for KDE 3.x
+    AUTHOR:	David Vignoni | ICON KING
+    SITE:	http://www.icon-king.com
+    MAILING LIST: http://mail.icon-king.com/mailman/listinfo/nuvola_icon-king.com
+
+License: LGPL
+
+f_new.bmp
+rq_new.bmp
+tc_new.bmp
+tc_new.png
+ts_new.bmp
+uc_new.bmp
+s_new.png
+
+
+Tango
+-----
+
+License: Creative Commons Attribution-ShareAlike 2.5 License Agreement
+Source:  http://tango.freedesktop.org/releases/tango-icon-theme-0.8.1.tar.gz
+
+
+user-trash-full.png
+user-trash.png
+
+applications-system_32x32.png
+applications-system_16x16.png
+
+

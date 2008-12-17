@@ -1,0 +1,120 @@
+.. $Id$
+
+.. header:: 
+    .. raw:: html
+
+        <!-- begin_mainmenu $select -->
+        <div class="tabs">
+          <ul>
+          <li>
+          <a href="index.html"><span>Main page</span></a>
+          </li>
+          <li>
+          <a href="afeditor.html"><span>afeditor</span></a>
+          </li>
+          <li>
+          <a href="testrunner.html"><span>testrunner</span></a>
+          </li>
+          <li  id="current">
+          <a href="markup.html"><span>Text markup</span></a>
+          </li>
+          <li>
+          <a href="acknowledgement.html"><span>Acknowledgement</span></a>
+          </li>
+          <li>
+          <a href="changelog.html"><span>Changelog</span></a>
+          </li>
+          </ul>
+        </div>
+        <!-- end_mainmenu -->
+        
+===========================================
+AFMS: Markup for afeditor_ and testrunner_
+===========================================
+
+
+.. contents::
+
+----
+
+
+Markup
+======
+
+Most of the multiline edit fields in |afeditor| and |testrunner| support different markups.
+You may use either plain text, HTML markup or reStructuredText markup.
+
+
+HTML Markup
+-----------
+
+If you start your text with the marker ``.. HTML`` (case is ignored) followed by a blank line the 
+following text is rended as HTML. Alternatively you may enter the tag <html> in the first line of the 
+description and </html> in the last line.
+
+You may use most of the basic HTML tags to format your text. 
+
+    |example1| |example2|
+
+In normal view mode the rendered text 
+is shown. When editing an artefact you may use the "Preview" button to see how the text will be rendered.
+
+.. |example1| image:: images/screenshot_edit_product_html.png
+.. |example2| image:: images/screenshot_view_product_html.png
+    :align: top
+  
+
+reStructuredText markup
+-----------------------
+Place the directive ".. REST" (case is ignored) followed by a blank line at the beginning of your text to use 
+reStructuredText_ markup.
+
+    |example3| |example2|
+    
+.. |example3| image:: images/screenshot_edit_product_rest.png
+
+
+Markup popup menu
+------------------
+
+The multiline edit fields have a popup menu which opens on pressing the right mouse button in the field.
+The menu provides the most common markup commands for either HTML or reStructuredText_ markup.
+
+    |screenshot_aftextctrlpopup|
+
++-------------------+---------------------------------------------------------------------------------------+
+| **Menu item**     | **Meaning**                                                                           |
++-------------------+---------------------------------------------------------------------------------------+
+| Bold              | Markup selected text as bold.                                                         |
++-------------------+---------------------------------------------------------------------------------------+
+| Italic            | Markup selected text as italic.                                                       |
++-------------------+---------------------------------------------------------------------------------------+
+| Fixed Width       | Markup selected text as monotype                                                      |
++-------------------+---------------------------------------------------------------------------------------+
+| Bullet List       | Turn selected lines inta a bullet list, on list item per line                         |
++-------------------+---------------------------------------------------------------------------------------+
+| Numbered List     | Turn selected lines inta a numbered list, on list item per line                       |
++-------------------+---------------------------------------------------------------------------------------+
+| Table             | Selection should be lines with items seperated by tabs. The command turns             |
+|                   | the selection into a table.                                                           |
++-------------------+---------------------------------------------------------------------------------------+
+| Indent            | Indent the selected lines                                                             |
++-------------------+---------------------------------------------------------------------------------------+
+| Unindent          | Unindent the selected lines                                                           |
++-------------------+---------------------------------------------------------------------------------------+
+| Insert Image      | A dialog is opend to select an image file name. An image markup is inserted with that |
+|                   | filename. The file path is turned into a relative path to the database if possible.   |
++-------------------+---------------------------------------------------------------------------------------+
+| Plain Text        | Remove ``.. REST`` or ``.. HTML`` from start of text                                  |
++-------------------+---------------------------------------------------------------------------------------+
+| HTML              | Place ``.. HTML`` and a blank line at start of text                                   |
++-------------------+---------------------------------------------------------------------------------------+
+| ReStructured Text | Place ``.. REST`` and a blank line at start of text                                   |
++-------------------+---------------------------------------------------------------------------------------+
+
+
+.. |screenshot_aftextctrlpopup| image:: images/screenshot_aftextctrlpopup.png
+
+
+
+.. include:: common.txt
