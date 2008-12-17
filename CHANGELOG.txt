@@ -1,11 +1,15 @@
 ===============================
-AFMS Release 0.6.x (2008-12-xx)
+AFMS Release 0.6.1 (2008-12-17)
 ===============================
 
 Bug fixes
 ~~~~~~~~~
 * testrunner: fixed broken feature, testcases which have been 
   executed can now not be executed again in testrunner.
+
+* afeditor in win32 binary distribution only: fixed broken 
+  image rendering in restructured text markup. 
+  Added required docutil files to distribution.
 
 
 ===============================
