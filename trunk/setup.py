@@ -24,9 +24,6 @@ from distutils.core import setup
 import zipfile, os, sys, py2exe
 from version import VERSION
 
-addonfile1 = os.path.join(sys.prefix,'Lib/site-packages/docutils/writers/html4css1/html4css1.css')
-addonfile2 = os.path.join(sys.prefix,'Lib/site-packages/docutils/writers/html4css1/template.txt')
-
 data_files = [("", ['html4css1.css', 'template.txt', 'afmsreport.css'])]
 languages = ['de', 'en']
 for lang in languages:
@@ -51,6 +48,7 @@ setup(
             "dist_dir": 'afms-win32-%s' % VERSION,
             "optimize": 2,
             "includes": ['docutils.readers.standalone', 'docutils.parsers.rst', 
+                         'docutils.parsers.rst.directives.*',
                          'docutils.writers.html4css1', 'docutils.languages.en']
         }
     }
