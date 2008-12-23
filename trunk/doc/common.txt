@@ -37,11 +37,19 @@
 .. |del_af_btn| image:: images/24-tag-remove.png
 .. |author| unicode:: Achim U+00A0 K U+00F6 hler
 
-.. footer:: *Last update* |date|
+.. footer:: *Last update* |date| |sourceforgeimage|
 .. |date| date:: %Y-%m-%d, %H:%M CET
 
 .. |afeditor| replace:: *afeditor*
 .. |testrunner| replace:: *testrunner*
+
+.. |sourceforgeimage| image:: http://sflogo.sourceforge.net/sflogo.php?group_id=219925&type=4
+                       :width: 125
+                       :height: 37
+                       :alt: SourceForge.net Logo
+                       :align: top
+                       :target: http://sourceforge.net
+                       
 
 .. meta::
    :description: Artefact Management System (AFMS) Short Manual
