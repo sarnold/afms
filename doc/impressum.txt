@@ -1,0 +1,26 @@
+.. $Id$
+
+Impressum
+=========
+
+Web-Seite zum Projekt "Artefact Management System AFMS_"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Verantwortlicher gemäß § 6 MDStV:
+    
+| Achim Köhler
+| Schillerstraße 6
+| 88085 Langenargen
+| Deutschland
+| E-Mail: 	Achim-Koehler@online.de
+| Internet: 	http://macht-publik.de/afms/
+
+Alle Inhalte werden nach bestem Wissen und Gewissen recherchiert, sind jedoch ohne Gewähr.
+E-Mail-Mitteilungen mit Hinweisen, Korrekturen oder Verbesserungen sind erwünscht,
+Werbung in Papier oder elektronischer Form jedoch nicht. 
+
+Haftungshinweis:
+Trotz sorgfältiger inhaltlicher Kontrolle übernehme ich keine Haftung für die Inhalte externer Links. 
+Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich. 
+
+.. _AFMS: https://sourceforge.net/projects/afms/
