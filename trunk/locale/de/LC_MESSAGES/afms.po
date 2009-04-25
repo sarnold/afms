@@ -784,7 +784,7 @@ msgstr "Neuen Glossareintrag erstellen"
 
 #: _afmainframe.py:273
 msgid "&New product ...\tCtrl-N"
-msgstr "&Neues Product ...\tCtrl-N"
+msgstr "&Neues Produkt ...\tCtrl-N"
 
 #: _afmainframe.py:274
 msgid "&Open product ...\tCtrl-O"
